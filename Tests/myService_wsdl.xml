@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<definitions xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="urn:cresdDB" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="urn:cresdDB">
+<types>
+<xsd:schema targetNamespace="urn:cresdDB">
+<xsd:complexType name="get_messageRequestType">
+<xsd:all>
+<xsd:element name="your_name" type="xsd:string" form="unqualified" />
+</xsd:all>
+</xsd:complexType>
+<xsd:complexType name="get_messageResponseType">
+<xsd:all>
+<xsd:element name="message" type="xsd:string" form="unqualified" />
+</xsd:all>
+</xsd:complexType>
+<xsd:complexType name="MyRecord">
+<xsd:sequence>
+<xsd:element name="ID" type="xsd:int" />
+<xsd:element name="YourName" type="xsd:string" />
+</xsd:sequence>
+</xsd:complexType>
+<xsd:complexType name="MyTable">
+<xsd:all>
+<xsd:element name="item" type="MyRecord" />
+</xsd:all>
+</xsd:complexType>
+<xsd:complexType name="HelloComplexWorldRequestType">
+<xsd:all>
+<xsd:element name="myStruct" type="MyRecord" form="unqualified" />
+</xsd:all>
+</xsd:complexType>
+<xsd:complexType name="HelloComplexWorldResponseType">
+<xsd:all>
+<xsd:element name="theTable" type="MyTable" form="unqualified" />
+</xsd:all>
+</xsd:complexType>
+<xsd:element name="get_message" type="tns:get_messageRequestType" />
+<xsd:element name="get_messageResponse" type="tns:get_messageResponseType" />
+<xsd:element name="HelloComplexWorld" type="tns:HelloComplexWorldRequestType" />
+<xsd:element name="HelloComplexWorldResponse" type="tns:HelloComplexWorldResponseType" />
+</xsd:schema>
+</types>
+<message name="get_messageRequest">
+<part name="parameters" element="tns:get_message" />
+</message>
+<message name="get_messageResponse">
+<part name="parameters" element="tns:get_messageResponse" />
+</message>
+<message name="HelloComplexWorldRequest">
+<part name="parameters" element="tns:HelloComplexWorld" />
+</message>
+<message name="HelloComplexWorldResponse">
+<part name="parameters" element="tns:HelloComplexWorldResponse" />
+</message>
+<portType name="myServicePortType">
+<operation name="get_message">
+<documentation>this is an example</documentation>
+<input message="tns:get_messageRequest" />
+<output message="tns:get_messageResponse" />
+</operation>
+<operation name="HelloComplexWorld">
+<documentation>Complex Hello World Method</documentation>
+<input message="tns:HelloComplexWorldRequest" />
+<output message="tns:HelloComplexWorldResponse" />
+</operation>
+</portType>
+<binding name="myServiceBinding" type="tns:myServicePortType">
+<soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http" />
+<operation name="get_message">
+<soap:operation soapAction="http://judith/WebService/service.php/get_message" style="document" />
+<input>
+<soap:body use="encoded" namespace="urn:cresdDB" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+</input>
+<output>
+<soap:body use="encoded" namespace="urn:cresdDB" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+</output>
+</operation>
+<operation name="HelloComplexWorld">
+<soap:operation soapAction="http://judith/WebService/service.php/HelloComplexWorld" style="document" />
+<input>
+<soap:body use="encoded" namespace="urn:cresdDB" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+</input>
+<output>
+<soap:body use="encoded" namespace="urn:cresdDB" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+</output>
+</operation>
+</binding>
+<service name="myService">
+<port name="myServicePort" binding="tns:myServiceBinding">
+<soap:address location="http://judith/WebService/service.php" />
+</port>
+</service>
+</definitions>

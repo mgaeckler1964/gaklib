@@ -1,0 +1,407 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugFast|Win32">
+      <Configuration>DebugFast</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugFast|x64">
+      <Configuration>DebugFast</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CTOOLS\access.cpp" />
+    <ClCompile Include="CTOOLS\acls.cpp" />
+    <ClCompile Include="CTOOLS\ansiChar.cpp" />
+    <ClCompile Include="CTOOLS\array.cpp" />
+    <ClCompile Include="CTOOLS\cgitools.cpp" />
+    <ClCompile Include="CTOOLS\changeManager.cpp" />
+    <ClCompile Include="CTOOLS\cmdlineParser.cpp" />
+    <ClCompile Include="CTOOLS\cppParser.cpp" />
+    <ClCompile Include="CTOOLS\cppPreprocessor.cpp" />
+    <ClCompile Include="CTOOLS\crypto.cpp" />
+    <ClCompile Include="CTOOLS\cryptoAES.cpp" />
+    <ClCompile Include="CTOOLS\cryptoRSA.cpp" />
+    <ClCompile Include="CTOOLS\cryptoShared.cpp" />
+    <ClCompile Include="CTOOLS\css.cpp" />
+    <ClCompile Include="CTOOLS\csv.cpp" />
+    <ClCompile Include="CTOOLS\date.cpp" />
+    <ClCompile Include="CTOOLS\datetime.cpp" />
+    <ClCompile Include="CTOOLS\diff.cpp" />
+    <ClCompile Include="CTOOLS\dirCopy.cpp" />
+    <ClCompile Include="CTOOLS\directory.cpp" />
+    <ClCompile Include="CTOOLS\directoryEntry.cpp" />
+    <ClCompile Include="CTOOLS\dirLink.cpp" />
+    <ClCompile Include="CTOOLS\dirlist.cpp" />
+    <ClCompile Include="CTOOLS\dynamic.cpp" />
+    <ClCompile Include="CTOOLS\exception.cpp" />
+    <ClCompile Include="CTOOLS\exif.cpp" />
+    <ClCompile Include="CTOOLS\fieldSet.cpp" />
+    <ClCompile Include="CTOOLS\fileID.cpp" />
+    <ClCompile Include="CTOOLS\filename.cpp" />
+    <ClCompile Include="CTOOLS\fLink.cpp" />
+    <ClCompile Include="CTOOLS\fmtNumber.cpp" />
+    <ClCompile Include="CTOOLS\fProtect.cpp" />
+    <ClCompile Include="CTOOLS\fraction.cpp" />
+    <ClCompile Include="CTOOLS\freadSTR.cpp" />
+    <ClCompile Include="CTOOLS\fstream.cpp" />
+    <ClCompile Include="CTOOLS\getcwd.cpp" />
+    <ClCompile Include="CTOOLS\gps.cpp" />
+    <ClCompile Include="CTOOLS\hash.cpp" />
+    <ClCompile Include="CTOOLS\hostResolver.cpp" />
+    <ClCompile Include="CTOOLS\html.cpp" />
+    <ClCompile Include="CTOOLS\htmlParser.cpp" />
+    <ClCompile Include="CTOOLS\http.cpp" />
+    <ClCompile Include="CTOOLS\httpBaseServer.cpp" />
+    <ClCompile Include="CTOOLS\httpProfiler.cpp" />
+    <ClCompile Include="CTOOLS\httpResponse.cpp" />
+    <ClCompile Include="CTOOLS\INIFILE.cpp" />
+    <ClCompile Include="CTOOLS\int2mot.c" />
+    <ClCompile Include="CTOOLS\io.cpp" />
+    <ClCompile Include="CTOOLS\list.cpp" />
+    <ClCompile Include="CTOOLS\locker.cpp" />
+    <ClCompile Include="CTOOLS\logfile.cpp" />
+    <ClCompile Include="CTOOLS\makePath.cpp" />
+    <ClCompile Include="CTOOLS\mathExpression.cpp" />
+    <ClCompile Include="CTOOLS\mboxParser.cpp" />
+    <ClCompile Include="CTOOLS\md5.c" />
+    <ClCompile Include="CTOOLS\openssl.c" />
+    <ClCompile Include="CTOOLS\prime.cpp" />
+    <ClCompile Include="CTOOLS\progParser.cpp" />
+    <ClCompile Include="CTOOLS\quantities.cpp" />
+    <ClCompile Include="CTOOLS\randomNumber.c" />
+    <ClCompile Include="CTOOLS\relpath.cpp" />
+    <ClCompile Include="CTOOLS\rfile.cpp" />
+    <ClCompile Include="CTOOLS\setcwd.cpp" />
+    <ClCompile Include="CTOOLS\sha.cpp" />
+    <ClCompile Include="CTOOLS\SLIST.cpp" />
+    <ClCompile Include="CTOOLS\soap.cpp" />
+    <ClCompile Include="CTOOLS\socketbuf.cpp" />
+    <ClCompile Include="CTOOLS\sslSocket.cpp" />
+    <ClCompile Include="CTOOLS\strcmpi.c" />
+    <ClCompile Include="CTOOLS\strFiles.cpp" />
+    <ClCompile Include="CTOOLS\Strgclas.cpp" />
+    <ClCompile Include="CTOOLS\string.c" />
+    <ClCompile Include="CTOOLS\textReader.cpp" />
+    <ClCompile Include="CTOOLS\thread.cpp" />
+    <ClCompile Include="CTOOLS\time.cpp" />
+    <ClCompile Include="CTOOLS\tokens.c" />
+    <ClCompile Include="CTOOLS\t_string.cpp" />
+    <ClCompile Include="CTOOLS\unitTest.cpp" />
+    <ClCompile Include="CTOOLS\utime.cpp" />
+    <ClCompile Include="CTOOLS\waveFile.cpp" />
+    <ClCompile Include="CTOOLS\wideChar.cpp" />
+    <ClCompile Include="CTOOLS\wideString.cpp" />
+    <ClCompile Include="CTOOLS\wsdlImporter.cpp" />
+    <ClCompile Include="CTOOLS\xml.cpp" />
+    <ClCompile Include="CTOOLS\xmlCss.cpp" />
+    <ClCompile Include="CTOOLS\xmlEntities.cpp" />
+    <ClCompile Include="CTOOLS\xmlParser.cpp" />
+    <ClCompile Include="CTOOLS\xmlValidator.cpp" />
+    <ClCompile Include="CTOOLS\XPath.cpp" />
+    <ClCompile Include="CTOOLS\xslt.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="INCLUDE\gak\acls.h" />
+    <ClInclude Include="INCLUDE\gak\aes.h" />
+    <ClInclude Include="INCLUDE\gak\ansiChar.h" />
+    <ClInclude Include="INCLUDE\gak\array.h" />
+    <ClInclude Include="INCLUDE\gak\arrayBase.h" />
+    <ClInclude Include="INCLUDE\gak\arrayFile.h" />
+    <ClInclude Include="INCLUDE\gak\BC_OBSOL.H" />
+    <ClInclude Include="INCLUDE\gak\bitfield.h" />
+    <ClInclude Include="INCLUDE\gak\blockedQueue.h" />
+    <ClInclude Include="INCLUDE\gak\blockedRingBuffer.h" />
+    <ClInclude Include="INCLUDE\gak\cgitools.h" />
+    <ClInclude Include="INCLUDE\gak\ChangeManager.h" />
+    <ClInclude Include="INCLUDE\gak\ci_string.h" />
+    <ClInclude Include="INCLUDE\gak\cmdlineParser.h" />
+    <ClInclude Include="INCLUDE\gak\compare.h" />
+    <ClInclude Include="INCLUDE\gak\conditional.h" />
+    <ClInclude Include="INCLUDE\gak\container.h" />
+    <ClInclude Include="INCLUDE\gak\cppParser.h" />
+    <ClInclude Include="INCLUDE\gak\cppPreprocessor.h" />
+    <ClInclude Include="INCLUDE\gak\crypto.h" />
+    <ClInclude Include="INCLUDE\gak\cryptoShared.h" />
+    <ClInclude Include="INCLUDE\gak\css.h" />
+    <ClInclude Include="INCLUDE\gak\csv.h" />
+    <ClInclude Include="INCLUDE\gak\date.h" />
+    <ClInclude Include="INCLUDE\gak\datetime.h" />
+    <ClInclude Include="INCLUDE\gak\directory.h" />
+    <ClInclude Include="INCLUDE\gak\directoryEntry.h" />
+    <ClInclude Include="INCLUDE\gak\dirScanner.h" />
+    <ClInclude Include="INCLUDE\gak\dynamic.h" />
+    <ClInclude Include="INCLUDE\gak\eta.h" />
+    <ClInclude Include="INCLUDE\gak\exception.h" />
+    <ClInclude Include="INCLUDE\gak\exif.h" />
+    <ClInclude Include="INCLUDE\gak\expressionEvaluator.h" />
+    <ClInclude Include="INCLUDE\gak\fcopy.h" />
+    <ClInclude Include="INCLUDE\gak\fieldSet.h" />
+    <ClInclude Include="INCLUDE\gak\fileID.h" />
+    <ClInclude Include="INCLUDE\gak\fixedArray.h" />
+    <ClInclude Include="INCLUDE\gak\fixedHeapArray.h" />
+    <ClInclude Include="INCLUDE\gak\fmtNumber.h" />
+    <ClInclude Include="INCLUDE\gak\fstream.h" />
+    <ClInclude Include="INCLUDE\gak\gaklib.h" />
+    <ClInclude Include="INCLUDE\gak\geoGraph.h" />
+    <ClInclude Include="INCLUDE\gak\geometry.h" />
+    <ClInclude Include="INCLUDE\gak\gps.h" />
+    <ClInclude Include="INCLUDE\gak\graph.h" />
+    <ClInclude Include="INCLUDE\gak\hash.h" />
+    <ClInclude Include="INCLUDE\gak\hostResolver.h" />
+    <ClInclude Include="INCLUDE\gak\html.h" />
+    <ClInclude Include="INCLUDE\gak\htmlParser.h" />
+    <ClInclude Include="INCLUDE\gak\http.h" />
+    <ClInclude Include="INCLUDE\gak\httpBaseServer.h" />
+    <ClInclude Include="INCLUDE\gak\httpProfiler.h" />
+    <ClInclude Include="INCLUDE\gak\httpResponse.h" />
+    <ClInclude Include="INCLUDE\gak\indexer.h" />
+    <ClInclude Include="INCLUDE\gak\io.h" />
+    <ClInclude Include="INCLUDE\gak\iostream.h" />
+    <ClInclude Include="INCLUDE\gak\KeyValuePair.h" />
+    <ClInclude Include="INCLUDE\gak\list.h" />
+    <ClInclude Include="INCLUDE\gak\locker.h" />
+    <ClInclude Include="INCLUDE\gak\lockQueue.h" />
+    <ClInclude Include="INCLUDE\gak\logfile.h" />
+    <ClInclude Include="INCLUDE\gak\mailParser.h" />
+    <ClInclude Include="INCLUDE\gak\map.h" />
+    <ClInclude Include="INCLUDE\gak\math.h" />
+    <ClInclude Include="INCLUDE\gak\matrix.h" />
+    <ClInclude Include="INCLUDE\gak\mboxParser.h" />
+    <ClInclude Include="INCLUDE\gak\md5.h" />
+    <ClInclude Include="INCLUDE\gak\memoryStream.h" />
+    <ClInclude Include="INCLUDE\gak\nullStream.h" />
+    <ClInclude Include="INCLUDE\gak\numericString.h" />
+    <ClInclude Include="INCLUDE\gak\operators.h" />
+    <ClInclude Include="INCLUDE\gak\optional.h" />
+    <ClInclude Include="INCLUDE\gak\osm.h" />
+    <ClInclude Include="INCLUDE\gak\pipeline.h" />
+    <ClInclude Include="INCLUDE\gak\priorityQueue.h" />
+    <ClInclude Include="INCLUDE\gak\progParser.h" />
+    <ClInclude Include="INCLUDE\gak\ptrMapArray.h" />
+    <ClInclude Include="INCLUDE\gak\quantities.h" />
+    <ClInclude Include="INCLUDE\gak\queue.h" />
+    <ClInclude Include="INCLUDE\gak\ringBuffer.h" />
+    <ClInclude Include="INCLUDE\gak\routing.h" />
+    <ClInclude Include="INCLUDE\gak\rsa.h" />
+    <ClInclude Include="INCLUDE\gak\set.h" />
+    <ClInclude Include="INCLUDE\gak\btree.h" />
+    <ClInclude Include="INCLUDE\gak\shared.h" />
+    <ClInclude Include="INCLUDE\gak\SLIST.H" />
+    <ClInclude Include="INCLUDE\gak\soap.h" />
+    <ClInclude Include="INCLUDE\gak\socketbuf.h" />
+    <ClInclude Include="INCLUDE\gak\socketServer.h" />
+    <ClInclude Include="INCLUDE\gak\sortedArray.h" />
+    <ClInclude Include="INCLUDE\gak\sslSocket.h" />
+    <ClInclude Include="INCLUDE\gak\stack.h" />
+    <ClInclude Include="INCLUDE\gak\stdlib.h" />
+    <ClInclude Include="INCLUDE\gak\stopWatch.h" />
+    <ClInclude Include="INCLUDE\gak\streamRingBuffer.h" />
+    <ClInclude Include="INCLUDE\gak\streams.h" />
+    <ClInclude Include="INCLUDE\gak\strFiles.h" />
+    <ClInclude Include="INCLUDE\gak\string.h" />
+    <ClInclude Include="INCLUDE\gak\stringStream.h" />
+    <ClInclude Include="INCLUDE\gak\textReader.h" />
+    <ClInclude Include="INCLUDE\gak\thread.h" />
+    <ClInclude Include="INCLUDE\gak\threadPool.h" />
+    <ClInclude Include="INCLUDE\gak\time.h" />
+    <ClInclude Include="INCLUDE\gak\types.h" />
+    <ClInclude Include="INCLUDE\gak\type_traits.h" />
+    <ClInclude Include="INCLUDE\gak\t_string.h" />
+    <ClInclude Include="INCLUDE\gak\unitTest.h" />
+    <ClInclude Include="INCLUDE\gak\utils.h" />
+    <ClInclude Include="INCLUDE\gak\vcl_tools.h" />
+    <ClInclude Include="INCLUDE\gak\wavefile.h" />
+    <ClInclude Include="INCLUDE\gak\wideChar.h" />
+    <ClInclude Include="INCLUDE\gak\wideString.h" />
+    <ClInclude Include="INCLUDE\gak\win_tools.h" />
+    <ClInclude Include="INCLUDE\gak\wsdlImporter.h" />
+    <ClInclude Include="INCLUDE\gak\xml.h" />
+    <ClInclude Include="INCLUDE\gak\xmlParser.h" />
+    <ClInclude Include="INCLUDE\gak\xmlValidator.h" />
+    <ClInclude Include="INCLUDE\gak\XPath.h" />
+    <ClInclude Include="INCLUDE\gak\xslt.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9EB40B93-22E8-489C-BEC3-C88E4ED46588}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>VS2010</RootNamespace>
+    <ProjectName>GAKLIB</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugFast|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugFast|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="..\DebugSettings.props" />
+    <Import Project="..\CommonSettings.props" />
+    <Import Project="..\Common32Settings.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="..\DebugSettings.props" />
+    <Import Project="..\CommonSettings.props" />
+    <Import Project="..\Common64Settings.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugFast|Win32'" Label="PropertySheets">
+    <Import Project="..\DebugSettings.props" />
+    <Import Project="..\CommonSettings.props" />
+    <Import Project="..\Common32Settings.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugFast|x64'" Label="PropertySheets">
+    <Import Project="..\DebugSettings.props" />
+    <Import Project="..\CommonSettings.props" />
+    <Import Project="..\Common64Settings.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="..\ReleaseSettings.props" />
+    <Import Project="..\CommonSettings.props" />
+    <Import Project="..\Common32Settings.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="..\ReleaseSettings.props" />
+    <Import Project="..\CommonSettings.props" />
+    <Import Project="..\Common64Settings.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>.\INCLUDE;$(OPENSSL)\INCLUDE;$(IncludePath)</IncludePath>
+    <OutDir>C:\CRESD\OBJECT\$(Platform)\GAKLIB\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>.\INCLUDE;$(OPENSSL)\INCLUDE;$(IncludePath)</IncludePath>
+    <OutDir>C:\CRESD\OBJECT\$(Platform)\GAKLIB\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugFast|Win32'">
+    <IncludePath>.\INCLUDE;$(OPENSSL)\INCLUDE;$(IncludePath)</IncludePath>
+    <OutDir>C:\CRESD\OBJECT\$(Platform)\GAKLIB\Debug\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugFast|x64'">
+    <IncludePath>.\INCLUDE;$(OPENSSL)\INCLUDE;$(IncludePath)</IncludePath>
+    <OutDir>C:\CRESD\OBJECT\$(Platform)\GAKLIB\Debug\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>.\INCLUDE;$(OPENSSL)\INCLUDE;$(IncludePath)</IncludePath>
+    <OutDir>C:\CRESD\OBJECT\$(Platform)\GAKLIB\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>.\INCLUDE;$(OPENSSL)\INCLUDE;$(IncludePath)</IncludePath>
+    <OutDir>C:\CRESD\OBJECT\$(Platform)\GAKLIB\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>DEBUG_LOG=1;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>DEBUG_LOG=1;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <Verbose>true</Verbose>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugFast|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>DEBUG_LOG=0;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugFast|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>DEBUG_LOG=0;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

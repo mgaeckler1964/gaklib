@@ -1,0 +1,6 @@
+diese Zeile bleibt gleich
+diese Zeile wird gelöscht
+diese Zeile bleibt gleich
+diese Zeile wird geändert
+diese Zeile bleibt gleich
+diese Zeile bleibt gleich

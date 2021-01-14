@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{AB233962-1C49-4DAC-83B5-4541E5515DF2}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>TEST</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="..\DebugSettings.props" />
+    <Import Project="..\CommonSettings.props" />
+    <Import Project="..\Common32Settings.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="..\DebugSettings.props" />
+    <Import Project="..\CommonSettings.props" />
+    <Import Project="..\Common64Settings.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="..\ReleaseSettings.props" />
+    <Import Project="..\CommonSettings.props" />
+    <Import Project="..\Common32Settings.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="..\ReleaseSettings.props" />
+    <Import Project="..\CommonSettings.props" />
+    <Import Project="..\Common64Settings.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>.\INCLUDE;$(OPENSSL)\INCLUDE;$(IncludePath)</IncludePath>
+    <EmbedManifest>false</EmbedManifest>
+    <LibraryPath>$(OPENSSL)\LIB\VC;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>.\INCLUDE;$(OPENSSL)\INCLUDE;$(IncludePath)</IncludePath>
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>.\INCLUDE;$(OPENSSL)\INCLUDE;$(IncludePath)</IncludePath>
+    <EmbedManifest>false</EmbedManifest>
+    <LibraryPath>$(OPENSSL)\LIB\VC;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>.\INCLUDE;$(OPENSSL)\INCLUDE;$(IncludePath)</IncludePath>
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>libeay32MT.lib;ssleay32MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OPENSSL)\LIB\VC;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>libeay32MT.lib;ssleay32MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="TEST.CPP" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tests\DateTest.h" />
+    <ClInclude Include="Tests\GeoGraphTest.h" />
+    <ClInclude Include="Tests\HostResolverTest.h" />
+    <ClInclude Include="Tests\mvv.h" />
+    <ClInclude Include="Tests\AlgorithmTest.h" />
+    <ClInclude Include="Tests\ArrayListTest.h" />
+    <ClInclude Include="Tests\BitFieldTest.h" />
+    <ClInclude Include="Tests\BlockedRingBufferTest.h" />
+    <ClInclude Include="Tests\BtreeTest.h" />
+    <ClInclude Include="Tests\CmdlineTest.h" />
+    <ClInclude Include="Tests\ConditionalTest.h" />
+    <ClInclude Include="Tests\ContainerTest.h" />
+    <ClInclude Include="Tests\CppTest.h" />
+    <ClInclude Include="Tests\CryptoTest.h" />
+    <ClInclude Include="Tests\DateTimeTest.h" />
+    <ClInclude Include="Tests\DirectoryListTest.h" />
+    <ClInclude Include="Tests\DirectoryTest.h" />
+    <ClInclude Include="Tests\EvaluatorTest.h" />
+    <ClInclude Include="Tests\ExifTest.h" />
+    <ClInclude Include="Tests\FcopyTest.h" />
+    <ClInclude Include="Tests\FieldSetTest.h" />
+    <ClInclude Include="Tests\FileIDTest.h" />
+    <ClInclude Include="Tests\FmtNumberTest.h" />
+    <ClInclude Include="Tests\FractionTest.h" />
+    <ClInclude Include="Tests\GeometryTest.h" />
+    <ClInclude Include="Tests\GpsTest.h" />
+    <ClInclude Include="Tests\GraphTest.h" />
+    <ClInclude Include="Tests\HttpTest.h" />
+    <ClInclude Include="Tests\IndexerTest.h" />
+    <ClInclude Include="Tests\IostreamTest.h" />
+    <ClInclude Include="Tests\MapTest.h" />
+    <ClInclude Include="Tests\MathTest.h" />
+    <ClInclude Include="Tests\MatrixTest.h" />
+    <ClInclude Include="Tests\OptionalTest.h" />
+    <ClInclude Include="Tests\PathTest.h" />
+    <ClInclude Include="Tests\PerformanceTest.h" />
+    <ClInclude Include="Tests\PipelineTest.h" />
+    <ClInclude Include="Tests\PrimeTest.h" />
+    <ClInclude Include="Tests\PriorityQueueTest.h" />
+    <ClInclude Include="Tests\PtrArrayTest.h" />
+    <ClInclude Include="Tests\QuantitiesTest.h" />
+    <ClInclude Include="Tests\QueueStackTest.h" />
+    <ClInclude Include="Tests\RFileTest.h" />
+    <ClInclude Include="Tests\RoutingTest.h" />
+    <ClInclude Include="Tests\SharedTest.h" />
+    <ClInclude Include="Tests\SleeperTest.h" />
+    <ClInclude Include="Tests\SoapClientTest.h" />
+    <ClInclude Include="Tests\StopWatchTest.h" />
+    <ClInclude Include="Tests\StreamsTest.h" />
+    <ClInclude Include="Tests\StringStreamTest.h" />
+    <ClInclude Include="Tests\StringTest.h" />
+    <ClInclude Include="Tests\ThreadPoolTest.h" />
+    <ClInclude Include="Tests\TypeSizeTest.h" />
+    <ClInclude Include="Tests\UnicodeTest.h" />
+    <ClInclude Include="Tests\XmlTest.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

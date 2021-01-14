@@ -1,0 +1,231 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.05.03"/>
+    <PROJECT value="..\..\Object\gaklib\gaklib_bcb.lib"/>
+    <OBJFILES value="..\..\Object\gaklib\win\bcb\csv.obj ..\..\Object\gaklib\win\bcb\Date.obj 
+      ..\..\Object\gaklib\win\bcb\html.obj 
+      ..\..\Object\gaklib\win\bcb\socketbuf.obj 
+      ..\..\Object\gaklib\win\bcb\STRING.obj 
+      ..\..\Object\gaklib\win\bcb\Strgclas.obj 
+      ..\..\Object\gaklib\win\bcb\TOKENS.obj ..\..\Object\gaklib\win\bcb\xml.obj 
+      ..\..\Object\gaklib\win\bcb\md5.obj ..\..\Object\gaklib\win\bcb\http.obj 
+      ..\..\Object\gaklib\win\bcb\soap.obj 
+      ..\..\Object\gaklib\win\bcb\openssl.obj 
+      ..\..\Object\gaklib\win\bcb\logfile.obj 
+      ..\..\Object\gaklib\win\bcb\thread.obj ..\..\Object\gaklib\win\bcb\css.obj 
+      ..\..\Object\gaklib\win\bcb\array.obj 
+      ..\..\Object\gaklib\win\bcb\getMaxValue.obj 
+      ..\..\Object\gaklib\win\bcb\importCSV.obj 
+      ..\..\Object\gaklib\win\bcb\exportCSV.obj 
+      ..\..\Object\gaklib\win\bcb\makeXML.obj 
+      ..\..\Object\gaklib\win\bcb\gridRegistry.obj 
+      ..\..\Object\gaklib\win\bcb\dirlist.obj 
+      ..\..\Object\gaklib\win\bcb\locker.obj 
+      ..\..\Object\gaklib\win\bcb\diff.obj ..\..\Object\gaklib\win\bcb\UserManager.obj 
+      ..\..\Object\gaklib\win\bcb\xslt.obj ..\..\Object\gaklib\win\bcb\XPath.obj 
+      ..\..\Object\gaklib\win\bcb\bdeSchema.obj 
+      ..\..\Object\gaklib\win\bcb\wideString.obj 
+      ..\..\Object\gaklib\win\bcb\strFiles.obj 
+      ..\..\Object\gaklib\win\bcb\createDatabase.obj 
+      ..\..\Object\gaklib\win\bcb\dirCopy.obj 
+      ..\..\Object\gaklib\win\bcb\dirLink.obj 
+      ..\..\Object\gaklib\win\bcb\fLink.obj ..\..\Object\gaklib\win\bcb\exif.obj 
+      ..\..\Object\gaklib\win\bcb\INT2MOT.obj 
+      ..\..\Object\gaklib\win\bcb\LIST.obj 
+      ..\..\Object\gaklib\win\bcb\ChangeManager.obj 
+      ..\..\Object\gaklib\win\bcb\datetime.obj 
+      ..\..\Object\gaklib\win\bcb\posixTime.obj 
+      ..\..\Object\gaklib\win\bcb\STATCVT.obj 
+      ..\..\Object\gaklib\win\bcb\UnitTest.obj 
+      ..\..\Object\gaklib\win\bcb\acls.obj 
+      ..\..\Object\gaklib\win\bcb\directory.obj 
+      ..\..\Object\gaklib\win\bcb\t_string.obj 
+      ..\..\Object\gaklib\win\bcb\setMemoText.obj 
+      ..\..\Object\gaklib\win\bcb\crypto.obj 
+      ..\..\Object\gaklib\win\bcb\cryptoAES.obj 
+      ..\..\Object\gaklib\win\bcb\cryptoRSA.obj 
+      ..\..\Object\gaklib\win\bcb\cryptoShared.obj 
+      ..\..\Object\gaklib\win\bcb\getcwd.obj 
+      ..\..\Object\gaklib\win\bcb\time.obj ..\..\Object\gaklib\win\bcb\textReader.obj 
+      ..\..\Object\gaklib\win\bcb\xmlValidator.obj 
+      ..\..\Object\gaklib\win\bcb\xmlEntities.obj 
+      ..\..\Object\gaklib\win\bcb\xmlParser.obj 
+      ..\..\Object\gaklib\win\bcb\fieldSet.obj 
+      ..\..\Object\gaklib\win\bcb\httpBaseServer.obj 
+      ..\..\Object\gaklib\win\bcb\httpResponse.obj 
+      ..\..\Object\gaklib\win\bcb\sslSocket.obj 
+      ..\..\Object\gaklib\win\bcb\wsdlImporter.obj 
+      ..\..\Object\gaklib\win\bcb\httpProfiler.obj 
+      ..\..\Object\gaklib\win\bcb\htmlParser.obj 
+      ..\..\Object\gaklib\win\bcb\WindowToFront.obj 
+      ..\..\Object\gaklib\win\bcb\mathExpression.obj 
+      ..\..\Object\gaklib\win\bcb\access.obj 
+      ..\..\Object\gaklib\win\bcb\relpath.obj 
+      ..\..\Object\gaklib\win\bcb\setcwd.obj 
+      ..\..\Object\gaklib\win\bcb\filename.obj 
+      ..\..\Object\gaklib\win\bcb\makePath.obj 
+      ..\..\Object\gaklib\win\bcb\rfile.obj ..\..\Object\gaklib\win\bcb\io.obj 
+      ..\..\Object\gaklib\win\bcb\gps.obj ..\..\Object\gaklib\win\bcb\utime.obj 
+      ..\..\Object\gaklib\win\bcb\fileID.obj 
+      ..\..\Object\gaklib\win\bcb\exception.obj 
+      ..\..\Object\gaklib\win\bcb\fraction.obj 
+      ..\..\Object\gaklib\win\bcb\prime.obj 
+      ..\..\Object\gaklib\win\bcb\fProtect.obj 
+      ..\..\Object\gaklib\win\bcb\directoryEntry.obj 
+      ..\..\Object\gaklib\win\bcb\cmdlineParser.obj 
+      ..\..\Object\gaklib\win\bcb\hash.obj ..\..\Object\gaklib\win\bcb\sha.obj 
+      ..\..\Object\gaklib\win\bcb\xmlCss.obj 
+      ..\..\Object\gaklib\win\bcb\dynamic.obj 
+      ..\..\Object\gaklib\win\bcb\cppParser.obj 
+      ..\..\Object\gaklib\win\bcb\cppPreprocessor.obj 
+      ..\..\Object\gaklib\win\bcb\progParser.obj 
+      ..\..\Object\gaklib\win\bcb\fmtNumber.obj 
+      ..\..\Object\gaklib\win\bcb\quantities.obj 
+      ..\..\Object\gaklib\win\bcb\freadSTR.obj 
+      ..\..\Object\gaklib\win\bcb\wideChar.obj 
+      ..\..\Object\gaklib\win\bcb\ansiChar.obj 
+      ..\..\Object\gaklib\win\bcb\fstream.obj 
+      ..\..\Object\gaklib\win\bcb\getDatabaseDesc.obj 
+      ..\..\Object\gaklib\win\bcb\hostResolver.obj"/>
+    <RESFILES value=""/>
+    <IDLFILES value=""/>
+    <IDLGENFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES)"/>
+    <LIBFILES value=""/>
+    <LIBRARIES value=""/>
+    <PACKAGES value=""/>
+    <PATHCPP value=".;CTOOLS;VCL_TOOLS;BORLAND"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <LINKER value="TLib"/>
+    <USERDEFINES value="_RWSTD_NO_EXCEPTIONS;NDEBUG"/>
+    <SYSDEFINES value="NO_STRICT"/>
+    <MAINSOURCE value="gaklib_bcb.bpf"/>
+    <INCLUDEPATH value="BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;c:\openssl\include\;c:\Programme\openssl\include\;&quot;C:\Program Files (x86)\OpenSSL\include\&quot;"/>
+    <LIBPATH value="BORLAND;VCL_TOOLS;TOS;CTOOLS;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <WARNINGS value="-w-par"/>
+    <LISTFILE value=""/>
+  </MACROS>
+  <OPTIONS>
+    <IDLCFLAGS value="-IBORLAND -IVCL_TOOLS -ITOS -ICTOOLS -Iinclude -I$(BCB)\include 
+      -I$(BCB)\include\vcl -Ic:\openssl\include\. 
+      -Ic:\Programme\openssl\include\. 
+      -I&quot;C:\Program Files (x86)\OpenSSL\include\.&quot; -src_suffix cpp 
+      -D_RWSTD_NO_EXCEPTIONS -DNDEBUG NDEBUG NDEBUG -boa"/>
+    <CFLAG1 value="-O2 -H=..\..\Object\gaklib\win\bcb\gaklib_bcb.csm -Hc -w -Vx -Ve -X- -a8 
+      -6 -b- -d -k- -vi -c -tW -tWM"/>
+    <PFLAGS value="-N2..\..\Object\gaklib\win\bcb -N0..\..\Object\gaklib\win\bcb -$Y- -$L- 
+      -$D- -v -JPHNE -M"/>
+    <AFLAGS value="/mx /w2 /zn"/>
+    <LFLAGS value="/P256 /C"/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="$(OBJFILES)"/>
+    <ALLLIB value=""/>
+  </LINKER>
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=0
+AutoIncBuild=0
+MajorVer=1
+MinorVer=0
+Release=0
+Build=0
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1031
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[HistoryLists\hlIncludePath]
+Count=11
+Item0=BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;c:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
+Item1=BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;e:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
+Item2=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;e:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
+Item3=include;$(BCB)\include;$(BCB)\include\vcl;e:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
+Item4=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
+Item5=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include
+Item6=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\;${OpenSSL}\include
+Item7=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\;${OPEN_SSL}\include
+Item8=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\;${OPEN_SSL}\include\
+Item9=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\
+Item10=include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\
+
+[HistoryLists\hlLibraryPath]
+Count=3
+Item0=BORLAND;VCL_TOOLS;TOS;CTOOLS;$(BCB)\lib\obj;$(BCB)\lib
+Item1=VCL_TOOLS;TOS;CTOOLS;$(BCB)\lib\obj;$(BCB)\lib
+Item2=$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=4
+Item0=_RWSTD_NO_EXCEPTIONS;NDEBUG
+Item1=_RWSTD_NO_EXCEPTIONS;NDEBUG;_DEBUG
+Item2=_RWSTD_NO_EXCEPTIONS NDEBUG
+Item3=_RWSTD_NO_EXCEPTIONS
+
+[HistoryLists\hlIntOutputDir]
+Count=1
+Item0=..\..\Object\gaklib\win\bcb
+
+[HistoryLists\hlFinalOutputDir]
+Count=1
+Item0=..\..\Object\gaklib\
+
+[HistoryLists\hlTlibPageSize]
+Count=6
+Item0=0x0100
+Item1=0x0080
+Item2=0x0040
+Item3=64
+Item4=0x0020
+Item5=0x0010
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=0
+LinkCGLIB=0
+
+[CORBA]
+AddServerUnit=1
+AddClientUnit=1
+PrecompiledHeaders=1
+
+[Language]
+ActiveLang=
+ProjectLang=
+RootDir=
+  </IDEOPTIONS>
+</PROJECT>

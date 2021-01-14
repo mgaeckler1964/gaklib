@@ -1,0 +1,6 @@
+diese Zeile bleibt gleich
+diese Zeile bleibt gleich
+diese Zeile wurde geändert
+diese Zeile bleibt gleich
+diese Zeile wurde eingefügt
+diese Zeile bleibt gleich

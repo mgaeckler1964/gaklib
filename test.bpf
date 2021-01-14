@@ -1,0 +1,7 @@
+USEUNIT("TEST.CPP");
+USELIB("..\..\Object\gaklib\gaklib_bcb.lib");
+USELIB("..\..\Object\openssl.lib");
+//---------------------------------------------------------------------------
+Diese Datei wird nur vom Projekt-Manager verwendet und sollte wie die Projektdatei behandelt werden
+
+main

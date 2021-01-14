@@ -1,0 +1,172 @@
+/*
+		Project:		GAKLIB
+		Module:			XPath.h
+		Description:	XPath functions
+		Author:			Martin Gäckler
+		Address:		Hopfengasse 15, A-4020 Linz
+		Web:			https://www.gaeckler.at/
+
+		Copyright:		(c) 1988-2021 Martin Gäckler
+
+		This program is free software: you can redistribute it and/or modify  
+		it under the terms of the GNU General Public License as published by  
+		the Free Software Foundation, version 3.
+
+		You should have received a copy of the GNU General Public License 
+		along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
+		CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+		SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+		LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+		USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+		ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+		OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+		OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+		SUCH DAMAGE.
+*/
+
+// --------------------------------------------------------------------- //
+// ----- switches ------------------------------------------------------ //
+// --------------------------------------------------------------------- //
+
+#ifndef GAK_XPATH_H
+#define GAK_XPATH_H
+
+// --------------------------------------------------------------------- //
+// ----- includes ------------------------------------------------------ //
+// --------------------------------------------------------------------- //
+
+#include <gak/string.h>
+
+// --------------------------------------------------------------------- //
+// ----- imported datas ------------------------------------------------ //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- module switches ----------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+#ifdef __BORLANDC__
+#	pragma option -RT-
+#	pragma option -a4
+#	pragma option -pc
+#endif
+
+namespace gak
+{
+namespace xml
+{
+// --------------------------------------------------------------------- //
+// ----- constants ----------------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- macros -------------------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- type definitions ---------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+enum xsltOperator
+{
+	NO_OP, XSLT_EQUAL, XSLT_NOT_EQUAL, XSLT_LOG_AND, XSLT_LOG_OR, XSLT_MODULO,
+	XSLT_PLUS, XSLT_MINUS, XSLT_MULTIPLY, XSLT_DIVISION,
+};
+
+// --------------------------------------------------------------------- //
+// ----- class definitions --------------------------------------------- //
+// --------------------------------------------------------------------- //
+#ifdef __BORLANDC__
+#	pragma option -RT+
+#endif
+class Element;
+class XmlArray;
+#ifdef __BORLANDC__
+#	pragma option -RT-
+#endif
+
+// --------------------------------------------------------------------- //
+// ----- exported datas ------------------------------------------------ //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- module static data -------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class static data --------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- prototypes ---------------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+STRING performEqual( STRING left, STRING right, XmlArray *source );
+STRING performNotEqual( STRING left, STRING right, XmlArray *source );
+STRING performLogAnd( STRING left, STRING right, XmlArray *source );
+STRING performLogOr( STRING left, STRING right, XmlArray *source );
+STRING performModulo( STRING left, STRING right, XmlArray *source );
+STRING performPlus( STRING left, STRING right, XmlArray *source );
+STRING performMinus( STRING left, STRING right, XmlArray *source );
+STRING performMultiply( STRING left, STRING right, XmlArray *source );
+STRING performDivision( STRING left, STRING right, XmlArray *source );
+
+xsltOperator locateOperator( const STRING &expression, STRING *left, STRING *right );
+STRING stripExpression( const STRING &expression );
+STRING valueOf( XmlArray *sourceArray, const STRING &select );
+void copyOf(
+	Element *source, const STRING &select, Element *target
+);
+STRING evaluate( STRING expression, XmlArray *source );
+
+// --------------------------------------------------------------------- //
+// ----- module functions ---------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class inlines ------------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class constructors/destructors -------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class static functions ---------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class privates ------------------------------------------------ //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class protected ----------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class virtuals ------------------------------------------------ //
+// --------------------------------------------------------------------- //
+   
+// --------------------------------------------------------------------- //
+// ----- class publics ------------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- entry points -------------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+}	// namespace xml
+}	// namespace gak
+
+#ifdef __BORLANDC__
+#	pragma option -RT.
+#	pragma option -a.
+#	pragma option -p.
+#endif
+
+#endif

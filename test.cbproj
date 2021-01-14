@@ -1,0 +1,206 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{06BD114A-34DB-483F-8942-2DC32CAD4C62}</ProjectGuid>
+			<ProjectType>CppConsoleApplication</ProjectType>
+			<Config Condition="'$(Config)'==''">Release</Config>
+			<ProjectVersion>12.0</ProjectVersion>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
+			<Cfg_1>true</Cfg_1>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
+			<Cfg_2>true</Cfg_2>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base)'!=''">
+			<LinkPackageStatics>bcbsmp.lib</LinkPackageStatics>
+			<IncludePath>CTOOLS\;$(IncludePath)</IncludePath>
+			<TASM_Defines>_DEBUG;$(TASM_Defines)</TASM_Defines>
+			<PackageImports>vclsmp.bpi</PackageImports>
+			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+			<BRCC_Defines>_DEBUG;$(BRCC_Defines)</BRCC_Defines>
+			<DCC_UnitSearchPath>.\;$(BDS)\lib;$(BDS)\lib\obj;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<BCC_Defines>NO_STRICT;_VIS_NOLIB;$(BCC_Defines)</BCC_Defines>
+			<BCC_UserSuppliedOptions> -Q -6 -Tkh30000 -Vx -r- -k -d -Ve</BCC_UserSuppliedOptions>
+			<NoVCL>true</NoVCL>
+			<DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
+			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+			<BRCC_IncludePath>CTOOLS;$(BDS)\include;$(BDS)\include\vcl;$(BDS)\ocx;VCLcomp;include;$(BDS)\include\dinkumware;$(BRCC_IncludePath)</BRCC_IncludePath>
+			<ILINK_AllWarnings>true</ILINK_AllWarnings>
+			<ILINK_GenerateDRC>true</ILINK_GenerateDRC>
+			<BRCC_OutputDir>..\..\object\gaklib\test\</BRCC_OutputDir>
+			<DCC_IncludePath>.\;$(BDS)\lib;$(BDS)\lib\obj;$(DCC_IncludePath)</DCC_IncludePath>
+			<DCC_ObjOutput>..\..\object\gaklib\test\</DCC_ObjOutput>
+			<BCC_IncludePath>CTOOLS;$(BDS)\include;$(BDS)\include\vcl;VCLcomp;include;$(BDS)\include\dinkumware;$(OPENSSL)\INCLUDE;$(BCC_IncludePath)</BCC_IncludePath>
+			<TASM_IncludePath>CTOOLS;$(BDS)\include;$(BDS)\include\vcl;$(BDS)\ocx;VCLcomp;include;$(BDS)\include\dinkumware;$(TASM_IncludePath)</TASM_IncludePath>
+			<BCC_AllWarnings>true</BCC_AllWarnings>
+			<ILINK_MapFileType>DetailedSegments</ILINK_MapFileType>
+			<FinalOutputDir>..\..\object\</FinalOutputDir>
+			<BCC_DisableOptimizations>true</BCC_DisableOptimizations>
+			<BCC_GenerateMultithreaded>true</BCC_GenerateMultithreaded>
+			<TASM_AdditionalSwitches> /w2 ..\..\object\gaklib\test\</TASM_AdditionalSwitches>
+			<TASM_Debugging>Full</TASM_Debugging>
+			<AllPackageLibs>bcbsmp.lib</AllPackageLibs>
+			<ILINK_IntermediateOutputPath>..\..\object\gaklib\test</ILINK_IntermediateOutputPath>
+			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
+			<BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
+			<ILINK_LibraryPath>..\..\Object\;..\..\Object\gaklib\;CTOOLS\;CTOOLS;$(BDS)\lib_uk\obj;$(BDS)\lib_uk;$(BDS)\lib\psdk;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+			<Multithreaded>true</Multithreaded>
+			<DCC_AdditionalSwitches> -M</DCC_AdditionalSwitches>
+			<BCC_OutputDir>..\..\object\gaklib\test\</BCC_OutputDir>
+			<DCC_DcuOutput>..\..\object\gaklib\test\</DCC_DcuOutput>
+			<OutputExt>exe</OutputExt>
+			<BCC_GenerateConsoleApp>true</BCC_GenerateConsoleApp>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1)'!=''">
+			<BCC_Defines>_DEBUG;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
+			<ILINK_LibraryPath>$(BDS)\lib_uk\debug;$(ILINK_LibraryPath);$(ILINK_LibraryPath)</ILINK_LibraryPath>
+			<IntermediateOutputDir>Debug_Build</IntermediateOutputDir>
+			<DCC_Define>DEBUG;$(DCC_Define);$(DCC_Define)</DCC_Define>
+			<DCC_AdditionalSwitches> -M -V</DCC_AdditionalSwitches>
+			<ILINK_DisableIncrementalLinking>true</ILINK_DisableIncrementalLinking>
+			<TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
+			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<BCC_Defines>NDEBUG;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
+			<BCC_UserSuppliedOptions> -Q -6 -Tkh30000 -Vx -r- -k -d -Ve -r</BCC_UserSuppliedOptions>
+			<BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
+			<IntermediateOutputDir>Release_Build</IntermediateOutputDir>
+			<DCC_AdditionalSwitches> -M -$O+</DCC_AdditionalSwitches>
+			<TASM_Debugging>None</TASM_Debugging>
+			<ILINK_LibraryPath>$(BDS)\lib_uk\release;$(ILINK_LibraryPath);$(ILINK_LibraryPath)</ILINK_LibraryPath>
+			<BCC_InlineFunctionExpansion>true</BCC_InlineFunctionExpansion>
+		</PropertyGroup>
+		<ItemGroup>
+			<LibFiles Include="..\..\Object\openssl.lib">
+				<IgnorePath>true</IgnorePath>
+				<BuildOrder>2</BuildOrder>
+			</LibFiles>
+			<CppCompile Include="TEST.CPP">
+				<BuildOrder>-1</BuildOrder>
+				<BuildOrder>0</BuildOrder>
+			</CppCompile>
+			<LibFiles Include="..\..\Object\gaklib\gaklib_bds.lib">
+				<IgnorePath>true</IgnorePath>
+				<BuildOrder>1</BuildOrder>
+			</LibFiles>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Release">
+				<Key>Cfg_2</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Debug">
+				<Key>Cfg_1</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+		</ItemGroup>
+		<Import Project="$(BDS)\Bin\CodeGear.Cpp.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Cpp.Targets')"/>
+		<ProjectExtensions>
+			<Borland.Personality>CPlusPlusBuilder.Personality.12</Borland.Personality>
+			<Borland.ProjectType>CppConsoleApplication</Borland.ProjectType>
+			<BorlandProject>
+				<CPlusPlusBuilder.Personality>
+					<VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
+						<VersionInfo Name="MajorVer">1</VersionInfo>
+						<VersionInfo Name="MinorVer">0</VersionInfo>
+						<VersionInfo Name="Release">0</VersionInfo>
+						<VersionInfo Name="Build">0</VersionInfo>
+						<VersionInfo Name="Debug">False</VersionInfo>
+						<VersionInfo Name="PreRelease">False</VersionInfo>
+						<VersionInfo Name="Special">False</VersionInfo>
+						<VersionInfo Name="Private">False</VersionInfo>
+						<VersionInfo Name="DLL">False</VersionInfo>
+						<VersionInfo Name="Locale">1031</VersionInfo>
+						<VersionInfo Name="CodePage">1252</VersionInfo>
+					</VersionInfo>
+					<VersionInfoKeys>
+						<VersionInfoKeys Name="CompanyName">CRESD GmbH</VersionInfoKeys>
+						<VersionInfoKeys Name="FileDescription"/>
+						<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="InternalName"/>
+						<VersionInfoKeys Name="LegalCopyright">(c) 20xx by CRESD GmbH</VersionInfoKeys>
+						<VersionInfoKeys Name="LegalTrademarks"/>
+						<VersionInfoKeys Name="OriginalFilename"/>
+						<VersionInfoKeys Name="ProductName"/>
+						<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="Comments"/>
+					</VersionInfoKeys>
+					<HistoryLists_hlIncludePath>
+						<HistoryLists_hlIncludePath Name="Count">2</HistoryLists_hlIncludePath>
+						<HistoryLists_hlIncludePath Name="Item0">CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include</HistoryLists_hlIncludePath>
+						<HistoryLists_hlIncludePath Name="Item1">$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include</HistoryLists_hlIncludePath>
+					</HistoryLists_hlIncludePath>
+					<HistoryLists_hlLibraryPath>
+						<HistoryLists_hlLibraryPath Name="Count">2</HistoryLists_hlLibraryPath>
+						<HistoryLists_hlLibraryPath Name="Item0">CTOOLS;$(BCB)\lib_uk\obj;$(BCB)\lib_uk</HistoryLists_hlLibraryPath>
+						<HistoryLists_hlLibraryPath Name="Item1">$(BCB)\lib_uk\obj;$(BCB)\lib_uk</HistoryLists_hlLibraryPath>
+					</HistoryLists_hlLibraryPath>
+					<HistoryLists_hlDebugSourcePath>
+						<HistoryLists_hlDebugSourcePath Name="Count">1</HistoryLists_hlDebugSourcePath>
+						<HistoryLists_hlDebugSourcePath Name="Item0">.</HistoryLists_hlDebugSourcePath>
+					</HistoryLists_hlDebugSourcePath>
+					<HistoryLists_hlConditionals>
+						<HistoryLists_hlConditionals Name="Count">1</HistoryLists_hlConditionals>
+						<HistoryLists_hlConditionals Name="Item0">_DEBUG</HistoryLists_hlConditionals>
+					</HistoryLists_hlConditionals>
+					<HistoryLists_hlIntOutputDir>
+						<HistoryLists_hlIntOutputDir Name="Count">3</HistoryLists_hlIntOutputDir>
+						<HistoryLists_hlIntOutputDir Name="Item0">..\..\object\gaklib\test</HistoryLists_hlIntOutputDir>
+						<HistoryLists_hlIntOutputDir Name="Item1">..\..\object\gaklib\test\</HistoryLists_hlIntOutputDir>
+						<HistoryLists_hlIntOutputDir Name="Item2">..\..\object\gaklib</HistoryLists_hlIntOutputDir>
+					</HistoryLists_hlIntOutputDir>
+					<HistoryLists_hlFinalOutputDir>
+						<HistoryLists_hlFinalOutputDir Name="Count">1</HistoryLists_hlFinalOutputDir>
+						<HistoryLists_hlFinalOutputDir Name="Item0">..\..\object\</HistoryLists_hlFinalOutputDir>
+					</HistoryLists_hlFinalOutputDir>
+					<Debugging>
+						<Debugging Name="DebugSourceDirs">.</Debugging>
+					</Debugging>
+					<Parameters>
+						<Parameters Name="RunParams"/>
+						<Parameters Name="HostApplication"/>
+						<Parameters Name="RemoteHost"/>
+						<Parameters Name="RemotePath"/>
+						<Parameters Name="RemoteDebug">False</Parameters>
+						<Parameters Name="Launcher"/>
+						<Parameters Name="UseLauncher">False</Parameters>
+						<Parameters Name="DebugCWD">C:\CRESD\Source\GAKLIB</Parameters>
+						<Parameters Name="RemoteParams"/>
+						<Parameters Name="RemoteLauncher"/>
+						<Parameters Name="UseRemoteLauncher">False</Parameters>
+						<Parameters Name="RemoteCWD"/>
+						<Parameters Name="Debug Symbols Search Path"/>
+						<Parameters Name="LoadAllSymbols">True</Parameters>
+						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+					</Parameters>
+					<Compiler>
+						<Compiler Name="ShowInfoMsgs">1</Compiler>
+						<Compiler Name="LinkDebugVcl">1</Compiler>
+						<Compiler Name="LinkCGLIB">0</Compiler>
+					</Compiler>
+					<CORBA>
+						<CORBA Name="AddServerUnit">1</CORBA>
+						<CORBA Name="AddClientUnit">1</CORBA>
+						<CORBA Name="PrecompiledHeaders">1</CORBA>
+					</CORBA>
+					<ProjectProperties>
+						<ProjectProperties Name="AutoShowDeps">False</ProjectProperties>
+						<ProjectProperties Name="ManagePaths">True</ProjectProperties>
+						<ProjectProperties Name="VerifyPackages">True</ProjectProperties>
+					</ProjectProperties>
+				</CPlusPlusBuilder.Personality>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+	</Project>

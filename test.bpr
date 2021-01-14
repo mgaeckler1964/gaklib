@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.05.03"/>
+    <PROJECT value="..\..\object\gaklib\test\bcb\test.exe"/>
+    <OBJFILES value="..\..\object\gaklib\test\bcb\TEST.obj"/>
+    <RESFILES value=""/>
+    <IDLFILES value=""/>
+    <IDLGENFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES)"/>
+    <LIBFILES value="..\..\Object\gaklib\gaklib_bcb.lib ..\..\Object\openssl.lib"/>
+    <LIBRARIES value="qrpt50.lib tee50.lib teedb50.lib vclx50.lib vcl50.lib vclbde50.lib 
+      vcldb50.lib bcbsmp50.lib"/>
+    <SPARELIBS value="bcbsmp50.lib vcldb50.lib vclbde50.lib vcl50.lib vclx50.lib teedb50.lib 
+      tee50.lib qrpt50.lib"/>
+    <PACKAGES value="vclsmp50.bpi"/>
+    <PATHCPP value=".;"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib_uk\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib_uk\release"/>
+    <LINKER value="ilink32"/>
+    <USERDEFINES value="_DEBUG"/>
+    <SYSDEFINES value="NO_STRICT;_VIS_NOLIB;_NO_VCL"/>
+    <MAINSOURCE value="test.bpf"/>
+    <INCLUDEPATH value="BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include;c:\openssl\include\;&quot;C:\Program Files (x86)\OpenSSL\include\&quot;"/>
+    <LIBPATH value="BORLAND;CTOOLS;$(BCB)\lib_uk\obj;$(BCB)\lib_uk"/>
+    <WARNINGS value="-w-par -w-8027 -w-8026"/>
+    <WARNOPTSTR value=""/>
+  </MACROS>
+  <OPTIONS>
+    <IDLCFLAGS value="-IBORLAND -ICTOOLS -I$(BCB)\include -I$(BCB)\include\vcl -I$(BCB)\ocx 
+      -IVCLcomp -Iinclude -Ic:\openssl\include\. 
+      -I&quot;C:\Program Files (x86)\OpenSSL\include\.&quot; -src_suffix cpp -D_DEBUG -boa"/>
+    <CFLAG1 value="-Od -w -Vx -Ve -Tkh30000 -X- -r- -a8 -6 -b- -d -k -y -v -vi- -tWC -tWM -c"/>
+    <PFLAGS value="-N2..\..\object\gaklib\test\bcb -N0..\..\object\gaklib\test\bcb -$Y+ -$W 
+      -$O- -$I- -$C- -v -M -JPHNE"/>
+    <RFLAGS value=""/>
+    <AFLAGS value="/mx /w2 /zi"/>
+    <LFLAGS value="-I..\..\object\gaklib\test\bcb -D&quot;&quot; -ap -Tpe -GD -s -Gn -w -v"/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0x32.obj $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cw32mt.lib"/>
+  </LINKER>
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=0
+AutoIncBuild=1
+MajorVer=1
+MinorVer=0
+Release=0
+Build=3
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1031
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=CRESD GmbH
+FileDescription=
+FileVersion=1.0.0.3
+InternalName=
+LegalCopyright=(c) 20xx by CRESD GmbH
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[HistoryLists\hlIncludePath]
+Count=7
+Item0=BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include;c:\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
+Item1=BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include;e:\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
+Item2=BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include;e:\openssl\include\
+Item3=BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include;e:\openssl\include
+Item4=BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include
+Item5=CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include
+Item6=$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include
+
+[HistoryLists\hlLibraryPath]
+Count=3
+Item0=BORLAND;CTOOLS;$(BCB)\lib_uk\obj;$(BCB)\lib_uk
+Item1=CTOOLS;$(BCB)\lib_uk\obj;$(BCB)\lib_uk
+Item2=$(BCB)\lib_uk\obj;$(BCB)\lib_uk
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=.
+
+[HistoryLists\hlConditionals]
+Count=1
+Item0=_DEBUG
+
+[HistoryLists\hlIntOutputDir]
+Count=4
+Item0=..\..\object\gaklib\test\bcb
+Item1=..\..\object\gaklib\test
+Item2=..\..\object\gaklib\test\
+Item3=..\..\object\gaklib
+
+[HistoryLists\hlFinalOutputDir]
+Count=3
+Item0=..\..\object\gaklib\test\bcb\
+Item1=..\..\object\gaklib\test\bcb
+Item2=..\..\object\
+
+[Debugging]
+DebugSourceDirs=.
+
+[Parameters]
+RunParams=StringTest
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=1
+LinkCGLIB=0
+
+[CORBA]
+AddServerUnit=1
+AddClientUnit=1
+PrecompiledHeaders=1
+  </IDEOPTIONS>
+</PROJECT>
