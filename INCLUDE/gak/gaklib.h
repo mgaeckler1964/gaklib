@@ -3,6 +3,8 @@
 
 	again a test change by DT computer
 
+now a new change
+
 		Project:		GAKLIB
 		Module:			GAKLIB.H
 		Description:	Interface to gaklib
