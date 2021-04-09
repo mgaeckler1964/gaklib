@@ -1,5 +1,8 @@
-/*
-		Project:		GAKLIB
+/*	Project:		GAKLIB
+
+this is a new updfate by mw on private machine
+
+
 		Module:			bc_obsol.h
 		Description:
 		Author:			Martin Gäckler
