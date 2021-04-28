@@ -85,7 +85,7 @@ class DateTimeTest : public UnitTest
 	{
 		DateTime	now;
 
-		UT_ASSERT_EQUAL( now.getTZoffset(), 3600L );
+		UT_ASSERT_EQUAL( now.getTZoffset(), 7200L );
 		DateTime	epochBegin( time_t( 0 ) );
 		UT_ASSERT_EQUAL( epochBegin.getYear(), (unsigned short)1970 );
 		UT_ASSERT_EQUAL( epochBegin.getMonth(), Date::JANUARY );

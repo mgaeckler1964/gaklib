@@ -70,6 +70,8 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+#define DISABLED_TEST_PREFIX	"Disabled_"
+
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -168,6 +170,10 @@ class UnitTest
 
 	virtual void PerformTest( void ) = 0;
 	virtual const char *GetClassName( void ) const = 0;
+	bool isDisabled() const
+	{
+		return !strncmp(GetClassName(), DISABLED_TEST_PREFIX, sizeof(DISABLED_TEST_PREFIX)-1 );
+	}
 
 	public:
 	static void AddResult(

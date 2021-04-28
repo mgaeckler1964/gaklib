@@ -99,7 +99,7 @@ class DirectoryListTest : public UnitTest
 		list.findFiles( SEARCH_PATH SEARCH_PATTERN );
 		
 		// the number of C++ Source files ind CTOOLS here:
-		UT_ASSERT_EQUAL( list.size(), size_t(81) );
+		UT_ASSERT_EQUAL( list.size(), size_t(83) );
 		for( 
 			DirectoryList::const_iterator it = list.cbegin(), endIT = list.cend();
 			it != endIT;

@@ -95,7 +95,7 @@ class SoapClientTest : public UnitTest
 {
 	virtual const char *GetClassName( void ) const
 	{
-		return "SoapClientTest";
+		return DISABLED_TEST_PREFIX "SoapClientTest";	// currently disabled since the C# webservice is not running
 	}
 	virtual void PerformTest( void )
 	{

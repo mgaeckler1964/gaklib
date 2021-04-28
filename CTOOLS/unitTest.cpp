@@ -231,6 +231,7 @@ void UnitTest::PerformTests( const char *argv[] )
 	const Array<UnitTest*>	&theTestItems = getTheTestItems();
 	std::size_t				numElements = testFilter ? testFilter : theTestItems.size();
 	std::size_t				width = math::getExponent( double(numElements) )+1;
+	std::size_t				numDisabledTests = 0;
 	for( 
 		Array<UnitTest*>::const_iterator it = theTestItems.cbegin(), endIT = theTestItems.cend();
 		it != endIT;
@@ -240,6 +241,11 @@ void UnitTest::PerformTests( const char *argv[] )
 		UnitTest	*theTest = *it;
 		size_t		testIndex = testsToPerform.findElement( theTest->GetClassName() );
 
+		if( !testFilter && theTest->isDisabled() )
+		{
+			numDisabledTests++;
+			continue;
+		}
 		if( !testFilter || testIndex != testsToPerform.no_index )
 		{
 			std::cout << "Performing " << std::setw(width) << (i++) << '/' << numElements << ' ' 
@@ -264,6 +270,7 @@ void UnitTest::PerformTests( const char *argv[] )
 			"Test not found!", false
 		);
 	}
+	std::cout << numDisabledTests << " disabled test(s)" << std::endl;
 }
 
 void UnitTest::PrintResult( void )
