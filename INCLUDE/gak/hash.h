@@ -56,6 +56,7 @@
 #include <gak/md5.h>
 
 #include <gak/string.h>
+#include <gak/wideString.h>
 #include <gak/fixedArray.h>
 #include <gak/array.h>
 
@@ -103,7 +104,19 @@ class Hash
 	void hash_stream( std::istream &str );
 	void hash_file( const STRING &fName )
 	{
-		std::ifstream	in( (const char *)fName, std::ios_base::in|std::ios_base::binary );
+		std::ifstream	in;
+
+#ifdef _MSC_VER
+		if( fName.getCharSet() == STR_UTF8 )
+		{
+			in.open( uSTRING().decodeUTF8( fName ), std::ios_base::in|std::ios_base::binary );
+
+		}
+		else
+#endif
+		{
+			in.open( fName, std::ios_base::in|std::ios_base::binary );
+		}
 
 		if( !in.is_open() )
 		{
