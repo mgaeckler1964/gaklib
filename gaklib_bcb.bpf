@@ -98,6 +98,7 @@ USEUNIT("CTOOLS\ansiChar.cpp");
 USEUNIT("CTOOLS\fstream.cpp");
 USEUNIT("VCL_TOOLS\getDatabaseDesc.cpp");
 USEUNIT("CTOOLS\hostResolver.cpp");
+USEUNIT("CTOOLS\console.cpp");
 //---------------------------------------------------------------------------
 #define Library
 

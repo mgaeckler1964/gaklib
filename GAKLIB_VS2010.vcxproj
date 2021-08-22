@@ -34,6 +34,7 @@
     <ClCompile Include="CTOOLS\cgitools.cpp" />
     <ClCompile Include="CTOOLS\changeManager.cpp" />
     <ClCompile Include="CTOOLS\cmdlineParser.cpp" />
+    <ClCompile Include="CTOOLS\console.cpp" />
     <ClCompile Include="CTOOLS\cppParser.cpp" />
     <ClCompile Include="CTOOLS\cppPreprocessor.cpp" />
     <ClCompile Include="CTOOLS\crypto.cpp" />

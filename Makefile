@@ -16,6 +16,7 @@ OBJECTS=${OBJDIR}/acls.o \
 	${OBJDIR}/array.o \
 	${OBJDIR}/cgitools.o \
 	${OBJDIR}/cmdlineParser.o \
+	${OBJDIR}/console.o \
 	${OBJDIR}/cppParser.o \
 	${OBJDIR}/cppPreprocessor.o \
 	${OBJDIR}/css.o \

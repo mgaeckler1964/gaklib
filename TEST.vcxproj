@@ -131,6 +131,7 @@
     <ClCompile Include="TEST.CPP" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Tests\ConsoleTest.h" />
     <ClInclude Include="Tests\DateTest.h" />
     <ClInclude Include="Tests\GeoGraphTest.h" />
     <ClInclude Include="Tests\HostResolverTest.h" />

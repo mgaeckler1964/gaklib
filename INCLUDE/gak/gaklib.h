@@ -172,12 +172,39 @@
 /* --------------------------------------------------------------------- */
 /* ----- prototypes ---------------------------------------------------- */
 /* --------------------------------------------------------------------- */
+
+/******** console ****************************************************/
+
+#ifdef __cplusplus
+namespace gak
+{
+
+struct ConsoleSize
+{
+	unsigned	width;
+	unsigned	height;
+	ConsoleSize();
+};
+
+inline unsigned getConsoleWidth( void )
+{
+	return ConsoleSize().width;
+}
+
+inline unsigned getConsoleHeight( void )
+{
+	return ConsoleSize().height;
+}
+
+}
+#endif
+
+/******** micelaneous ****************************************************/
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-/******** micelaneous ****************************************************/
 
 unsigned long   swaplong( unsigned long value );
 unsigned long   intlmot( unsigned long value );
