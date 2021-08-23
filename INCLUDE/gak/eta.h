@@ -148,7 +148,7 @@ std::ostream & operator << ( std::ostream &out, const Eta<COUNTER_T, ClockProvid
 {
 	if( eta.isValid() )
 	{
-		ClockProvider_T::ClockTicks	ticks = eta.getETA();
+		typename ClockProvider_T::ClockTicks	ticks = eta.getETA();
 
 #if 1
 		out << std::setw(2) << std::setfill('0') << ticks / (24*60*60*CLOCKS_PER_SEC) << 'd';
