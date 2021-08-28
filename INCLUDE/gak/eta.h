@@ -93,7 +93,7 @@ class Eta
 {
 public:
 	typedef typename ClockProvider_T::ClockTicks ClockTicks;
-//private:
+private:
 	struct ValueTimePairs
 	{
 		COUNTER_T	counter;

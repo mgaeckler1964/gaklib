@@ -133,9 +133,9 @@ static char getBase64Code( unsigned char c )
 	if( c < 26 )
 		c += 'A';
 	else if( c < 52 )
-		c += char('a' - 26);
+		c += static_cast<unsigned char>('a' - 26);
 	else if( c < 62 )
-		c += char('0' - 52);
+		c += static_cast<unsigned char>('0' - 52);
 	else if( c == 62 )
 		c = '+';
 	else
