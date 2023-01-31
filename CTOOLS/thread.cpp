@@ -253,7 +253,7 @@ bool Thread::waitForMsgThreads( unsigned long timeOut, bool ownThreads )
 
 void Thread::RunThread( void )
 {
-	isRunning = true;
+	setRunning();
 	try
 	{
 		ExecuteThread();
@@ -262,7 +262,7 @@ void Thread::RunThread( void )
 	{
 		// ignore any exceptions
 	}
-	isRunning = false;
+	clrRunning();
 }
 
 // --------------------------------------------------------------------- //
@@ -288,7 +288,7 @@ void Thread::StartThread( void )
 
 	terminated = false;
 	isWaiting = false;
-	isRunning = true;
+	setRunning();
 
 	m_ownerThreadID = Locker::GetCurrentThreadID();
 	{
@@ -332,7 +332,7 @@ void Thread::StopThread( bool stopImmediately )
 #elif defined( __MACH__ ) || defined( __unix__ )
 		pthread_cancel( m_threadID );
 #endif
-		isRunning = false;
+		clrRunning();
 	}
 }
 

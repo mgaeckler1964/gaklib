@@ -284,7 +284,7 @@ int strUtime( const STRING &filename, struct utimbuf *times )
 #endif
 }
 
-FILE *_strFopen( const STRING &filename, const STRING &mode )
+FILE *strFopen( const STRING &filename, const STRING &mode )
 {
 	FILE	*fp;
 

@@ -292,13 +292,17 @@ int md5_file( char *path, unsigned char output[16] )
     md5_context ctx;
     unsigned char buf[1024];
 
-    if( ( f = fopen( path, "rb" ) ) == NULL )
-        return( 1 );
+	if( ( f = fopen( path, "rb" ) ) == NULL )
+	{
+		return( 1 );
+	}
 
-    md5_starts( &ctx );
+	md5_starts( &ctx );
 
-    while( ( n = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
-        md5_update( &ctx, buf, (int) n );
+	while( ( n = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
+	{
+		md5_update( &ctx, buf, (int) n );
+	}
 
     md5_finish( &ctx, output );
 

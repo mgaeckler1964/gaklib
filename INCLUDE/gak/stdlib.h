@@ -90,7 +90,7 @@ class STDfile
 	public:
 	STDfile( const STRING &fileName, const STRING &mode )
 	{
-		this->fp = _strFopen( fileName, mode );
+		this->fp = strFopen( fileName, mode );
 	}
 	STDfile( FILE *fp )
 	{

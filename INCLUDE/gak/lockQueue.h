@@ -132,6 +132,16 @@ class LockQueue
 			m_queue.clear();
 		}
 	}
+	/// @return the locker
+	Locker &getLocker( void )
+	{
+		return m_lock;
+	}
+	/// @return the locker
+	const Locker &getLocker( void ) const
+	{
+		return m_lock;
+	}
 	/// @return the number of elements in this Queue
 	size_t size( void ) const
 	{

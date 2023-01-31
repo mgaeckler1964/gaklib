@@ -121,6 +121,10 @@ struct FileID
 		gak::fromBinaryStream( stream, &deviceID );
 		gak::fromBinaryStream( stream, &fileIndex );
 	}
+	operator bool () const
+	{
+		return deviceID || fileIndex;
+	}
 };
 
 // --------------------------------------------------------------------- //

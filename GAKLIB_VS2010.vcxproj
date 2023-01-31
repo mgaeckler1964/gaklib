@@ -136,6 +136,7 @@
     <ClInclude Include="INCLUDE\gak\cmdlineParser.h" />
     <ClInclude Include="INCLUDE\gak\compare.h" />
     <ClInclude Include="INCLUDE\gak\conditional.h" />
+    <ClInclude Include="INCLUDE\gak\condQueue.h" />
     <ClInclude Include="INCLUDE\gak\container.h" />
     <ClInclude Include="INCLUDE\gak\cppParser.h" />
     <ClInclude Include="INCLUDE\gak\cppPreprocessor.h" />

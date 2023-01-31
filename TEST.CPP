@@ -57,6 +57,9 @@
 #include <gak/unitTest.h>
 #include <gak/directory.h>
 
+#include "Tests/EtaTest.h"
+#include "Tests/RingBufferTest.h"
+
 #include "Tests/ConsoleTest.h"
 #ifndef __BORLANDC__
 #	include "Tests/StreamsTest.h"

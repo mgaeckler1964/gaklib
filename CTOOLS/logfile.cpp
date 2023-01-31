@@ -203,13 +203,13 @@ typedef gak::PairMap<std::string, LoggingThreadPtr>	LoggingThreads;
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static bool	disabled		= true;
-static bool	ignoreThread	= false;
-static bool	shutdownProfile	= false;
-static bool	shutdownLogging	= false;
+static bool	s_disabled			= true;
+static bool	s_ignoreThread		= false;
+static bool	s_shutdownProfile	= false;
+static bool	s_shutdownLogging	= false;
 
-static const bool flushDebug	= false;
-static const bool asyncLog		= true;
+static const bool s_flushDebug	= false;
+static const bool s_asyncLog	= true;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -317,7 +317,7 @@ static void createSummaryEntry( const ProfileLogEntry &logEntry )
 
 static void exitProfile( void )
 {
-	shutdownProfile = true;
+	s_shutdownProfile = true;
 
 	Summaries	&summaryEntries = getSummaryEntries();
 	if( !summaryEntries.size() )
@@ -395,7 +395,7 @@ static LoggingThreads &getLoggingThreads()
 
 static void exitLogging()
 {
-	shutdownLogging = true;
+	s_shutdownLogging = true;
 
 	LoggingThreads &threads = getLoggingThreads();
 	for( 
@@ -440,7 +440,7 @@ static inline std::string getLogFilename( gak::ThreadID curThread )
 		stream << fName;
 	}
 
-	stream << DIRECTORY_DELIMITER_STRING "gaklib" << GetCurrentProcessId() << '_' << (ignoreThread ? 0 :curThread) << ".log";
+	stream << DIRECTORY_DELIMITER_STRING "gaklib" << GetCurrentProcessId() << '_' << (s_ignoreThread ? 0 :curThread) << ".log";
 	return stream.str();
 }
 
@@ -520,7 +520,7 @@ void LoggingThread::logLine( const LogLine &line )
 		}
 		m_out << line.getLine() << ' ' << line.getTicks() << '\n';
 
-		if( flushDebug )
+		if( s_flushDebug )
 		{
 			m_out.flush();
 		}
@@ -538,7 +538,7 @@ void LoggingThread::logLine( const LogLine &line )
 */
 void enterFunction( const char *file, int line, const char *function, bool doLog )
 {
-	if( disabled || shutdownProfile )
+	if( s_disabled || s_shutdownProfile )
 	{
 		return;
 	}
@@ -602,7 +602,7 @@ void enterFunction( const char *file, int line, const char *function, bool doLog
 
 void exitFunction( const char *file, int line, bool doLog )
 {
-	if( disabled || shutdownProfile )
+	if( s_disabled || s_shutdownProfile )
 	{
 		return;
 	}
@@ -644,7 +644,7 @@ void exitFunction( const char *file, int line, bool doLog )
 		std::stringstream	out;
 		LoggingThreadPtr	&thread = getLoggingThread( fileName );
 
-		out << "!!!unknown exit from " << file << ' ' << line;
+		out << "!!!unknown exit from " << file << ' ' << line << " disabled at start?";
 		out.flush();
 
 		thread->pushLine( LogLine( out.str(), 0 ) );
@@ -659,7 +659,7 @@ void exitFunction( const char *file, int line, bool doLog )
 
 void logFileLine( const std::string &line )
 {
-	if( disabled || shutdownLogging )
+	if( s_disabled || s_shutdownLogging )
 	{
 		return;
 	}
@@ -681,7 +681,7 @@ void logFileLine( const std::string &line )
 
 void logLine( const std::string &line )
 {
-	if( disabled || shutdownLogging )
+	if( s_disabled || s_shutdownLogging )
 	{
 		return;
 	}
@@ -695,7 +695,7 @@ void logLine( const std::string &line )
 
 	thread->pushLine( LogLine( line, curLevel ) );
 
-	if( !asyncLog )
+	if( !s_asyncLog )
 	{
 		flushLogs();
 	}
@@ -753,22 +753,22 @@ void flushLogs( void )
 */
 void disableLog( void )
 {
-	disabled = true;
+	s_disabled = true;
 }
 
 void enableLog( void )
 {
-	disabled = false;
+	s_disabled = false;
 }
 
 void ignoreThreads( void )
 {
-	ignoreThread = true;
+	s_ignoreThread = true;
 }
 
 void applyThreads( void )
 {
-	ignoreThread = false;
+	s_ignoreThread = false;
 }
 
 }	// namespace gakLogging

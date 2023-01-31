@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClInclude Include="Tests\ConsoleTest.h" />
     <ClInclude Include="Tests\DateTest.h" />
+    <ClInclude Include="Tests\EtaTest.h" />
     <ClInclude Include="Tests\GeoGraphTest.h" />
     <ClInclude Include="Tests\HostResolverTest.h" />
     <ClInclude Include="Tests\mvv.h" />
@@ -175,6 +176,7 @@
     <ClInclude Include="Tests\QuantitiesTest.h" />
     <ClInclude Include="Tests\QueueStackTest.h" />
     <ClInclude Include="Tests\RFileTest.h" />
+    <ClInclude Include="Tests\RingBufferTest.h" />
     <ClInclude Include="Tests\RoutingTest.h" />
     <ClInclude Include="Tests\SharedTest.h" />
     <ClInclude Include="Tests\SleeperTest.h" />

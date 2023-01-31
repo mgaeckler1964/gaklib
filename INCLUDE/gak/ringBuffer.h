@@ -40,6 +40,8 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+#include <gak/optional.h>
+
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -90,23 +92,36 @@ class RingBuffer
 	typedef OBJ	value_type;
 
 	private:
-	OBJ		*m_data;
-	OBJ		*m_nextRead, *m_nextWrite, *m_end;
+	OBJ		* const m_data;
+	OBJ		* const m_end;
+	const std::size_t	m_capacity;
+
+	OBJ		*m_nextRead, *m_nextWrite;
+
+	OBJ		*m_lastWrite;
 	bool	m_full;
 
 	// no copy
 	RingBuffer( const RingBuffer& src );
 	const RingBuffer & operator = ( const RingBuffer& src );
 
+	OBJ *inc( OBJ *ptr )
+	{
+		ptr++;
+		if( ptr >= m_end )
+		{
+			ptr = m_data;
+		}
+		return ptr;
+	}
 	public:
 	/**
 		@brief creates a new RingBuffer
 		@param [in] size the size of the buffer
 	*/
-	RingBuffer( size_t size )
+	RingBuffer( size_t capacity ) : m_data(new OBJ[capacity]), m_end(m_data+capacity), m_capacity(capacity)
 	{
-		m_nextRead = m_nextWrite = m_data = new OBJ[size];
-		m_end = m_data+size;
+		m_nextRead = m_nextWrite = m_data;
 		m_full = false;
 	}
 	~RingBuffer()
@@ -117,6 +132,20 @@ class RingBuffer
 	bool isFull( void ) const
 	{
 		return m_full;
+	}
+	std::size_t size() const
+	{
+		if( m_full )
+		{
+			return m_capacity;
+		}
+
+		if( m_nextWrite >= m_nextRead )
+		{
+			return m_nextWrite - m_nextRead;
+		}
+
+		return m_capacity - (m_nextRead - m_nextWrite);
 	}
 	/**
 		@brief adds a new item to the buffer
@@ -130,12 +159,9 @@ class RingBuffer
 			return false;
 		}
 
-		*m_nextWrite++ = newData;
-		if( m_nextWrite >= m_end )
-		{
-			m_nextWrite = m_data;
-		}
-
+		m_lastWrite = m_nextWrite;
+		*m_nextWrite = newData;
+		m_nextWrite = inc( m_nextWrite );
 		if( m_nextRead == m_nextWrite )
 		{
 			m_full = true;
@@ -152,30 +178,65 @@ class RingBuffer
 		@brief fetches the oldest item from the RingBuffer
 		@param [out] result the next item in the Queue
 		@return true on success (not empty)
-		@see RingBuffer::pop
+		@see RingBuffer::oldest
 	*/
 	bool pop( OBJ *result )
 	{
-		if( isEmpty() )
-		{
-			return false;
-		}
+		Optional<OBJ>	ret = oldest();
 
-		*result = *m_nextRead++;
-		if( m_nextRead >= m_end )
+		if( ret.isPresent() )
 		{
-			m_nextRead = m_data;
-		}
+			*result = ret.get();
+			m_nextRead = inc( m_nextRead );
 
-		m_full = false;
-		return true;
+			m_full = false;
+			return true;
+		}
+		return false;
 	}
+	/**
+		@brief fetches the oldest item from the RingBuffer
+		@param [out] result the next item in the Queue
+		@return true on success (not empty)
+		@see RingBuffer::pop
+	*/
+	Optional<OBJ> oldest( void ) const
+	{
+		Optional<OBJ>	result;
+		if( !isEmpty() )
+		{
+			result = *m_nextRead;
+		}
+		return result;
+	}
+	/**
+		@brief fetches the newwest item from the RingBuffer
+		@param [out] result the next item in the Queue
+		@return true on success (not empty)
+		@see RingBuffer::oldest
+	*/
+	Optional<OBJ> newest( void ) const
+	{
+		Optional<OBJ>	result;
+		if( !isEmpty() )
+		{
+			result = *m_lastWrite;
+		}
+		return result;
+	}
+
 	/// removes all items in this buffer
 	void clear()
 	{
 		m_nextRead = m_nextWrite = m_data;
 		m_full = false;
 	}
+};
+
+
+template <class OBJ> 
+class EtaRingBuffer : public RingBuffer<OBJ>
+{
 };
 
 // --------------------------------------------------------------------- //

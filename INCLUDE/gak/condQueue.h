@@ -1,13 +1,12 @@
 /*
 		Project:		GAKLIB
-		Module:			strFiles.h
-		Description:	check for UTF-8 characters in file names prior some
-						standard calls.
+		Module:			condQueue.h
+		Description:	Queue with conditional
 		Author:			Martin Gäckler
 		Address:		Hopfengasse 15, A-4020 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2023 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -30,8 +29,9 @@
 		SUCH DAMAGE.
 */
 
-#ifndef GAK_STR_FILES_H
-#define GAK_STR_FILES_H
+#ifndef GAK_COND_QUEUE_H
+#define GAK_COND_QUEUE_H
+
 
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
@@ -41,28 +41,8 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#ifdef _MSC_VER
-#	pragma warning( push )
-#	pragma warning( disable: 4986 4820 4668 )
-#endif
-
-#include <sys/stat.h>
-
-#if defined( _MSC_VER )
-#include <sys/utime.h>
-#else
-#include <utime.h>
-#endif
-
-#ifndef _Windows
-#include <fcntl.h>
-#endif
-
-#ifdef _MSC_VER
-#	pragma warning( pop )
-#endif
-
-#include <gak/string.h>
+#include <gak/lockQueue.h>
+#include <gak/conditional.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -90,10 +70,6 @@ namespace gak
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-#ifdef _MSC_VER
-#define S_ISDIR( mode ) (mode & S_IFDIR)
-#endif
-
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -101,6 +77,52 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+template <typename OBJ, typename QueueT=Queue<OBJ> >
+class CondQueue : public LockQueue<OBJ,QueueT>
+{
+	typedef LockQueue<OBJ,QueueT>  Super;
+
+	Conditional	m_cond;
+
+	public:
+	bool wait( unsigned long timeOut )
+	{
+		if( !getLocker().lock(timeOut) )
+		{
+			return false;
+		}
+		if( !size() )
+		{
+			if( getLocker().getLockCount()!=1 )
+			{
+				getLocker().unlock();
+				return false;
+			}
+
+			getLocker().unlock();
+			if( !m_cond.wait(timeOut) )
+			{
+				return false;
+			}
+
+			if( !size() || !getLocker().lock(timeOut) )
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	void unlock()
+	{
+		getLocker().unlock();
+	}
+	void push( const OBJ &item )
+	{
+		Super::push(item);
+		m_cond.notify();
+	}
+};
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
@@ -117,70 +139,6 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-extern "C" 
-{
-	int utime( const char *filename, struct utimbuf *times );
-	int _wutime( const wchar_t *filename, struct utimbuf *times );
-}
-
-#ifdef _Windows
-FILE *strFopen( const STRING &filename, const STRING &mode );
-
-int strCreat( const STRING &filename, int mode );
-int strOpen( const STRING &filename, int flags );
-
-int strStat( const STRING &filename, struct stat *statbuff );
-int strAccess( const STRING &filename, int amode );
-
-int strUtime( const STRING &filename, struct utimbuf *times );
-int strRemove( const STRING &filename );
-int strRmdir( const STRING &filename );
-int strRename( const STRING &oldname, const STRING &newname );
-#else
-inline int strCreat( const STRING &fName, mode_t mode )
-{
-	return creat( fName.convertToCharset( STR_UTF8 ), mode );
-}
-inline int strOpen( const STRING &fName, int flags )
-{
-	return open( fName.convertToCharset( STR_UTF8 ), flags );
-}
-
-inline int strStat( const STRING &filename, struct stat *statbuff )
-{
-	return stat( filename.convertToCharset( STR_UTF8 ), statbuff );
-}
-
-inline int strAccess( const STRING &filename, int amode )
-{
-	return access( filename.convertToCharset( STR_UTF8 ), amode );
-}
-
-inline int strUtime( const STRING &path, struct utimbuf *times )
-{
-	return utime( path.convertToCharset( STR_UTF8 ), times );
-}
-inline FILE *strFopen( const STRING &path, const STRING &mode )
-{
-	return fopen( path.convertToCharset( STR_UTF8 ), mode );
-}
-inline int strRemove( const STRING &filename )
-{
-	return remove( filename.convertToCharset( STR_UTF8 ) );
-}
-inline int strRmdir( const STRING &filename )
-{
-	return rmdir( filename.convertToCharset( STR_UTF8 ) );
-}
-inline int strRename( const STRING &oldname, const STRING &newname )
-{
-	return rename(
-		oldname.convertToCharset( STR_UTF8 ),
-		newname.convertToCharset( STR_UTF8 )
-	);
-}
-#endif
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
@@ -227,4 +185,4 @@ inline int strRename( const STRING &oldname, const STRING &newname )
 #	pragma option -p.
 #endif
 
-#endif
+#endif	// GAK_COND_QUEUE_H

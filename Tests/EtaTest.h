@@ -1,8 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			strFiles.h
-		Description:	check for UTF-8 characters in file names prior some
-						standard calls.
+		Module:			EtaTest.h
+		Description:	
 		Author:			Martin Gäckler
 		Address:		Hopfengasse 15, A-4020 Linz
 		Web:			https://www.gaeckler.at/
@@ -30,8 +29,6 @@
 		SUCH DAMAGE.
 */
 
-#ifndef GAK_STR_FILES_H
-#define GAK_STR_FILES_H
 
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
@@ -41,28 +38,8 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#ifdef _MSC_VER
-#	pragma warning( push )
-#	pragma warning( disable: 4986 4820 4668 )
-#endif
-
-#include <sys/stat.h>
-
-#if defined( _MSC_VER )
-#include <sys/utime.h>
-#else
-#include <utime.h>
-#endif
-
-#ifndef _Windows
-#include <fcntl.h>
-#endif
-
-#ifdef _MSC_VER
-#	pragma warning( pop )
-#endif
-
-#include <gak/string.h>
+#include <gak/eta.h>
+#include <gak/unitTest.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -90,10 +67,6 @@ namespace gak
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-#ifdef _MSC_VER
-#define S_ISDIR( mode ) (mode & S_IFDIR)
-#endif
-
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -101,6 +74,76 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+
+class EtaTest : public UnitTest
+{
+	struct TestClockProvider
+	{
+		typedef std::size_t	ClockTicks;
+
+		static ClockTicks s_ticks;
+		static void inc(const ClockTicks &ticks)
+		{
+			s_ticks += ticks;
+		}
+		static ClockTicks	ticks()
+		{
+			return s_ticks;
+		}
+	};
+
+
+	virtual const char *GetClassName( void ) const
+	{
+		return "EtaTest";
+	}
+	virtual void PerformTest( void )
+	{
+		Eta<std::size_t,TestClockProvider>	theEta;
+
+		UT_ASSERT_EQUAL(theEta.getETA(), 0 );
+		TestClockProvider::s_ticks = clock();
+
+		theEta.addValue(200);
+		UT_ASSERT_EQUAL(theEta.getETA(), 0 );
+
+		TestClockProvider::inc(10);
+		theEta.addValue(190);
+		UT_ASSERT_EQUAL(theEta.getETA(), 190 );
+
+		TestClockProvider::inc(10);
+		theEta.addValue(180);
+		UT_ASSERT_EQUAL(theEta.getETA(), 180 );
+
+		TestClockProvider::inc(10);
+		theEta.addValue(170);
+		UT_ASSERT_EQUAL(theEta.getETA(), 170 );
+
+		TestClockProvider::inc(10);
+		theEta.addValue(160);
+		UT_ASSERT_EQUAL(theEta.getETA(), 160 );
+
+		TestClockProvider::inc(10);
+		theEta.addValue(150);
+		UT_ASSERT_EQUAL(theEta.getETA(), 150 );
+
+		TestClockProvider::inc(5);
+		theEta.addValue(140);
+		UT_ASSERT_EQUAL(theEta.getETA(), 70 );
+
+		TestClockProvider::inc(5);
+		theEta.addValue(130);
+		UT_ASSERT_EQUAL(theEta.getETA(), 65 );
+
+		TestClockProvider::inc(5);
+		theEta.addValue(120);
+		UT_ASSERT_EQUAL(theEta.getETA(), 60 );
+
+		TestClockProvider::inc(5);
+
+	}
+};
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
@@ -110,6 +153,9 @@ namespace gak
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+std::size_t EtaTest::TestClockProvider::s_ticks = 0;
+static EtaTest myEtaTest;
+
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -117,70 +163,6 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-extern "C" 
-{
-	int utime( const char *filename, struct utimbuf *times );
-	int _wutime( const wchar_t *filename, struct utimbuf *times );
-}
-
-#ifdef _Windows
-FILE *strFopen( const STRING &filename, const STRING &mode );
-
-int strCreat( const STRING &filename, int mode );
-int strOpen( const STRING &filename, int flags );
-
-int strStat( const STRING &filename, struct stat *statbuff );
-int strAccess( const STRING &filename, int amode );
-
-int strUtime( const STRING &filename, struct utimbuf *times );
-int strRemove( const STRING &filename );
-int strRmdir( const STRING &filename );
-int strRename( const STRING &oldname, const STRING &newname );
-#else
-inline int strCreat( const STRING &fName, mode_t mode )
-{
-	return creat( fName.convertToCharset( STR_UTF8 ), mode );
-}
-inline int strOpen( const STRING &fName, int flags )
-{
-	return open( fName.convertToCharset( STR_UTF8 ), flags );
-}
-
-inline int strStat( const STRING &filename, struct stat *statbuff )
-{
-	return stat( filename.convertToCharset( STR_UTF8 ), statbuff );
-}
-
-inline int strAccess( const STRING &filename, int amode )
-{
-	return access( filename.convertToCharset( STR_UTF8 ), amode );
-}
-
-inline int strUtime( const STRING &path, struct utimbuf *times )
-{
-	return utime( path.convertToCharset( STR_UTF8 ), times );
-}
-inline FILE *strFopen( const STRING &path, const STRING &mode )
-{
-	return fopen( path.convertToCharset( STR_UTF8 ), mode );
-}
-inline int strRemove( const STRING &filename )
-{
-	return remove( filename.convertToCharset( STR_UTF8 ) );
-}
-inline int strRmdir( const STRING &filename )
-{
-	return rmdir( filename.convertToCharset( STR_UTF8 ) );
-}
-inline int strRename( const STRING &oldname, const STRING &newname )
-{
-	return rename(
-		oldname.convertToCharset( STR_UTF8 ),
-		newname.convertToCharset( STR_UTF8 )
-	);
-}
-#endif
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
@@ -227,4 +209,3 @@ inline int strRename( const STRING &oldname, const STRING &newname )
 #	pragma option -p.
 #endif
 
-#endif

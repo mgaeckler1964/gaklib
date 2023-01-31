@@ -42,7 +42,7 @@
 // --------------------------------------------------------------------- //
 
 #include <ctime>
-#include <gak/array.h>
+#include <gak/ringBuffer.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -96,45 +96,47 @@ public:
 private:
 	struct ValueTimePairs
 	{
-		COUNTER_T	counter;
-		ClockTicks	ticks;
+		COUNTER_T	m_counter;
+		ClockTicks	m_ticks;
+		ValueTimePairs( const COUNTER_T &counter=0, const ClockTicks &ticks=0 ) : m_counter(counter), m_ticks(ticks) {}
 	};
-	Array<ValueTimePairs>	counters;
+	RingBuffer<ValueTimePairs>	m_counters;
 
 	public:
+	Eta() : m_counters(1024) {}
+
 	void addValue(COUNTER_T value)
 	{
-		if( counters.size() )
+		if( m_counters.size() )
 		{
-			COUNTER_T lastValue = counters[counters.size()-1].counter;
+			COUNTER_T lastValue = m_counters.newest().get().m_counter;
 			if( lastValue < value)
 			{
-				counters.clear();
+				m_counters.clear();
 			}
 			else if( lastValue == value )
 			{
 				return;
 			}
 		}
-		ValueTimePairs	&newValue = counters[counters.size()?1:0];
-		newValue.counter = value;
-		newValue.ticks = ClockProvider_T::ticks();
+		ValueTimePairs	newValue(value,ClockProvider_T::ticks());
+		m_counters.push(newValue);
 	}
 	bool isValid() const
 	{
-		return counters.size() >= 2;
+		return m_counters.size() >= 2;
 	}
 	ClockTicks getETA() const
 	{
 		if( isValid() )
 		{
-			const ValueTimePairs	&first = counters[0];
-			const ValueTimePairs	&last = counters[counters.size()-1];
-			ClockTicks				elapsed = last.ticks - first.ticks;
-			COUNTER_T				reached = first.counter - last.counter;
+			ValueTimePairs	first = m_counters.oldest().get();
+			ValueTimePairs	last = m_counters.newest().get();
+			ClockTicks		elapsed = last.m_ticks - first.m_ticks;
+			COUNTER_T		reached = first.m_counter - last.m_counter;
 			if(elapsed&&reached)
 			{
-				ClockTicks	remain = ClockTicks((elapsed*last.counter)/reached);
+				ClockTicks	remain = ClockTicks((elapsed*last.m_counter)/reached);
 
 				return remain;
 			}

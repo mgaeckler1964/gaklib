@@ -175,6 +175,14 @@ class Thread : public SharedObject
 	bool terminated;
 	/// true if the thread is executing
 	bool isRunning;
+	void clrRunning()
+	{
+		isRunning = false;
+	}
+	void setRunning()
+	{
+		isRunning = true;
+	}
 	/// true if the thread is waiting for a notification, Locker or another Thread
 	bool isWaiting;
 

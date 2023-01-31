@@ -188,5 +188,11 @@
     <ClInclude Include="Tests\ConsoleTest.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\RingBufferTest.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Tests\EtaTest.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
