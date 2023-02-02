@@ -82,6 +82,10 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+/**
+	@brief Class storing a period of time in milliseconds
+	@tparam BaseT Scalar type storing a tick
+*/
 template <typename BaseT=std::clock_t>
 class MilliSeconds
 {
@@ -101,78 +105,101 @@ class MilliSeconds
 	BaseT				m_milliSeconds;
 
 	public:
+	/// copy construktor
+	MilliSeconds( const MilliSeconds<BaseT> &source ) : m_milliSeconds(source.m_milliSeconds)
+	{
+	}
+
+	/// constructs a time value from a scalar type in milliseconds
 	explicit MilliSeconds( BaseT milliSeconds=BaseT() ) : m_milliSeconds(milliSeconds)
 	{
 	}
+	/// assigns a time value from a scalar type in milliseconds
 	const MilliSeconds &operator = ( BaseT milliSeconds )
 	{
 		m_milliSeconds = milliSeconds;
 		return *this;
 	}
 
-	MilliSeconds( const MilliSeconds<BaseT> &source ) : m_milliSeconds(source.m_milliSeconds)
-	{
-	}
+	/// copy assignment
 	const MilliSeconds &operator = ( const MilliSeconds<BaseT> &source )
 	{
 		m_milliSeconds = source.m_milliSeconds;
 		return *this;
 	}
 
+	/// returns the total number of milliseconds
 	BaseT get( void ) const
 	{
 		return m_milliSeconds;
 	}
+	/// returns the total number of milliseconds
 	BaseT asMillis() const
 	{
 		return m_milliSeconds;
 	}
+	/// returns the total number of seconds
 	BaseT asSeconds() const
 	{
 		return get() / MILLIS_PER_SECOND;
 	}
+	/// returns the total number of minutes
 	BaseT asMinutes() const
 	{
 		return get() / MILLIS_PER_MINUTE;
 	}
+	/// returns the total number of hours
 	BaseT asHours() const
 	{
 		return get() / MILLIS_PER_HOUR;
 	}
+	/// returns the total number of days
 	BaseT asDays() const
 	{
 		return get() / MILLIS_PER_DAY;
 	}
+
+	/// returns the total number of weeks
 	BaseT asWeeks() const
 	{
 		return get() / MILLIS_PER_WEEK;
 	}
 
+	/// returns the number of milli seconds that are less than a seconds
 	BaseT millisPart( void ) const
 	{
 		return get() % MILLIS_PER_SECOND;
 	}
+	/// returns the number of seconds that are less than a minute
 	BaseT secondsPart( void ) const
 	{
 		return asSeconds() % SECONDS_PER_MINUTE;
 	}
+	/// returns the number of minutes that are less than a hour
 	BaseT minutesPart( void ) const
 	{
 		return asMinutes() % MINUTES_PER_HOUR;
 	}
+	/// returns the number of hours that are less than a day
 	BaseT hoursPart( void ) const
 	{
 		return asHours() % HOURS_PER_DAY;
 	}
+	/// returns the number of days that are less than a week
 	BaseT daysPart( void ) const
 	{
 		return asDays() % DAYS_PER_WEEK;
 	}
+	/// returns the number of weeks
 	BaseT weeksPart( void ) const
 	{
 		return asWeeks();
 	}
 
+	/**
+		returns the string representation of the ellapsed time
+		@param part bool if true seconds are truncated from the string
+	*/
 	STRING toString( bool part=false ) const
 	{
 #ifdef __BORLANDC__
@@ -184,31 +211,44 @@ class MilliSeconds
 #endif
 	}
 
+	/// + operator
 	MilliSeconds<BaseT> operator + ( const MilliSeconds<BaseT> &oper ) const
 	{
 		return MilliSeconds<BaseT>( get() + oper.get() );
 	}
 };
 
+/**
+	@brief Class storing a period of time in seconds
+	@tparam BaseT Scalar type storing a tick
+*/
 template <typename BaseT=std::clock_t>
 class Seconds : public MilliSeconds<BaseT>
 {
 	public:
+	/// copy constructor
 	Seconds( const MilliSeconds<BaseT> &src ) : MilliSeconds<BaseT>(src)
 	{
 	}
+	/// constructs a time value from a scalar type in seconds
 	explicit Seconds( BaseT seconds=BaseT() ) : MilliSeconds<BaseT>(seconds*this->MILLIS_PER_SECOND)
 	{
 	}
+	/// assigns a scalar type value as number of seconds to the ellapsed time
 	const Seconds &operator = ( BaseT milliSeconds )
 	{
 		MilliSeconds<BaseT>::operator = ( milliSeconds*this->MILLIS_PER_SECOND );
 		return *this;
 	}
+	/// returns the ellapse time in seconds
 	BaseT get( void ) const
 	{
 		return this->asSeconds();
 	}
+	/**
+		returns the string representation of the ellapsed time
+		@param part bool if true minutes are truncated from the string
+	*/
 	STRING toString( bool part=false ) const
 	{
 #ifdef __BORLANDC__
@@ -221,25 +261,37 @@ class Seconds : public MilliSeconds<BaseT>
 	}
 };
 
+/**
+	@brief Class storing a period of time in minutes
+	@tparam BaseT Scalar type storing a tick
+*/
 template <typename BaseT=std::clock_t>
 class Minutes : public Seconds<BaseT>
 {
 	public:
+	/// copy constructor
 	Minutes( const MilliSeconds<BaseT> &src ) : Seconds<BaseT>(src)
 	{
 	}
+	/// constructs from scalar type value as number of minutes to the ellapsed time
 	explicit Minutes( BaseT minutes=BaseT() ) : Seconds<BaseT>(minutes*this->SECONDS_PER_MINUTE)
 	{
 	}
+	/// assigns a scalar type value as number of minutes to the ellapsed time
 	const Minutes &operator = ( BaseT minutes )
 	{
 		Seconds<BaseT>::operator = ( minutes*this->SECONDS_PER_MINUTE );
 		return *this;
 	}
+	/// returns the ellapse time in minutes
 	BaseT get( void ) const
 	{
 		return this->asMinutes();
 	}
+	/**
+		returns the string representation of the ellapsed time
+		@param part bool if true hours are truncated from the string
+	*/
 	STRING toString( bool part=false ) const
 	{
 #ifdef __BORLANDC__
@@ -252,25 +304,37 @@ class Minutes : public Seconds<BaseT>
 	}
 };
 
+/**
+	@brief Class storing a period of time in hour
+	@tparam BaseT Scalar type storing a tick
+*/
 template <typename BaseT=std::clock_t>
 class Hours : public Minutes<BaseT>
 {
 	public:
+	/// copy constructor
 	Hours( const MilliSeconds<BaseT> &src ) : Minutes<BaseT>(src)
 	{
 	}
+	/// constructs a time value from a scalar type in hours
 	explicit Hours( BaseT hours=BaseT() ) : Minutes<BaseT>(hours*this->MINUTES_PER_HOUR)
 	{
 	}
+	/// assigns a scalar type value as number of hours to the ellapsed time
 	const Hours &operator = ( BaseT hours )
 	{
 		Minutes<BaseT>::operator = ( hours*this->MINUTES_PER_HOUR );
 		return *this;
 	}
+	/// returns the ellapse time in hours
 	BaseT get( void ) const
 	{
 		return this->asHours();
 	}
+	/**
+		returns the string representation of the ellapsed time
+		@param part bool if true days are truncated from the string
+	*/
 	STRING toString( bool part=false ) const
 	{
 #ifdef __BORLANDC__
@@ -283,58 +347,81 @@ class Hours : public Minutes<BaseT>
 	}
 };
 
+/**
+	@brief Class storing a period of time in days
+	@tparam BaseT Scalar type storing a tick
+*/
 template <typename BaseT=std::clock_t>
 class Days : public Hours<BaseT>
 {
 	public:
+	/// copy constructor
 	Days( const MilliSeconds<BaseT> &src ) : Hours<BaseT>(src)
 	{
 	}
+	/// constructs from scalar type value as number of days to the ellapsed time
 	explicit Days( BaseT days=BaseT() ) : Hours<BaseT>(days*this->HOURS_PER_DAY)
 	{
 	}
+	/// assigns a scalar type value as number of days to the ellapsed time
 	const Days &operator = ( BaseT days )
 	{
 		Hours<BaseT>::operator = ( days*this->HOURS_PER_DAY );
 		return *this;
 	}
+	/// returns the scalar representing the ellapsed time in days
 	BaseT get( void ) const
 	{
 		return this->asDays();
 	}
+	/**
+		returns the string representation of the ellapsed time
+		@param part bool if true weeks are truncated from the string
+	*/
 	STRING toString( bool part=false ) const
 	{
 		return formatNumber( part ? this->daysPart() : get() ) + "d " + Hours<BaseT>::toString( true );
 	}
 };
 
+/**
+	@brief Class storing a period of time in weeks
+	@tparam BaseT Scalar type storing a tick
+*/
 template <typename BaseT=std::clock_t>
 class Weeks : public Days<BaseT>
 {
 	public:
+	/// copy constructor
 	Weeks( const MilliSeconds<BaseT> &src ) : Days<BaseT>(src)
 	{
 	}
+	/// constructs from scalar type value as number of weeks to the ellapsed time
 	explicit Weeks( BaseT weeks=BaseT() ) : Days<BaseT>(weeks*this->DAYS_PER_WEEK)
 	{
 	}
+	/// assigns a scalar type value as number of weeks to the ellapsed time
 	const Weeks &operator = ( BaseT weeks )
 	{
 		Days<BaseT>::operator = ( weeks*this->DAYS_PER_WEEK );
 		return *this;
 	}
+	/// returns the scalar representing the ellapsed time in week
 	BaseT get( void ) const
 	{
 		return this->asWeeks();
 	}
+	/// returns the string representation of the ellapsed time
 	STRING toString() const
 	{
 		return formatNumber( get() ) + "w " + Days<BaseT>::toString( true );
 	}
 };
 
+/// helper class used to convert clock ticks as returned by std::clock in miliseconds
 struct TimeConverter
 {
+	/// converts the clock ticks in milliseconds ticks
 	static std::clock_t getMillis( std::clock_t clock )
 	{
 #if CLOCKS_PER_SEC != 1000
@@ -346,7 +433,10 @@ struct TimeConverter
 	}
 };
 
-struct UserTimeClock : public TimeConverter
+/**
+	@brief stop watch to meassure the execution time with a user clock
+*/
+struct UserTimeClock : private TimeConverter
 {
 	/// return execution (user) time in ms
 	static std::clock_t clock( void )
@@ -369,15 +459,25 @@ struct UserTimeClock : public TimeConverter
 	}
 };
 
-struct CpuTimeClock : public TimeConverter
+/**
+	@brief stop watch to meassure the execution time with a cpu clock
+
+	@note Windows uses a user clock instead
+*/
+struct CpuTimeClock : private TimeConverter
 {
-	/// return execution (user) time in ms
+	/// return execution (cpu) time in ms
 	static std::clock_t clock( void )
 	{
 		return getMillis( std::clock() );
 	}
 };
 
+/**
+	@brief StopWatch template used to meassure execution times
+	@tparam ClockT stop watch use to meassure the execution time
+	@see CpuTimeClock, UserTimeClock
+*/
 template<typename ClockT>
 class BasicStopWatch
 {
@@ -385,6 +485,10 @@ class BasicStopWatch
 	bool			m_isRunning;
 
 	public:
+	/**
+		@brief constructor to create a stop watch
+		@param start bool immediately start the stop watch
+	*/
 	BasicStopWatch( bool start=false )
 	{
 		m_startTime = start ? ClockT::clock() : 0;
@@ -392,11 +496,13 @@ class BasicStopWatch
 		m_isRunning = start;
 	}
 
+	/// starts or resets the stop watch
 	void start()
 	{
 		m_startTime = ClockT::clock();
 		m_isRunning = true;
 	}
+	/// stops the stop watch if its currenty running
 	void stop()
 	{
 		if( m_isRunning )
@@ -405,18 +511,27 @@ class BasicStopWatch
 			m_isRunning = false;
 		}
 	}
+
+	/**
+		@brief returns the execution time of the stop watch
+		@tparam TimerT The type of the clock ticks
+		@see MilliSeconds, Seconds, Minutes, Hours, Days, Weeks
+	*/
 	template <typename TimerT>
 	TimerT get( void ) const
 	{
 		return TimerT( MilliSeconds<std::clock_t>( getMillis() ) );
 	}
+	/// returns the execution time in milliseconds
 	std::clock_t getMillis() const
 	{
 		return (m_isRunning ? ClockT::clock() : m_endTime) - m_startTime;
 	}
 };
 
+/// StopWatch uses a user time clock to meassure the execution time. @see BasicStopWatch
 typedef BasicStopWatch<UserTimeClock>	StopWatch;
+/// CpuStopWatch uses a cpu time clock to meassure the execution time. @see BasicStopWatch
 typedef BasicStopWatch<CpuTimeClock>	CpuStopWatch;
 
 // --------------------------------------------------------------------- //

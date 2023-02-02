@@ -1,4 +1,8 @@
 xholidays.dat
+*.bak
 *.dsk
-GAKLIB_VS2010.suo
+*.ipch
+*.opensdf
+*.sdf
+*.suo
 *.user
