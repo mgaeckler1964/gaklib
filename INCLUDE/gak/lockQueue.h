@@ -85,6 +85,8 @@ namespace gak
 	changing that Queue
 
 	@tparam OBJ the item types that is stored in this Queue
+	@tparam QueueT the container type that behaves as a queue
+	@see Queue
 */
 template <typename OBJ, typename QueueT=Queue<OBJ> >
 class LockQueue

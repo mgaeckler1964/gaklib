@@ -78,6 +78,15 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+/**
+	@brief CondQueue
+
+	Queue that allows a thread to wait for incomming data
+
+	@tparam OBJ the object type that can be stored in this container
+	@tparam QueueT the container type that behaves as a queue
+	@see Queue
+*/
 template <typename OBJ, typename QueueT=Queue<OBJ> >
 class CondQueue : public LockQueue<OBJ,QueueT>
 {
@@ -86,6 +95,14 @@ class CondQueue : public LockQueue<OBJ,QueueT>
 	Conditional	m_cond;
 
 	public:
+	/**
+		@brief wait for incomming data
+
+		This function waits for incomming until timeout is ellapsed and locks the queue
+
+		@param [in] timeOut time in milli seconds until the data must arrive
+		@return true if data has arrived and the queue is locked, false the queue is not locked propably there is no data
+	*/
 	bool wait( unsigned long timeOut )
 	{
 		if( !getLocker().lock(timeOut) )
@@ -113,10 +130,15 @@ class CondQueue : public LockQueue<OBJ,QueueT>
 		}
 		return true;
 	}
+	/// decreases the lock counter and unlocks the queue if the counter is 0
 	void unlock()
 	{
 		getLocker().unlock();
 	}
+	/**
+		pushed new data onto the queue and notifies waiting threads
+		@param [in] item the data to push
+	*/
 	void push( const OBJ &item )
 	{
 		Super::push(item);
