@@ -80,6 +80,7 @@
 #include "Tests/PriorityQueueTest.h"
 #include "Tests/OptionalTest.h"
 #include "Tests/ConditionalTest.h"
+#include "Tests/CondQueueTest.h"
 #include "Tests/ThreadPoolTest.h"
 #include "Tests/FieldSetTest.h"
 #include "Tests/ContainerTest.h"
