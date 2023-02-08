@@ -87,7 +87,7 @@ class EtaTest : public UnitTest
 		{
 			s_ticks += ticks;
 		}
-		static ClockTicks	ticks()
+		static ClockTicks	clock()
 		{
 			return s_ticks;
 		}

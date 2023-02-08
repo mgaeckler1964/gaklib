@@ -438,8 +438,10 @@ struct TimeConverter
 */
 struct UserTimeClock : private TimeConverter
 {
+	typedef std::clock_t	ClockTicks;
+
 	/// return execution (user) time in ms
-	static std::clock_t clock( void )
+	static ClockTicks clock( void )
 	{
 #ifdef _Windows
 		return getMillis( std::clock() );
@@ -466,8 +468,10 @@ struct UserTimeClock : private TimeConverter
 */
 struct CpuTimeClock : private TimeConverter
 {
+	typedef std::clock_t	ClockTicks;
+
 	/// return execution (cpu) time in ms
-	static std::clock_t clock( void )
+	static ClockTicks clock( void )
 	{
 		return getMillis( std::clock() );
 	}

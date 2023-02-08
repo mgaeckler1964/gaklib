@@ -43,6 +43,7 @@
 
 #include <ctime>
 #include <gak/ringBuffer.h>
+#include <gak/stopWatch.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -78,20 +79,21 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-struct StdClockProvider
-{
-	typedef std::clock_t	ClockTicks;
+/**
+	@brief estimate time of arrival
 
-	static ClockTicks	ticks()
-	{
-		return std::clock();
-	}
-};
+	Estimates the time til a process finishes. This is calculated by watching a counter til its value becomes 0. 
 
-template <class COUNTER_T=std::size_t, class ClockProvider_T=StdClockProvider>
+	@tparam COUNTER_T The type of the counter, default is std::size_t
+	@tparam ClockProvider_T The type of a clock provider, default is UserTimeClock
+
+	@see UserTimeClock
+*/
+template <class COUNTER_T=std::size_t, class ClockProvider_T=UserTimeClock>
 class Eta
 {
 public:
+	/// @brief the type of clock ticks
 	typedef typename ClockProvider_T::ClockTicks ClockTicks;
 private:
 	struct ValueTimePairs
@@ -103,8 +105,13 @@ private:
 	RingBuffer<ValueTimePairs>	m_counters;
 
 	public:
+	/// @brief the constructor
 	Eta() : m_counters(1024) {}
 
+	/**
+		@brief watch the counter value
+		@param [in] value The current value of the counter
+	*/
 	void addValue(COUNTER_T value)
 	{
 		if( m_counters.size() )
@@ -119,13 +126,15 @@ private:
 				return;
 			}
 		}
-		ValueTimePairs	newValue(value,ClockProvider_T::ticks());
+		ValueTimePairs	newValue(value,ClockProvider_T::clock());
 		m_counters.push(newValue);
 	}
+	/// @return true if the time of arrival can be estimated 
 	bool isValid() const
 	{
 		return m_counters.size() >= 2;
 	}
+	/// @return The number of estimated ticks until the counter reaches 0.
 	ClockTicks getETA() const
 	{
 		if( isValid() )
@@ -145,6 +154,7 @@ private:
 	}
 };
 
+/// @brief the output operator for an ETA. If the ETA is not yet valid it prints nothing
 template <class COUNTER_T, class ClockProvider_T>
 std::ostream & operator << ( std::ostream &out, const Eta<COUNTER_T, ClockProvider_T> &eta )
 {
