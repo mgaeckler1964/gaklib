@@ -345,7 +345,7 @@ class Btree : public Container
 	public:
 	/**
 		@brief adds a new element to the buffer
-		@param data the new item
+		@param [in] data the new item
 		@return the new copied item
 	*/
 	OBJ &addElement( const OBJ &data )
@@ -366,7 +366,7 @@ class Btree : public Container
 
 	/**
 		@brief adds a new element to the buffer
-		@param data the new item
+		@param [in] data the new item
 		@return the buffer itself
 	*/
 	const Btree<OBJ, Comparator, FACTOR, OFFSET> &operator += ( const OBJ &data )

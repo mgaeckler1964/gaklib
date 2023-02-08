@@ -529,7 +529,7 @@ class ArrayBase : public Container
 	public:
 	/**
 		@brief adds a new element to the buffer
-		@param item the new item
+		@param [in] item the new item
 		@return the new copied item
 	*/
 	OBJ &addElement( const OBJ &item )
@@ -542,7 +542,7 @@ class ArrayBase : public Container
 	}
 	/**
 		@brief adds a new element to the buffer
-		@param item the new item
+		@param [in] item the new item
 		@return the buffer itself
 	*/
 	ArrayBase<OBJ, ALLOCATOR> &operator += ( const OBJ &item )
@@ -811,14 +811,14 @@ class ArrayBase : public Container
 
 	/**
 		@brief performs a function for each element
-		@param func address of a function that accepts an item
+		@param [in] func address of a function that accepts an item
 	*/
 	template <class F> 
 	void forEach( const F &func );
 
 	/**
 		@brief performs a function for each element
-		@param func address of a function that accepts an item
+		@param [in] func address of a function that accepts an item
 	*/
 	template <class F> 
 	void forEach( const F &func ) const;
