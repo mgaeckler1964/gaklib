@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -80,6 +80,7 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+/// simple C++ wrapper for std::FILE *
 class STDfile
 {
 	FILE	*fp;
@@ -88,14 +89,29 @@ class STDfile
 	const STDfile & operator = ( const STDfile &src );
 
 	public:
+	/**
+		@brief Open a file
+
+		@param [in] fileName the file to open
+		@param [in] mode the mode string passed to std::fopen
+	*/
 	STDfile( const STRING &fileName, const STRING &mode )
 	{
 		this->fp = strFopen( fileName, mode );
 	}
+	/**
+		@brief Assigns an open FILE handle
+		@param [in] pointer to the std::FILE handle
+	*/
 	STDfile( FILE *fp )
 	{
 		this->fp = fp;
 	}
+	/**
+		@brief Assigns an open FILE handle
+		@param [in] pointer to the std::FILE handle
+		@return this
+	*/
 	const STDfile &operator = ( FILE *fp )
 	{
 		close();
@@ -103,21 +119,24 @@ class STDfile
 
 		return *this;
 	}
+	/// Destrurctor, closes the file
 	~STDfile()
 	{
 		if( fp )
 			fclose( fp );
 	}
-
+	/// Returns the FILE handle
 	operator FILE * ( void )
 	{
 		return fp;
 	}
+	/// Returns the FILE handle
 	FILE *operator -> ( void )
 	{
 		return fp;
 	}
 
+	/// Closes the file
 	void close( void )
 	{
 		if( fp )
@@ -128,6 +147,10 @@ class STDfile
 	}
 };
 
+/**
+	@brief C++ Wrapper for mallo/free
+	@tparam TYPE type of the pointer to manage
+*/
 template <class TYPE>
 class Buffer
 {
@@ -137,33 +160,50 @@ class Buffer
 	const Buffer & operator = ( const Buffer &src );
 
 	public:
+	/**
+		@brief Constructs a pointer object from an allocated memory.
+
+		The buffer should be allocated with std::malloc or std::calloc
+
+		@param [in] buffer the address of the memory buffer
+	*/
 	Buffer( void *buff )
 	{
 		this->buff = static_cast<TYPE*>(buff);
 	}
+	/// Destructor, frees the memory block
 	~Buffer()
 	{
 		if( buff )
 			::free( buff );
 	}
-
+	/// Returns a pointer to TYPE
 	operator TYPE * ( void )
 	{
 		return buff;
 	}
+	/// Returns a pointer to TYPE
 	TYPE *operator -> ( void )
 	{
 		return buff;
 	}
-
+	/**
+		@brief Returns a pointer to an index element
+		@param [in] offset the index of the element
+	*/
 	TYPE *operator + ( int offset )
 	{
 		return buff + offset;
 	}
+	/**
+		@brief Returns a const pointer to an index element
+		@param [in] offset the index of the element
+	*/
 	const TYPE *operator + ( int offset ) const
 	{
 		return buff + offset;
 	}
+	/// Frees the memory block
 	void free( void )
 	{
 		if( buff )
