@@ -6,7 +6,7 @@
 		Address:		Hopfengasse 15, A-4020 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2023 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -85,6 +85,12 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+/**
+	@brief A FileID stores a unique file identifier 
+
+	Each file on a hard disk has it's own uinique identifier, Whith this identifier
+	you can easily identify 2 or more had links that point to the save file
+*/
 struct FileID
 {
 	#if defined( _Windows )
@@ -95,9 +101,12 @@ struct FileID
 		typedef ino_t	FileIndex;
 	#endif
 
+	/// the unique id for each hard drive
 	DeviceID	deviceID;
+	/// the unique id for each file on a hard disk
 	FileIndex	fileIndex;
 
+	/// compare two objects of type FileID
 	int compare( const FileID &oper ) const
 	{
 		int result = gak::compare( oper.deviceID, this->deviceID );
@@ -106,21 +115,34 @@ struct FileID
 
 		return result;
 	}
+	/**
+		@brief	print formated a file id object to a stream
+		@param [in] out the text mode output stream
+	*/
 	void toFmtStream( std::ostream &out ) const
 	{
 		out << '(' << deviceID << '/'
 			<< fileIndex << ')';
 	}
+	/**
+		@brief	print binary a file id object to a stream
+		@param [in] out the binary output stream
+	*/
 	void toBinaryStream( std::ostream &stream ) const
 	{
 		gak::toBinaryStream( stream, deviceID );
 		gak::toBinaryStream( stream, fileIndex );
 	}
+	/**
+		@brief	read a file id object from a stream
+		@param [in] stream the binary input stream
+	*/
 	void fromBinaryStream( std::istream &stream )
 	{
 		gak::fromBinaryStream( stream, &deviceID );
 		gak::fromBinaryStream( stream, &fileIndex );
 	}
+	/// returns true, if object is set (valid)
 	operator bool () const
 	{
 		return deviceID || fileIndex;
@@ -143,6 +165,11 @@ struct FileID
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+/**
+	@brief determin the file id
+	@param [in] fname the filename
+	@return the file id
+*/
 FileID	getFileID( const STRING &fname );
 
 // --------------------------------------------------------------------- //
@@ -181,6 +208,7 @@ FileID	getFileID( const STRING &fname );
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+/// stream operator to print the file id formated to a text stream
 inline std::ostream &operator << ( std::ostream &theStream, const FileID &theSource )
 {
 	theSource.toFmtStream( theStream );
