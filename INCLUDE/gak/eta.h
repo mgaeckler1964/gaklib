@@ -103,10 +103,11 @@ private:
 		ValueTimePairs( const COUNTER_T &counter=0, const ClockTicks &ticks=0 ) : m_counter(counter), m_ticks(ticks) {}
 	};
 	RingBuffer<ValueTimePairs>	m_counters;
+	ClockTicks	m_lastresult;
 
 	public:
 	/// @brief the constructor
-	Eta() : m_counters(1024) {}
+	Eta() : m_counters(512) {}
 
 	/**
 		@brief watch the counter value
@@ -125,6 +126,10 @@ private:
 			{
 				return;
 			}
+			if( m_counters.isFull() )
+			{
+				m_counters.pop();
+			}
 		}
 		ValueTimePairs	newValue(value,ClockProvider_T::clock());
 		m_counters.push(newValue);
@@ -135,7 +140,7 @@ private:
 		return m_counters.size() >= 2;
 	}
 	/// @return The number of estimated ticks until the counter reaches 0.
-	ClockTicks getETA() const
+	ClockTicks getETA(ClockTicks expectedMinDiff=0, ClockTicks expectedMaxDiff=0)
 	{
 		if( isValid() )
 		{
@@ -146,17 +151,24 @@ private:
 			if(elapsed&&reached)
 			{
 				ClockTicks	remain = ClockTicks((elapsed*last.m_counter)/reached);
-
-				return remain;
+				if( m_lastresult > std::numeric_limits<ClockTicks>::min() && (expectedMinDiff || expectedMaxDiff) )
+				{
+					ClockTicks actDiff = abs(m_lastresult-remain);
+					if( actDiff < expectedMinDiff || actDiff > expectedMaxDiff)
+					{
+						return m_lastresult = std::numeric_limits<ClockTicks>::min();
+					}
+				}
+				return m_lastresult = remain;
 			}
 		}
-		return std::numeric_limits<ClockTicks>::min();
+		return m_lastresult = std::numeric_limits<ClockTicks>::min();
 	}
 };
 
 /// @brief the output operator for an ETA. If the ETA is not yet valid it prints nothing
 template <class COUNTER_T, class ClockProvider_T>
-std::ostream & operator << ( std::ostream &out, const Eta<COUNTER_T, ClockProvider_T> &eta )
+std::ostream & operator << ( std::ostream &out, Eta<COUNTER_T, ClockProvider_T> &eta )
 {
 	if( eta.isValid() )
 	{

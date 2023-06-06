@@ -180,13 +180,16 @@ class RingBuffer
 		@return true on success (not empty)
 		@see RingBuffer::oldest
 	*/
-	bool pop( OBJ *result )
+	bool pop( OBJ *result=NULL )
 	{
 		Optional<OBJ>	ret = oldest();
 
 		if( ret.isPresent() )
 		{
-			*result = ret.get();
+			if( result )
+			{
+				*result = ret.get();
+			}
 			m_nextRead = inc( m_nextRead );
 
 			m_full = false;
