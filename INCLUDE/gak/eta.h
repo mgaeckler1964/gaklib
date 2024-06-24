@@ -153,7 +153,7 @@ private:
 				ClockTicks	remain = ClockTicks((elapsed*last.m_counter)/reached);
 				if( m_lastresult > std::numeric_limits<ClockTicks>::min() && (expectedMinDiff || expectedMaxDiff) )
 				{
-					ClockTicks actDiff = abs(m_lastresult-remain);
+					ClockTicks actDiff = gak::math::abs(m_lastresult-remain);
 					if( actDiff < expectedMinDiff || actDiff > expectedMaxDiff)
 					{
 						return m_lastresult = std::numeric_limits<ClockTicks>::min();
