@@ -425,7 +425,7 @@ class DateTime : public Date, public Time
 	}
 	time_t getUtcUnixSeconds( void ) const
 	{
-		return Date::getUnixSeconds() + getDaySeconds();
+		return Date::getUtcUnixSeconds() + getDaySeconds();
 	}
 	long getTZoffset( void ) const
 	{

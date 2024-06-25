@@ -216,8 +216,8 @@ void fcopy( const STRING &source, const STRING &destination, FcopyWatcherT &watc
 		struct utimbuf	timeBuff;
 		DirectoryEntry	stat( source );
 
-		timeBuff.actime = stat.accessDate.getUnixSeconds();
-		timeBuff.modtime = stat.modifiedDate.getUnixSeconds();
+		timeBuff.actime = stat.accessDate.getUtcUnixSeconds();
+		timeBuff.modtime = stat.modifiedDate.getUtcUnixSeconds();
 
 		if( timeBuff.actime < timeBuff.modtime )
 		{

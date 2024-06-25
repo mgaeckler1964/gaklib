@@ -400,7 +400,7 @@ class BasicDate
 		--------------------------------------------------------------------------------------
 	*/
 	public:
-	std::time_t getUnixSeconds( void ) const
+	std::time_t getUtcUnixSeconds( void ) const
 	{
 		return sinceUnix()*24*3600;
 	}
