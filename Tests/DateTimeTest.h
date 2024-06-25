@@ -85,6 +85,23 @@ class DateTimeTest : public UnitTest
 	{
 		DateTime	now;
 
+		std::cout << "\nSPRINGYEAR" << SPRINGYEAR << ' ' << SPRINGYEAR - MEANYEAR << ' ' << SPRINGDURATION70 << ' ' << SPRINGDURATION22 << ' ' << SPRINGDURATION22-SPRINGDURATION70 << "\n"
+				<< "SUMMERYEAR" << SUMMERYEAR << ' ' << SUMMERYEAR - MEANYEAR << ' ' << SUMMERDURATION70 << ' ' << SUMMERDURATION22 << ' ' << SUMMERDURATION22-SUMMERDURATION70 << "\n"
+				<< "AUTUMNYEAR" << AUTUMNYEAR << ' ' << AUTUMNYEAR - MEANYEAR << ' ' << AUTUMNDURATION70 << ' ' << AUTUMNDURATION22 << ' ' << AUTUMNDURATION22-AUTUMNDURATION70 << "\n"
+				<< "WINTERYEAR" << WINTERYEAR << ' ' << WINTERYEAR - MEANYEAR << "\n";
+
+		DateTime lastSpring = now.lastSpring();
+		DateTime nextSpring = now.nextSpring();
+		std::cout << now << ' ' << now.getUtcUnixSeconds() << '\n';
+		std::cout << lastSpring << '\n';
+		std::cout << nextSpring << '\n';
+		DateTime::Season curSeason = now.getSeason();
+		const char *SeasonStrings[] = 
+		{
+			"S_UNKNOWN", "S_SPRING", "S_SUMMER", "S_AUTUMN", "S_WINTER"
+		};
+		std::cout << SeasonStrings[curSeason] << '\n';
+
 		UT_ASSERT_EQUAL( now.getTZoffset(), 7200L );
 		DateTime	epochBegin( time_t( 0 ) );
 		UT_ASSERT_EQUAL( epochBegin.getYear(), (unsigned short)1970 );
@@ -98,21 +115,32 @@ class DateTimeTest : public UnitTest
 		const time_t yearSeconds = 365 * daySeconds;
 		const time_t leapYearSeconds = yearSeconds + daySeconds;
 
-		DateTime	theDate1( time_t( yearSeconds*2 + leapYearSeconds + yearSeconds ) );
-		UT_ASSERT_EQUAL( theDate1.getYear(), (unsigned short)1974 );
-		UT_ASSERT_EQUAL( theDate1.getMonth(), Date::JANUARY );
-		UT_ASSERT_EQUAL( int(theDate1.getDay()), 1 );
-		UT_ASSERT_EQUAL( int(theDate1.getHour()), 0 );
-		UT_ASSERT_EQUAL( int(theDate1.getMinute()), 0 );
-		UT_ASSERT_EQUAL( int(theDate1.getSecond()), 0 );
+		{
+			DateTime	theDate( time_t( yearSeconds*2 + leapYearSeconds + yearSeconds ) );
+			UT_ASSERT_EQUAL( theDate.getYear(), (unsigned short)1974 );
+			UT_ASSERT_EQUAL( theDate.getMonth(), Date::JANUARY );
+			UT_ASSERT_EQUAL( int(theDate.getDay()), 1 );
+			UT_ASSERT_EQUAL( int(theDate.getHour()), 0 );
+			UT_ASSERT_EQUAL( int(theDate.getMinute()), 0 );
+			UT_ASSERT_EQUAL( int(theDate.getSecond()), 0 );
+		}
 
-		DateTime	theDate2( time_t( yearSeconds*2 + 31*daySeconds + 28*daySeconds + 14*3600 + 30 * 60 + 25 ) );
-		UT_ASSERT_EQUAL( theDate2.getYear(), (unsigned short)1972 );
-		UT_ASSERT_EQUAL( theDate2.getMonth(), Date::FEBRUARY );
-		UT_ASSERT_EQUAL( int(theDate2.getDay()), 29 );
-		UT_ASSERT_EQUAL( int(theDate2.getHour()), 14 );
-		UT_ASSERT_EQUAL( int(theDate2.getMinute()), 30 );
-		UT_ASSERT_EQUAL( int(theDate2.getSecond()), 25 );
+		{
+			DateTime	theDate( time_t( yearSeconds*2 + 31*daySeconds + 28*daySeconds + 14*3600 + 30 * 60 + 25 ) );
+			UT_ASSERT_EQUAL( theDate.getYear(), (unsigned short)1972 );
+			UT_ASSERT_EQUAL( theDate.getMonth(), Date::FEBRUARY );
+			UT_ASSERT_EQUAL( int(theDate.getDay()), 29 );
+			UT_ASSERT_EQUAL( int(theDate.getHour()), 14 );
+			UT_ASSERT_EQUAL( int(theDate.getMinute()), 30 );
+			UT_ASSERT_EQUAL( int(theDate.getSecond()), 25 );
+		}
+
+		{
+			DateTime	theDate( 14, Date::NOVEMBER, 2023, 22, 13, 20 );
+			std::cout << theDate << ' ' << theDate.getUtcUnixSeconds() << '\n'; 
+			UT_ASSERT_EQUAL( theDate.getUtcUnixSeconds(), 1700000000 );
+		}
+//		UT_ASSERT_FALSE(true);
 	}
 };
 

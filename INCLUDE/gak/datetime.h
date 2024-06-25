@@ -75,9 +75,59 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+// spring 1970 (utc): 21. 3. 00:56
+static const time_t SPRING1970 = 6828960;
+// summer 1970 (utc): 21. 6. 19:42
+static const time_t SUMMER1970 = 14845320;
+// autum  1970 (utc): 23. 9. 10:58
+static const time_t AUTUMN1970 = 22935480;
+// winter 1970 (utc): 22.12. 06:35
+static const time_t WINTER1970 = 30695700;
+
+// spring 2022 (utc): 20. 3. 15:33
+static const time_t SPRING2022 = 1647790380;
+// summer 2022 (utc): 21. 6. 09:13
+static const time_t SUMMER2022 = 1655802780;
+// autum  2022 (utc): 23. 9. 01:03XXXXXXXXXXXXX
+static const time_t AUTUMN2022 = 1663894980;
+// winter 2022 (utc): 21.12. 21:48
+static const time_t WINTER2022 = 1671659280;
+
+static const time_t SPRINGYEAR = (SPRING2022-SPRING1970)/52;
+static const time_t SUMMERYEAR = (SUMMER2022-SUMMER1970)/52;
+static const time_t AUTUMNYEAR = (AUTUMN2022-AUTUMN1970)/52;
+static const time_t WINTERYEAR = (WINTER2022-WINTER1970)/52;
+static const time_t MEANYEAR = (365*24+6)*3600;
+
+static const time_t SPRINGDURATION70 = SUMMER1970-SPRING1970;
+static const time_t SUMMERDURATION70 = AUTUMN1970-SUMMER1970;
+static const time_t AUTUMNDURATION70 = WINTER1970-AUTUMN1970;
+
+static const time_t SPRINGDURATION22 = SUMMER2022-SPRING2022;
+static const time_t SUMMERDURATION22 = AUTUMN2022-SUMMER2022;
+static const time_t AUTUMNDURATION22 = WINTER2022-AUTUMN2022;
+
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+template <time_t SEASON70START, time_t SEAONYEAR>
+time_t getLastSeasonStart( time_t utctime  )
+{
+	const time_t sesondsSinceStart = utctime - SEASON70START;
+	const time_t yearsSinceStart = sesondsSinceStart/SEAONYEAR;
+
+	return SEASON70START + SEAONYEAR * yearsSinceStart;
+}
+
+template <long SEASON70START, long SEAONYEAR>
+time_t getNextSeasonStart( time_t utctime )
+{
+	const time_t sesondsSinceStart = utctime - SEASON70START;
+	const time_t yearsSinceStart = sesondsSinceStart/SEAONYEAR;
+
+	return SEASON70START + SEAONYEAR * (yearsSinceStart+1);
+}
 
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
@@ -119,6 +169,13 @@ class DateTime : public Date, public Time
 
 		m_tzOffset = calcTzOffset();
 	}
+	void makeEntry( time_t	timer, long tzOffset )
+	{
+		setDate( timer );
+		setTime( timer );
+
+		m_tzOffset = tzOffset;
+	}
 	void makeNow( void )
 	{
 		time_t timer;
@@ -132,6 +189,9 @@ class DateTime : public Date, public Time
 	static void initTimeZone( void );
 
 	public:
+	/*
+		constructors alway use UTC time
+	*/
 	DateTime(
 		unsigned char day, Month month, unsigned short year,
 		unsigned char hour, unsigned char minute, unsigned char second,
@@ -159,10 +219,15 @@ class DateTime : public Date, public Time
 		initTimeZone();
 		makeNow();
 	}
-	DateTime( time_t timer) : Date( true ), Time( true )
+	DateTime( time_t timer ) : Date( true ), Time( true )
 	{
 		initTimeZone();
 		makeEntry( timer );
+	}
+	DateTime( time_t timer, long tzOffset ) : Date( true ), Time( true )
+	{
+		initTimeZone();
+		makeEntry( timer, tzOffset );
 	}
 
 #if defined( __BORLANDC__ )
@@ -238,6 +303,84 @@ class DateTime : public Date, public Time
 		return thisStamp;
 	}
 
+	DateTime lastSpring() const
+	{
+		return DateTime( getLastSeasonStart<SPRING1970,SPRINGYEAR>(getUtcUnixSeconds()), 0 );
+	}
+	DateTime lastSummer() const
+	{
+		return DateTime( getLastSeasonStart<SUMMER1970,SUMMERYEAR>(getUtcUnixSeconds()), 0 );
+	}
+	DateTime lastAutumn() const
+	{
+		return DateTime( getLastSeasonStart<AUTUMN1970,AUTUMNYEAR>(getUtcUnixSeconds()), 0 );
+	}
+	DateTime lastWinter() const
+	{
+		return DateTime( getLastSeasonStart<WINTER1970,WINTERYEAR>(getUtcUnixSeconds()), 0 );
+	}
+
+	DateTime nextSpring() const
+	{
+		return DateTime( getNextSeasonStart<SPRING1970,SPRINGYEAR>(getUtcUnixSeconds()), 0 );
+	}
+	DateTime nextSummer() const
+	{
+		return DateTime( getNextSeasonStart<SUMMER1970,SUMMERYEAR>(getUtcUnixSeconds()), 0 );
+	}
+	DateTime nextAutumn() const
+	{
+		return DateTime( getNextSeasonStart<AUTUMN1970,AUTUMNYEAR>(getUtcUnixSeconds()), 0 );
+	}
+	DateTime nextWinter() const
+	{
+		return DateTime( getNextSeasonStart<WINTER1970,WINTERYEAR>(getUtcUnixSeconds()), 0 );
+	}
+
+	Season getSeason() const
+	{
+		Month month = getMonth();
+		switch( month )
+		{
+		case JANUARY:
+		case FEBRUARY:
+			return S_WINTER;
+		case APRIL:
+		case MAY:
+			return S_SPRING;
+		case JULY:
+		case AUGUST:
+			return S_SUMMER;
+		case OCTOBER:
+		case NOVEMBER:
+			return S_AUTUMN;
+
+		case MARCH:
+			{
+				DateTime springStart = lastSpring();
+				return springStart.getYear() == getYear() ? S_SPRING : S_WINTER;
+			}
+
+		case JUNE:
+			{
+				DateTime summerStart = lastSummer();
+				return summerStart.getYear() == getYear() ? S_SUMMER : S_SPRING;
+			}
+		case SEPTEMBER:
+			{
+				DateTime autumnStart = lastAutumn();
+				return autumnStart.getYear() == getYear() ? S_AUTUMN : S_SUMMER;
+			}
+		case DECEMBER:
+			{
+				DateTime winterStart = lastWinter();
+				return winterStart.getYear() == getYear() ? S_WINTER : S_AUTUMN;
+			}
+		case UNDEFINED_MONTH:
+		default:
+			return S_UNKNOWN;
+		}
+	}
 	int compare( const DateTime &dateTime ) const
 	{
 		unsigned long thisLong = Date::getLong();
@@ -280,7 +423,7 @@ class DateTime : public Date, public Time
 		makeEntry( timeVal );
 		return *this;
 	}
-	time_t getUnixSeconds( void ) const
+	time_t getUtcUnixSeconds( void ) const
 	{
 		return Date::getUnixSeconds() + getDaySeconds();
 	}
@@ -288,7 +431,6 @@ class DateTime : public Date, public Time
 	{
 		return m_tzOffset;
 	}
-
 	static long getTimezone()
 	{
 #if defined( __BORLANDC__ )

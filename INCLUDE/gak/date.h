@@ -228,6 +228,10 @@ class BasicDate
 		JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE,
 		JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER
 	};
+	enum Season
+	{
+		S_UNKNOWN, S_SPRING, S_SUMMER, S_AUTUMN, S_WINTER
+	};
 
 	private:
 	unsigned char	m_month, m_day;
