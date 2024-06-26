@@ -85,10 +85,10 @@ class DateTimeTest : public UnitTest
 	{
 		DateTime	now;
 
-		std::cout << "\nSPRINGYEAR" << SPRINGYEAR << ' ' << SPRINGYEAR - MEANYEAR << ' ' << SPRINGDURATION70 << ' ' << SPRINGDURATION22 << ' ' << SPRINGDURATION22-SPRINGDURATION70 << "\n"
-				<< "SUMMERYEAR" << SUMMERYEAR << ' ' << SUMMERYEAR - MEANYEAR << ' ' << SUMMERDURATION70 << ' ' << SUMMERDURATION22 << ' ' << SUMMERDURATION22-SUMMERDURATION70 << "\n"
-				<< "AUTUMNYEAR" << AUTUMNYEAR << ' ' << AUTUMNYEAR - MEANYEAR << ' ' << AUTUMNDURATION70 << ' ' << AUTUMNDURATION22 << ' ' << AUTUMNDURATION22-AUTUMNDURATION70 << "\n"
-				<< "WINTERYEAR" << WINTERYEAR << ' ' << WINTERYEAR - MEANYEAR << "\n";
+		std::cout << "\nSPRINGYEAR" << SPRINGYEAR << ' ' << SPRINGYEAR - MEANYEAR << ' ' << SPRINGYEAR - SEASONYEAR << ' ' << SPRINGDURATION70 << ' ' << SPRINGDURATION22 << ' ' << SPRINGDURATION22-SPRINGDURATION70 << "\n"
+				<< "SUMMERYEAR" << SUMMERYEAR << ' ' << SUMMERYEAR - MEANYEAR << ' ' << SUMMERYEAR - SEASONYEAR << ' ' << SUMMERDURATION70 << ' ' << SUMMERDURATION22 << ' ' << SUMMERDURATION22-SUMMERDURATION70 << "\n"
+				<< "AUTUMNYEAR" << AUTUMNYEAR << ' ' << AUTUMNYEAR - MEANYEAR << ' ' << AUTUMNYEAR - SEASONYEAR << ' ' << AUTUMNDURATION70 << ' ' << AUTUMNDURATION22 << ' ' << AUTUMNDURATION22-AUTUMNDURATION70 << "\n"
+				<< "WINTERYEAR" << WINTERYEAR << ' ' << WINTERYEAR - MEANYEAR << ' ' << WINTERYEAR - SEASONYEAR << "\n";
 
 		DateTime lastSpring = now.lastSpring();
 		DateTime nextSpring = now.nextSpring();
@@ -103,9 +103,12 @@ class DateTimeTest : public UnitTest
 		std::cout << SeasonStrings[curSeason] << '\n';
 
 		std::cout << "Vollmond vs Neumond (total) " << FULL_MOON_TIME << ' ' << NEW_MOON_TIME << ' ' << (FULL_MOON_TIME - NEW_MOON_TIME) << '\n';
-		std::cout << "Vollmond vs Neumond (phase)" << FULL_MOON_PHASE << ' ' << NEW_MOON_PHASE << ' ' << (FULL_MOON_PHASE - NEW_MOON_PHASE) << '\n';
+		std::cout << "Phasenvergleich\n";
+		std::cout << "Vollmond vs Neumond" << FULL_MOON_PHASE << ' ' << NEW_MOON_PHASE << ' ' << (FULL_MOON_PHASE - NEW_MOON_PHASE) << '\n';
 		std::cout << "Mond vs Neumond " << MOON_PHASE << ' ' << NEW_MOON_PHASE << ' ' << (MOON_PHASE - NEW_MOON_PHASE) << '\n';
 		std::cout << "Mond vs Vollmond " << MOON_PHASE << ' ' << FULL_MOON_PHASE << ' ' << (MOON_PHASE - FULL_MOON_PHASE) << '\n';
+		std::cout << "AVG Mond vs Neumond " << AVG_MOON_PHASE << ' ' << NEW_MOON_PHASE << ' ' << (AVG_MOON_PHASE - NEW_MOON_PHASE) << '\n';
+		std::cout << "AVG Mond vs Vollmond " << AVG_MOON_PHASE << ' ' << FULL_MOON_PHASE << ' ' << (AVG_MOON_PHASE - FULL_MOON_PHASE) << '\n';
 		std::cout << "1970 vs 2024 " << HALF_MOON_1 << ' ' << HALF_MOON_2 << ' ' << (HALF_MOON_1 - HALF_MOON_2) << '\n';
 
 

@@ -97,6 +97,8 @@ static const time_t SPRINGYEAR = (SPRING2022-SPRING1970)/52;
 static const time_t SUMMERYEAR = (SUMMER2022-SUMMER1970)/52;
 static const time_t AUTUMNYEAR = (AUTUMN2022-AUTUMN1970)/52;
 static const time_t WINTERYEAR = (WINTER2022-WINTER1970)/52;
+
+static const time_t SEASONYEAR = (SPRING2022-SPRING1970+SUMMER2022-SUMMER1970+AUTUMN2022-AUTUMN1970+WINTER2022-WINTER1970)/(52*4);
 static const time_t MEANYEAR = (365*24+6)*3600;
 
 static const time_t SPRINGDURATION70 = SUMMER1970-SPRING1970;
@@ -125,8 +127,11 @@ static const time_t HALF_MOON_2 = FULL_MOON_2 - NEW_MOON_2;
 static const int LUNATION_COUNT = LUNATION_2-LUNATION_1;
 static const time_t NEW_MOON_TIME = NEW_MOON_2 - NEW_MOON_1;
 static const time_t FULL_MOON_TIME = FULL_MOON_2 - FULL_MOON_1;
+
 static const time_t NEW_MOON_PHASE = NEW_MOON_TIME/LUNATION_COUNT;
 static const time_t FULL_MOON_PHASE = FULL_MOON_TIME/LUNATION_COUNT;
+static const time_t AVG_MOON_PHASE = (FULL_MOON_TIME+NEW_MOON_TIME)/(2*LUNATION_COUNT);
+
 static const time_t MOON_PHASE = ((((29*24)+12)*60)+44)*60+3;
 
 
@@ -328,52 +333,52 @@ class DateTime : public Date, public Time
 
 	DateTime lastSpring() const
 	{
-		return DateTime( getLastSeasonStart<SPRING1970,SPRINGYEAR>(getUtcUnixSeconds()), 0 );
+		return DateTime( getLastSeasonStart<SPRING1970,SEASONYEAR>(getUtcUnixSeconds()), 0 );
 	}
 	DateTime lastSummer() const
 	{
-		return DateTime( getLastSeasonStart<SUMMER1970,SUMMERYEAR>(getUtcUnixSeconds()), 0 );
+		return DateTime( getLastSeasonStart<SUMMER1970,SEASONYEAR>(getUtcUnixSeconds()), 0 );
 	}
 	DateTime lastAutumn() const
 	{
-		return DateTime( getLastSeasonStart<AUTUMN1970,AUTUMNYEAR>(getUtcUnixSeconds()), 0 );
+		return DateTime( getLastSeasonStart<AUTUMN1970,SEASONYEAR>(getUtcUnixSeconds()), 0 );
 	}
 	DateTime lastWinter() const
 	{
-		return DateTime( getLastSeasonStart<WINTER1970,WINTERYEAR>(getUtcUnixSeconds()), 0 );
+		return DateTime( getLastSeasonStart<WINTER1970,SEASONYEAR>(getUtcUnixSeconds()), 0 );
 	}
 	DateTime lastNewMoon() const
 	{
-		return DateTime( getLastSeasonStart<NEW_MOON_1,NEW_MOON_PHASE>(getUtcUnixSeconds()), 0 );
+		return DateTime( getLastSeasonStart<NEW_MOON_1,AVG_MOON_PHASE>(getUtcUnixSeconds()), 0 );
 	}
 	DateTime lastFullMoon() const
 	{
-		return DateTime( getLastSeasonStart<FULL_MOON_1,FULL_MOON_PHASE>(getUtcUnixSeconds()), 0 );
+		return DateTime( getLastSeasonStart<FULL_MOON_1,AVG_MOON_PHASE>(getUtcUnixSeconds()), 0 );
 	}
 
 	DateTime nextSpring() const
 	{
-		return DateTime( getNextSeasonStart<SPRING1970,SPRINGYEAR>(getUtcUnixSeconds()), 0 );
+		return DateTime( getNextSeasonStart<SPRING1970,SEASONYEAR>(getUtcUnixSeconds()), 0 );
 	}
 	DateTime nextSummer() const
 	{
-		return DateTime( getNextSeasonStart<SUMMER1970,SUMMERYEAR>(getUtcUnixSeconds()), 0 );
+		return DateTime( getNextSeasonStart<SUMMER1970,SEASONYEAR>(getUtcUnixSeconds()), 0 );
 	}
 	DateTime nextAutumn() const
 	{
-		return DateTime( getNextSeasonStart<AUTUMN1970,AUTUMNYEAR>(getUtcUnixSeconds()), 0 );
+		return DateTime( getNextSeasonStart<AUTUMN1970,SEASONYEAR>(getUtcUnixSeconds()), 0 );
 	}
 	DateTime nextWinter() const
 	{
-		return DateTime( getNextSeasonStart<WINTER1970,WINTERYEAR>(getUtcUnixSeconds()), 0 );
+		return DateTime( getNextSeasonStart<WINTER1970,SEASONYEAR>(getUtcUnixSeconds()), 0 );
 	}
 	DateTime nextNewMoon() const
 	{
-		return DateTime( getNextSeasonStart<NEW_MOON_1,NEW_MOON_PHASE>(getUtcUnixSeconds()), 0 );
+		return DateTime( getNextSeasonStart<NEW_MOON_1,AVG_MOON_PHASE>(getUtcUnixSeconds()), 0 );
 	}
 	DateTime nextFullMoon() const
 	{
-		return DateTime( getNextSeasonStart<FULL_MOON_1,FULL_MOON_PHASE>(getUtcUnixSeconds()), 0 );
+		return DateTime( getNextSeasonStart<FULL_MOON_1,AVG_MOON_PHASE>(getUtcUnixSeconds()), 0 );
 	}
 
 	Season getSeason() const
