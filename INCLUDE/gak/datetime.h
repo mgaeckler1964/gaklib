@@ -107,12 +107,35 @@ static const time_t SPRINGDURATION22 = SUMMER2022-SPRING2022;
 static const time_t SUMMERDURATION22 = AUTUMN2022-SUMMER2022;
 static const time_t AUTUMNDURATION22 = WINTER2022-AUTUMN2022;
 
+// Lunation	new moon (utc)		full moon (utc) 
+//  587		04. 06. 1970 02:21	19. 06. 1970 12:27
+//			13314060			14646420
+static const int LUNATION_1 = 587;
+static const time_t NEW_MOON_1 = 13314060;
+static const time_t FULL_MOON_1 = 14646420;
+static const time_t HALF_MOON_1 = FULL_MOON_1 - NEW_MOON_1;
+
+// 1256		05. 07. 2024 22:57	21. 07. 2024 10:17
+//			1720220220			1721557020		
+static const int LUNATION_2 = 1256;
+static const time_t NEW_MOON_2 = 1720224660;		// TODO: check difference? with the orig time from a moon calendar I get diffs
+static const time_t FULL_MOON_2 = 1721557020;
+static const time_t HALF_MOON_2 = FULL_MOON_2 - NEW_MOON_2;
+
+static const int LUNATION_COUNT = LUNATION_2-LUNATION_1;
+static const time_t NEW_MOON_TIME = NEW_MOON_2 - NEW_MOON_1;
+static const time_t FULL_MOON_TIME = FULL_MOON_2 - FULL_MOON_1;
+static const time_t NEW_MOON_PHASE = NEW_MOON_TIME/LUNATION_COUNT;
+static const time_t FULL_MOON_PHASE = FULL_MOON_TIME/LUNATION_COUNT;
+static const time_t MOON_PHASE = ((((29*24)+12)*60)+44)*60+3;
+
+
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
 template <time_t SEASON70START, time_t SEAONYEAR>
-time_t getLastSeasonStart( time_t utctime  )
+time_t getLastSeasonStart( time_t utctime )
 {
 	const time_t sesondsSinceStart = utctime - SEASON70START;
 	const time_t yearsSinceStart = sesondsSinceStart/SEAONYEAR;
@@ -120,7 +143,7 @@ time_t getLastSeasonStart( time_t utctime  )
 	return SEASON70START + SEAONYEAR * yearsSinceStart;
 }
 
-template <long SEASON70START, long SEAONYEAR>
+template <time_t SEASON70START, time_t SEAONYEAR>
 time_t getNextSeasonStart( time_t utctime )
 {
 	const time_t sesondsSinceStart = utctime - SEASON70START;
@@ -319,6 +342,14 @@ class DateTime : public Date, public Time
 	{
 		return DateTime( getLastSeasonStart<WINTER1970,WINTERYEAR>(getUtcUnixSeconds()), 0 );
 	}
+	DateTime lastNewMoon() const
+	{
+		return DateTime( getLastSeasonStart<NEW_MOON_1,NEW_MOON_PHASE>(getUtcUnixSeconds()), 0 );
+	}
+	DateTime lastFullMoon() const
+	{
+		return DateTime( getLastSeasonStart<FULL_MOON_1,FULL_MOON_PHASE>(getUtcUnixSeconds()), 0 );
+	}
 
 	DateTime nextSpring() const
 	{
@@ -335,6 +366,14 @@ class DateTime : public Date, public Time
 	DateTime nextWinter() const
 	{
 		return DateTime( getNextSeasonStart<WINTER1970,WINTERYEAR>(getUtcUnixSeconds()), 0 );
+	}
+	DateTime nextNewMoon() const
+	{
+		return DateTime( getNextSeasonStart<NEW_MOON_1,NEW_MOON_PHASE>(getUtcUnixSeconds()), 0 );
+	}
+	DateTime nextFullMoon() const
+	{
+		return DateTime( getNextSeasonStart<FULL_MOON_1,FULL_MOON_PHASE>(getUtcUnixSeconds()), 0 );
 	}
 
 	Season getSeason() const

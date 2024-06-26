@@ -184,7 +184,7 @@ class FcopyTest : public UnitTest
 		}
 
 		const DateTime	date( Date::getMothersDay(2009), Time(0UL) );
-		const std::time_t	modTime1 = date.getUnixSeconds();
+		const std::time_t	modTime1 = date.getUtcUnixSeconds();
 		setModTime( tmpFile, modTime1 );
 		struct stat	x;
 		strStat( tmpFile, &x );

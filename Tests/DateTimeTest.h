@@ -102,6 +102,17 @@ class DateTimeTest : public UnitTest
 		};
 		std::cout << SeasonStrings[curSeason] << '\n';
 
+		std::cout << "Vollmond vs Neumond (total) " << FULL_MOON_TIME << ' ' << NEW_MOON_TIME << ' ' << (FULL_MOON_TIME - NEW_MOON_TIME) << '\n';
+		std::cout << "Vollmond vs Neumond (phase)" << FULL_MOON_PHASE << ' ' << NEW_MOON_PHASE << ' ' << (FULL_MOON_PHASE - NEW_MOON_PHASE) << '\n';
+		std::cout << "Mond vs Neumond " << MOON_PHASE << ' ' << NEW_MOON_PHASE << ' ' << (MOON_PHASE - NEW_MOON_PHASE) << '\n';
+		std::cout << "Mond vs Vollmond " << MOON_PHASE << ' ' << FULL_MOON_PHASE << ' ' << (MOON_PHASE - FULL_MOON_PHASE) << '\n';
+		std::cout << "1970 vs 2024 " << HALF_MOON_1 << ' ' << HALF_MOON_2 << ' ' << (HALF_MOON_1 - HALF_MOON_2) << '\n';
+
+
+		DateTime nextFullMoon = now.nextFullMoon();
+		DateTime nextNewMoon = now.nextNewMoon();
+		std::cout << "Vollmond: " << nextFullMoon << " Neumond: " << nextNewMoon << '\n';
+
 		UT_ASSERT_EQUAL( now.getTZoffset(), 7200L );
 		DateTime	epochBegin( time_t( 0 ) );
 		UT_ASSERT_EQUAL( epochBegin.getYear(), (unsigned short)1970 );
@@ -140,7 +151,7 @@ class DateTimeTest : public UnitTest
 			std::cout << theDate << ' ' << theDate.getUtcUnixSeconds() << '\n'; 
 			UT_ASSERT_EQUAL( theDate.getUtcUnixSeconds(), 1700000000 );
 		}
-//		UT_ASSERT_FALSE(true);
+		//UT_ASSERT_FALSE(true);
 	}
 };
 

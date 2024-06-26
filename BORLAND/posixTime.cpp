@@ -129,7 +129,7 @@
 
 extern "C" time_t _posixtime( FILETIME *ft )
 {
-	return gak::DateTime( *ft ).getUnixSeconds();
+	return gak::DateTime( *ft ).getUtcUnixSeconds();
 }
 
 #ifdef __BORLANDC__
