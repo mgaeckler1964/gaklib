@@ -3,10 +3,10 @@
 		Module:			eta.h
 		Description:	estimated time of arival calculator
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
-		Web:			http://www.gaeckler.at/
+		Address:		HoFmannsthalweg 14, A-4030 Linz
+		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2023 Martin Gäckler
+		Copyright:		(c) 1988-2024 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -128,7 +128,8 @@ private:
 			}
 			if( m_counters.isFull() )
 			{
-				m_counters.pop();
+				return;
+				//m_counters.pop();
 			}
 		}
 		ValueTimePairs	newValue(value,ClockProvider_T::clock());
