@@ -3,10 +3,10 @@
 		Module:			gps.h
 		Description:	GPS support
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2024 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -138,6 +138,13 @@ inline STRING ConvertDegree( double angle )
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+typedef unsigned long tileid_t;
+
+static const double degreePerTile = 0.5;
+static const tileid_t maxTileIdPerLine = 360/degreePerTile+0.5;
+static const double longOffset = 180;
+static const double latOffset = 90;
+
 template <typename ScalarT>
 struct GeoPosition
 {
@@ -147,6 +154,25 @@ struct GeoPosition
 	ScalarT	longitude,
 	/// the latitude in degrees
 			latitude;
+
+	static tileid_t getTileID( scalar_t longitude, scalar_t lattitude )
+	{
+		tileid_t longIdx = (longitude+longOffset)/degreePerTile;
+		tileid_t latIdx = (lattitude+latOffset)/degreePerTile;
+		tileid_t tileIdx = latIdx * maxTileIdPerLine + longIdx;
+
+		return tileIdx;
+	}
+	static void getTile( tileid_t tileid, GeoPosition &lowerLeft, GeoPosition &upperRight )
+	{
+		tileid_t latIdx = tileid/maxTileIdPerLine;
+		tileid_t longIdx = tileid%maxTileIdPerLine;
+		lowerLeft.longitude = longIdx*degreePerTile - longOffset;
+		lowerLeft.latitude = latIdx*degreePerTile - latOffset;
+
+		upperRight.longitude = lowerLeft.longitude + degreePerTile;
+		upperRight.latitude = lowerLeft.latitude + degreePerTile;
+	}
 
 	GeoPosition()
 	{

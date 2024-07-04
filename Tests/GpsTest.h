@@ -3,10 +3,10 @@
 		Module:			GpsTest.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2024 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -89,6 +89,7 @@ class GpsTest : public UnitTest
 	{
 		PositionTest();
 		RectangleTest();
+		TileTest();
 	}
 	void PositionTest( void )
 	{
@@ -178,6 +179,32 @@ class GpsTest : public UnitTest
 		UT_ASSERT_EQUAL( rect.topLeft.latitude, -88.0 );
 		UT_ASSERT_EQUAL( rect.bottomRight.longitude, 32.0 );
 		UT_ASSERT_EQUAL( rect.bottomRight.latitude, -90.0 );
+	}
+	void TileTest()
+	{
+		tileid_t tileId = GeoPosition<double>::getTileID(-179.9, -89.9);
+		UT_ASSERT_EQUAL( tileId, tileid_t(0) );
+
+		TileTest(0, 0);					// atlantic ocean
+		TileTest(-180, 0);				// pacific ocean
+		TileTest(-180, -90);			// south pole
+
+		TileTest(179.99, 90);			// north pole
+
+		TileTest(14.33657, 48.24250);	// where I'm living
+		TileTest(11.56187, 48.13097);	// where I was born
+	}
+	void TileTest( double longitude, double latitude )
+	{
+		tileid_t tileId = GeoPosition<double>::getTileID(longitude, latitude);
+		GeoPosition<double> lowerLeft;
+		GeoPosition<double> upperRight;
+		
+		GeoPosition<double>::getTile(tileId, lowerLeft, upperRight);
+		UT_ASSERT_LESSEQ( lowerLeft.longitude, longitude );
+		UT_ASSERT_LESSEQ( lowerLeft.latitude, latitude );
+		UT_ASSERT_GREATEREQ( upperRight.longitude, longitude );
+		UT_ASSERT_GREATEREQ( upperRight.latitude, latitude );
 	}
 };
 
