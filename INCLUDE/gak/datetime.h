@@ -131,6 +131,7 @@ static const time_t FULL_MOON_TIME = FULL_MOON_2 - FULL_MOON_1;
 static const time_t NEW_MOON_PHASE = NEW_MOON_TIME/LUNATION_COUNT;
 static const time_t FULL_MOON_PHASE = FULL_MOON_TIME/LUNATION_COUNT;
 static const time_t AVG_MOON_PHASE = (FULL_MOON_TIME+NEW_MOON_TIME)/(2*LUNATION_COUNT);
+static const time_t AVG_MOON_PHASE2 = (FULL_MOON_TIME+NEW_MOON_TIME)/(4*LUNATION_COUNT);
 
 static const time_t MOON_PHASE = ((((29*24)+12)*60)+44)*60+3;
 

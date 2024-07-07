@@ -3,10 +3,10 @@
 		Module:			osm.cpp
 		Description:	Open Street Map Importer
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2024 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -73,6 +73,9 @@ using namespace math;
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+static const bool STREETS_ONLY = true;
+static const bool ALLOW_AREAS = false;
 
 // element tags
 static const STRING NODE = "node";
@@ -952,19 +955,25 @@ struct XmlProcessor : public XmlNullProcessor
 
 			if( m_newWay.type > OsmLink::minWayType && m_newWay.type < OsmLink::maxRailType )
 			{
-				addWayPoints( m_newWay );
+				if ( !STREETS_ONLY || m_newWay.type <= OsmLink::living_street )
+				{
+					addWayPoints( m_newWay );
+				}
 			}
 			else if( m_newWay.type > OsmLink::minWaterType && m_newWay.type < OsmLink::maxAreaType )
 			{
-				if( *m_newWay.m_wayPoints.cbegin() == *m_newWay.m_wayPoints.rbegin() )
+				if (ALLOW_AREAS)
 				{
-					// this is a polygon =>
-					addArea( m_newWay.type, m_newWay.m_newWayID, m_newWay.m_wayPoints );
-				}
-				else
-				{
-					// store this way for later usage (relation)
-					m_ways[m_newWay.m_newWayID] = m_newWay;
+					if( *m_newWay.m_wayPoints.cbegin() == *m_newWay.m_wayPoints.rbegin() )
+					{
+						// this is a polygon =>
+						addArea( m_newWay.type, m_newWay.m_newWayID, m_newWay.m_wayPoints );
+					}
+					else
+					{
+						// store this way for later usage (relation)
+						m_ways[m_newWay.m_newWayID] = m_newWay;
+					}
 				}
 			}
 			else
@@ -1128,7 +1137,10 @@ struct XmlProcessor : public XmlNullProcessor
 						std::cout << "\naddArea: got relation id: " << areaID << " type: " << areaType << " count: " << area.size() << '\n';
 					}
 #endif
-					addArea( areaType, areaID, area );
+					if (ALLOW_AREAS)
+					{
+						addArea( areaType, areaID, area );
+					}
 				}
 				else
 				{
@@ -1175,7 +1187,7 @@ struct XmlProcessor : public XmlNullProcessor
 				{
 					addArea( it->getValue().type, it->getKey(), it->getValue().m_wayPoints );
 				}
-				else if( it->getValue().type != OsmLink::Unkown )
+				else if( it->getValue().type <= OsmLink::living_street || (it->getValue().type != OsmLink::Unkown && !STREETS_ONLY) )
 				{
 					addWayPoints( it->getValue() );
 				}
@@ -1238,10 +1250,10 @@ struct XmlProcessor : public XmlNullProcessor
 
 int main( void )
 {
-	STRING	osmName = "C:\\CRESD\\User\\gak\\Downloads\\andorra-latest.osm";
-//	STRING	osmName = "F:\\OSM\\andorra-latest.osm";
-//	STRING	osmName = "F:\\OSM\\oberbayern-latest.osm";
-//	STRING	osmName = "F:\\OSM\\unterfranken-latest.osm";
+//	STRING	osmName = "C:\\Cache\\OSM\\andorra-latest.osm";
+	STRING	osmName = "C:\\Cache\\OSM\\austria-latest.osm";
+//	STRING	osmName = "C:\\Cache\\OSM\\oberbayern-latest.osm";
+//	STRING	osmName = "C:\\Cache\\OSM\\unterfranken-latest.osm";
 
 	STRING	resultFile = osmName + "bin";
 	STRING	statFile = osmName + ".txt";

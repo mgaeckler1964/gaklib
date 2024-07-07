@@ -210,7 +210,8 @@ struct OsmLink
 				grassland,
 			maxGrassType,
 		maxAreaType,
-		Unkown,
+
+		Unkown,		// must be the last element
 	};
 
 	//OsmKeyT	osmID;
