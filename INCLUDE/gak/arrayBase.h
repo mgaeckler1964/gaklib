@@ -309,6 +309,7 @@ class ArrayBase : public Container
 {
 	public:
 	typedef typename ALLOCATOR::MemHandle	MemHandle;
+	typedef ArrayBase<OBJ,ALLOCATOR> SelfT;
 
 	private:
 	MemHandle	m_data;
@@ -555,18 +556,32 @@ class ArrayBase : public Container
 		@brief add items to the buffer
 		@param [in] elem the address of the first item
 		@param [in] size the number of items to add
+		@return the buffer itself
 	*/
-	void addElements( const OBJ *elem, size_t size );
+	SelfT &addElements( const OBJ *elem, size_t size );
 
 	/**
 		@brief add items to the buffer
 		@param [in] source the source container
+		@return the buffer itself
 	*/
 	template <typename ArrayT>
-	void addElements( const ArrayT &source )
+	SelfT &addElements( const ArrayT &source )
 	{
-		addElements( source.getDataBuffer(), source.size() );
+		return addElements( source.getDataBuffer(), source.size() );
 	}
+
+	/**
+		@brief add items to the buffer
+		@param [in] source the source container
+		@return the buffer itself
+	*/
+	SelfT &merge( const SelfT &source )
+	{
+		return addElements( source.getDataBuffer(), source.size() );
+	}
+
+
 	///@}
 
 	/*
@@ -1369,7 +1384,7 @@ void ArrayBase<OBJ, ALLOCATOR>::setCapacity( size_t newCapacity, bool exact )
 }
 
 template <class OBJ, class ALLOCATOR>
-void ArrayBase<OBJ, ALLOCATOR>::addElements( const OBJ *elem, size_t size )
+typename ArrayBase<OBJ, ALLOCATOR>::SelfT &ArrayBase<OBJ, ALLOCATOR>::addElements( const OBJ *elem, size_t size )
 {
 	OBJ	*newElements = createElements( size );
 
@@ -1377,6 +1392,8 @@ void ArrayBase<OBJ, ALLOCATOR>::addElements( const OBJ *elem, size_t size )
 	{
 		*newElements++ = *elem++;
 	}
+
+	return *this;
 }
 
 template <class OBJ, class ALLOCATOR>

@@ -579,7 +579,7 @@ class List : public ListContainer
 	class BaseCursor
 	{
 		public:
-		//typedef	BaseCursor<RefT, PointerT, WrapperT, BaseCursorT>	Self;
+		//typedef	BaseCursor<RefT, PointerT, WrapperT, BaseCursorT>	SelfT;
 
 		private:
 		BaseCursorT		m_cursor;

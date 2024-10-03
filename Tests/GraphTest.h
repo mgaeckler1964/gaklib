@@ -86,7 +86,8 @@ class GraphTest : public UnitTest
 	}
 	virtual void PerformTest( void )
 	{
-		typedef Graph<double, double, GraphTree, size_t, size_t>	SimpleGraph;
+		//typedef Graph<double, double, GraphTree, size_t, size_t>	SimpleGraph;
+		typedef Graph<double, double, GraphMap, size_t, size_t>	SimpleGraph;
 
 		SimpleGraph		theGraph;
 
@@ -103,8 +104,13 @@ class GraphTest : public UnitTest
 		theGraph.addLink( 7, 55, 0, 2 );
 		theGraph.addLink( 8, 56, 2, 0 );
 
+		SimpleGraph		theGraph2;
+		theGraph2.merge(theGraph);
+
 		UT_ASSERT_EQUAL( size_t(6), theGraph.getNumLinks() );
 		UT_ASSERT_EQUAL( size_t(3), theGraph.getNumNodes() );
+		UT_ASSERT_EQUAL( size_t(6), theGraph2.getNumLinks() );
+		UT_ASSERT_EQUAL( size_t(3), theGraph2.getNumNodes() );
 
 		UT_ASSERT_EQUAL( theGraph.getLink( 4 ), 2.18 );
 		UT_ASSERT_EQUAL( theGraph.getLink( 5 ), 3.141 );

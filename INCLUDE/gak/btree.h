@@ -94,6 +94,9 @@ namespace gak
 template <class OBJ, class Comparator=FixedComparator<OBJ>, int FACTOR=10, int OFFSET=5>
 class Btree : public Container
 {
+	public:
+	typedef Btree<OBJ, Comparator, FACTOR, OFFSET> SelfT;
+
 	/// @todo check bug in gcc
 #ifndef __GNUC__
 	template < class KeyT, class ValueT, class CompT >
@@ -333,6 +336,18 @@ class Btree : public Container
 	size_t getElementSize( void ) const
 	{
 		return sizeof( OBJ );
+	}
+
+	/**
+		@brief copies all items from source to the array
+		@param [in] target the target array
+		@return this
+		@todo implement
+	*/
+	SelfT &merge( const SelfT &src )
+	{
+		throw NotImplementedException();
+		return *this;
 	}
 
 	/*

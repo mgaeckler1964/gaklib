@@ -107,6 +107,7 @@ class Graph
 	typedef Array<node_key_type>	node_key_types;
 	typedef LinkKeyT				link_key_type;
 	typedef Array<link_key_type>	link_key_types;
+	typedef Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>		SelfT;
 
 	struct NodeInfo
 	{
@@ -326,6 +327,13 @@ class Graph
 		m_nodes.clear();
 		m_links.clear();
 	}
+
+	SelfT &merge( const SelfT &src )
+	{
+		m_nodes.merge( src.m_nodes );
+		m_links.merge( src.m_links );
+		return *this;
+	};
 };
 
 // --------------------------------------------------------------------- //

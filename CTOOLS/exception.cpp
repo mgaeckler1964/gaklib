@@ -39,6 +39,7 @@
 // --------------------------------------------------------------------- //
 
 #include <gak/exception.h>
+#include <gak/fmtNumber.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -107,6 +108,14 @@ const STRING LibraryException::EMPTY_STRING_ERROR = "(empty)";
 
 LibraryException::~LibraryException() throw()
 {
+}
+
+namespace Internal
+{
+
+	xNotImplementedException::xNotImplementedException(const char *fileName, size_t line ) : LibraryException( STRING("NotImplemented ")+fileName+' '+formatNumber(line) ) 
+	{
+	}
 }
 
 // --------------------------------------------------------------------- //

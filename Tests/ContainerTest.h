@@ -310,6 +310,16 @@ class ContainerTest : public gak::UnitTest
 			TestScope scope("Btree<int>");
 			testGetRange< Btree<int> >();
 		}
+		{
+			Array<STRING> arrayString2;
+			arrayString.addElement("Hello");
+			arrayString.addElement("World");
+			arrayString2.merge(arrayString);
+			UT_ASSERT_EQUAL(arrayString2.size(), arrayString.size());
+
+			arrayString2.merge(arrayString);
+			UT_ASSERT_EQUAL(arrayString2.size(), 2*arrayString.size());
+		}
 	}
 
 	template <typename ContainerT>

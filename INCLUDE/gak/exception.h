@@ -625,6 +625,18 @@ class TimeoutException : public LibraryException
 	}
 };
 
+namespace Internal
+{
+	/// @brief Exception thrown if method not yet implemented
+	class xNotImplementedException : public LibraryException
+	{
+		public:
+		xNotImplementedException(const char *fileName, size_t line );
+	};
+}
+
+#define NotImplementedException() Internal::xNotImplementedException(__FILE__,  __LINE__)
+
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
