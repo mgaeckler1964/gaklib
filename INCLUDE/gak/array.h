@@ -361,6 +361,12 @@ class ArrayOfStrings : public Array<STRING>
 		@param [in] fileName the name of the file (will be overwritten)
 	*/
 	void writeToFile( const STRING &fileName ) const;
+
+	/**
+		@brief reads all strings from a file one STRING per line
+		@param [in] fileName the name of the file
+	*/
+	void readFromFile( const STRING &fileName );
 };
 
 // --------------------------------------------------------------------- //

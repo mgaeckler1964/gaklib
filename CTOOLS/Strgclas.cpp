@@ -600,7 +600,7 @@ void STRING::readLine( std::istream &theStream )
 	while( theStream.good() )
 	{
 		theStream.get( c );
-		if( c == EOF || c == '\n' || c == '\r' || !c )
+		if( !theStream.good() || c == EOF || c == '\n' || c == '\r' || !c )
 		{
 			break;
 		}

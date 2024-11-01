@@ -106,6 +106,7 @@
 #include "Tests/BitFieldTest.h"
 #include "Tests/StringTest.h"
 #include "Tests/ArrayListTest.h"
+#include "Tests/ArrayStreamTest.h"
 #include "Tests/XmlTest.h"
 #include "Tests/DirectoryListTest.h"
 #include "Tests/QueueStackTest.h"

@@ -197,5 +197,8 @@
     <ClInclude Include="Tests\CondQueueTest.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\ArrayStreamTest.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
