@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			logfile.h
-		Description:	
+		Description:	some helper function for a logfile
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2024 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -154,6 +154,12 @@ void flushLogs( void );
 	gakLogging::logValue( __FILE__, __LINE__, ++callCount, "", "" );	\
 }
 
+#define doLogMessage( msg )														\
+{																				\
+	static size_t callCount = 0;												\
+	gakLogging::logValue( __FILE__, __LINE__, ++callCount, "message", msg );	\
+}
+
 #define doLogError( err )		gakLogging::logError( __FILE__, __LINE__, err )
 
 #define doEnterFunction( x )	gakLogging::Profiler	_profiler( __FILE__, __LINE__, x )
@@ -171,6 +177,7 @@ void flushLogs( void );
 #define doLogValue( val )		/* nothing */
 #define doLogBool( val )		/* nothing */
 #define doLogPosition()			/* nothing */
+#define doLogMessage( msg )		/* nothing */
 #define doLogError( err )		/* nothing */
 
 #if !PROFILER

@@ -3,19 +3,19 @@
 		Module:			dbConvertFrm.cpp
 		Description:
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2024 Martin Gäckler
 
-		This program is free software: you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
+		This program is free software: you can redistribute it and/or modify  
+		it under the terms of the GNU General Public License as published by  
 		the Free Software Foundation, version 3.
 
-		You should have received a copy of the GNU General Public License
+		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -235,7 +235,9 @@ void TDbConvertForm::BackupRestoreDB(
 			}
 		}
 
+		doLogPosition();
 		recordCount = destSchema->copyTables( sourceSchema, &progress );
+		doLogPosition();
 
 		destination->Close();
 		source->Close();
@@ -245,6 +247,7 @@ void TDbConvertForm::BackupRestoreDB(
 	}
 	catch( ... )
 	{
+		doLogPosition();
 		if( destVersion > 0 )
 		{
 			ConfigDataModule->SetDBVersion( destination, destVersion );
@@ -271,11 +274,13 @@ void TDbConvertForm::BackupRestoreDB(
 	out.flush();
 
 	setMemoText( Memo, log );
+	doLogPosition();
 }
 
 //---------------------------------------------------------------------------
 void __fastcall TDbConvertForm::BackupButtonClick(TObject *)
 {
+	doEnterFunction("TDbConvertForm::BackupButtonClick");
 	BackupRestoreDB( m_mainDbConnector, m_backupDbConnector );
 	BackupButton->Caption = "Finish";
 }
@@ -426,7 +431,7 @@ void __fastcall TDbConvertForm::FormShow(TObject *)
 			createDB = true;
 		}
 
-		doLogValue( mainVersion );
+		doLogValue( m_mainVersion );
 	}
 	if( Session->IsAlias( static_cast<const char *>(m_backupDbConnector.m_aliasName)) )
 	{
@@ -439,6 +444,7 @@ void __fastcall TDbConvertForm::FormShow(TObject *)
 		theDatabase->Close();
 		if( m_backupVersion < 0 )
 		{
+			doLogPosition();
 			createBackupDB = true;
 		}
 	}
@@ -529,6 +535,8 @@ void __fastcall TDbConvertForm::FormShow(TObject *)
 	}
 
 
+	doLogValue(m_mainVersion);
+	doLogValue(m_backupVersion);
 	if( m_mainVersion >= 0 && m_backupVersion >= 0 && m_mainVersion == m_backupVersion )
 	{
 		line = "Click on \"Backup\" to backup your data from ";
@@ -547,11 +555,13 @@ void __fastcall TDbConvertForm::FormShow(TObject *)
 		Memo->Lines->Add( static_cast<const char *>(line)  );
 		Memo->Lines->Add( ""  );
 
+		doLogPosition();
 		BackupButton->Enabled = true;
 		RestoreButton->Enabled = true;
 	}
 	else
 	{
+		doLogPosition();
 		BackupButton->Enabled = false;
 		RestoreButton->Enabled = false;
 	}

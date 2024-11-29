@@ -3,10 +3,10 @@
 		Module:			bdeSchema.cpp
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2024 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -260,6 +260,8 @@ void DatabaseSchema::initProcessing( void )
 
 TDatabase *DBconnector::connectDB( TDatabase *theDatabase, bool Exclusive ) const
 {
+	doEnterFunction("DBconnector::connectDB( TDatabase *theDatabase, bool Exclusive ) const");
+	doLogValue(Exclusive);
 	STRING	dbName = m_aliasName + "theDatabase";
 
 	theDatabase->AliasName = static_cast<const char *>(m_aliasName);
@@ -273,8 +275,11 @@ TDatabase *DBconnector::connectDB( TDatabase *theDatabase, bool Exclusive ) cons
 		theDatabase->LoginPrompt = false;
 	}
 
+	doLogPosition();
 	theDatabase->Exclusive = Exclusive;
+	doLogPosition();
 	theDatabase->Open();
+	doLogPosition();
 
 	return theDatabase;
 }
@@ -383,10 +388,12 @@ void DatabaseSchema::readSchema( TDatabase *theDatabase )
 	m_tables.clear();
 	try
 	{
+		doLogPosition();
 		Check( DbiOpenTableList(
 			theDatabase->Handle,
 			FALSE, FALSE, NULL, theCursor
 		) );
+		doLogPosition();
 		while( DbiGetNextRecord(theCursor, dbiNOLOCK, &tableDescr, NULL) == DBIERR_NONE )
 		{
 			doLogValue( tableDescr.szName );
@@ -400,10 +407,13 @@ void DatabaseSchema::readSchema( TDatabase *theDatabase )
 				m_tables[(const char *)tableDescr.szName] = theTable;
 			}
 		}
+		doLogPosition();
 		DbiCloseCursor(theCursor);
+		doLogPosition();
 	}
 	catch( ... )
 	{
+		doLogMessage("*gak*: Excption");
 		DbiCloseCursor(theCursor);
 /*@*/	throw;
 	}
@@ -880,6 +890,8 @@ void DatabaseSchema::upgradeSchema( DatabaseSchema *current )
 */
 void DatabaseSchema::emptyTable( TableSchema &theTable )
 {
+	doEnterFunction("DatabaseSchema::emptyTable");
+	doLogValue(theTable.getTableName());
 	ArrayOfStrings	detailTables;
 
 	theTable.startProcessing();
@@ -902,7 +914,9 @@ void DatabaseSchema::emptyTable( TableSchema &theTable )
 		}
 		dbTable->DatabaseName = m_database->DatabaseName;
 		dbTable->TableName = static_cast<const char *>(theTable.getTableName());
+		doLogPosition();
 		dbTable->EmptyTable();
+		doLogPosition();
 		delete dbTable;
 		if( m_database->IsSQLBased && m_database->InTransaction )
 		{
@@ -911,6 +925,7 @@ void DatabaseSchema::emptyTable( TableSchema &theTable )
 	}
 	catch( ... )
 	{
+		doLogPosition();
 		delete dbTable;
 		if( m_database->IsSQLBased && m_database->InTransaction )
 		{
@@ -925,6 +940,7 @@ void DatabaseSchema::emptyTable( TableSchema &theTable )
 
 void DatabaseSchema::emptySchema( void )
 {
+	doEnterFunction("DatabaseSchema::emptySchema");
 	initProcessing();
 	for(
 		Map<TableSchema>::iterator it = m_tables.begin(), endIT = m_tables.end();
@@ -1026,6 +1042,8 @@ size_t DatabaseSchema::copyTable(
 	ProgressLoger	*theLoger
 )
 {
+	doEnterFunction("DatabaseSchema::copyTable");
+	doLogValue(tableName);
 	TDataSet	*sourceTable, *destTable;
 
 	size_t		recordCount = 0;
@@ -1043,9 +1061,12 @@ size_t DatabaseSchema::copyTable(
 	}
 	try
 	{
+		doLogMessage( "*gak*: open source" );
 		sourceTable = source->openTable( tableName );
+		doLogMessage( "*gak*: open destinamtion" );
 		destTable = openTable( tableName );
 
+		doLogPosition();
 		while( !sourceTable->Eof )
 		{
 			if( source->checkFieldsBeforeInsert( sourceTable, tableName ) )
@@ -1063,8 +1084,11 @@ size_t DatabaseSchema::copyTable(
 			}
 			sourceTable->Next();
 		}
+		doLogPosition();
 
+		doLogMessage( "*gak*: close destinamtion" );
 		closeTable( destTable, tableName );
+		doLogMessage( "*gak*: close source" );
 		source->closeTable( sourceTable, tableName );
 
 		if( m_database->IsSQLBased && m_database->InTransaction )
@@ -1074,6 +1098,8 @@ size_t DatabaseSchema::copyTable(
 	}
 	catch( ... )
 	{
+		doLogMessage( "*gak*: Exception" );
+		doLogValue(tableName);
 		delete destTable;
 		delete sourceTable;
 
@@ -1102,6 +1128,7 @@ size_t DatabaseSchema::copyTable(
 	ProgressLoger	*theLoger
 )
 {
+	doEnterFunction("DatabaseSchema::copyTable");
 	ArrayOfStrings	masterTables;
 	size_t			recordCount = 0;
 	STRING			srcName, destName;
@@ -1137,6 +1164,7 @@ size_t DatabaseSchema::copyTables(
 	DatabaseSchema *source, ProgressLoger *theLoger
 )
 {
+	doEnterFunction("DatabaseSchema::copyTables");
 	size_t recordCount = 0;
 
 	emptySchema();
