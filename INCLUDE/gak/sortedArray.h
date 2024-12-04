@@ -285,10 +285,11 @@ class SortedArray : public ArrayBase<OBJ, ALLOCATOR>
 	///@{
 	private:
 	size_t findPos( const OBJ &elem, int *oCompareResult ) const;
-	size_t findInsertPos( const OBJ &elem ) const;
 	size_t findMin( const OBJ &elem ) const;
 
 	public:
+	size_t findInsertPos( const OBJ &elem ) const;
+
 	/// copydoc ArrayBase::findElement
 	size_t findElement( const OBJ &searchFor ) const;
 	/// copydoc ArrayBase::hasElement
