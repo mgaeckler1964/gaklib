@@ -737,7 +737,7 @@ STRING STRING::cString( void ) const
 		else if( c == '\f' )			// formfeed
 			theCstring += "\\f";
 		else if( c == '\n' )			// new line
-			theCstring += "\\n";
+			theCstring += "\\n\"\n\"";
 		else if( c == '\r' )			// cariage return
 			theCstring += "\\r";
 		else if( c == '\t' )			// horizontal tab
@@ -757,6 +757,7 @@ STRING STRING::cString( void ) const
 			theCstring += "\\x";
 			theCstring += hex[c>>4];
 			theCstring += hex[c&0xF];
+			theCstring += "\"\"";
 		}
 	}
 
