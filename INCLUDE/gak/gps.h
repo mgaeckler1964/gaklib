@@ -42,6 +42,7 @@
 
 #include <gak/fmtNumber.h>
 #include <gak/geometry.h>
+#include <gak/set.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -134,14 +135,15 @@ inline STRING ConvertDegree( double angle )
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+typedef uint32			tileid_t;
+typedef Set<tileid_t>	TileIDsSet;
+
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-typedef unsigned long tileid_t;
-
 static const double degreePerTile = 0.5;
-static const tileid_t maxTileIdPerLine = 360/degreePerTile+0.5;
+static const tileid_t maxTileIdPerLine = tileid_t(360/degreePerTile+0.5);
 static const double longOffset = 180;
 static const double latOffset = 90;
 
@@ -155,10 +157,10 @@ struct GeoPosition
 	/// the latitude in degrees
 			latitude;
 
-	static tileid_t getTileID( scalar_t longitude, scalar_t lattitude )
+	static tileid_t getTileID( scalar_t longitude, scalar_t latitude )
 	{
-		tileid_t longIdx = (longitude+longOffset)/degreePerTile;
-		tileid_t latIdx = (lattitude+latOffset)/degreePerTile;
+		tileid_t longIdx = tileid_t((longitude+longOffset)/degreePerTile);
+		tileid_t latIdx = tileid_t((latitude+latOffset)/degreePerTile);
 		tileid_t tileIdx = latIdx * maxTileIdPerLine + longIdx;
 
 		return tileIdx;
@@ -172,6 +174,11 @@ struct GeoPosition
 
 		upperRight.longitude = lowerLeft.longitude + degreePerTile;
 		upperRight.latitude = lowerLeft.latitude + degreePerTile;
+	}
+
+	tileid_t getTileID() const
+	{
+		return getTileID( longitude, latitude );
 	}
 
 	GeoPosition()

@@ -65,7 +65,8 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-const int32 OSM_MAGIC = 0x12873465;
+const uint32 OSM_MAGIC2 = 0x12873666;
+const uint16 VERSION_MAGIC = 2;
 
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
@@ -103,7 +104,11 @@ struct OsmNode
 	const math::GeoPosition<float> &getPosition() const
 	{
 		return pos;
-	} 
+	}
+	math::tileid_t getTileID() const
+	{
+		return pos.getTileID();
+	}
 };
 
 struct OsmPlace : public OsmNode

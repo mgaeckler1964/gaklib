@@ -3,10 +3,10 @@
 		Module:			iostream.h
 		Description:	Usefull iostream functions
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2024 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -45,6 +45,7 @@
 #include <gak/fstream.h>
 #include <gak/exception.h>
 #include <gak/types.h>
+#include <gak/logfile.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -889,20 +890,21 @@ void varArrayFromBinaryStream( std::istream &stream, ContainerT &container )
 	for files
 */
 /**
-	@brief Writes an object to a file
+	@brief Writes an object to a binary file
 	@param [in] fileName The name of the file to create
 	@param [in] obj The object to write
 	@param [in] magic A 32-bit magic that will be check when reading the file
 	@tparam OBJ The class of the object. It must be possible to write the object using toBinaryStream
 	@throws OpenWriteError If the file could not be created
-	@see toBinaryStream, readFromFile
+	@see toBinaryStream, readFromBinaryFile
 */
 template <class OBJ> 
-void writeToFile( 
+void writeToBinaryFile( 
 	const STRING &fileName, 
 	const OBJ &obj, 
 	uint32 magic, 
-	OverwriteMode owm = owmOverwrite 
+	uint16 version,
+	OverwriteMode owm /* = owmOverwrite */ 
 )
 {
 	ofstream	stream( fileName, std::ios_base::binary, owm );
@@ -915,6 +917,11 @@ void writeToFile(
 	try
 	{
 		toBinaryStream( stream, magic );
+		if( version )
+		{
+			toBinaryStream( stream, version );
+		}
+		toBinaryStream( stream, uint32(sizeof(OBJ)) );
 		toBinaryStream( stream, obj );
 
 		stream.close();
@@ -927,17 +934,17 @@ void writeToFile(
 }
 
 /**
-	@brief Reads an object from a file
+	@brief Reads an object from a binary file
 	@param [in] fileName The name of the file to read
 	@param [out] obj The object to read
 	@param [in] magicRequired A 32-bit magic that will be checked
 	@tparam OBJ The class of the object. It must be possible to read the object using fromBinaryStream
 	@throws OpenReadError If the file could not be opened
 	@throws BadHeaderError If the magic in the file read does not match magicRequired
-	@see fromBinaryStream, writeToFile
+	@see fromBinaryStream, writeToBinaryFile
 */
 template <class OBJ>
-void readFromFile( const char *fileName, OBJ *obj, uint32 magicRequired )
+void readFromBinaryFile( const char *fileName, OBJ *obj, uint32 magicRequired, uint16 versionRequired, bool ignoreSize )
 {
 	std::ifstream	stream( fileName, std::ios_base::binary );
 	if( !stream )
@@ -951,6 +958,26 @@ void readFromFile( const char *fileName, OBJ *obj, uint32 magicRequired )
 	{
 		throw BadHeaderError( fileName );
 	}
+	if( versionRequired )
+	{
+		uint16	versionFound;
+		fromBinaryStream( stream, &versionFound );
+		if( versionRequired != versionFound )
+		{
+			throw BadHeaderError( fileName );
+		}
+	}
+
+	const uint32 oldSize = sizeof(OBJ);
+	uint32 size;
+	fromBinaryStream( stream, &size );
+	if( !ignoreSize && size != oldSize )
+	{
+		doLogValue(size);
+		doLogValue(oldSize);
+		throw BadHeaderError( fileName );
+	}
+
 	try
 	{
 		fromBinaryStream( stream, obj );

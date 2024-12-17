@@ -914,7 +914,7 @@ struct XmlProcessor : public XmlNullProcessor
 	{
 		if( m_newPlace.m_type != OsmPlace::Unkown && !m_newPlace.name.isEmpty() )
 		{
-			m_map.addPlace( m_map.getNumPlaces()+1, m_newPlace.m_type, m_newPlace );
+			m_map.addPlace(gak::OsmPlaceKeyT(m_map.getNumPlaces()+1), m_newPlace.m_type, m_newPlace );
 		}
 	}
 	void processEndWay()
@@ -1265,7 +1265,10 @@ int main( void )
 				<< sizeof( OSMbuilder::link_container_type::value_type ) << ' ' 
 				<< sizeof( OsmLink ) << ' ' 
 				<< sizeof( OsmLink::Type ) << ' ' 
-				<< sizeof( OsmNode ) << std::endl;
+				<< sizeof( OsmNode ) << ' '
+				<< sizeof( tileid_t ) << std::endl;
+
+	std::cout << "Reading " << osmName << std::endl;
 	if( exists( resultFile ) )
 	{
 //		readFromFile( resultFile, &myProcessor.m_map, OSM_MAGIC );
@@ -1295,12 +1298,37 @@ int main( void )
 	XmlProcessor::printCounter( out, LANDUSE + "-way", myProcessor.m_landuseCounter[XmlProcessor::oeWAY-1] );
 	XmlProcessor::printCounter( out, LANDUSE + "-relation", myProcessor.m_landuseCounter[XmlProcessor::oeRELATION-1] );
 
-	writeToFile( resultFile, myProcessor.m_map, OSM_MAGIC );
+	std::cout << "Writing " << resultFile << std::endl;
+	writeToBinaryFile( resultFile, myProcessor.m_map, OSM_MAGIC2, VERSION_MAGIC, owmOverwrite );
+
+	const TileIDsSet &tileIDs = myProcessor.m_map.getTimeIDs();
+
 	std::cout	<< "Nodes: "  << formatNumber( myProcessor.m_map.getNumNodes(),  0, 0, '.' ) 
 				<< " Places: " << formatNumber( myProcessor.m_map.getNumPlaces(), 0, 0, '.' )
 				<< " Links: "  << formatNumber( myProcessor.m_map.getNumLinks(),  0, 0, '.' ) 
 				<< " Areas: "  << formatNumber( myProcessor.m_map.getNumAreas(),  0, 0, '.' ) 
+				<< " Tiles: " << formatNumber( tileIDs.size(),  0, 0, '.' ) 
+				<< std::endl
+				<< "List of Tiles:" 
 				<< std::endl;
+
+	size_t count = 0;
+	for( 
+		TileIDsSet::const_iterator it = tileIDs.cbegin(), endIT = tileIDs.cend();
+		it != endIT;
+		++it )
+	{
+		if( count )
+		{
+			std::cout << ", ";
+		}
+		if( !(count % 10) )
+		{
+			std::cout << std::endl;
+		}
+		std::cout << *it;
+		++count;
+	}
 	return 0;
 }
 

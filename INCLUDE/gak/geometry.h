@@ -3,10 +3,10 @@
 		Module:			geometry.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2024 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -89,7 +89,7 @@ inline ScalarT getHypotenuse( ScalarT first, ScalarT second )
 template <typename ScalarT>
 inline ScalarT degree2radians( ScalarT x )
 {
-	return (x * 2.0 * M_PI) / 360.0;
+	return ScalarT((x * 2.0 * M_PI) / 360.0);
 }
 
 /**
@@ -101,7 +101,7 @@ inline ScalarT degree2radians( ScalarT x )
 template <typename ScalarT>
 inline ScalarT radians2degree( ScalarT x )
 {
-	return (x * 360.0) / (2.0 * M_PI);
+	return ScalarT((x * 360.0) / (2.0 * M_PI));
 }
 
 template <typename ScalarT>

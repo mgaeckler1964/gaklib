@@ -137,9 +137,10 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 	typedef PairMap<LayerKeyT, Layer>	Layers;
 
 	private:
-	Layers			m_lonIndex;
-	Layers			m_latIndex;
-	BoundingBox		m_boundingBox;
+	Layers				m_lonIndex;
+	Layers				m_latIndex;
+	BoundingBox			m_boundingBox;
+	math::TileIDsSet	m_tileIDs;
 
 	public:
 	GeoGraph() : m_boundingBox( +180, -90, -180, +90 )
@@ -174,6 +175,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 		m_latIndex[layerKey].addElement(
 			PositionValue( float(latitude), key )
 		);
+		m_tileIDs.addElement(node.getTileID());
 #if 0
 		if( m_lonIndex[layerKey].size() != m_latIndex[layerKey].size() )
 		{
@@ -248,6 +250,10 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 
 		return m_boundingBox;
 	}
+	const math::TileIDsSet &getTimeIDs() const
+	{
+		return m_tileIDs;
+	}
 
 	template <typename ScalarT>
 	void getRegion(
@@ -261,6 +267,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 		Super::clear();
 		m_lonIndex.clear();
 		m_latIndex.clear();
+		m_tileIDs.clear();
 	}
 
 	void toBinaryStream( std::ostream &stream ) const
@@ -268,6 +275,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 		Super::toBinaryStream( stream );
 		m_lonIndex.toBinaryStream( stream );
 		m_latIndex.toBinaryStream( stream );
+		m_tileIDs.toBinaryStream( stream );
 		binaryToBinaryStream( stream, m_boundingBox );
 	}
 	void fromBinaryStream( std::istream &stream )
@@ -282,8 +290,12 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 			doEnterFunction("m_latIndex.fromBinaryStream");
 			m_latIndex.fromBinaryStream( stream );
 		}
+		{
+			doEnterFunction("m_tileIDs.fromBinaryStream");
+			m_tileIDs.fromBinaryStream( stream );
+		}
 
-			binaryFromBinaryStream( stream, &m_boundingBox );
+		binaryFromBinaryStream( stream, &m_boundingBox );
 	}
 };
 

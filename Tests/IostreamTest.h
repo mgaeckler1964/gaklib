@@ -3,10 +3,10 @@
 		Module:			IostreamTest.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2024 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -91,18 +91,16 @@ class IOstreamTest : public UnitTest
 	void doTest( const OBJ &source )
 	{
 		const uint32	magic = 0x12345678;
+		const uint16	version = 666;
 		const F_STRING	fileName = "testFile.dmp";
 		OBJ				target;
 
-		writeToFile( fileName, source, magic );
+		writeToBinaryFile( fileName, source, magic, version, owmOverwrite );
 
-		readFromFile( fileName, &target, magic );
+		readFromBinaryFile( fileName, &target, magic, version, false );
 		UT_ASSERT_EQUAL( source, target );
 
-		readFromFile( fileName, &target, magic );
-		UT_ASSERT_EQUAL( source, target );
-
-		UT_ASSERT_EXCEPTION( readFromFile( fileName, &target, magic+1 ), BadHeaderError );
+		UT_ASSERT_EXCEPTION( readFromBinaryFile( fileName, &target, magic+1, version, false ), BadHeaderError );
 
 		{
 			ofstream	str( fileName, owmRenameOld );
@@ -110,7 +108,7 @@ class IOstreamTest : public UnitTest
 			str.flush();
 			str.rollback();
 
-			readFromFile( fileName, &target, magic );
+			readFromBinaryFile( fileName, &target, magic, version, false );
 			UT_ASSERT_EQUAL( source, target );
 		}
 		{
@@ -119,7 +117,7 @@ class IOstreamTest : public UnitTest
 			str.flush();
 			str.rollback();
 
-			readFromFile( fileName, &target, magic );
+			readFromBinaryFile( fileName, &target, magic, version, false );
 			UT_ASSERT_EQUAL( source, target );
 		}
 		{
@@ -134,7 +132,7 @@ class IOstreamTest : public UnitTest
 			toBinaryStream( str, source );
 			str.flush();
 		}
-		readFromFile( fileName, &target, magic );
+		readFromBinaryFile( fileName, &target, magic, version, false );
 		UT_ASSERT_EQUAL( source, target );
 
 		strRemove( fileName );
