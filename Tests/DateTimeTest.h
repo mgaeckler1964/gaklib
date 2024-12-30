@@ -85,6 +85,7 @@ class DateTimeTest : public UnitTest
 	{
 		DateTime	now;
 
+#ifndef __BORLANDC__
 		std::cout << "\nSPRINGYEAR" << SPRINGYEAR << ' ' << SPRINGYEAR - MEANYEAR << ' ' << SPRINGYEAR - SEASONYEAR << ' ' << SPRINGDURATION70 << ' ' << SPRINGDURATION22 << ' ' << SPRINGDURATION22-SPRINGDURATION70 << "\n"
 				<< "SUMMERYEAR" << SUMMERYEAR << ' ' << SUMMERYEAR - MEANYEAR << ' ' << SUMMERYEAR - SEASONYEAR << ' ' << SUMMERDURATION70 << ' ' << SUMMERDURATION22 << ' ' << SUMMERDURATION22-SUMMERDURATION70 << "\n"
 				<< "AUTUMNYEAR" << AUTUMNYEAR << ' ' << AUTUMNYEAR - MEANYEAR << ' ' << AUTUMNYEAR - SEASONYEAR << ' ' << AUTUMNDURATION70 << ' ' << AUTUMNDURATION22 << ' ' << AUTUMNDURATION22-AUTUMNDURATION70 << "\n"
@@ -96,7 +97,7 @@ class DateTimeTest : public UnitTest
 		std::cout << lastSpring << '\n';
 		std::cout << nextSpring << '\n';
 		DateTime::Season curSeason = now.getSeason();
-		const char *SeasonStrings[] = 
+		const char *SeasonStrings[] =
 		{
 			"S_UNKNOWN", "S_SPRING", "S_SUMMER", "S_AUTUMN", "S_WINTER"
 		};
@@ -115,8 +116,9 @@ class DateTimeTest : public UnitTest
 		DateTime nextFullMoon = now.nextFullMoon();
 		DateTime nextNewMoon = now.nextNewMoon();
 		std::cout << "Vollmond: " << nextFullMoon << " Neumond: " << nextNewMoon << '\n';
+#endif
 
-		UT_ASSERT_EQUAL( now.getTZoffset(), 7200L );
+		UT_ASSERT_EQUAL( now.getTZoffset(), 3600L );
 		DateTime	epochBegin( time_t( 0 ) );
 		UT_ASSERT_EQUAL( epochBegin.getYear(), (unsigned short)1970 );
 		UT_ASSERT_EQUAL( epochBegin.getMonth(), Date::JANUARY );

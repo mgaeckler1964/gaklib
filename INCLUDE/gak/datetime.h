@@ -75,6 +75,8 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+#ifndef __BORLANDC__
+
 // spring 1970 (utc): 21. 3. 00:56
 static const time_t SPRING1970 = 6828960;
 // summer 1970 (utc): 21. 6. 19:42
@@ -109,7 +111,7 @@ static const time_t SPRINGDURATION22 = SUMMER2022-SPRING2022;
 static const time_t SUMMERDURATION22 = AUTUMN2022-SUMMER2022;
 static const time_t AUTUMNDURATION22 = WINTER2022-AUTUMN2022;
 
-// Lunation	new moon (utc)		full moon (utc) 
+// Lunation	new moon (utc)		full moon (utc)
 //  587		04. 06. 1970 02:21	19. 06. 1970 12:27
 //			13314060			14646420
 static const int LUNATION_1 = 587;
@@ -118,7 +120,7 @@ static const time_t FULL_MOON_1 = 14646420;
 static const time_t HALF_MOON_1 = FULL_MOON_1 - NEW_MOON_1;
 
 // 1256		05. 07. 2024 22:57	21. 07. 2024 10:17
-//			1720220220			1721557020		
+//			1720220220			1721557020
 static const int LUNATION_2 = 1256;
 static const time_t NEW_MOON_2 = 1720224660;		// TODO: check difference? with the orig time from a moon calendar I get diffs
 static const time_t FULL_MOON_2 = 1721557020;
@@ -135,10 +137,13 @@ static const time_t AVG_MOON_PHASE2 = (FULL_MOON_TIME+NEW_MOON_TIME)/(4*LUNATION
 
 static const time_t MOON_PHASE = ((((29*24)+12)*60)+44)*60+3;
 
+#endif
 
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+#ifndef __BORLANDC__
 
 template <time_t SEASON70START, time_t SEAONYEAR>
 time_t getLastSeasonStart( time_t utctime )
@@ -158,6 +163,8 @@ time_t getNextSeasonStart( time_t utctime )
 	return SEASON70START + SEAONYEAR * (yearsSinceStart+1);
 }
 
+#endif
+
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -169,7 +176,7 @@ time_t getNextSeasonStart( time_t utctime )
 class IllegalInternetTimestamp : public LibraryException
 {
 	public:
-	IllegalInternetTimestamp( const STRING &inetStr ) 
+	IllegalInternetTimestamp( const STRING &inetStr )
 	: LibraryException( "Illegal Internet Timestamp: " + inetStr )
 	{
 	}
@@ -178,9 +185,6 @@ class IllegalInternetTimestamp : public LibraryException
 class DateTime : public Date, public Time
 {
 	private:
-//	static int		localTimezone;
-	static bool		s_localDaylight;
-
 	/*
 		when using the time zone offset
 		the time part containts the UTC-time
@@ -246,6 +250,7 @@ class DateTime : public Date, public Time
 	DateTime() : Date( true ), Time( true )
 	{
 		initTimeZone();
+		m_tzOffset = calcTzOffset();
 		makeNow();
 	}
 	DateTime( time_t timer ) : Date( true ), Time( true )
@@ -265,6 +270,11 @@ class DateTime : public Date, public Time
 		initTimeZone();
 		m_tzOffset = calcTzOffset();
 		calcTime( m_tzOffset );
+	}
+	DateTime( TDateTime source, long tzOffset ) : Date( source ), Time( source )
+	{
+		initTimeZone();
+		m_tzOffset = tzOffset;
 	}
 	operator TDateTime ( void ) const
 	{
@@ -332,6 +342,7 @@ class DateTime : public Date, public Time
 		return thisStamp;
 	}
 
+#ifndef __BORLANDC__
 	DateTime lastSpring() const
 	{
 		return DateTime( getLastSeasonStart<SPRING1970,SEASONYEAR>(getUtcUnixSeconds()), 0 );
@@ -426,6 +437,8 @@ class DateTime : public Date, public Time
 			return S_UNKNOWN;
 		}
 	}
+#endif
+
 	int compare( const DateTime &dateTime ) const
 	{
 		unsigned long thisLong = Date::getLong();
@@ -505,7 +518,7 @@ class DateTime : public Date, public Time
 	}
 	STRING getLocalTime( void ) const
 	{
-		return getInetTime( -getTimezone() - (s_localDaylight ? -3600 : 0));
+		return getInetTime( -getTimezone() - (hasDst() ? -3600 : 0));
 	}
 	STRING getUTCTime( void ) const
 	{
@@ -521,7 +534,7 @@ class DateTime : public Date, public Time
 	DateTime calcLocalTime( void ) const
 	{
 		DateTime tmp = *this;
-		tmp.calcTime( getTimezone()  - (s_localDaylight ? 3600 : 0 ) );
+		tmp.calcTime( getTimezone()  - (hasDst() ? 3600 : 0 ) );
 
 		return tmp;
 	}

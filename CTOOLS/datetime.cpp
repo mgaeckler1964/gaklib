@@ -110,8 +110,6 @@ static const char *monthNames[] =
 // ----- class static data --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-bool DateTime::s_localDaylight = false;
-
 // --------------------------------------------------------------------- //
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -138,10 +136,6 @@ void DateTime::initTimeZone( void )
 	if( first )
 	{
 		tzset();
-		std::time_t	timer = time(NULL);
-		std::tm		*tblock = localtime( &timer );
-		s_localDaylight = tblock->tm_isdst > 0 ? true : false;
-
 		first = false;
 	}
 }
