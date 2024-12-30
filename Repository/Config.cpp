@@ -1,18 +1,18 @@
 /*
 		Project:		GAKLIB
 		Module:			Config.cpp
-		Description:	
+		Description:
 		Author:			Martin Gäckler
 		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
 		Copyright:		(c) 1988-2024 Martin Gäckler
 
-		This program is free software: you can redistribute it and/or modify  
-		it under the terms of the GNU General Public License as published by  
+		This program is free software: you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
 		the Free Software Foundation, version 3.
 
-		You should have received a copy of the GNU General Public License 
+		You should have received a copy of the GNU General Public License
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
@@ -36,6 +36,7 @@
 #include <vcl.h>
 
 #include <gak/vcl_tools.h>
+#include <gak/fmtNumber.h>
 
 #pragma hdrstop
 
@@ -288,7 +289,7 @@ int TConfigDataModule::GetDBVersionByAlias( const char *alias )
 
 //---------------------------------------------------------------------------
 
-STRING TConfigDataModule::OpenDatabase( TDatabase *theDatabase )
+STRING TConfigDataModule::OpenDatabase( TDatabase *theDatabase, int expectedDbVersion )
 {
 	STRING errorText;
 
@@ -305,6 +306,10 @@ STRING TConfigDataModule::OpenDatabase( TDatabase *theDatabase )
 		{
 			errorText = e.Message.c_str();
 		}
+		catch( std::exception &e )
+		{
+			errorText = e.what();
+		}
 		catch( ... )
 		{
 			errorText = "Unknown";
@@ -312,6 +317,15 @@ STRING TConfigDataModule::OpenDatabase( TDatabase *theDatabase )
 		Sleep( 5000 );
 	}
 
+	if( expectedDbVersion != 0 && errorText.isEmpty() )
+	{
+		int dbVersion = GetDBVersion();
+		if( dbVersion != expectedDbVersion )
+		{
+			theDatabase->Close();
+			errorText = "Expected version: " + gak::formatNumber(expectedDbVersion) + ", found version: " + gak::formatNumber(dbVersion)  + '!';
+		}
+	}
 	return errorText;
 }
 

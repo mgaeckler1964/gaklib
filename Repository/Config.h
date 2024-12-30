@@ -114,7 +114,7 @@ public:		// User declarations
 		SetValue( "dbVersion", versionCode );
 	}
 
-	gak::STRING OpenDatabase( TDatabase *theDatabase );
+	gak::STRING OpenDatabase( TDatabase *theDatabase, int expectedDbVersion=0 );
 
 	void emptyTables( const gak::STRING &directory );
 	void emptyTables( TDatabase *theDatabase );
