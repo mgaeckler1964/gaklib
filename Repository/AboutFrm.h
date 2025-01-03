@@ -45,39 +45,8 @@
 #include <vcl\ExtCtrls.hpp>
 
 #include <gak/string.h>
+#include <winlib/version.h>
 
-//----------------------------------------------------------------------------
-
-class ProgramVersionInfo
-{
-	gak::STRING		productName, versionString, companyName, legalCopyRight,
-					fileDescription;
-	unsigned short	major, minor, patch, build;
-
-	public:
-	ProgramVersionInfo( const gak::STRING &appFileName );
-
-	const gak::STRING &getVersionString( void ) const
-	{
-		return versionString;
-	}
-	const gak::STRING &getLegalCopyRight( void ) const
-	{
-		return legalCopyRight;
-	}
-	const gak::STRING &getFileDescription( void ) const
-	{
-		return fileDescription;
-	}
-	const gak::STRING &getProductName( void ) const
-	{
-		return productName;
-	}
-	const gak::STRING &getCompanyName( void ) const
-	{
-		return companyName;
-	}
-};
 //----------------------------------------------------------------------------
 class TAboutProgramForm : public TForm
 {
@@ -92,7 +61,7 @@ __published:
 	TImage *Image1;
 	void __fastcall FormCreate(TObject *Sender);
 private:
-	ProgramVersionInfo	theVersionInfo;
+	winlib::ProgramVersionInfo	theVersionInfo;
 
 public:
 	virtual __fastcall TAboutProgramForm(TComponent* AOwner);

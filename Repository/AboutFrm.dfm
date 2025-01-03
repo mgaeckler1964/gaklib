@@ -1,6 +1,6 @@
 object AboutProgramForm: TAboutProgramForm
-  Left = 505
-  Top = 284
+  Left = 326
+  Top = 356
   BorderStyle = bsDialog
   Caption = 'Product'
   ClientHeight = 197

@@ -44,127 +44,17 @@ using namespace gak;
 //---------------------------------------------------------------------
 #pragma resource "*.dfm"
 TAboutProgramForm *AboutProgramForm;
-//---------------------------------------------------------------------
-ProgramVersionInfo::ProgramVersionInfo( const STRING &appFileName )
-{
-	DWORD	dummy1, versionInfoSize;
-	UINT	dummy2;
-	char	tmpBuffer[128];
-
-	versionInfoSize = GetFileVersionInfoSize(
-		appFileName, &dummy1
-	);
-	if( versionInfoSize )
-	{
-		void *data = malloc( versionInfoSize );
-		if( data )
-		{
-			VS_FIXEDFILEINFO	*fixedFileInfo;
-
-			GetFileVersionInfo( Application->ExeName.c_str(), 0L, versionInfoSize, data );
-			if( VerQueryValue( data, "\\", (void **)&fixedFileInfo, &dummy2 ) )
-			{
-				major = (unsigned short)(fixedFileInfo->dwFileVersionMS >> 16);
-				minor = (unsigned short)(fixedFileInfo->dwFileVersionMS & 0xFFFF);
-				patch = (unsigned short)(fixedFileInfo->dwFileVersionLS >> 16);
-				build = (unsigned short)(fixedFileInfo->dwFileVersionLS & 0xFFFF);
-				versionString =
-					formatNumber( major ) + '.' +
-					formatNumber( minor ) + '.' +
-					formatNumber( patch ) + '.' +
-					formatNumber( build )
-				;
-			}
-
-			struct LANGANDCODEPAGE
-			{
-				WORD wLanguage;
-				WORD wCodePage;
-			} *lpTranslate;
-
-			const char *cpData;
-
-
-			if( VerQueryValue(
-				data,
-				"\\VarFileInfo\\Translation", (void**)&lpTranslate,
-				&dummy2
-			) )
-			{
-				sprintf(
-					tmpBuffer,
-					"\\StringFileInfo\\%04x%04x\\LegalCopyright",
-					lpTranslate->wLanguage,
-					lpTranslate->wCodePage
-				);
-				if( VerQueryValue(
-					data,
-					tmpBuffer, (void**)&cpData,
-					&dummy2
-				) )
-				{
-					legalCopyRight = cpData;
-				}
-
-				sprintf(
-					tmpBuffer,
-					"\\StringFileInfo\\%04x%04x\\FileDescription",
-					lpTranslate->wLanguage,
-					lpTranslate->wCodePage
-				);
-				if( VerQueryValue(
-					data,
-					tmpBuffer, (void**)&cpData,
-					&dummy2
-				) )
-				{
-					fileDescription = cpData;
-				}
-				sprintf(
-					tmpBuffer,
-					"\\StringFileInfo\\%04x%04x\\CompanyName",
-					lpTranslate->wLanguage,
-					lpTranslate->wCodePage
-				);
-				if( VerQueryValue(
-					data,
-					tmpBuffer, (void**)&cpData,
-					&dummy2
-				) )
-				{
-					companyName = cpData;
-				}
-				sprintf(
-					tmpBuffer,
-					"\\StringFileInfo\\%04x%04x\\ProductName",
-					lpTranslate->wLanguage,
-					lpTranslate->wCodePage
-				);
-				if( VerQueryValue(
-					data,
-					tmpBuffer, (void**)&cpData,
-					&dummy2
-				) )
-				{
-					productName = cpData;
-				}
-			}
-			free( data );
-		}
-	}
-}
 
 //---------------------------------------------------------------------
 __fastcall TAboutProgramForm::TAboutProgramForm(TComponent* AOwner)
-	: TForm(AOwner), theVersionInfo( Application->ExeName.c_str() ) 
+	: TForm(AOwner), theVersionInfo( Application->ExeName.c_str() )
 {
 }
 //---------------------------------------------------------------------
 
-
-
-void __fastcall TAboutProgramForm::FormCreate(TObject *)
+void __fastcall TAboutProgramForm::FormCreate(TObject *Sender)
 {
+	doEnterFunction("TAboutProgramForm::FormCreate");
 	Caption  = (const char *)(
 		getProductName() + " by " + getCompanyName()
 	);
@@ -173,8 +63,8 @@ void __fastcall TAboutProgramForm::FormCreate(TObject *)
 
 	Version->Caption = (const char *)getVersionString();
 	Copyright->Caption = (const char *)getLegalCopyRight();
+	doLogValue(getLegalCopyRight());
 	Comments->Caption = (const char *)getFileDescription();
-
 }
 //---------------------------------------------------------------------------
 
