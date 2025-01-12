@@ -98,6 +98,11 @@ namespace gakLogging
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+static const char *s_logLevels[] =
+{
+	"llDetail", "llInfo", "llWarn", "llError", "llFatal", "llNolog"
+};
+
 /*
 ---------------------------------------------------------------------------
 	Profiling
@@ -108,6 +113,7 @@ typedef std::map<const char	*, int> FunctionMap;
 
 struct ProfileLogEntry
 {
+	LogLevel			logLevel;
 	const char 			*file;
 	int					line;
 	const char			*functionName;
@@ -133,19 +139,19 @@ typedef std::map<gak::ThreadID, CallStack>	CallStacks;
 class LogLine
 {
 	std::string		m_line;
-	std::size_t		m_level;
+	std::size_t		m_indent;
 	std::clock_t	m_ticks;
 
 	public:
-	LogLine( const std::string &line, std::size_t level )
+	LogLine( LogLevel lvl, const std::string &line, std::size_t indent )
 	{
-		m_line = line;
-		m_level = level;
+		m_line = line + '|' + s_logLevels[lvl];
+		m_indent = indent;
 		m_ticks = gak::UserTimeClock::clock();
 	}
-	std::size_t getLevel() const
+	std::size_t getIndent() const
 	{
-		return m_level;
+		return m_indent;
 	}
 	std::clock_t getTicks() const
 	{
@@ -199,11 +205,12 @@ typedef gak::PairMap<std::string, LoggingThreadPtr>	LoggingThreads;
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+LogLevel		g_minLevel			= llNolog;
+
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static bool	s_disabled			= true;
 static bool	s_ignoreThread		= false;
 static bool	s_shutdownProfile	= false;
 static bool	s_shutdownLogging	= false;
@@ -514,7 +521,7 @@ void LoggingThread::logLine( const LogLine &line )
 	}
 	if( m_out.is_open() )
 	{
-		for( unsigned i=0; i<line.getLevel(); ++i )
+		for( unsigned i=0; i<line.getIndent(); ++i )
 		{
 			m_out << "    ";
 		}
@@ -536,11 +543,11 @@ void LoggingThread::logLine( const LogLine &line )
 	Profiling
 ---------------------------------------------------------------------------
 */
-void enterFunction( const char *file, int line, const char *function, bool doLog )
+bool enterFunction( LogLevel level, const char *file, int line, const char *function, bool doLog )
 {
-	if( s_disabled || s_shutdownProfile )
+	if( level < g_minLevel || s_shutdownProfile )
 	{
-		return;
+		return false;
 	}
 
 	static bool	first = true;
@@ -552,7 +559,7 @@ void enterFunction( const char *file, int line, const char *function, bool doLog
 
 	gak::LockGuard		lock( getLocker() );
 	CallStack			&logEntries = getCallStack();
-	std::size_t			curLevel = logEntries.size();
+	std::size_t			curIndent = logEntries.size();
 	gak::ThreadID		curThread = gak::Locker::GetCurrentThreadID();
 	std::string			fileName = getLogFilename( curThread );
 	bool				recursiveCall = false;
@@ -575,6 +582,7 @@ void enterFunction( const char *file, int line, const char *function, bool doLog
 	}
 
 	ProfileLogEntry theEntry;
+	theEntry.logLevel = level;
 	theEntry.file = file;
 	theEntry.line = line;
 	theEntry.functionName = function;
@@ -596,27 +604,29 @@ void enterFunction( const char *file, int line, const char *function, bool doLog
 		out << ">>>Enter " << function << " at " << file << ' ' << line << ":  time =" << theEntry.startTimeReal;
 		out.flush();
 
-		thread->pushLine( LogLine( out.str(), curLevel ) );
+		thread->pushLine( LogLine( level, out.str(), curIndent ) );
 	}
+
+	return true;
 }
 
 void exitFunction( const char *file, int line, bool doLog )
 {
-	if( s_disabled || s_shutdownProfile )
+	if( s_shutdownProfile )
 	{
 		return;
 	}
 
 	gak::LockGuard		lock( getLocker() );
 	CallStack			&logEntries = getCallStack();
-	std::size_t			curLevel = logEntries.size();
+	std::size_t			curIndent = logEntries.size();
 	gak::ThreadID		curThread = gak::Locker::GetCurrentThreadID();
 	std::string			fileName = getLogFilename( curThread );
 
-	if( curLevel > 0 )
+	if( curIndent > 0 )
 	{
-		--curLevel;
-		ProfileLogEntry		&theEntry = logEntries[curLevel];
+		--curIndent;
+		ProfileLogEntry		&theEntry = logEntries[curIndent];
 		clock_t				executionTimeCPU = gak::CpuTimeClock::clock()-theEntry.startTimeCPU;
 		clock_t				executionTimeReal = gak::UserTimeClock::clock()-theEntry.startTimeReal;
 
@@ -628,7 +638,7 @@ void exitFunction( const char *file, int line, bool doLog )
 			out << "<<<Exit " << theEntry.functionName << " at " << file << ' ' << line << ":  time =" << executionTimeCPU << '/' << executionTimeReal;
 			out.flush();
 
-			thread->pushLine( LogLine( out.str(), curLevel ) );
+			thread->pushLine( LogLine( theEntry.logLevel, out.str(), curIndent ) );
 		}
 
 		theEntry.startTimeCPU = executionTimeCPU;
@@ -647,7 +657,7 @@ void exitFunction( const char *file, int line, bool doLog )
 		out << "!!!unknown exit from " << file << ' ' << line << " disabled at start?";
 		out.flush();
 
-		thread->pushLine( LogLine( out.str(), 0 ) );
+		thread->pushLine( LogLine( llNolog, out.str(), 0 ) );
 	}
 }
 
@@ -659,7 +669,7 @@ void exitFunction( const char *file, int line, bool doLog )
 
 void logFileLine( const std::string &line )
 {
-	if( s_disabled || s_shutdownLogging )
+	if( llInfo < g_minLevel || s_shutdownProfile )
 	{
 		return;
 	}
@@ -667,7 +677,7 @@ void logFileLine( const std::string &line )
 	gak::LockGuard		lock( getLocker() );
 	std::string			fileName = getGlobalLogFilename();
 	LoggingThreadPtr	&thread = getLoggingThread( fileName );
-	thread->pushLine( LogLine( line, 0 ) );
+	thread->pushLine( LogLine( llInfo, line, 0 ) );
 /*
 
 	STDfile	fp( getGlobalLogFp() );
@@ -679,22 +689,21 @@ void logFileLine( const std::string &line )
 */
 }
 
-void logLine( const std::string &line )
+void logLine( LogLevel level, const std::string &line )
 {
-	if( s_disabled || s_shutdownLogging )
+	if( g_minLevel > level || s_shutdownLogging )
 	{
 		return;
 	}
 
 	gak::LockGuard		lock( getLocker() );
 	CallStack			&logEntries = getCallStack();
-	std::size_t			curLevel = logEntries.size();
+	std::size_t			curIndent = logEntries.size();
 	gak::ThreadID		curThread = gak::Locker::GetCurrentThreadID();
 	std::string			fileName = getLogFilename( curThread );
 	LoggingThreadPtr	&thread = getLoggingThread( fileName );
 
-	thread->pushLine( LogLine( line, curLevel ) );
-
+	thread->pushLine( LogLine( level, line, curIndent ) );
 	if( !s_asyncLog )
 	{
 		flushLogs();
@@ -725,7 +734,7 @@ void logError( const char *file, int line, DWORD dw )
 	out << file << ' ' << line << ": Error=" << lpMsgBuf;
 	out.flush();
 
-	logLine( out.str() );
+	logLine( llError,out.str() );
 
 	LocalFree( LPVOID(lpMsgBuf) );
 }
@@ -753,12 +762,12 @@ void flushLogs( void )
 */
 void disableLog( void )
 {
-	s_disabled = true;
+	g_minLevel = llNolog;
 }
 
-void enableLog( void )
+void enableLog( LogLevel minLevel )
 {
-	s_disabled = false;
+	g_minLevel = minLevel;
 }
 
 void ignoreThreads( void )

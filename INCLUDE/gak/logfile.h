@@ -95,24 +95,33 @@ namespace gakLogging
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+enum LogLevel
+{
+	llDetail, llInfo, llWarn, llError, llFatal, llNolog
+};
+
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
 class Profiler
 {
+	bool		m_active;
 	const char	*fileName;
 	int			lineNumber;
 	const char	*functionName;
+	LogLevel	level;
 
 	public:
-	Profiler( const char *fileName, int lineNumber, const char *functionName );
+	Profiler( LogLevel level, const char *fileName, int lineNumber, const char *functionName );
 	~Profiler();
 };
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
+
+extern LogLevel g_minLevel;
 
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
@@ -126,75 +135,169 @@ class Profiler
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+/*
+	file logging (depreceated???)
+*/
 void logFileLine( const std::string &line );
-void logLine( const std::string &line );
 
+template <typename ValueT>
+void logFile( const char *fName, int lineNum, const char *valName, const ValueT &val )
+{
+	std::stringstream	out;
+
+	out << fName << ' ' << lineNum << ": " << valName << '=' << val;
+	out.flush();
+	logFileLine( out.str() );
+	logLine( out.str() );
+}
+
+#if DEBUG_LOG
+#define doLogFile( val )		gakLogging::logFile( __FILE__, __LINE__, #val, val )
+#else
+#define doLogFile( val )		/* nothing */
+#endif
+
+
+/*
+	values
+*/
+
+void logLine( LogLevel level, const std::string &line );
+
+template <typename ValueT>
+void logValue( LogLevel level, const char *fName, int lineNum, size_t callCount, const char *valName, const ValueT &val )
+{
+	if( g_minLevel > level )
+	{
+		return;
+	}
+
+	std::stringstream	out;
+
+	out << fName << ' ' << lineNum << " - " << callCount << ": " << valName << '=' << val;
+	out.flush();
+	logLine( level, out.str() );
+}
+
+template <>
+inline void logValue( LogLevel level, const char *fName, int lineNum, size_t callCount, const char *valName, const bool &val )
+{
+	if( g_minLevel > level )
+	{
+		return;
+	}
+
+	gakLogging::logValue<const char *>(level, fName, lineNum, callCount, valName, val ? "true" : "false");
+}
+
+#if DEBUG_LOG
+#define doLogValueEx(lvl,  val)														\
+{																					\
+	if( gakLogging::g_minLevel <= lvl )											\
+	{																				\
+		static size_t callCount = 0;												\
+		gakLogging::logValue( lvl, __FILE__, __LINE__, ++callCount, #val, val );	\
+	}																				\
+}
+#else
+#define doLogValueEx(lvl, val)		/* nothing */
+#endif
+
+#define doLogValue(val)			doLogValueEx( gakLogging::llFatal,  val )
+
+/*
+	messages
+*/
+#if DEBUG_LOG
+#define doLogMessageEx(lvl,msg)														\
+{																					\
+	if( gakLogging::g_minLevel <= lvl )												\
+	{																				\
+		static size_t callCount = 0;												\
+		gakLogging::logValue( lvl, __FILE__, __LINE__, ++callCount, "message", msg );	\
+	}																				\
+}
+#else
+#define doLogMessageEx(lvl,msg)		/* nothing */
+#endif
+
+#define doLogMessage(msg)		doLogMessageEx(gakLogging::llFatal,msg)
+
+/*
+	error
+*/
 void logError( const char *file, int line, unsigned long dw );
-void enterFunction( const char *file, int line, const char *function, bool doLogProfile );
+
+#if DEBUG_LOG
+#define doLogError( err )		gakLogging::logError( __FILE__, __LINE__, err )
+#else
+#define doLogError( err )		/* nothing */
+#endif
+
+
+/*
+	positions
+*/
+#if DEBUG_LOG
+#define doLogPositionEx(lvl)													\
+{																		\
+	static size_t callCount = 0;										\
+	gakLogging::logValue( lvl, __FILE__, __LINE__, ++callCount, "", "" );	\
+}
+#else
+#define doLogPositionEx(lvl)		/* nothing */
+#endif
+
+#define doLogPosition()			doLogPositionEx(gakLogging::llFatal)
+
+/*
+	profiling
+*/
+
+bool enterFunction( LogLevel level, const char *file, int line, const char *function, bool doLogProfile );
 void exitFunction( const char *file, int line, bool doLogProfile );
 
-void enableLog( void );
+#if DEBUG_LOG || PROFILER
+#	define doEnterFunctionEx( lvl,x )	gakLogging::Profiler	_profiler( lvl, __FILE__, __LINE__, x )
+#else
+#	define doEnterFunctionEx( lvl,x )	/* nothing */
+#endif
+
+#define doEnterFunction( x )	doEnterFunctionEx( gakLogging::llFatal, x )
+
+/*
+	disable log levels
+*/
+void enableLog( LogLevel minLevel );
 void disableLog( void );
+#if DEBUG_LOG || PROFILER
+#	define doEnableLog(lvl)		gakLogging::enableLog(lvl)
+#	define doDisableLog()		gakLogging::disableLog()
+#else
+#	define doEnableLog(lvl)		/* nothing */
+#	define doDisableLog()		/* nothing */
+#endif
+
+
+/*
+	threads and strams
+*/
+
+#if DEBUG_LOG
+#define doIgnoreThreads()		gakLogging::ignoreThreads()
+#define doApplyThreads()		gakLogging::applyThreads()
+#define doFlushLogs()			gakLogging::flushLogs()
+#else
+#define doIgnoreThreads()		/* nothing */
+#define doApplyThreads()		/* nothing */
+#define doFlushLogs()			/* nothing */
+#endif
 
 void ignoreThreads( void );
 void applyThreads( void );
 void flushLogs( void );
 
-#if DEBUG_LOG
-#define doLogFile( val )		gakLogging::logFile( __FILE__, __LINE__, #val, val )
-#define doLogValue( val )												\
-{																		\
-	static size_t callCount = 0;										\
-	gakLogging::logValue( __FILE__, __LINE__, ++callCount, #val, val );	\
-}
 
-#define doLogPosition()													\
-{																		\
-	static size_t callCount = 0;										\
-	gakLogging::logValue( __FILE__, __LINE__, ++callCount, "", "" );	\
-}
-
-#define doLogMessage( msg )														\
-{																				\
-	static size_t callCount = 0;												\
-	gakLogging::logValue( __FILE__, __LINE__, ++callCount, "message", msg );	\
-}
-
-#define doLogError( err )		gakLogging::logError( __FILE__, __LINE__, err )
-
-#define doEnterFunction( x )	gakLogging::Profiler	_profiler( __FILE__, __LINE__, x )
-
-#define doEnableLog()			gakLogging::enableLog()
-#define doDisableLog()			gakLogging::disableLog()
-
-#define doIgnoreThreads()		gakLogging::ignoreThreads()
-#define doApplyThreads()		gakLogging::applyThreads()
-#define doFlushLogs()			gakLogging::flushLogs()
-
-#else
-#define doLogFile( val )		/* nothing */
-
-#define doLogValue( val )		/* nothing */
-#define doLogBool( val )		/* nothing */
-#define doLogPosition()			/* nothing */
-#define doLogMessage( msg )		/* nothing */
-#define doLogError( err )		/* nothing */
-
-#if !PROFILER
-#	define doEnterFunction( x )	/* nothing */
-#	define doEnableLog()		/* nothing */
-#	define doDisableLog()		/* nothing */
-#else
-#	define doEnterFunction( x )	gakLogging::Profiler	_profiler( __FILE__, __LINE__, x )
-#	define doEnableLog()		gakLogging::enableLog()
-#	define doDisableLog()		gakLogging::disableLog()
-#endif
-
-
-#define doIgnoreThreads()		/* nothing */
-#define doApplyThreads()		/* nothing */
-#define doFlushLogs()			/* nothing */
-#endif
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
@@ -208,17 +311,21 @@ void flushLogs( void );
 // ----- class constructors/destructors -------------------------------- //
 // --------------------------------------------------------------------- //
 
-inline Profiler::Profiler( const char *fileName, int lineNumber, const char *functionName )
+inline Profiler::Profiler( LogLevel level, const char *fileName, int lineNumber, const char *functionName )
 {
 	this->fileName		= fileName;
 	this->lineNumber	= lineNumber;
 	this->functionName	= functionName;
-	enterFunction( fileName, lineNumber, functionName, DO_LOG_PROFILE );
+	this->level			= level;
+	this->m_active = enterFunction( level, fileName, lineNumber, functionName, DO_LOG_PROFILE );
 }
 
 inline Profiler::~Profiler()
 {
-	exitFunction( fileName, lineNumber, DO_LOG_PROFILE );
+	if( m_active )
+	{
+		exitFunction( fileName, lineNumber, DO_LOG_PROFILE );
+	}
 }
 
 // --------------------------------------------------------------------- //
@@ -244,33 +351,6 @@ inline Profiler::~Profiler()
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-template <typename ValueT>
-void logValue( const char *fName, int lineNum, size_t callCount, const char *valName, const ValueT &val )
-{
-	std::stringstream	out;
-
-	out << fName << ' ' << lineNum << " - " << callCount << ": " << valName << '=' << val;
-	out.flush();
-	logLine( out.str() );
-}
-
-template <>
-inline void logValue( const char *fName, int lineNum, size_t callCount, const char *valName, const bool &val )
-{
-	gakLogging::logValue<const char *>(fName, lineNum, callCount, valName, val ? "true" : "false");
-}
-
-template <typename ValueT>
-void logFile( const char *fName, int lineNum, const char *valName, const ValueT &val )
-{
-	std::stringstream	out;
-
-	out << fName << ' ' << lineNum << ": " << valName << '=' << val;
-	out.flush();
-	logFileLine( out.str() );
-	logLine( out.str() );
-}
 
 }	// namespace gakLogging
 

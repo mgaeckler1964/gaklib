@@ -140,7 +140,6 @@ class IOstreamTest : public UnitTest
 
 	virtual void PerformTest( void )
 	{
-		doEnableLog();
 		{
 			TestScope("TreeMap<int, STRING>");
 			TreeMap<int, STRING>	map;

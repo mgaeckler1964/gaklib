@@ -1,12 +1,12 @@
 /*
-		Project:		GAKLIB
-		Module:			relpath.cpp
-		Description:	Generate relative or absolute paths
+		Project:		
+		Module:			
+		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -29,6 +29,7 @@
 		SUCH DAMAGE.
 */
 
+
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -36,9 +37,6 @@
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
-
-#include <gak/directory.h>
-#include <gak/logfile.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -55,9 +53,6 @@
 #	pragma option -pc
 #endif
 
-namespace gak
-{
-
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -73,6 +68,43 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+#include <iostream>
+#include <gak/unitTest.h>
+
+namespace gak
+{
+
+class LogfileTest : public UnitTest
+{
+	virtual const char *GetClassName( void ) const
+	{
+		return "LogfileTest";
+	}
+	virtual void PerformTest( void )
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "LogfileTest::PerformTest");
+
+		doLogPosition();
+		doLogPositionEx(gakLogging::llInfo);
+
+		bool value=true;
+		doLogValue(value );
+		doLogValueEx(gakLogging::llInfo, value );
+
+		doLogMessage( "Hello world" );
+		doLogMessageEx( gakLogging::llInfo, "Hello world" );
+
+#ifdef __WINDOWS__
+		doLogError( GetLastError() );
+#endif
+
+	}
+};
+
+static LogfileTest	myLogfileTest;
+
+}	//namespace gak
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
@@ -125,139 +157,6 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-F_STRING makeRelPath( const STRING &basePathStr, const STRING &destinationStr )
-{
-	F_STRING	relPath;
-	const char	*destination = destinationStr;
-	const char	*basePath = basePathStr;
-
-#if defined( __MSDOS__ ) || defined( _Windows )
-	if( ansiToUpper( basePath[0] ) != ansiToUpper( destination[0] ) )
-	{
-		relPath = destinationStr;
-	}
-	else
-	{
-		basePath += 3;
-		destination += 3;
-#else
-		basePath++;
-		destination++;
-#endif
-		const char	*dirPos;
-		size_t		dirLen;
-
-		// remove leading directories, that are identical
-		while( *basePath )
-		{
-
-			dirPos = strchr( basePath, DIRECTORY_DELIMITER );
-			if( dirPos )
-			{
-				dirLen = dirPos - basePath +1;
-#if defined( __MSDOS__ ) || defined( _Windows )
-				if( !strncmpi( basePath, destination, dirLen ) )
-#else
-				if( !strncmp( basePath, destination, dirLen ) )
-#endif
-				{
-					basePath += dirLen;
-					destination += dirLen;
-				}
-				else
-				{
-/*v*/				break;
-				}
-			}
-			else
-			{
-/*v*/			break;
-			}
-		}
-
-		// add "../" for each direcory still in basePath
-		while( *basePath )
-		{
-			dirPos = strchr( basePath, DIRECTORY_DELIMITER );
-			if( dirPos )
-			{
-				relPath += "..";
-				relPath += DIRECTORY_DELIMITER;
-				basePath = dirPos + 1;
-			}
-			else
-			{
-/*v*/			break;
-			}
-		}
-
-		relPath += destination;
-
-#if defined( __MSDOS__ ) || defined( _Windows )
-	}
-#endif
-
-	return relPath;
-}
-
-F_STRING makeFullPath( const STRING &basePath, const STRING &destinationStr )
-{
-	doEnterFunctionEx(gakLogging::llDetail, "char *makeFullPath( const char *basePath, const char *destination )");
-
-	const char	*destination = destinationStr;
-	size_t		dirPos;
-	F_STRING	fullPath;
-
-
-#if defined( __MSDOS__ ) || defined( _Windows )
-	if( basePath.isEmpty() || destination[1] == ':' )
-#else
-	if( basePath.isEmpty() || destination[0] == DIRECTORY_DELIMITER )
-#endif
-	{
-		fullPath = destinationStr;
-	}
-	else
-	{
-		fullPath = basePath;
-
-		// remove last filename
-		dirPos = fullPath.searchRChar( DIRECTORY_DELIMITER );
-		if( dirPos != STRING::no_index )
-		{
-			fullPath.cut( dirPos );
-		}
-		else
-		{
-			fullPath = NULL_STRING;
-		}
-
-		// go directory up
-		while( !strncmp( destination, ".." DIRECTORY_DELIMITER_STRING, 3 ) )
-		{
-			dirPos = fullPath.searchRChar( DIRECTORY_DELIMITER );
-			if( dirPos != STRING::no_index )
-			{
-				fullPath.cut( dirPos );
-			}
-			destination += 3;
-		}
-
-		// add remaining path
-		if( *destination )
-		{
-			if( !fullPath.endsWith(DIRECTORY_DELIMITER) )
-			{
-				fullPath += DIRECTORY_DELIMITER;
-			}
-			fullPath += destination;
-		}
-	}
-	return fullPath;
-}
-
-}	// namespace gak
 
 #ifdef __BORLANDC__
 #	pragma option -RT.

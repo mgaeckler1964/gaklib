@@ -217,7 +217,7 @@ void UnitTest::PerformTest( UnitTest *theTest )
 
 void UnitTest::PerformTests( const char *argv[] )
 {
-	doEnterFunction("UnitTest::PerformTests");
+	doEnterFunctionEx(gakLogging::llInfo, "UnitTest::PerformTests");
 
 	SortedArray<const char*>	testsToPerform;
 

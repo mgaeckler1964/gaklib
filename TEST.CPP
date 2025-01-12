@@ -118,6 +118,7 @@
 #include "Tests/PtrArrayTest.h"
 #include "Tests/IostreamTest.h"
 
+#include "Tests/LogfileTest.h"
 
 #if !USE_LOCAL_ONLY
 #	include "Tests/SoapClientTest.h"
@@ -255,6 +256,7 @@ static TemplateTest	myTemplateTest;
 
 int main( int, const char *argv[] )
 {
+	doEnableLog(gakLogging::llDetail);
 	gak::F_STRING	sourcePath;
 
 	gak::fsplit( gak::fullPath( __FILE__ ), &sourcePath );
