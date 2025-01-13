@@ -375,7 +375,7 @@ static void exitProfile( void )
 		fputc( '\n', fp );
 	}
 
-	doDisableLog();
+	disableLog();
 }
 
 /*
