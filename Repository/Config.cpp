@@ -113,12 +113,12 @@ STRING TConfigDataModule::GetValue( const char *name, const char *defaultVal )
 		if( !selectStringSQL->Eof )
 		{
 			valueFound = selectStringSQL->Fields->Fields[0]->AsString.c_str();
-			doLogValue( valueFound );
+			doLogValueEx( gakLogging::llInfo, valueFound );
 		}
 		else
 		{
 			valueFound = defaultVal;
-			doLogPosition();
+			doLogPositionEx(gakLogging::llDetail);
 		}
 
 		selectStringSQL->Close();
@@ -221,7 +221,7 @@ int TConfigDataModule::GetDBVersionByPath( const char *path )
 	doEnterFunctionEx(gakLogging::llDetail, "TConfigDataModule::GetDBVersionByPath");
 	int	dbVersion = 0;
 
-	doLogValue( path );
+	doLogValueEx( gakLogging::llInfo, path );
 	try
 	{
 		std::auto_ptr<TDatabase> tmpDB( createDatabase( path ) );

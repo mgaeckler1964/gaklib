@@ -69,7 +69,7 @@ public:		// User declarations
 
 	void setDatabase( TDatabase *newDB )
 	{
-		doEnterFunction("TConfigDataModule::setDatabase");
+		doEnterFunctionEx(gakLogging::llInfo, "TConfigDataModule::setDatabase");
 		theDatabase = newDB;
 
 		if( newDB )

@@ -146,7 +146,7 @@ struct FcopyWatcher
 template <typename FcopyWatcherT>
 void fcopy( const STRING &source, const STRING &destination, FcopyWatcherT &watcher )
 {
-	doEnterFunction("fcopy");
+	doEnterFunctionEx(gakLogging::llInfo, "fcopy");
 
 	const std::size_t	memory = 4UL*1024UL*1024UL;
 	uint64				numProcessed = 0, 

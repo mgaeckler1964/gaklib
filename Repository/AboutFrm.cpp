@@ -63,7 +63,7 @@ void __fastcall TAboutProgramForm::FormCreate(TObject *)
 
 	Version->Caption = (const char *)getVersionString();
 	Copyright->Caption = (const char *)getLegalCopyRight();
-	doLogValue(getLegalCopyRight());
+	doLogValueEx(gakLogging::llDetail, getLegalCopyRight());
 	Comments->Caption = (const char *)getFileDescription();
 }
 //---------------------------------------------------------------------------
