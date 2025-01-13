@@ -52,9 +52,9 @@ __fastcall TAboutProgramForm::TAboutProgramForm(TComponent* AOwner)
 }
 //---------------------------------------------------------------------
 
-void __fastcall TAboutProgramForm::FormCreate(TObject *Sender)
+void __fastcall TAboutProgramForm::FormCreate(TObject *)
 {
-	doEnterFunction("TAboutProgramForm::FormCreate");
+	doEnterFunctionEx(gakLogging::llInfo, "TAboutProgramForm::FormCreate");
 	Caption  = (const char *)(
 		getProductName() + " by " + getCompanyName()
 	);

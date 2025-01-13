@@ -256,7 +256,7 @@ static TemplateTest	myTemplateTest;
 
 int main( int, const char *argv[] )
 {
-	doEnableLog(gakLogging::llDetail);
+	doEnableLogEx(gakLogging::llDetail);
 	gak::F_STRING	sourcePath;
 
 	gak::fsplit( gak::fullPath( __FILE__ ), &sourcePath );

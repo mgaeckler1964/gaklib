@@ -57,7 +57,7 @@ __fastcall TConfigDataModule::TConfigDataModule(TComponent* Owner)
 //---------------------------------------------------------------------------
 void TConfigDataModule::LockTable( void )
 {
-	doEnterFunction("TConfigDataModule::LockTable");
+	doEnterFunctionEx(gakLogging::llInfo, "TConfigDataModule::LockTable");
 
 	int		lockValue, myProcessId = (int)GetCurrentProcessId();
 
@@ -83,7 +83,7 @@ void TConfigDataModule::LockTable( void )
 
 void TConfigDataModule::UnlockTable( void )
 {
-	doEnterFunction("TConfigDataModule::UnockTable");
+	doEnterFunctionEx(gakLogging::llInfo, "TConfigDataModule::UnockTable");
 
 	if( !--lockCount )
 		DeleteValue( "lock" );
@@ -101,7 +101,7 @@ void TConfigDataModule::DeleteValue( const char *name )
 
 STRING TConfigDataModule::GetValue( const char *name, const char *defaultVal )
 {
-	doEnterFunction("TConfigDataModule::GetValue(const char *)");
+	doEnterFunctionEx(gakLogging::llDetail, "TConfigDataModule::GetValue(const char *)");
 	STRING	valueFound;
 
 	try
@@ -125,17 +125,17 @@ STRING TConfigDataModule::GetValue( const char *name, const char *defaultVal )
 	}
 	catch( Exception &e )
 	{
-		doLogValue( e.Message.c_str() );
+		doLogValueEx(gakLogging::llError,  e.Message.c_str() );
 		valueFound = defaultVal;
 	}
 	catch( std::exception &e )
 	{
-		doLogValue( e.what() );
+		doLogValueEx(gakLogging::llError,  e.what() );
 		valueFound = defaultVal;
 	}
 	catch( ... )
 	{
-		doLogPosition();
+		doLogPositionEx(gakLogging::llError);
 		valueFound = defaultVal;
 	}
 	return valueFound;
@@ -163,38 +163,32 @@ void TConfigDataModule::SetValue( const char *name, const char *defaultVal )
 
 int TConfigDataModule::GetValue( const char *name, int defaultVal )
 {
-	doEnterFunction("TConfigDataModule::GetValue(int)");
+	doEnterFunctionEx(gakLogging::llDetail, "TConfigDataModule::GetValue(int)");
 	int		valueFound = defaultVal;
 
 	try
 	{
-		doLogValue(name);
+		doLogValueEx(gakLogging::llDetail, name);
 		selectIntSQL->Params->Items[0]->AsString = name;
-		doLogPosition();
 		selectIntSQL->Open();
-		doLogPosition();
 		if( !selectIntSQL->Eof )
 		{
-			doLogPosition();
 			valueFound = selectIntSQL->Fields->Fields[0]->AsInteger;
-			doLogValue( valueFound );
+			doLogValueEx(gakLogging::llDetail,  valueFound);
 		}
-
-		doLogPosition();
 		selectIntSQL->Close();
-		doLogPosition();
 	}
 	catch( Exception &e )
 	{
-		doLogValue( e.Message.c_str() );
+		doLogMessageEx( gakLogging::llError, e.Message.c_str() );
 	}
 	catch( std::exception &e )
 	{
-		doLogValue( e.what() );
+		doLogMessageEx( gakLogging::llError, e.what() );
 	}
 	catch( ... )
 	{
-		doLogPosition();
+		doLogMessageEx( gakLogging::llError, "Unknown Error" );
 	}
 
 	return valueFound;
@@ -204,7 +198,7 @@ int TConfigDataModule::GetValue( const char *name, int defaultVal )
 
 void TConfigDataModule::SetValue( const char *name, int defaultVal )
 {
-	doEnterFunction("TConfigDataModule::SetValue(int)");
+	doEnterFunctionEx(gakLogging::llInfo, "TConfigDataModule::SetValue(int)");
 
 	updateIntSQL->Params->Items[0]->AsInteger = defaultVal;
 	updateIntSQL->Params->Items[1]->AsString = name;
@@ -224,7 +218,7 @@ void TConfigDataModule::SetValue( const char *name, int defaultVal )
 
 int TConfigDataModule::GetDBVersionByPath( const char *path )
 {
-	doEnterFunction("TConfigDataModule::GetDBVersionByPath");
+	doEnterFunctionEx(gakLogging::llDetail, "TConfigDataModule::GetDBVersionByPath");
 	int	dbVersion = 0;
 
 	doLogValue( path );
@@ -245,7 +239,7 @@ int TConfigDataModule::GetDBVersionByPath( const char *path )
 	}
 	catch( ... )
 	{
-		doLogPosition();
+		doLogPositionEx(gakLogging::llError);
 		setDatabase( NULL );
 		if( Session->IsAlias( "TMP_ALIAS" ) )
 		{
@@ -260,10 +254,10 @@ int TConfigDataModule::GetDBVersionByPath( const char *path )
 
 int TConfigDataModule::GetDBVersionByAlias( const char *alias )
 {
-	doEnterFunction("TConfigDataModule::GetDBVersionByAlias");
+	doEnterFunctionEx(gakLogging::llDetail, "TConfigDataModule::GetDBVersionByAlias");
 	int	dbVersion = 0;
 
-	doLogValue( alias );
+	doLogValueEx(gakLogging::llDetail,  alias );
 	try
 	{
 		std::auto_ptr<TDatabase> tmpDB( new TDatabase(NULL) );
@@ -280,7 +274,7 @@ int TConfigDataModule::GetDBVersionByAlias( const char *alias )
 	}
 	catch( ... )
 	{
-		doLogPosition();
+		doLogPositionEx(gakLogging::llError);
 		setDatabase( NULL );
 /*@*/	throw;
 	}
@@ -291,6 +285,7 @@ int TConfigDataModule::GetDBVersionByAlias( const char *alias )
 
 STRING TConfigDataModule::OpenDatabase( TDatabase *theDatabase, int expectedDbVersion )
 {
+	doEnterFunctionEx(gakLogging::llDetail, "TConfigDataModule::OpenDatabase");
 	STRING errorText;
 
 	setDatabase( theDatabase );
@@ -305,14 +300,17 @@ STRING TConfigDataModule::OpenDatabase( TDatabase *theDatabase, int expectedDbVe
 		catch( Exception &e )
 		{
 			errorText = e.Message.c_str();
+			doLogValueEx(gakLogging::llFatal, errorText );
 		}
 		catch( std::exception &e )
 		{
 			errorText = e.what();
+			doLogValueEx(gakLogging::llFatal, errorText );
 		}
 		catch( ... )
 		{
 			errorText = "Unknown";
+			doLogValueEx(gakLogging::llFatal, errorText );
 		}
 		Sleep( 5000 );
 	}
@@ -324,6 +322,7 @@ STRING TConfigDataModule::OpenDatabase( TDatabase *theDatabase, int expectedDbVe
 		{
 			theDatabase->Close();
 			errorText = "Expected version: " + gak::formatNumber(expectedDbVersion) + ", found version: " + gak::formatNumber(dbVersion)  + '!';
+			doLogValueEx(gakLogging::llFatal, errorText );
 		}
 	}
 	return errorText;
@@ -333,7 +332,7 @@ STRING TConfigDataModule::OpenDatabase( TDatabase *theDatabase, int expectedDbVe
 
 void TConfigDataModule::emptyTables( const STRING &directory )
 {
-	doEnterFunction("TConfigDataModule::emptyTables( const STRING &directory )");
+	doEnterFunctionEx(gakLogging::llInfo, "TConfigDataModule::emptyTables( const STRING &directory )");
 	try
 	{
 		DatabaseSchema	theSchema;
@@ -355,7 +354,7 @@ void TConfigDataModule::emptyTables( const STRING &directory )
 
 void TConfigDataModule::emptyTables( TDatabase *theDatabase )
 {
-	doEnterFunction("TConfigDataModule::emptyTables( TDatabase *theDatabase )");
+	doEnterFunctionEx(gakLogging::llInfo, "TConfigDataModule::emptyTables( TDatabase *theDatabase )");
 	setDatabase( theDatabase );
 
 	DatabaseSchema	theSchema;
@@ -371,7 +370,7 @@ void TConfigDataModule::emptyTables( TDatabase *theDatabase )
 #if CONF_USE_SEQUENCE
 long TConfigDataModule::getNewMaxValue( const char *table, const char *field )
 {
-	doEnterFunction("TConfigDataModule::getNewMaxValue");
+	doEnterFunctionEx(gakLogging::llDetail, "TConfigDataModule::getNewMaxValue");
 
 	long		newMaxValue;
 

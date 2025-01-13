@@ -61,8 +61,8 @@ __fastcall TStatusForm::~TStatusForm()
 //---------------------------------------------------------------------------
 bool TStatusForm::setStatus( const STRING &verb, const STRING &status )
 {
-	doEnterFunction("TStatusForm::setStatus");
-	doLogValue( Handle );
+	doEnterFunctionEx(gakLogging::llDetail, "TStatusForm::setStatus");
+	doLogValueEx( gakLogging::llDetail, Handle );
 
 	if( true || Visible )
 	{
@@ -136,7 +136,7 @@ void __fastcall TStatusForm::FormCloseQuery(TObject *,
 //---------------------------------------------------------------------------
 void StatusThread::ExecuteThread( void )
 {
-	doEnterFunction("StatusThread::ExecuteThread");
+	doEnterFunctionEx(gakLogging::llInfo, "StatusThread::ExecuteThread");
 	try
 	{
 		perform();

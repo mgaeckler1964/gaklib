@@ -780,7 +780,7 @@ class ArrayBase : public Container
 	template<class Comparator>
 	void sort( const Comparator &fcmp )
 	{
-		doEnterFunction("ArrayBase::sort");
+		doEnterFunctionEx(gakLogging::llDetail, "ArrayBase::sort");
 		internalSort( 0, size()-1, fcmp );
 	}
 

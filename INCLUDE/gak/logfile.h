@@ -271,12 +271,13 @@ void exitFunction( const char *file, int line, bool doLogProfile );
 void enableLog( LogLevel minLevel );
 void disableLog( void );
 #if DEBUG_LOG || PROFILER
-#	define doEnableLog(lvl)		gakLogging::enableLog(lvl)
+#	define doEnableLogEx(lvl)	gakLogging::enableLog(lvl)
 #	define doDisableLog()		gakLogging::disableLog()
 #else
-#	define doEnableLog(lvl)		/* nothing */
+#	define doEnableLogEx(lvl)	/* nothing */
 #	define doDisableLog()		/* nothing */
 #endif
+#define doEnableLog()		doEnableLogEx(gakLogging::llDetail)
 
 
 /*

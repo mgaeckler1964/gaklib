@@ -133,7 +133,7 @@ class StatusThread : public gak::Thread
 //---------------------------------------------------------------------------
 inline bool TStatusForm::isTerminated( void )
 {
-	doEnterFunction("TStatusForm::isTerminated");
+	doEnterFunctionEx(gakLogging::llDetail, "TStatusForm::isTerminated");
 	return theThread ? theThread->terminated : false;
 }
 //---------------------------------------------------------------------------
