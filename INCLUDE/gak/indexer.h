@@ -666,6 +666,7 @@ StringIndex indexString( const StringT &string, const StringsT &stopWords )
 {
 	StringIndex							positions;
 	char								c;
+	bool								hasLetter = false;
 	STRING								lastWord, word, text;
 	std::size_t							i, wordPosition, textPosition;
 	typename StringT::const_iterator	it;
@@ -681,6 +682,7 @@ StringIndex indexString( const StringT &string, const StringsT &stopWords )
 			if( word.isEmpty() )
 			{
 				wordPosition = i;
+				hasLetter = true;
 			}
 			word += c;
 		}
@@ -718,12 +720,13 @@ StringIndex indexString( const StringT &string, const StringsT &stopWords )
 		}
 		else if( !text.isEmpty() )
 		{
-			if( text != lastWord && !stopWords.hasElement( text ) )
+			if( hasLetter && text != lastWord && !stopWords.hasElement( text ) )
 			{
 				Positions	&textPositions = positions[text];
 				textPositions.addElement(Position(textPosition, text.strlen()));
 			}
 			text = NULL_STRING;
+			hasLetter = false;
 		}
 
 		if( !c )
