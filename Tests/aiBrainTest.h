@@ -65,6 +65,10 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+static const char BRAINFILE[] = "aiBrain.bin";
+static const uint32 BRAINMAGIC = 0x12345678;
+static const uint16 BRAINVERSION = 1;
+
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -119,6 +123,17 @@ class AiBrainTest : public UnitTest
 		theBrain.addPair(word2, word2);
 		count = theBrain.getPairCount(word2, word2);
 		UT_ASSERT_EQUAL(count, 0);
+
+		writeToBinaryFile(BRAINFILE, theBrain, BRAINMAGIC, BRAINVERSION, owmOverwrite);
+
+		AiBrain		cloneBrain;
+		readFromBinaryFile(BRAINFILE, &cloneBrain, BRAINMAGIC, BRAINVERSION, false);
+
+		// check saved and loaded brain
+		count = cloneBrain.getPairCount(word2, word1);
+		UT_ASSERT_EQUAL(count, 2);
+
+		strRemove(BRAINFILE);
 	}
 };
 

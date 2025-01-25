@@ -82,6 +82,17 @@ struct AiNode
 {
 	Array<STRING>	words;
 	size_t			count;
+
+	void toBinaryStream( std::ostream &stream ) const
+	{
+		gak::toBinaryStream( stream, words );
+		gak::toBinaryStream( stream, count );
+	}
+	void fromBinaryStream( std::istream &stream )
+	{
+		gak::fromBinaryStream( stream, &words );
+		gak::fromBinaryStream( stream, &count );
+	}
 };
 
 struct AiIndex
@@ -89,10 +100,21 @@ struct AiIndex
 	STRING			word;
 	Set<size_t>		positions;
 
+	AiIndex() {}
 	AiIndex(const STRING &word) : word(word) {}
 	int compare( const AiIndex &e2 ) const
 	{
 		return gak::compare( word, e2.word );
+	}
+	void toBinaryStream( std::ostream &stream ) const
+	{
+		gak::toBinaryStream( stream, word );
+		gak::toBinaryStream( stream, positions );
+	}
+	void fromBinaryStream( std::istream &stream )
+	{
+		gak::fromBinaryStream( stream, &word );
+		gak::fromBinaryStream( stream, &positions );
 	}
 };
 
@@ -199,6 +221,18 @@ class AiBrain
 			createPair(w1,w2);
 		}
 	}
+
+	void toBinaryStream ( std::ostream &stream ) const
+	{
+		gak::toBinaryStream( stream, m_knowledge );
+		gak::toBinaryStream( stream, m_index );
+	}
+	void fromBinaryStream( std::istream &stream )
+	{
+		gak::fromBinaryStream(stream, &m_knowledge );
+		gak::fromBinaryStream(stream, &m_index );
+	}
+
 };
 
 // --------------------------------------------------------------------- //
