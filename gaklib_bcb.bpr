@@ -89,7 +89,8 @@
       ..\..\Object\gaklib\win\bcb\fstream.obj 
       ..\..\Object\gaklib\win\bcb\getDatabaseDesc.obj 
       ..\..\Object\gaklib\win\bcb\hostResolver.obj 
-      ..\..\Object\gaklib\win\bcb\console.obj"/>
+      ..\..\Object\gaklib\win\bcb\console.obj 
+      ..\..\Object\gaklib\win\bcb\aiBrain.obj"/>
     <RESFILES value=""/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>

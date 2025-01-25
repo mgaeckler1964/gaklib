@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
-		Module:			aiBrainTest.h
-		Description:	
+		Module:			aiBrain.cpp
+		Description:	The brain for the AI
 		Author:			Martin Gäckler
-		Address:		HoFmannsthalweg 14, A-4030 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2024 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -38,10 +38,9 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <iostream>
-#include <gak/unitTest.h>
-
 #include <gak/aiBrain.h>
+#include <gak/sortedArray.h>
+#include <gak/math.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -65,10 +64,6 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static const char BRAINFILE[] = "aiBrain.bin";
-static const uint32 BRAINMAGIC = 0x12345678;
-static const uint16 BRAINVERSION = 1;
-
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -77,82 +72,29 @@ static const uint16 BRAINVERSION = 1;
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+struct WordUsage
+{
+	STRING	word;
+	size_t	count;
+	WordUsage( const STRING &word="", size_t count=0 ) : word(word), count(count) {}
+
+	int compare(const WordUsage &other ) const
+	{
+		int compareResult = gak::compare( count, other.count );
+		if( !compareResult )
+		{
+			compareResult = gak::compare( word, other.word );
+		}
+
+		return compareResult;
+	}
+};
+
+typedef SortedArray<WordUsage> WordUsageCounter;
+
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-class AiBrainTest : public UnitTest
-{
-	virtual const char *GetClassName( void ) const
-	{
-		return "AiBrainTest";
-	}
-	virtual void PerformTest( void )
-	{
-		AiBrain		theBrain;
-		STRING		word1 = "Martin",
-					word2 = "Gäckler",
-					word3 = "Linz",
-					word4 = "München",
-					word5 = "Austria",
-					word6 = "Baiern";
-
-		// check empty brain
-		size_t count = theBrain.getPairCount(word1, word2);
-		UT_ASSERT_EQUAL(count, 0);
-		UT_ASSERT_EQUAL(theBrain.size(), 0UL);
-
-		// check brain with first item
-		theBrain.addPair(word1, word2);
-		count = theBrain.getPairCount(word1, word2);
-		UT_ASSERT_EQUAL(count, 1);
-		UT_ASSERT_EQUAL(theBrain.size(), 1UL);
-
-		// check brain with second item
-		theBrain.addPair(word1, word2);
-		count = theBrain.getPairCount(word1, word2);
-		UT_ASSERT_EQUAL(count, 2);
-		UT_ASSERT_EQUAL(theBrain.size(), 1UL);
-
-		// check words can be swaped
-		count = theBrain.getPairCount(word2, word1);
-		UT_ASSERT_EQUAL(count, 2);
-
-		// check if one word is not yet known
-		count = theBrain.getPairCount(word2, word3);
-		UT_ASSERT_EQUAL(count, 0);
-		UT_ASSERT_EQUAL(theBrain.size(), 1UL);
-
-		// check equal word
-		theBrain.addPair(word2, word2);
-		count = theBrain.getPairCount(word2, word2);
-		UT_ASSERT_EQUAL(count, 0);
-		UT_ASSERT_EQUAL(theBrain.size(), 1UL);
-
-		writeToBinaryFile(BRAINFILE, theBrain, BRAINMAGIC, BRAINVERSION, owmOverwrite);
-
-		AiBrain		cloneBrain;
-		UT_ASSERT_EQUAL(cloneBrain.size(), 0UL);
-		readFromBinaryFile(BRAINFILE, &cloneBrain, BRAINMAGIC, BRAINVERSION, false);
-		UT_ASSERT_EQUAL(cloneBrain.size(), 1UL);
-
-		// check saved and loaded brain
-		count = cloneBrain.getPairCount(word2, word1);
-		UT_ASSERT_EQUAL(count, 2UL);
-
-		const STRING	testText1 = "the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog handball fussball fcbaiern";
-		SortedArray<CI_STRING>	stopWords;
-		StringIndex				positions = indexString( testText1, stopWords );
-		UT_ASSERT_EQUAL(positions.size(), 17UL);
-		UT_ASSERT_EQUAL(cloneBrain.size(), 1UL);
-		cloneBrain.learnFromIndex(positions, 5);
-		UT_ASSERT_EQUAL(cloneBrain.size(), 11UL);
-		count = cloneBrain.getPairCount("the", "fcbaiern");
-		UT_ASSERT_GREATEREQ(count, size_t(1UL));
-
-		strRemove(BRAINFILE);
-	}
-};
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
@@ -161,8 +103,6 @@ class AiBrainTest : public UnitTest
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-static AiBrainTest	myAiBrainTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -175,6 +115,21 @@ static AiBrainTest	myAiBrainTest;
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+static WordUsageCounter checkWordUsage( const StringIndex &index )
+{
+	WordUsageCounter	counter;
+	for(
+		StringIndex::const_iterator it = index.cbegin(), endIT = index.cend();
+		it != endIT;
+		++it
+	)
+	{
+		WordUsage wu(it->getKey(), it->getValue().size() );
+		counter.addElement(wu);
+	}
+	return counter;
+}
 
 // --------------------------------------------------------------------- //
 // ----- class inlines ------------------------------------------------- //
@@ -192,6 +147,34 @@ static AiBrainTest	myAiBrainTest;
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+void AiBrain::createWordIndex(const STRING &w, size_t newPosition)
+{
+	AiIndex *wi = const_cast<AiIndex *>(m_index.findElement(AiIndex(w)));
+	if( wi )
+	{
+		wi->positions.addElement(newPosition);
+	}
+	else
+	{
+		AiIndex wi(w);
+		wi.positions.addElement(newPosition);
+		m_index.addElement(wi);
+	}
+
+}
+
+void AiBrain::createPair(const STRING &w1, const STRING &w2, size_t count)
+{
+	size_t	newPosition = m_knowledge.size();
+	AiNode &newNode = m_knowledge.createElement();
+	newNode.words.addElement(w1);
+	newNode.words.addElement(w2);
+	newNode.count = count;
+
+	createWordIndex( w1, newPosition );
+	createWordIndex( w2, newPosition );
+}
+
 // --------------------------------------------------------------------- //
 // ----- class protected ----------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -204,11 +187,103 @@ static AiBrainTest	myAiBrainTest;
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+size_t AiBrain::getPairCount(const STRING &w1, const STRING &w2) const
+{
+	if( w1 == w2 )
+	{
+		return 0;
+	}
+	size_t idx = findPair(w1, w2);
+	if( idx != m_knowledge.no_index )
+	{
+		return m_knowledge[idx].count;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+size_t AiBrain::findPair(const STRING &w1, const STRING &w2) const
+{
+	if( w1 == w2 )
+	{
+		return m_index.no_index;
+	}
+	const AiIndex *wi1 = m_index.findElement(AiIndex(w1));
+	if( wi1 )
+	{
+		const AiIndex *wi2 = m_index.findElement(AiIndex(w2));
+		if( wi2 )
+		{
+			Set<size_t> is = intersect(wi1->positions, wi2->positions);
+			for(
+				Set<size_t>::const_iterator it = is.cbegin(), endIT = is.cend();
+				it != endIT;
+				++it
+			)
+			{
+				const AiNode &node = m_knowledge[*it];
+				if( node.words.size() == 2 )
+				{
+					return *it;
+				}
+			}
+		}
+	}
+
+	return m_index.no_index;
+}
+
+void AiBrain::addPair(const STRING &w1, const STRING &w2, size_t count)
+{
+	if( w1 == w2 )
+	{
+		return;
+	}
+	size_t	existing = findPair(w1,w2);
+	if( existing != m_knowledge.no_index )
+	{
+		AiNode &node = m_knowledge[existing];
+		node.count += count;
+	}
+	else
+	{
+		createPair(w1,w2, count);
+	}
+}
+
+void AiBrain::learnFromIndex( const StringIndex &source, size_t numWords )
+{
+	if( source.size() < 2 )
+	{
+		return;				// index too small
+	}
+	WordUsageCounter	counter = checkWordUsage( source );
+
+	if( counter.size() > numWords )
+	{
+		size_t toRemove = counter.size() - numWords;
+		size_t	startIndex = (counter.size()>>1) - (toRemove>>1);
+		counter.removeElementsAt(startIndex, toRemove );
+	}
+	for( size_t i=0; i<counter.size()-1; ++i )
+	{
+		const WordUsage &wu1 = counter[i];
+		for( size_t j=0; j<counter.size(); ++j )
+		{
+			const WordUsage &wu2 = counter[j];
+			size_t usage = math::min(wu1.count, wu2.count);
+			addPair( wu1.word, wu2.word, usage );
+		}
+	}
+}
+
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-}	// namespace gak
+} // namespace gak
 
 #ifdef __BORLANDC__
 #	pragma option -RT.

@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			aiBrain.h
-		Description:	The brain for AI
+		Description:	The brain for the AI
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -43,6 +43,7 @@
 #include <gak/array.h>
 #include <gak/btree.h>
 #include <gak/set.h>
+#include <gak/indexer.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -123,104 +124,18 @@ class AiBrain
 	Array<AiNode>	m_knowledge;
 	Btree<AiIndex>	m_index;
 
-	void createPair(const STRING &w1, const STRING &w2)
-	{
-		size_t	newPosition = m_knowledge.size();
-		AiNode &newNode = m_knowledge.createElement();
-		newNode.words.addElement(w1);
-		newNode.words.addElement(w2);
-		newNode.count = 1;
-
-		AiIndex *wi1 = const_cast<AiIndex *>(m_index.findElement(AiIndex(w1)));
-		if( wi1 )
-		{
-			wi1->positions.addElement(newPosition);
-		}
-		else
-		{
-			AiIndex wi(w1);
-			wi.positions.addElement(newPosition);
-			m_index.addElement(wi);
-		}
-
-		AiIndex *wi2 = const_cast<AiIndex *>(m_index.findElement(AiIndex(w2)));
-		if( wi2 )
-		{
-			wi2->positions.addElement(newPosition);
-		}
-		else
-		{
-			AiIndex wi(w2);
-			wi.positions.addElement(newPosition);
-			m_index.addElement(wi);
-		}
-	}
+	void createWordIndex(const STRING &w, size_t newPosition);
+	void createPair(const STRING &w1, const STRING &w2, size_t count);
 
 	public:
-	size_t getPairCount(const STRING &w1, const STRING &w2) const
+	size_t size() const
 	{
-		if( w1 == w2 )
-		{
-			return 0;
-		}
-		size_t idx = findPair(w1, w2);
-		if( idx != m_knowledge.no_index )
-		{
-			return m_knowledge[idx].count;
-		}
-		else
-		{
-			return 0;
-		}
+		return m_knowledge.size();
 	}
-	size_t findPair(const STRING &w1, const STRING &w2) const
-	{
-		if( w1 == w2 )
-		{
-			return m_index.no_index;
-		}
-		const AiIndex *wi1 = m_index.findElement(AiIndex(w1));
-		if( wi1 )
-		{
-			const AiIndex *wi2 = m_index.findElement(AiIndex(w2));
-			if( wi2 )
-			{
-				Set<size_t> is = intersect(wi1->positions, wi2->positions);
-				for(
-					Set<size_t>::const_iterator it = is.cbegin(), endIT = is.cend();
-					it != endIT;
-					++it
-				)
-				{
-					const AiNode &node = m_knowledge[*it];
-					if( node.words.size() == 2 )
-					{
-						return *it;
-					}
-				}
-			}
-		}
-
-		return m_index.no_index;
-	}
-
-	void addPair(const STRING &w1, const STRING &w2)
-	{
-		if( w1 == w2 )
-		{
-			return;
-		}
-		size_t	existing = findPair(w1,w2);
-		if( existing != m_knowledge.no_index )
-		{
-			AiNode &node = m_knowledge[existing];
-			++node.count;
-		}
-		else
-		{
-			createPair(w1,w2);
-		}
-	}
+	size_t getPairCount(const STRING &w1, const STRING &w2) const;
+	size_t findPair(const STRING &w1, const STRING &w2) const;
+	void addPair(const STRING &w1, const STRING &w2, size_t count=1);
+	void learnFromIndex( const StringIndex &source, size_t numWords );
 
 	void toBinaryStream ( std::ostream &stream ) const
 	{
@@ -232,7 +147,6 @@ class AiBrain
 		gak::fromBinaryStream(stream, &m_knowledge );
 		gak::fromBinaryStream(stream, &m_index );
 	}
-
 };
 
 // --------------------------------------------------------------------- //

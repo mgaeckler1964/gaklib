@@ -116,7 +116,7 @@ Item2=..\..\object\
 DebugSourceDirs=.
 
 [Parameters]
-RunParams=DateTimeTest IndexerTest IOstreamTest RoutingTest
+RunParams=AiBrainTest DateTimeTest IndexerTest RoutingTest
 HostApplication=
 RemoteHost=
 RemotePath=

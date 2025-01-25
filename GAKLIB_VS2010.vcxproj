@@ -29,6 +29,7 @@
   <ItemGroup>
     <ClCompile Include="CTOOLS\access.cpp" />
     <ClCompile Include="CTOOLS\acls.cpp" />
+    <ClCompile Include="CTOOLS\aiBrain.cpp" />
     <ClCompile Include="CTOOLS\ansiChar.cpp" />
     <ClCompile Include="CTOOLS\array.cpp" />
     <ClCompile Include="CTOOLS\cgitools.cpp" />
