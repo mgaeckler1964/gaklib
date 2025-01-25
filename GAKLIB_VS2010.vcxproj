@@ -122,6 +122,7 @@
   <ItemGroup>
     <ClInclude Include="INCLUDE\gak\acls.h" />
     <ClInclude Include="INCLUDE\gak\aes.h" />
+    <ClInclude Include="INCLUDE\gak\aiBrain.h" />
     <ClInclude Include="INCLUDE\gak\ansiChar.h" />
     <ClInclude Include="INCLUDE\gak\array.h" />
     <ClInclude Include="INCLUDE\gak\arrayBase.h" />

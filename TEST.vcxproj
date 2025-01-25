@@ -131,6 +131,7 @@
     <ClCompile Include="TEST.CPP" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Tests\aiBrainTest.h" />
     <ClInclude Include="Tests\ArrayStreamTest.h" />
     <ClInclude Include="Tests\CondQueueTest.h" />
     <ClInclude Include="Tests\ConsoleTest.h" />

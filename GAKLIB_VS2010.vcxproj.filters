@@ -650,5 +650,8 @@
     <ClInclude Include="INCLUDE\gak\condQueue.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="INCLUDE\gak\aiBrain.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
