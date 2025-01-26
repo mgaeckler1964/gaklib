@@ -235,6 +235,36 @@ size_t AiBrain::findPair(const STRING &w1, const STRING &w2) const
 	return m_index.no_index;
 }
 
+Set<STRING> AiBrain::getPartners( const STRING &word ) const
+{
+	Set<STRING>	result;
+
+	const AiIndex *wi = m_index.findElement(AiIndex(word));
+	if( wi )
+	{
+		for(
+			Set<size_t>::const_iterator it = wi->positions.cbegin(), endIT = wi->positions.cend();
+			it != endIT;
+			++it
+		)
+		{
+			const AiNode &node = m_knowledge[*it];
+			if( node.words.size() == 2 )
+			{
+				if( node.words[0] != word )
+				{
+					result.addElement(node.words[0]);
+				}
+				else
+				{
+					result.addElement(node.words[1]);
+				}
+			}
+		}
+	}
+	return result;
+}
+
 void AiBrain::addPair(const STRING &w1, const STRING &w2, size_t count)
 {
 	if( w1 == w2 )
@@ -260,6 +290,8 @@ void AiBrain::learnFromIndex( const StringIndex &source, size_t numWords )
 		return;				// index too small
 	}
 	WordUsageCounter	counter = checkWordUsage( source );
+
+	/// TODO: Better learning would be to combine 2 words with a smaller distance also avoid to combine fuzzy versions of the string
 
 	if( counter.size() > numWords )
 	{

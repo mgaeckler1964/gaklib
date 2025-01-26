@@ -134,6 +134,7 @@ class AiBrain
 	}
 	size_t getPairCount(const STRING &w1, const STRING &w2) const;
 	size_t findPair(const STRING &w1, const STRING &w2) const;
+	Set<STRING> getPartners( const STRING &word ) const;
 	void addPair(const STRING &w1, const STRING &w2, size_t count=1);
 	void learnFromIndex( const StringIndex &source, size_t numWords );
 

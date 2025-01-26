@@ -96,7 +96,7 @@ class IndexerTest : public UnitTest
 		stopWords.addElement( stopWord );
 		const STRING	testText1 = "the quick brown fox jumps over the lazy dog äöüß+ÄÖÜß=äöüßÄÖÜß";
 		const STRING	testText2 = "the best of the world of all brown universes namespace::className";
-		StringIndex		positions = indexString( testText1, stopWords );
+		StringIndex		positions = indexString( testText1, stopWords, false );
 
 		UT_ASSERT_EQUAL( std::size_t(19), positions.size() );
 		UT_ASSERT_EQUAL( std::size_t(2), positions[searchWord1].size());
@@ -116,7 +116,7 @@ class IndexerTest : public UnitTest
 			globalIndex.hasElement(searchWord3)
 		);
 		globalIndex.mergeIndexPositions( 
-			"testText2", indexString( testText2, stopWords )
+			"testText2", indexString( testText2, stopWords, false )
 		);
 		UT_ASSERT_EQUAL( 
 			std::size_t(2), 
@@ -174,7 +174,7 @@ class IndexerTest : public UnitTest
 		StatistikData	stats = globalIndex.getStatistik();
 		UT_ASSERT_EQUAL( std::size_t(32), stats.size() );
 
-		globalIndex.mergeIndexPositions( "Gäckler", indexString( STRING("Gäckler"), stopWords ) );
+		globalIndex.mergeIndexPositions( "Gäckler", indexString( STRING("Gäckler"), stopWords, false ) );
 		sources = globalIndex.findWords( "gakler", true, true, true );
 		UT_ASSERT_EQUAL( std::size_t(1), sources.size() );
 		Index<STRING>::RelevantHits	relevant = globalIndex.getRelevantHits( "gakler", true, true, true );

@@ -662,7 +662,7 @@ inline std::ostream &operator << ( std::ostream &out, const StatistikEntry &entr
 	return out;
 }
 template<typename StringT, typename StringsT>
-StringIndex indexString( const StringT &string, const StringsT &stopWords )
+StringIndex indexString( const StringT &string, const StringsT &stopWords, bool forAI=false )
 {
 	StringIndex							positions;
 	char								c;
@@ -693,17 +693,20 @@ StringIndex indexString( const StringT &string, const StringsT &stopWords )
 				Positions	&wordPositions = positions[word];
 				wordPositions.addElement(Position(wordPosition, word.strlen()));
 
-				CI_STRING	simple = word.simplify();
-				if( simple != word )
+				if( !forAI )
 				{
-					Positions	&wordPositions = positions[makeFuzzyIndex(simple)];
-					wordPositions.addElement(Position(wordPosition, word.strlen()));
-				}
-				STRING	lower = word.lowerCaseCopy();
-				if( lower != word )
-				{
-					Positions	&wordPositions = positions[makeLowerIndex(lower)];
-					wordPositions.addElement(Position(wordPosition, word.strlen()));
+					CI_STRING	simple = word.simplify();
+					if( simple != word )
+					{
+						Positions	&wordPositions = positions[makeFuzzyIndex(simple)];
+						wordPositions.addElement(Position(wordPosition, word.strlen()));
+					}
+					STRING	lower = word.lowerCaseCopy();
+					if( lower != word )
+					{
+						Positions	&wordPositions = positions[makeLowerIndex(lower)];
+						wordPositions.addElement(Position(wordPosition, word.strlen()));
+					}
 				}
 			}
 			lastWord = word;
