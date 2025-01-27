@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			mboxParser.h
-		Description:	Parser for Linux mbox files
+		Module:			mailParser.cpp
+		Description:	The parser for one Mail in a mboxfile
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -38,10 +38,10 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <gak/string.h>
-#include <gak/ci_string.h>
-#include <gak/datetime.h>
 #include <gak/mailParser.h>
+#include <gak/mboxParser.h>
+#include <gak/textReader.h>
+#include <gak/stringStream.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -75,8 +75,6 @@ namespace mail
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-typedef Array<MAIL>	Mails;
-
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -97,12 +95,6 @@ typedef Array<MAIL>	Mails;
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-STRING readMailHeader( std::istream &fp, MAIL *theMail );
-STRING readMailBody( std::istream &fp, const CI_STRING &contentTransfer, const CI_STRING &encoding, const STRING boundary="", bool *endFound=NULL );
-void getBodyParts( const STRING &body, Array<MAIL> *theMails, const STRING &boundary );
-void loadMail(const STRING &mboxFile, const STRING &messageID, MAIL *theMail);
-void loadMboxFile( const STRING &mboxFile, Mails &theMails );
-
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -122,6 +114,48 @@ void loadMboxFile( const STRING &mboxFile, Mails &theMails );
 // --------------------------------------------------------------------- //
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
+
+STRING MAIL::extractTypeText( const STRING &type, bool allowDefault ) const
+{
+	STRING	theBody;
+
+	if( contentType == type || (allowDefault&&contentType.isEmpty()) )
+	{
+		
+		theBody = body;
+
+		if( contentTransferEncoding == "base64" )
+		{
+			ArrayOfData	Xbody;
+
+			decodeBase64( theBody, Xbody );
+			theBody = Xbody.getDataBuffer();
+		}
+		if( charset == "utf-8" )
+		{
+			theBody = theBody.decodeUTF8();
+		}
+	}
+	else if( contentType == "multipart/alternative"
+	|| contentType == "multipart/mixed"
+	|| contentType == "multipart/related" )
+	{
+		Array<MAIL>	theMails;
+		getBodyParts( body, &theMails, boundary );
+
+		for(
+			Array<MAIL>::const_reverse_iterator it = theMails.crbegin(),
+				endIT = theMails.crend();
+			it != endIT && theBody.isEmpty();
+			++it
+		)
+		{
+			theBody = it->extractTypeText( type, allowDefault );
+		}
+	}
+
+	return theBody;
+}
 
 // --------------------------------------------------------------------- //
 // ----- class protected ----------------------------------------------- //

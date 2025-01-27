@@ -1,12 +1,12 @@
 /*
-		Project:		
-		Module:			
-		Description:	
+		Project:		GAKLIB
+		Module:			mboxParser.cpp
+		Description:	Parser for Linux mbox files
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -46,6 +46,7 @@
 #include <gak/logfile.h>
 #include <gak/textReader.h>
 #include <gak/t_string.h>
+#include <gak/stringStream.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -393,6 +394,40 @@ STRING readMailBody( std::istream &fp, const CI_STRING &contentTransfer, const C
 
 	return body;
 }
+
+void getBodyParts( const STRING &body, Array<MAIL> *theMails, const STRING &boundary )
+{
+	theMails->clear();
+	iSTRINGstream fp( body );
+
+	STRING	begBoundary = "--" + boundary;
+	STRING	line;
+	MAIL	theMail;
+	bool	endFound = false;
+
+	// search boundary
+	while( !fp.eof() )
+	{
+		fp >> line;
+		if( line == begBoundary )
+		{
+			break;
+		}
+	}
+
+	if( line == begBoundary )
+	{
+		while( !fp.eof() && !endFound )
+		{
+			readMailHeader( fp, &theMail );
+
+			theMail.body = readMailBody( fp, theMail.contentTransferEncoding, theMail.charset, boundary, &endFound );
+
+			theMails->addElement( theMail );
+		}
+	}
+}
+
 
 void loadMail(
 	const STRING &mboxFile, const STRING &messageID, MAIL *theMail
