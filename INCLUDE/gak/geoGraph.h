@@ -99,7 +99,8 @@ template <
 >
 class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 {
-	typedef Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>	Super;
+	typedef Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>						Super;
+	typedef GeoGraph<NodeT, LinkT, MapT, IndexT, LayerKeyT, NodeKeyT, LinkKeyT>	SelfT;
 
 	public:
 	typedef math::Rectangle< math::GeoPosition<double> >	BoundingBox;
@@ -253,6 +254,54 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 	const math::TileIDsSet &getTimeIDs() const
 	{
 		return m_tileIDs;
+	}
+	void extractTile(math::tileid_t tileId, SelfT *theTile) const
+	{
+		const node_container_type	&nodes = getNodes();
+
+		for(
+			node_container_type::const_iterator it = nodes.cbegin(), endIT = nodes.cend();
+			it != endIT;
+			++it
+		)
+		{
+			const NodeKeyT &key = it->getKey();
+			const NodeT &node = it->getValue().m_node;
+			if( node.getTileID() == tileId )
+			{
+				/// TODO check for a better layer
+				if( !theTile->hasNode( key ) )
+				{
+					theTile->addNode( 0, key, node );
+				}
+				for(
+					link_key_types::const_iterator it2 = it->getValue().m_outgoing.cbegin(), end2 = it->getValue().m_outgoing.cend();
+					it2 != end2;
+					++it2 
+				)
+				{
+					link_key_type	linkID = *it2;
+					const LinkInfo	&link = getLinkInfo( linkID );
+					node_key_type	startNodeID = link.m_startNodeID;
+					node_key_type	endNodeID = link.m_endNodeID;
+					NodeT			startNode = getNode( startNodeID );
+					NodeT			endNode = getNode( endNodeID );
+
+					if( !theTile->hasNode( startNodeID ) )
+					{
+						theTile->addNode( 0, startNodeID, startNode );
+					}
+					if( !theTile->hasNode( endNodeID ) )
+					{
+						theTile->addNode( 0, endNodeID, endNode );
+					}
+					if( !theTile->hasLink( linkID ) )
+					{
+						theTile->addLink(linkID,link.m_link, startNodeID, endNodeID);
+					}
+				}
+			}
+		}
 	}
 
 	template <typename ScalarT>

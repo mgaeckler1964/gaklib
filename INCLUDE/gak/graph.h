@@ -232,6 +232,10 @@ class Graph
 		return m_nodes;
 	}
 
+	bool hasLink( const link_key_type &key ) const
+	{
+		return m_links.hasElement( key );
+	}
 	void addLink( const link_key_type &key, const link_type &link, const node_key_type &from, const node_key_type &to )
 	{
 		if( m_links.hasElement( key ) )

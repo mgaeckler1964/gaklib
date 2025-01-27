@@ -244,7 +244,8 @@ template<template<typename, typename>class MapT, template<typename>class IndexT>
 class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLayerKeyT, OsmNodeKeyT, OsmLinkKeyT>
 {
 	typedef GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLayerKeyT, OsmNodeKeyT, OsmLinkKeyT>	Super;
-	typedef Super::Layers	Layers;
+	typedef Super::Layers																		Layers;
+	typedef BasicOpenStreetMap<MapT,IndexT>														SelfT;
 
 	public:
 
@@ -314,6 +315,43 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 		Set<OsmAreaKeyT>									*result
 	) const;
 
+	SelfT extractTile(math::tileid_t tileId) const
+	{
+		SelfT		theTile;
+		Super::extractTile(tileId, &theTile);
+		for(
+			place_container_type::const_iterator it = m_places.cbegin(), endIT = m_places.cend();
+			it != endIT;
+			++it
+		)
+		{
+			OsmPlaceKeyT key = it->getKey();
+			const OsmPlace &val = it->getValue();
+			if(val.getTileID() == tileId)
+			{
+				/// TODO, find the correct layer
+				theTile.addPlace(key, 0, val );
+			}
+		}
+
+		for(
+			area_container_type::const_iterator it = m_areas.cbegin(), endIT = m_areas.cend();
+			it != endIT;
+			++it
+		)
+		{
+			OsmAreaKeyT key = it->getKey();
+			const Area &val = it->getValue();
+
+			if( inTile(val, tileId) )
+			{
+				/// TODO, find the correct layer
+				theTile.addArea(key, 0, val );
+			}
+		}
+
+		return theTile;
+	}
 
 
 	void clear()
@@ -410,6 +448,8 @@ inline void fromBinaryStream( std::istream &stream, OSMviewer::PositionValue *va
 // --------------------------------------------------------------------- //
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+bool inTile( const Area &area, math::tileid_t tileID );
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //

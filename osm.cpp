@@ -1248,12 +1248,32 @@ struct XmlProcessor : public XmlNullProcessor
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+namespace gak
+{
+	bool inTile( const Area &area, math::tileid_t tileID )
+	{
+		for( 
+			Area::const_iterator it = area.cbegin(), endIT = area.cend();
+			it != endIT;
+			++it
+		)
+		{
+			if( it->getTileID() == tileID )
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
 int main( void )
 {
-//	STRING	osmName = "C:\\Cache\\OSM\\andorra-latest.osm";
-	STRING	osmName = "C:\\Cache\\OSM\\austria-latest.osm";
-//	STRING	osmName = "C:\\Cache\\OSM\\oberbayern-latest.osm";
-//	STRING	osmName = "C:\\Cache\\OSM\\unterfranken-latest.osm";
+	STRING	osmPath = "C:\\Cache\\OSM\\";
+  	STRING	osmName = osmPath + "andorra-latest.osm";
+//	STRING	osmName = osmPath + "austria-latest.osm";
+//	STRING	osmName = osmPath + "oberbayern-latest.osm";
+//	STRING	osmName = osmPath + "unterfranken-latest.osm";
 
 	STRING	resultFile = osmName + "bin";
 	STRING	statFile = osmName + ".txt";
@@ -1328,6 +1348,12 @@ int main( void )
 		}
 		std::cout << *it;
 		++count;
+#if 0
+		/// TODO: enable when extractTile is OK
+		OSMbuilder	tileMap = myProcessor.m_map.extractTile(*it);
+		STRING tilePath = osmPath + formatNumber(*it) + ".osmbin";
+		writeToBinaryFile( tilePath, tileMap, OSM_MAGIC2, VERSION_MAGIC, owmOverwrite );
+#endif
 	}
 	return 0;
 }
