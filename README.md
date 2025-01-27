@@ -24,3 +24,7 @@ Defaultargumente für Templateparameter konnte obwohl er nur ein paar Monate
 alter wie der C++ Builder ist. Auf den Rechnern, die seit 2020 bei mir im 
 Einsatz sind, habe ich Borland C++ nicht mehr installiert. *Funfact:* Seitdem 
 kann ich auch keine 16 Bit Windowsanwendungen mehr bauen.
+
+Die KI-Funktionen sind natürlich noch sehr experimentel. Ziel ist aber eine 
+vernünftige Intelligenz zu bauen nicht so eine künstliche Dummheit wie Google 
+und Co.
