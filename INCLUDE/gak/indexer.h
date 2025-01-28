@@ -70,6 +70,9 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+static const uint16 IS_WORD	= 0x01;
+static const uint16 IS_TEXT	= 0x02;
+
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -97,14 +100,13 @@ struct Position
 {
 	std::size_t	m_start, 
 				m_len;
+	uint16		m_flags;
 
-	Position()
-	{
-	}
-	Position(std::size_t start, std::size_t len)
+	Position(std::size_t start=0, std::size_t len=0, uint16 flags=0 )
 	{
 		m_start = start;
 		m_len = len;
+		m_flags = flags;
 	}
 	int compare( const Position &other ) const
 	{
@@ -137,6 +139,8 @@ inline void fromBinaryStream( std::istream &stream, Position *value )
 typedef Set<Position, FixedComparator<Position>, PODallocator<Position> >
 									Positions;
 typedef PairMap<STRING,Positions>	StringIndex;
+
+typedef Array<Position>	StringTokens;
 
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
@@ -662,9 +666,9 @@ inline std::ostream &operator << ( std::ostream &out, const StatistikEntry &entr
 	return out;
 }
 template<typename StringT, typename StringsT>
-StringIndex indexString( const StringT &string, const StringsT &stopWords, bool forAI=false )
+StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 {
-	StringIndex							positions;
+	StringTokens						positions;
 	char								c;
 	bool								hasLetter = false;
 	STRING								lastWord, word, text;
@@ -673,7 +677,7 @@ StringIndex indexString( const StringT &string, const StringsT &stopWords, bool 
 
 	for(
 		it = string.cbegin(), i=0;
-		(c=*it) != 0 || word.strlen() || text.strlen() ;
+		(c=*it) != 0 || word.strlen() || text.strlen();
 		++i, ++it
 	)
 	{
@@ -690,24 +694,7 @@ StringIndex indexString( const StringT &string, const StringsT &stopWords, bool 
 		{
 			if( !stopWords.hasElement( word ) )
 			{
-				Positions	&wordPositions = positions[word];
-				wordPositions.addElement(Position(wordPosition, word.strlen()));
-
-				if( !forAI )
-				{
-					CI_STRING	simple = word.simplify();
-					if( simple != word )
-					{
-						Positions	&wordPositions = positions[makeFuzzyIndex(simple)];
-						wordPositions.addElement(Position(wordPosition, word.strlen()));
-					}
-					STRING	lower = word.lowerCaseCopy();
-					if( lower != word )
-					{
-						Positions	&wordPositions = positions[makeLowerIndex(lower)];
-						wordPositions.addElement(Position(wordPosition, word.strlen()));
-					}
-				}
+				positions.addElement( Position(wordPosition,word.strlen(), IS_WORD) );
 			}
 			lastWord = word;
 			word = NULL_STRING;
@@ -725,8 +712,7 @@ StringIndex indexString( const StringT &string, const StringsT &stopWords, bool 
 		{
 			if( hasLetter && text != lastWord && !stopWords.hasElement( text ) )
 			{
-				Positions	&textPositions = positions[text];
-				textPositions.addElement(Position(textPosition, text.strlen()));
+				positions.addElement(Position(textPosition, text.strlen(), IS_TEXT));
 			}
 			text = NULL_STRING;
 			hasLetter = false;
@@ -739,6 +725,48 @@ StringIndex indexString( const StringT &string, const StringsT &stopWords, bool 
 	}	// for( size_t i=0; (c=string[i]) != 0; ++i )
 
 	return positions;
+}
+
+template<typename StringT>
+StringIndex processPositions( const StringT &string, const StringTokens &tokens )
+{
+	StringIndex positions;
+
+	for(
+		StringTokens::const_iterator it = tokens.cbegin(), endIT = tokens.cend();
+		it != endIT;
+		++it
+	)
+	{
+		const Position  &pos = *it;
+		STRING word = string.subString( pos.m_start, pos.m_len );
+
+		Positions	&wordPositions = positions[word];
+		wordPositions.addElement(pos);
+
+		if( pos.m_flags&IS_WORD )
+		{
+			CI_STRING	simple = word.simplify();
+			if( simple != word )
+			{
+				Positions	&wordPositions = positions[makeFuzzyIndex(simple)];
+				wordPositions.addElement(pos);
+			}
+			STRING	lower = word.lowerCaseCopy();
+			if( lower != word )
+			{
+				Positions	&wordPositions = positions[makeLowerIndex(lower)];
+				wordPositions.addElement(pos);
+			}
+		}
+	}
+	return positions;
+}
+
+template<typename StringT, typename StringsT>
+StringIndex indexString( const StringT &string, const StringsT &stopWords )
+{
+	return processPositions( string, tokenString( string, stopWords ) );
 }
 
 }	// namespace gak

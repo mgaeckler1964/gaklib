@@ -141,24 +141,23 @@ class AiBrainTest : public UnitTest
 		UT_ASSERT_EQUAL(count, 2UL);
 
 		const STRING	testText1 = "the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog handball fussball fcbaiern Martin";
-		SortedArray<CI_STRING>	stopWords;
-		StringIndex				positions = indexString( testText1, stopWords, true );
-		UT_ASSERT_EQUAL(positions.size(), 12UL);
+		StringTokens	tokens = tokenString( testText1, Array<STRING>() );
+		UT_ASSERT_EQUAL(tokens.size(), 31UL);
 		UT_ASSERT_EQUAL(cloneBrain.size(), 1UL);
-		cloneBrain.learnFromIndex(positions, 5);
-		UT_ASSERT_EQUAL(cloneBrain.size(), 11UL);
+		cloneBrain.learnFromTokens(testText1, tokens, 5);
+		UT_ASSERT_EQUAL(cloneBrain.size(), 49UL);
 		count = cloneBrain.getPairCount("the", "fcbaiern");
 		UT_ASSERT_GREATEREQ(count, size_t(1UL));
 
 		const STRING	testText2 = "Martin Gäckler lebt in Linz";
-		positions = indexString( testText2, stopWords, true );
+		StringIndex positions = indexString( testText2, Array<STRING>() );
 		cloneBrain.learnFromIndex(positions, 10);
-		UT_ASSERT_EQUAL(cloneBrain.size(), 20UL);
+		UT_ASSERT_EQUAL(cloneBrain.size(), 58UL);
 		count = cloneBrain.getPairCount("the", "fcbaiern");
 		UT_ASSERT_GREATEREQ(count, size_t(1UL));
 
 		Set<STRING> partners = cloneBrain.getPartners("Martin");
-		UT_ASSERT_EQUAL(partners.size(), 8UL);
+		UT_ASSERT_EQUAL(partners.size(), 9UL);
 		partners = cloneBrain.getPartners("Gäckler");
 		UT_ASSERT_EQUAL(partners.size(), 4UL);
 

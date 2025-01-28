@@ -137,6 +137,7 @@ class AiBrain
 	Set<STRING> getPartners( const STRING &word ) const;
 	void addPair(const STRING &w1, const STRING &w2, size_t count=1);
 	void learnFromIndex( const StringIndex &source, size_t numWords );
+	void learnFromTokens( const STRING &source, const StringTokens &tokens, size_t numWords );
 
 	void toBinaryStream ( std::ostream &stream ) const
 	{

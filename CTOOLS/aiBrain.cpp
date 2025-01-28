@@ -125,8 +125,12 @@ static WordUsageCounter checkWordUsage( const StringIndex &index )
 		++it
 	)
 	{
-		WordUsage wu(it->getKey(), it->getValue().size() );
-		counter.addElement(wu);
+		const STRING &word = it->getKey();
+		if( !word.beginsWith( ' ' ) && !word.endsWith( ' ' ) )
+		{
+			WordUsage wu(word, it->getValue().size() );
+			counter.addElement(wu);
+		}
 	}
 	return counter;
 }
@@ -307,6 +311,34 @@ void AiBrain::learnFromIndex( const StringIndex &source, size_t numWords )
 			const WordUsage &wu2 = counter[j];
 			size_t usage = math::min(wu1.count, wu2.count);
 			addPair( wu1.word, wu2.word, usage );
+		}
+	}
+}
+
+void AiBrain::learnFromTokens( const STRING &source, const StringTokens &tokens, size_t numWords )
+{
+	if( tokens.size() < 2 )
+	{
+		return;				// index too small
+	}
+
+	for( size_t i=0; i<tokens.size()-1; ++i )
+	{
+		const Position &pos1 = tokens[i];
+		STRING word1 = source.subString(pos1.m_start, pos1.m_len);
+		size_t wordsToProcess = numWords;
+		for( size_t j=i+1; j<tokens.size() && wordsToProcess; ++j )
+		{
+			const Position &pos2 = tokens[j];
+			if( pos2.m_flags & IS_WORD )
+			{
+				STRING word2 = source.subString(pos2.m_start, pos2.m_len);
+				if( word1 != word2 )
+				{
+					addPair( word1, word2 );
+					--wordsToProcess;
+				}
+			}
 		}
 	}
 }
