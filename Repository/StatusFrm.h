@@ -147,20 +147,4 @@ inline void TStatusForm::stopThread( void )
 	}
 }
 //---------------------------------------------------------------------------
-inline bool TStatusForm::waitForUserSleep( unsigned long timeOut )
-{
-	bool result = false;
-	if( theThread )
-	{
-		unsigned long lastInput = gak::Thread::GetLastInputTime();
-		if( lastInput < timeOut )
-		{
-			IdleLabel->Caption = "Wait for system idle";
-			result = theThread->waitForUserSleep( timeOut );
-			IdleLabel->Caption = "";
-		}
-	}
-
-	return  result;
-}
 #endif

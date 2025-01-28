@@ -230,4 +230,22 @@ void __fastcall TStatusForm::Dispatch(void *Message)
 	}
 }
 //---------------------------------------------------------------------------
+bool TStatusForm::waitForUserSleep( unsigned long timeOut )
+{
+	bool result = false;
+	if( theThread )
+	{
+		unsigned long lastInput = gak::Thread::GetLastInputTime();
+		while( lastInput < timeOut && !result)
+		{
+			IdleLabel->Caption = gak::STRING("Wait for system idle ") + gak::formatNumber((timeOut - lastInput + 500)/1000) + 's';
+			result = theThread->waitForUserSleep( 1000 );
+			lastInput = gak::Thread::GetLastInputTime();
+		}
+		IdleLabel->Caption = "";
+	}
+
+	return  result;
+}
+//---------------------------------------------------------------------------
 
