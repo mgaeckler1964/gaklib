@@ -3,10 +3,10 @@
 		Module:			logFile.cpp
 		Description:	do some debug logging and profiling
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -176,7 +176,7 @@ class LoggingThread : public gak::Thread
 	LoggingThread( const std::string &fileName )
 	{
 		m_fileName = fileName;
-		StartThread();
+		StartThread("Logger");
 	}
 
 	void logLine( const LogLine &line );
@@ -215,8 +215,8 @@ static bool	s_ignoreThread		= false;
 static bool	s_shutdownProfile	= false;
 static bool	s_shutdownLogging	= false;
 
-static const bool s_flushDebug	= false;
-static const bool s_asyncLog	= true;
+static const bool s_flushDebug	= true;
+static const bool s_asyncLog	= false;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -447,7 +447,16 @@ static inline std::string getLogFilename( gak::ThreadID curThread )
 		stream << fName;
 	}
 
-	stream << DIRECTORY_DELIMITER_STRING "gaklib" << GetCurrentProcessId() << '_' << (s_ignoreThread ? 0 :curThread) << ".log";
+	gak::STRING threadName;
+	if(!s_ignoreThread)
+	{
+		gak::SharedObjectPointer<gak::Thread>	theThread=gak::Thread::FindThread(curThread);
+		if( theThread )
+		{
+			threadName = theThread->getName();
+		}
+	}
+	stream << DIRECTORY_DELIMITER_STRING "gaklib" << GetCurrentProcessId() << '_' << (s_ignoreThread ? 0 :curThread) << threadName << ".log";
 	return stream.str();
 }
 

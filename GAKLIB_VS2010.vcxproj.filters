@@ -659,5 +659,8 @@
     <ClInclude Include="INCLUDE\gak\aiBrain.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="INCLUDE\gak\threadDirScanner.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

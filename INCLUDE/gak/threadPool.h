@@ -3,10 +3,10 @@
 		Module:			threadPool.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -191,13 +191,14 @@ class ThreadPool
 	PoolArray				m_pool;
 	BlockedQueue<ObjectT>	m_queue;
 	PoolDispatcher			m_dispatcher;
+	STRING					m_threadNames;
 
 	public:
 	/**
 		@brief creates a new thread pool
 		@param count the numnber of worker threads to create
 	*/
-	ThreadPool( size_t count ) : m_pool(count), m_dispatcher( m_pool, m_queue )
+	ThreadPool( size_t count, const STRING &threadNames ) : m_pool(count), m_dispatcher( m_pool, m_queue ), m_threadNames(threadNames)
 	{
 	}
 	~ThreadPool()
@@ -343,9 +344,9 @@ void ThreadPool<ObjectT, ThreadT>::start()
 			++it
 		)
 		{
-			it->StartThread();
+			it->StartThread(m_threadNames);
 		}
-		m_dispatcher.StartThread();
+		m_dispatcher.StartThread("PoolDispatcher");
 	}
 }
 

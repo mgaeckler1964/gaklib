@@ -117,6 +117,8 @@ namespace mail
 
 STRING MAIL::extractTypeText( const STRING &type, bool allowDefault ) const
 {
+	doEnterFunctionEx( gakLogging::llDetail, "MAIL::extractTypeText" );
+
 	STRING	theBody;
 
 	if( contentType == type || (allowDefault&&contentType.isEmpty()) )

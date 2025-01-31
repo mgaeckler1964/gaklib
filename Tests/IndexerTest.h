@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			IndexerTest.h
-		Description:	
+		Description:	unit test for indexer
 		Author:			Martin Gäckler
 		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2024 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -157,13 +157,13 @@ class IndexerTest : public UnitTest
 
 		sources = globalIndex.findWords( "the -quick", true, true, false );
 		UT_ASSERT_EQUAL( std::size_t(1), sources.size() );
-		UT_ASSERT_EQUAL( STRING("testText2"), sources.getElementAt(0).getKey() );
+		UT_ASSERT_EQUAL( STRING("testText2"), sources.cbegin()->getKey() );
 
 		sources = globalIndex.findWords( "the +quick", true, true, false );
 		UT_ASSERT_EQUAL( std::size_t(1), sources.size() );
-		UT_ASSERT_EQUAL( STRING("testText1"), sources.getElementAt(0).getKey() );
-		UT_ASSERT_EQUAL( std::size_t(0), sources.getElementAt(0).getValue()[0].m_start );
-		UT_ASSERT_EQUAL( std::size_t(4), sources.getElementAt(0).getValue()[1].m_start );
+		UT_ASSERT_EQUAL( STRING("testText1"), sources.cbegin()->getKey() );
+		UT_ASSERT_EQUAL( std::size_t(0), sources.cbegin()->getValue()[0].m_start );
+		UT_ASSERT_EQUAL( std::size_t(4), sources.cbegin()->getValue()[1].m_start );
 
 		sources = globalIndex.findWords( "fox all", true, true, false );
 		UT_ASSERT_EQUAL( std::size_t(2), sources.size() );

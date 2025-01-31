@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			indexer.h
-		Description:	
+		Description:	Indexer for any strings, and search in these indices
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -35,6 +35,10 @@
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
+
+#ifndef USE_PAIR_MAP
+#define USE_PAIR_MAP	1		// for searching pair map is better than TreeMap that is better for indexing
+#endif
 
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
@@ -93,6 +97,13 @@ inline STRING makeLowerIndex( const STRING &lowerWord )
 #	pragma warn +inl
 #endif
 
+/// TODO PairMap has performance problems with large database. Analyse whether we should remove the option to use a pairmap
+#if USE_PAIR_MAP
+#define IndexerMap PairMap
+#else
+#define IndexerMap TreeMap
+#endif
+
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -138,7 +149,7 @@ inline void fromBinaryStream( std::istream &stream, Position *value )
 
 typedef Set<Position, FixedComparator<Position>, PODallocator<Position> >
 									Positions;
-typedef PairMap<STRING,Positions>	StringIndex;
+typedef IndexerMap<STRING,Positions>	StringIndex;
 
 typedef Array<Position>	StringTokens;
 
@@ -167,7 +178,7 @@ struct StatistikEntry
 	}
 };
 
-typedef SortedArray<StatistikEntry>	StatistikData;
+typedef Array<StatistikEntry>	StatistikData;
 
 template<typename SourceT>
 class Index
@@ -191,11 +202,11 @@ class Index
 		}
 	};
 
-	typedef SortedArray<HitRelevance>		RelevantHits;
-	typedef PairMap<SourceT, Positions>		SearchResult;
+	typedef SortedArray<HitRelevance>			RelevantHits;
+	typedef IndexerMap<SourceT, Positions>		SearchResult;
 
 	private:
-	typedef PairMap<STRING, SearchResult>	SearchIndex;
+	typedef IndexerMap<STRING, SearchResult>	SearchIndex;
 
 	private:
 	SearchIndex	m_searchIndex;
@@ -310,6 +321,10 @@ class Index
 	);
 
 	public:
+	size_t size() const
+	{
+		return m_searchIndex.size();
+	}
 	void mergeIndexPositions( const SourceT &source, const StringIndex &index );
 
 	void toBinaryStream ( std::ostream &stream ) const
@@ -560,6 +575,7 @@ typename Index<SourceT>::SearchResult Index<SourceT>::findPatterns(
 template<typename SourceT>
 StatistikData Index<SourceT>::getStatistik() const
 {
+	doEnterFunctionEx(gakLogging::llInfo, "Index<SourceT>::getStatistik" );
 	StatistikData	result;
 
 	for(
@@ -583,15 +599,17 @@ StatistikData Index<SourceT>::getStatistik() const
 		}
 		result.addElement( StatistikEntry( count, word ) );
 	}
+	result.sort(FixedComparator<StatistikEntry>());
 	return result;
 }
 
 template<typename SourceT>
 void Index<SourceT>::mergeIndexPositions( const SourceT &source, const StringIndex &index )
 {
-	doEnterFunction("SourcePosition::mergeIndexPositions");
+	doEnterFunctionEx(gakLogging::llDetail,"SourcePosition::mergeIndexPositions");
+#if USE_PAIR_MAP
 	m_searchIndex.setChunkSize( index.size() );
-
+#endif
 	for(
 		StringIndex::const_iterator it = index.cbegin(), endIT = index.cend();
 		it != endIT;
@@ -599,7 +617,9 @@ void Index<SourceT>::mergeIndexPositions( const SourceT &source, const StringInd
 	)
 	{
 		SearchResult &sourceIndexPos = m_searchIndex[it->getKey()];
+#if USE_PAIR_MAP
 		sourceIndexPos.setChunkSize(sourceIndexPos.size()/2);
+#endif
 		sourceIndexPos[source].moveFrom( const_cast<Positions&>(it->getValue()) );
 	}
 }
@@ -670,7 +690,7 @@ StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 {
 	StringTokens						positions;
 	char								c;
-	bool								hasLetter = false;
+	size_t								letterCount = 0;
 	STRING								lastWord, word, text;
 	std::size_t							i, wordPosition, textPosition;
 	typename StringT::const_iterator	it;
@@ -686,15 +706,17 @@ StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 			if( word.isEmpty() )
 			{
 				wordPosition = i;
-				hasLetter = true;
+				letterCount++;
 			}
 			word += c;
 		}
 		else if( !word.isEmpty() )
 		{
-			if( !stopWords.hasElement( word ) )
+			size_t len = word.strlen();
+			if( len>1							// not a single charater			
+			&& !stopWords.hasElement( word ))	// not in stopWords
 			{
-				positions.addElement( Position(wordPosition,word.strlen(), IS_WORD) );
+				positions.addElement( Position(wordPosition,len, IS_WORD) );
 			}
 			lastWord = word;
 			word = NULL_STRING;
@@ -710,12 +732,17 @@ StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 		}
 		else if( !text.isEmpty() )
 		{
-			if( hasLetter && text != lastWord && !stopWords.hasElement( text ) )
+			size_t len=text.strlen();
+			if( len>1							// not a single charater			
+			&& text != lastWord					// new text
+			&& !stopWords.hasElement( text )	// not in stopWords
+			&& letterCount > 0					// at least one letter
+			&& (len<5 || letterCount>len/2))	// less than 5 characters or more letters than other characters
 			{
-				positions.addElement(Position(textPosition, text.strlen(), IS_TEXT));
+				positions.addElement(Position(textPosition, len, IS_TEXT));
 			}
 			text = NULL_STRING;
-			hasLetter = false;
+			letterCount = 0;
 		}
 
 		if( !c )
@@ -742,11 +769,15 @@ StringIndex processPositions( const StringT &string, const StringTokens &tokens 
 		STRING word = string.subString( pos.m_start, pos.m_len );
 
 		Positions	&wordPositions = positions[word];
-		wordPositions.addElement(pos);
 
 		if( pos.m_flags&IS_WORD )
 		{
 			CI_STRING	simple = word.simplify();
+			if( simple.strlen() < 2 )
+			{
+				// skip too simple words
+				continue;
+			}
 			if( simple != word )
 			{
 				Positions	&wordPositions = positions[makeFuzzyIndex(simple)];
@@ -759,6 +790,7 @@ StringIndex processPositions( const StringT &string, const StringTokens &tokens 
 				wordPositions.addElement(pos);
 			}
 		}
+		wordPositions.addElement(pos);
 	}
 	return positions;
 }

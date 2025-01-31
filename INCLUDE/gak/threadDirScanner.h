@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			mailParser.h
-		Description:	The parser for one Mail in a mboxfile
+		Module:			threadDirScanner.h
+		Description:	Multi thread directory scanner
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -29,21 +29,20 @@
 		SUCH DAMAGE.
 */
 
+#ifndef GAK_THREADED_DIR_SCANNER_H
+#define GAK_THREADED_DIR_SCANNER_H
 
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#ifndef GAK_MAIL_PARSER_H
-#define GAK_MAIL_PARSER_H
-
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <gak/string.h>
-#include <gak/ci_string.h>
-#include <gak/datetime.h>
+#include <gak/dirScanner.h>
+#include <gak/threadPool.h>
+#include <gak/keyValuePair.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -62,8 +61,6 @@
 
 namespace gak
 {
-namespace mail
-{
 
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
@@ -77,54 +74,37 @@ namespace mail
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-struct MAIL
-{
-	STRING		mboxFile;
-	STRING		from, to, cc, subject, messageID, boundary, contentID,
-				attachFileName;
-	CI_STRING	contentType, contentTransferEncoding, charset,
-				contentDisposition, xStatus;
-	DateTime	date;
-	STRING		body;
-
-	void toBinaryStream( std::ostream &stream ) const
-	{
-		from.toBinaryStream( stream );
-		to.toBinaryStream( stream );
-		cc.toBinaryStream( stream );
-		subject.toBinaryStream( stream );
-		messageID.toBinaryStream( stream );
-		boundary.toBinaryStream( stream );
-		contentID.toBinaryStream( stream );
-		attachFileName.toBinaryStream( stream );
-		contentType.toBinaryStream( stream );
-		contentTransferEncoding.toBinaryStream( stream );
-		charset.toBinaryStream( stream );
-		contentDisposition.toBinaryStream( stream );
-		xStatus.toBinaryStream( stream );
-		date.toBinaryStream( stream );
-		//body.toBinaryStream( stream );
-	}
-	void fromBinaryStream( std::istream &stream );
-
-	STRING extractPlainText() const
-	{
-		doEnterFunctionEx( gakLogging::llDetail, "MAIL::extractPlainText" );
-		return extractTypeText( "text/plain", true );
-	}
-	STRING extractHtmlText() const
-	{
-		doEnterFunctionEx( gakLogging::llDetail, "MAIL::extractHtmlText" );
-		return extractTypeText( "text/html", false );
-	}
-
-	private:
-	STRING extractTypeText( const STRING &type, bool allowDefault ) const;
-};
-
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+class ParalelDirScanner
+{
+	class ScannerFileProcessor : public FileProcessor
+	{
+		ParalelDirScanner *m_scanner;
+	public:
+		ScannerFileProcessor(ParalelDirScanner *scanner) : FileProcessor(scanner->m_cmdLine), m_scanner(scanner) {}
+		void process( const STRING &file )
+		{
+			m_scanner->m_threadPool.process(file);
+		}
+	};
+	
+	const CommandLine &							m_cmdLine;
+	DirectoryScanner<ScannerFileProcessor>		m_scanner;
+	ThreadPool<STRING>							m_threadPool;
+
+	public:
+	ParalelDirScanner( const STRING &threadName, const CommandLine &cmdLine, size_t count=8 ) : m_cmdLine(cmdLine), m_scanner(this), m_threadPool(count, threadName) {}
+	void operator () ( const STRING &path )
+	{
+		m_threadPool.start();
+		m_scanner(path);
+		doLogMessageEx(gakLogging::llInfo, "Dirscanner completed. Waiting for processors");
+		m_threadPool.flush();
+	}
+};
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
@@ -178,8 +158,7 @@ struct MAIL
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-}	// namespace mail
-}	// namespace gak
+} // namespace gak
 
 #ifdef __BORLANDC__
 #	pragma option -RT.
@@ -188,4 +167,4 @@ struct MAIL
 #	pragma option -p.
 #endif
 
-#endif	// GAK_MAIL_PARSER_H
+#endif //  GAK_THREADED_DIR_SCANNER_H

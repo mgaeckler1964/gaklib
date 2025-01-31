@@ -206,5 +206,8 @@
     <ClInclude Include="Tests\aiBrainTest.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\threadDirScannerTest.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

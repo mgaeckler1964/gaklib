@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			mailParser.h
-		Description:	The parser for one Mail in a mboxfile
+		Module:			threadDirScannerTest.h
+		Description:	unit test for ParalelDirScanner
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -34,16 +34,14 @@
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#ifndef GAK_MAIL_PARSER_H
-#define GAK_MAIL_PARSER_H
-
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <gak/string.h>
-#include <gak/ci_string.h>
-#include <gak/datetime.h>
+#include <iostream>
+#include <gak/unitTest.h>
+
+#include <gak/threadDirScanner.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -60,11 +58,6 @@
 #	pragma option -pc
 #endif
 
-namespace gak
-{
-namespace mail
-{
-
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -77,54 +70,66 @@ namespace mail
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-struct MAIL
-{
-	STRING		mboxFile;
-	STRING		from, to, cc, subject, messageID, boundary, contentID,
-				attachFileName;
-	CI_STRING	contentType, contentTransferEncoding, charset,
-				contentDisposition, xStatus;
-	DateTime	date;
-	STRING		body;
-
-	void toBinaryStream( std::ostream &stream ) const
-	{
-		from.toBinaryStream( stream );
-		to.toBinaryStream( stream );
-		cc.toBinaryStream( stream );
-		subject.toBinaryStream( stream );
-		messageID.toBinaryStream( stream );
-		boundary.toBinaryStream( stream );
-		contentID.toBinaryStream( stream );
-		attachFileName.toBinaryStream( stream );
-		contentType.toBinaryStream( stream );
-		contentTransferEncoding.toBinaryStream( stream );
-		charset.toBinaryStream( stream );
-		contentDisposition.toBinaryStream( stream );
-		xStatus.toBinaryStream( stream );
-		date.toBinaryStream( stream );
-		//body.toBinaryStream( stream );
-	}
-	void fromBinaryStream( std::istream &stream );
-
-	STRING extractPlainText() const
-	{
-		doEnterFunctionEx( gakLogging::llDetail, "MAIL::extractPlainText" );
-		return extractTypeText( "text/plain", true );
-	}
-	STRING extractHtmlText() const
-	{
-		doEnterFunctionEx( gakLogging::llDetail, "MAIL::extractHtmlText" );
-		return extractTypeText( "text/html", false );
-	}
-
-	private:
-	STRING extractTypeText( const STRING &type, bool allowDefault ) const;
-};
-
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+
+namespace gak
+{
+
+static Locker	g_locker;
+static size_t	g_count = 0;
+
+template <>
+struct ProcessorType<STRING>
+{
+	typedef STRING object_type;
+
+	void increment()
+	{
+		LockGuard guard( g_locker );
+
+		if( guard )
+		{
+			g_count++;
+		}
+		else
+		{
+			doLogMessageEx( gakLogging::llError, "Cannot lock" );
+		}
+	}
+	void process( const STRING &fileName )
+	{
+		doEnterFunctionEx(gakLogging::llDetail,"ProcessorType<IndexSourcePtr>::process");
+		doLogValueEx( gakLogging::llDetail, fileName );
+		increment();
+	}
+};
+
+
+class ParalelDirScannerTest : public UnitTest
+{
+	virtual const char *GetClassName( void ) const
+	{
+		return "ParalelDirScannerTest";
+	}
+	virtual void PerformTest( void )
+	{
+		int argc=0;
+		char *argv[1] = {NULL};
+
+		ParalelDirScanner	myScanner("ParalelDirScannerTest", CommandLine(), 5);
+
+		myScanner("Java");
+
+		UT_ASSERT_EQUAL(g_count,4);
+	}
+};
+
+static ParalelDirScannerTest	myParalelDirScannerTest;
+
+}	//namespace gak
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
@@ -178,9 +183,6 @@ struct MAIL
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-}	// namespace mail
-}	// namespace gak
-
 #ifdef __BORLANDC__
 #	pragma option -RT.
 #	pragma option -b.
@@ -188,4 +190,3 @@ struct MAIL
 #	pragma option -p.
 #endif
 
-#endif	// GAK_MAIL_PARSER_H

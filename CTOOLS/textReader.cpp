@@ -3,10 +3,10 @@
 		Module:			textReader.cpp
 		Description:	Text Reader for XML- and HTML-Parser
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -174,14 +174,16 @@ static char getBase64Code( unsigned char c )
 
 char TextReader::getNextWithBlank( void )
 {
+	doEnterFunctionEx(gakLogging::llDetail,"TextReader::getNextWithBlankXXX");
 	int c = m_inputStream->get();
+	doLogValueEx(gakLogging::llDetail, c);
 
 	if( c == '\n' )
 	{
 		m_position.m_lineNo++;
 		m_position.m_column = 0;
 	}
-	else if( c == EOF )
+	else if( c == EOF || m_inputStream->eof() || m_inputStream->fail() )
 	{
 		c = 0;
 	}
@@ -208,19 +210,23 @@ char TextReader::getNextWithBlank( void )
 
 			byteCount++;
 			byteMask >>= 1;
-		} while( byteMask );
+		} while( byteCount < 4 );
 
+		doLogValueEx(gakLogging::llDetail, byteCount);
 		// mask out the counter bits
 		byteValue = byteValue & ~byteMask;
-		while( --byteCount > 0 )
+		if( byteCount > 0 )
 		{
-			c = m_inputStream->get();
-			if( c <=127 )
+			while( --byteCount > 0 )
 			{
-				putback( char(c) );
-				break;
+				c = m_inputStream->get();
+				if( c <=127 )
+				{
+					putback( char(c) );
+					break;
+				}
+				byteValue = (byteValue << 6) | (c & ~0xC0);
 			}
-			byteValue = (byteValue << 6) | (c & ~0xC0);
 		}
 
 		c = convertWChar( wchar_t(byteValue) );
@@ -337,7 +343,7 @@ STRING encodeBase64( const STRING &src )
 
 void decodeBase64( const STRING &src, ArrayOfData &dest )
 {
-	doEnterFunction("decodeBase64");
+	doEnterFunctionEx(gakLogging::llDetail,"decodeBase64");
 	int		c1, c2, c3, c4;
 	size_t	i = 0;
 
@@ -377,7 +383,8 @@ void decodeBase64( const STRING &src, ArrayOfData &dest )
 
 STRING decodeQuotedPrintable( const STRING &src )
 {
-	doEnterFunction("decodeQuotedPrintable");
+	doEnterFunctionEx(gakLogging::llDetail,"decodeQuotedPrintable");
+
 	STRING	result;
 	bool	ignore;
 
@@ -437,7 +444,7 @@ STRING decodeQuotedPrintable( const STRING &src )
 
 STRING decodeMessageHeader( const STRING &src )
 {
-	doEnterFunction("decodeMessageHeader");
+	doEnterFunctionEx(gakLogging::llDetail,"decodeMessageHeader");
 
 	STRING			result;
 	STRING			tmp = src;

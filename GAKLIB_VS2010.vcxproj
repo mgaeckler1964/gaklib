@@ -225,6 +225,7 @@
     <ClInclude Include="INCLUDE\gak\stringStream.h" />
     <ClInclude Include="INCLUDE\gak\textReader.h" />
     <ClInclude Include="INCLUDE\gak\thread.h" />
+    <ClInclude Include="INCLUDE\gak\threadDirScanner.h" />
     <ClInclude Include="INCLUDE\gak\threadPool.h" />
     <ClInclude Include="INCLUDE\gak\time.h" />
     <ClInclude Include="INCLUDE\gak\types.h" />

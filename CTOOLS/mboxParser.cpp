@@ -106,7 +106,7 @@ namespace mail
 
 static STRING appendMailHeader( std::istream &fp, MAIL *theMail )
 {
-	doEnterFunction("appendMailHeader");
+	doEnterFunctionEx(gakLogging::llDetail,"appendMailHeader");
 
 	STRING	line, nextLine, header;
 
@@ -330,7 +330,7 @@ static STRING appendMailHeader( std::istream &fp, MAIL *theMail )
 
 STRING readMailHeader( std::istream &fp, MAIL *theMail )
 {
-	doEnterFunction("readMailHeader");
+	doEnterFunctionEx(gakLogging::llDetail,"readMailHeader");
 
 	STRING	header = appendMailHeader( fp, theMail );
 
@@ -339,7 +339,7 @@ STRING readMailHeader( std::istream &fp, MAIL *theMail )
 
 STRING readMailBody( std::istream &fp, const CI_STRING &contentTransfer, const CI_STRING &encoding, const STRING boundary, bool *endFound )
 {
-	doEnterFunction( "readMailBody" );
+	doEnterFunctionEx(gakLogging::llDetail, "readMailBody" );
 
 	STRING	begBoundary = "--" + boundary;
 	STRING	endBoundary = begBoundary + "--";
@@ -397,6 +397,8 @@ STRING readMailBody( std::istream &fp, const CI_STRING &contentTransfer, const C
 
 void getBodyParts( const STRING &body, Array<MAIL> *theMails, const STRING &boundary )
 {
+	doEnterFunctionEx(gakLogging::llDetail, "getBodyParts( const STRING &body, Array<MAIL> *theMails, const STRING &boundary )" );
+
 	theMails->clear();
 	iSTRINGstream fp( body );
 
@@ -433,7 +435,7 @@ void loadMail(
 	const STRING &mboxFile, const STRING &messageID, MAIL *theMail
 )
 {
-	doEnterFunction( "loadMail(const STRING &mboxFile, const STRING &messageID, MAIL *theMail)" );
+	doEnterFunctionEx(gakLogging::llDetail, "loadMail(const STRING &mboxFile, const STRING &messageID, MAIL *theMail)" );
 	STRING	line;
 
 	std::ifstream fp( mboxFile );
@@ -471,7 +473,7 @@ void loadMail(
 
 void loadMboxFile( const STRING &mboxFile, Array<MAIL> &theMails )
 {
-	doEnterFunction( "void loadMboxFile( const STRING &mboxFile, Array<MAIL> &theMails )" );
+	doEnterFunctionEx(gakLogging::llDetail, "void loadMboxFile( const STRING &mboxFile, Array<MAIL> &theMails )" );
 	STRING	line;
 	std::ifstream fp( mboxFile, std::ifstream::binary );
 	while( !fp.eof() )
