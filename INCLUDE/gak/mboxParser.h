@@ -101,7 +101,11 @@ STRING readMailHeader( std::istream &fp, MAIL *theMail );
 STRING readMailBody( std::istream &fp, const CI_STRING &contentTransfer, const CI_STRING &encoding, const STRING boundary="", bool *endFound=NULL );
 void getBodyParts( const STRING &body, Array<MAIL> *theMails, const STRING &boundary );
 void loadMail(const STRING &mboxFile, const STRING &messageID, MAIL *theMail);
-void loadMboxFile( const STRING &mboxFile, Mails &theMails );
+void loadMail(const STRING &mboxFile, size_t index, const Array<int64> &positions, MAIL *theMail);
+void loadMail(const STRING &mboxFile, size_t index, MAIL *theMail);
+
+void loadMboxFile( const STRING &mboxFile, Mails &theMails, Array<int64> *positions=NULL );
+
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //

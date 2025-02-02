@@ -471,16 +471,74 @@ void loadMail(
 	);
 }
 
-void loadMboxFile( const STRING &mboxFile, Array<MAIL> &theMails )
+
+void loadMail(const STRING &mboxFile, size_t index, const Array<int64> &positions, MAIL *theMail)
 {
-	doEnterFunctionEx(gakLogging::llDetail, "void loadMboxFile( const STRING &mboxFile, Array<MAIL> &theMails )" );
+	doEnterFunctionEx(gakLogging::llDetail, "loadMail(const STRING &mboxFile, size_t index, MAIL *theMail)" );
 	STRING	line;
+
+	std::ifstream fp( mboxFile );
+
+	fp.seekg( positions[index] );
+	fp >> line;
+	if( line.beginsWith( "From " ) )
+	{
+		readMailHeader( fp, theMail );
+		theMail->body = readMailBody(
+			fp, theMail->contentTransferEncoding, theMail->charset
+		);
+	}
+}
+
+void loadMail(const STRING &mboxFile, size_t index, MAIL *theMail)
+{
+	doEnterFunctionEx(gakLogging::llDetail, "loadMail(const STRING &mboxFile, size_t index, MAIL *theMail)" );
+	STRING	line;
+
+	std::ifstream fp( mboxFile );
+	while( !fp.eof() )
+	{
+		// search begin of mail
+		while( !fp.eof() )
+		{
+			fp >> line;
+			if( line.beginsWith( "From MAILER-DAEMON" ) )
+			{
+/*^*/			continue;
+			}
+
+			if( line.beginsWith( "From " ) )
+			{
+				if( !index )
+				{
+/*v*/				break;
+				}
+				index--;
+			}
+		}
+	}
+	if( !fp.eof() )
+	{
+		readMailHeader( fp, theMail );
+	}
+	theMail->body = readMailBody(
+		fp, theMail->contentTransferEncoding, theMail->charset
+	);
+}
+
+void loadMboxFile( const STRING &mboxFile, Array<MAIL> &theMails, Array<int64> *positions )
+{
+	doEnterFunctionEx(gakLogging::llDetail, "void loadMboxFile( const STRING &mboxFile, Array<MAIL> &theMails, Array<int64> *positions )" );
+	STRING	line;
+	std::ifstream::pos_type	position;
+
 	std::ifstream fp( mboxFile, std::ifstream::binary );
 	while( !fp.eof() )
 	{
 		// search begin of mail
 		while( !fp.eof() )
 		{
+			position = fp.tellg();
 			fp >> line;
 			if( line.beginsWith( "From MAILER-DAEMON" ) )
 			{
@@ -496,6 +554,11 @@ void loadMboxFile( const STRING &mboxFile, Array<MAIL> &theMails )
 		if( fp.eof() )
 		{
 			break;
+		}
+
+		if( positions )
+		{
+			positions->addElement( int64(position) );
 		}
 
 		MAIL	&theMail = theMails.createElement();

@@ -90,7 +90,9 @@ class ParalelDirScanner
 			m_scanner->m_threadPool.process(file);
 		}
 	};
-	
+
+	friend class ScannerFileProcessor;
+
 	const CommandLine &							m_cmdLine;
 	DirectoryScanner<ScannerFileProcessor>		m_scanner;
 	ThreadPool<STRING>							m_threadPool;
