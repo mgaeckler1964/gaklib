@@ -277,7 +277,7 @@ void Thread::RunThread( void )
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-void Thread::StartThread( const STRING &name )
+void Thread::StartThread( const STRING &name, bool hideOwner )
 {
 	CheckThreadCount();		// remove lo longer used threads
 
@@ -290,7 +290,7 @@ void Thread::StartThread( const STRING &name )
 	isWaiting = false;
 	setRunning();
 
-	m_ownerThreadID = Locker::GetCurrentThreadID();
+	m_ownerThreadID = hideOwner ? -1 : Locker::GetCurrentThreadID();
 	{
 		LockGuard lock( theThreadListLocker, 10000 );
 		if( lock )

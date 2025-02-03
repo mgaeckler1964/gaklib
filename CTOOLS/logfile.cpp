@@ -47,6 +47,8 @@
 /* ----- includes ------------------------------------------------------ */
 /* --------------------------------------------------------------------- */
 
+#include <gak/logfile.h>
+
 #ifdef __BORLANDC__
 #include <iostream>
 #endif
@@ -62,7 +64,6 @@
 
 #include <gak/thread.h>
 #include <gak/map.h>
-#include <gak/logfile.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -176,7 +177,7 @@ class LoggingThread : public gak::Thread
 	LoggingThread( const std::string &fileName )
 	{
 		m_fileName = fileName;
-		StartThread("Logger");
+		StartThread("Logger", true);
 	}
 
 	void logLine( const LogLine &line );
@@ -215,8 +216,8 @@ static bool	s_ignoreThread		= false;
 static bool	s_shutdownProfile	= false;
 static bool	s_shutdownLogging	= false;
 
-static const bool s_flushDebug	= true;
-static const bool s_asyncLog	= false;
+static bool s_flushDebug	= true;
+static bool s_asyncLog	= false;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -787,6 +788,18 @@ void ignoreThreads( void )
 void applyThreads( void )
 {
 	s_ignoreThread = false;
+}
+
+void immediateLog()
+{
+	s_flushDebug	= true;
+	s_asyncLog	= false;
+}
+
+void fastLog()
+{
+	s_flushDebug	= false;
+	s_asyncLog	= true;
 }
 
 }	// namespace gakLogging

@@ -6,7 +6,7 @@
 		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2024 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -288,17 +288,21 @@ void disableLog( void );
 #define doIgnoreThreads()		gakLogging::ignoreThreads()
 #define doApplyThreads()		gakLogging::applyThreads()
 #define doFlushLogs()			gakLogging::flushLogs()
+#define doImmediateLog()		gakLogging::immediateLog()
+#define doFastLog()				gakLogging::fastLog()
 #else
 #define doIgnoreThreads()		/* nothing */
 #define doApplyThreads()		/* nothing */
 #define doFlushLogs()			/* nothing */
+#define doImmediateLog()		/* nothing */
+#define doFastLog()				/* nothing */
 #endif
 
 void ignoreThreads( void );
 void applyThreads( void );
 void flushLogs( void );
-
-
+void immediateLog();
+void fastLog();
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //

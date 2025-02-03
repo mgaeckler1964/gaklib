@@ -3,10 +3,10 @@
 		Module:			hash.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -48,6 +48,7 @@
 
 #include <iomanip>
 #include <fstream>
+#include <gak/stringStream.h>
 
 #if SHA_SUPPORT
 #include <openssl/sha.h>
@@ -99,8 +100,11 @@ class Hash
 	virtual void init() = 0;
 	virtual void update( const void *data, size_t len ) = 0;
 	virtual void finish() = 0;
-
 	public:
+	bool m_storeStream;
+	ArrayOfData m_streamData;
+	Hash() : m_storeStream(false) {}
+
 	void hash_stream( std::istream &str );
 	void hash_file( const STRING &fName )
 	{
@@ -161,6 +165,10 @@ class MD5Hash : public Hash
 	const Digest &getDigest() const
 	{
 		return digest;
+	}
+	MD5Hash()
+	{
+		memset( digest.getDataBuffer(), 0, 16 );
 	}
 };
 
@@ -338,6 +346,18 @@ inline std::ostream &operator << ( std::ostream &out, const SHA384Hash::Digest &
 	return out;
 }
 #endif	// SHA_SUPPORT
+
+template <typename DIGEST_T>
+STRING digestStr( const DIGEST_T &digest )
+{
+	STRING resultString;
+	oSTRINGstream str(resultString);
+
+	str << digest;
+	str.flush();
+
+	return resultString;
+}
 
 }	// namespace gak
 

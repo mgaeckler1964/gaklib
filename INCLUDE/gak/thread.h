@@ -200,7 +200,7 @@ class Thread : public SharedObject
 	}
 
 	/// Starts execution of the thread
-	void StartThread( const STRING &name=STRING() );
+	void StartThread( const STRING &name=STRING(), bool hideOwner=false );
 
 	/**
 		@brief stops execution of the thread.

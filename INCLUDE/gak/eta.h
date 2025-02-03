@@ -67,6 +67,10 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+static const size_t MINDATA_COUNT = 16;
+static const size_t MAXDATA_COUNT = 512;
+static const size_t MINDATA_TIME = 16*1000;		// 16 seconds
+
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -104,10 +108,15 @@ private:
 	};
 	RingBuffer<ValueTimePairs>	m_counters;
 	ClockTicks	m_lastresult;
+	COUNTER_T	m_maxCount;
+	COUNTER_T	m_usedCount;
 
 	public:
 	/// @brief the constructor
-	Eta() : m_counters(512) {}
+	Eta() : m_counters(MAXDATA_COUNT), m_maxCount(0), m_usedCount(0)
+	{
+		m_lastresult = std::numeric_limits<ClockTicks>::min();
+	}
 
 	/**
 		@brief watch the counter value
@@ -115,6 +124,11 @@ private:
 	*/
 	void addValue(COUNTER_T value)
 	{
+		if( value > m_maxCount )
+		{
+			m_maxCount = value;
+			m_usedCount = (value >> 3);
+		}
 		if( m_counters.size() )
 		{
 			COUNTER_T lastValue = m_counters.newest().get().m_counter;
@@ -143,27 +157,69 @@ private:
 	/// @return The number of estimated ticks until the counter reaches 0.
 	ClockTicks getETA(ClockTicks expectedMinDiff=0, ClockTicks expectedMaxDiff=0)
 	{
+		doEnterFunctionEx( gakLogging::llDetail, "Eta<>::getETA" );
 		if( isValid() )
 		{
-			ValueTimePairs	first = m_counters.oldest().get();
 			ValueTimePairs	last = m_counters.newest().get();
-			ClockTicks		elapsed = last.m_ticks - first.m_ticks;
+			ValueTimePairs	first = m_counters.oldest().get();
 			COUNTER_T		reached = first.m_counter - last.m_counter;
+			ClockTicks		elapsed = last.m_ticks - first.m_ticks;
+			size_t			inSize = m_counters.size();
+
+			if( m_usedCount )
+			{
+				while( reached > m_usedCount && m_counters.size() > MINDATA_COUNT && elapsed > MINDATA_TIME )
+				{
+					if( !m_counters.pop( &first ) )
+					{
+						break;
+					}
+					reached = first.m_counter - last.m_counter;
+					elapsed = last.m_ticks - first.m_ticks;
+				}
+			}
+			if( inSize != m_counters.size() )
+			{
+				doLogValueEx( gakLogging::llDetail, (inSize - m_counters.size()) );
+			}
+
+			doLogValueEx( gakLogging::llDetail, reached );
+			doLogValueEx( gakLogging::llDetail, elapsed );
 			if(elapsed&&reached)
 			{
 				ClockTicks	remain = ClockTicks((elapsed*last.m_counter)/reached);
 				if( m_lastresult > std::numeric_limits<ClockTicks>::min() && (expectedMinDiff || expectedMaxDiff) )
 				{
-					ClockTicks actDiff = gak::math::abs(m_lastresult-remain);
-					if( actDiff < expectedMinDiff || actDiff > expectedMaxDiff)
+					if( m_lastresult < remain )		// expectation is worse than before
 					{
-						return m_lastresult = std::numeric_limits<ClockTicks>::min();
+						if( m_usedCount < m_maxCount )
+						{
+							m_usedCount <<=  1;		// we need more data
+						}
 					}
+					else
+					{
+						ClockTicks actDiff = gak::math::abs(m_lastresult-remain);
+						if( actDiff < expectedMinDiff || actDiff > expectedMaxDiff)		// outside the accepted time range
+						{
+							if( m_usedCount > 8 )
+							{
+								m_usedCount >>= 1;		// we need less data
+							}
+							doLogMessageEx( gakLogging::llDetail,  "bad diff data" );
+							return m_lastresult = remain;
+						}
+					}
+				}
+				if( m_usedCount < m_maxCount )
+				{
+					m_usedCount +=  (m_maxCount >> 3);		// use more data to become more stable
 				}
 				return m_lastresult = remain;
 			}
 		}
-		return m_lastresult = std::numeric_limits<ClockTicks>::min();
+		doLogMessageEx( gakLogging::llDetail, "few diff data" );
+		return m_lastresult;
 	}
 };
 
@@ -176,16 +232,19 @@ std::ostream & operator << ( std::ostream &out, Eta<COUNTER_T, ClockProvider_T> 
 		typename ClockProvider_T::ClockTicks	ticks = eta.getETA();
 
 #if 1
-		out << std::setw(2) << std::setfill('0') << ticks / (24*60*60*CLOCKS_PER_SEC) << 'd';
-		ticks %= (24*60*60*CLOCKS_PER_SEC);
+		if( ticks > 0 )
+		{
+			out << std::setw(2) << std::setfill('0') << ticks / (24*60*60*CLOCKS_PER_SEC) << 'd';
+			ticks %= (24*60*60*CLOCKS_PER_SEC);
 
-		out << std::setw(2) << std::setfill('0') << ticks / (60*60*CLOCKS_PER_SEC) << 'h';
-		ticks %= (60*60*CLOCKS_PER_SEC);
+			out << std::setw(2) << std::setfill('0') << ticks / (60*60*CLOCKS_PER_SEC) << 'h';
+			ticks %= (60*60*CLOCKS_PER_SEC);
 
-		out << std::setw(2) << std::setfill('0') << ticks / (60*CLOCKS_PER_SEC) << 'm';
-		ticks %= (60*CLOCKS_PER_SEC);
+			out << std::setw(2) << std::setfill('0') << ticks / (60*CLOCKS_PER_SEC) << 'm';
+			ticks %= (60*CLOCKS_PER_SEC);
 
-		out << std::setw(2) << std::setfill('0') << ticks / (CLOCKS_PER_SEC);
+			out << std::setw(2) << std::setfill('0') << ticks / (CLOCKS_PER_SEC);
+		}
 #else
 		out << ticks << 't';
 #endif
