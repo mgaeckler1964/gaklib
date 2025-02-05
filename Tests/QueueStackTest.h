@@ -3,10 +3,10 @@
 		Module:			QueueStackTest.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -110,13 +110,22 @@ class QueueStackTest : public UnitTest
 		UT_ASSERT_EQUAL( stack.size(), size_t(0) );
 
 
-		Queue<STRING>	myQueue;
-
-		myQueue.push( "Hello World" );
-
-		STRING	text = myQueue.pop();
-
-		UT_ASSERT_EQUAL( text, STRING("Hello World") );
+		LockQueue<STRING>	myQueue;
+		UT_ASSERT_EQUAL( myQueue.size(), size_t(0) );
+		for( int i=1; i<4; ++i )
+		{
+			STRING data = "Hello World " + formatNumber(i);
+			myQueue.push( data );
+			UT_ASSERT_EQUAL( myQueue.size(), size_t(i) );
+		}
+		for( int i=1; i<4; ++i )
+		{
+			STRING data = "Hello World " + formatNumber(i);
+			UT_ASSERT_EQUAL( myQueue.size(), size_t(4-i) );
+			STRING	text = myQueue.pop();
+			UT_ASSERT_EQUAL( text, data );
+		}
+		UT_ASSERT_EQUAL( myQueue.total(), size_t(3) );
 	}
 };
 

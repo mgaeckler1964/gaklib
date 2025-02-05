@@ -119,6 +119,7 @@ class ThreadPoolTest : public UnitTest
 				pool.process( Functor( int(i)) );
 			}
 			pool.flush();
+			UT_ASSERT_EQUAL( count, pool.total() );
 		}
 		UT_ASSERT_EQUAL( count, Functor::callCount );
 		{

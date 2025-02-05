@@ -220,6 +220,16 @@ class ThreadPool
 	void start();
 	/// terminates all threads incl. the dispatcher
 	void shutdown();
+	/// returns thr total number of items pushed in this queue
+	size_t total() const
+	{
+		return m_queue.total();
+	}
+	/// returns thr number of items still waiting in this queue
+	size_t size() const
+	{
+		return m_queue.size();
+	}
 
 	template<typename ProcessorT>
 	void setObjectProcessor( const ProcessorT &objectProcessor );
