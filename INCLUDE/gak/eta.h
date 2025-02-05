@@ -100,22 +100,29 @@ public:
 	/// @brief the type of clock ticks
 	typedef typename ClockProvider_T::ClockTicks ClockTicks;
 private:
-	struct ValueTimePairs
+	struct ValueTimePair
 	{
 		COUNTER_T	m_counter;
 		ClockTicks	m_ticks;
-		ValueTimePairs( const COUNTER_T &counter=0, const ClockTicks &ticks=0 ) : m_counter(counter), m_ticks(ticks) {}
+		ValueTimePair( const COUNTER_T &counter=0, const ClockTicks &ticks=0 ) : m_counter(counter), m_ticks(ticks) {}
+		ClockTicks since() const
+		{
+			return ClockProvider_T::clock() - m_ticks;
+		}
 	};
-	RingBuffer<ValueTimePairs>	m_counters;
-	ClockTicks	m_lastresult;
-	COUNTER_T	m_maxCount;
-	COUNTER_T	m_usedCount;
+	RingBuffer<ValueTimePair>	m_counters;
+	ClockTicks					m_lastRemain;
+	ValueTimePair				m_last;
+
+	COUNTER_T					m_maxCount;
+	COUNTER_T					m_useCount;
+	char						m_markChar;
 
 	public:
 	/// @brief the constructor
-	Eta() : m_counters(MAXDATA_COUNT), m_maxCount(0), m_usedCount(0)
+	Eta() : m_counters(MAXDATA_COUNT), m_maxCount(0), m_useCount(0), m_markChar(' ')
 	{
-		m_lastresult = std::numeric_limits<ClockTicks>::min();
+		m_lastRemain = 0;
 	}
 
 	/**
@@ -124,10 +131,11 @@ private:
 	*/
 	void addValue(COUNTER_T value)
 	{
+		m_markChar = ' ';
 		if( value > m_maxCount )
 		{
 			m_maxCount = value;
-			m_usedCount = (value >> 3);
+			m_useCount = (value >> 3);
 		}
 		if( m_counters.size() )
 		{
@@ -146,80 +154,141 @@ private:
 				//m_counters.pop();
 			}
 		}
-		ValueTimePairs	newValue(value,ClockProvider_T::clock());
+		ValueTimePair	newValue(value,ClockProvider_T::clock());
 		m_counters.push(newValue);
 	}
 	/// @return true if the time of arrival can be estimated 
 	bool isValid() const
 	{
+		doEnterFunctionEx( gakLogging::llDetail, "Eta<>::isValid" );
+		doLogValueEx( gakLogging::llDetail, m_counters.size() );
 		return m_counters.size() >= 2;
 	}
+
+	private:
+	ClockTicks getETAfromLast() const
+	{
+		doEnterFunctionEx( gakLogging::llDetail, "Eta<>::getETAfromLast" );
+		ClockTicks sinceLast = m_last.since();
+		ClockTicks remain = (m_lastRemain > sinceLast) ? (m_lastRemain - sinceLast) : 0;
+		doLogValueEx( gakLogging::llDetail, m_lastRemain );
+		doLogValueEx( gakLogging::llDetail, sinceLast );
+		doLogValueEx( gakLogging::llDetail, remain );
+		return remain;
+	}
+
+	ValueTimePair getFirst()
+	{
+		doEnterFunctionEx( gakLogging::llDetail, "Eta<>::getFirst" );
+		ValueTimePair	first = m_counters.oldest().get();
+
+		if( m_useCount )
+		{
+
+			COUNTER_T		processed = first.m_counter - m_last.m_counter;
+			ClockTicks		elapsedTime = m_last.m_ticks - first.m_ticks;
+			size_t			inSize = m_counters.size();
+
+			while( processed > m_useCount && m_counters.size() > MINDATA_COUNT && elapsedTime > MINDATA_TIME )
+			{
+				m_counters.pop();
+				first = m_counters.oldest().get();
+				processed = first.m_counter - m_last.m_counter;
+				elapsedTime = m_last.m_ticks - first.m_ticks;
+			}
+			if( inSize != m_counters.size() )
+			{
+				doLogValueEx( gakLogging::llDetail, m_counters.size() );
+				doLogValueEx( gakLogging::llDetail, (inSize - m_counters.size()) );
+			}
+		}
+		return first;
+	}
+
+	ClockTicks adjustRemainFromPast( ClockTicks remain, ClockTicks expectedMinDiff, ClockTicks expectedMaxDiff )
+	{
+		doEnterFunctionEx( gakLogging::llDetail, "Eta<>::adjustRemainFromPast" );
+
+		bool updateUsedCount = true;
+		char newMarker = ' ';
+
+		doLogValueEx( gakLogging::llDetail, m_lastRemain );
+		doLogValueEx( gakLogging::llDetail, expectedMinDiff );
+		doLogValueEx( gakLogging::llDetail, expectedMaxDiff );
+		doLogValueEx( gakLogging::llDetail, m_useCount );
+
+		if( m_lastRemain > 0 && (expectedMinDiff || expectedMaxDiff) )
+		{
+			if( m_lastRemain < remain )		// expectation is worse than before
+			{
+				if( m_useCount < m_maxCount )
+				{
+					m_useCount <<=  1;		// we need more data
+				}
+				updateUsedCount = false;
+				newMarker = '-';
+			}
+			else
+			{
+				ClockTicks actDiff = gak::math::abs(m_lastRemain-remain);
+				if( actDiff < expectedMinDiff || actDiff > expectedMaxDiff)		// outside the accepted time range
+				{
+					if( m_useCount > 8 )
+					{
+						m_useCount >>= 1;		// we need less data to handle performance changes
+					}
+					updateUsedCount = false;
+					doLogMessageEx( gakLogging::llDetail,  "bad diff data" );
+					newMarker = '?';
+				}
+			}
+		}
+		if( updateUsedCount && m_useCount < m_maxCount )
+		{
+			m_useCount +=  (m_maxCount >> 3);		// use more data to become more stable
+		}
+
+		m_markChar = newMarker;
+		m_lastRemain = remain;
+		doLogValueEx( gakLogging::llDetail, m_useCount );
+		doLogValueEx( gakLogging::llDetail, m_lastRemain );
+		return remain - m_last.since();
+	}
+
+	public:
 	/// @return The number of estimated ticks until the counter reaches 0.
 	ClockTicks getETA(ClockTicks expectedMinDiff=0, ClockTicks expectedMaxDiff=0)
 	{
 		doEnterFunctionEx( gakLogging::llDetail, "Eta<>::getETA" );
 		if( isValid() )
 		{
-			ValueTimePairs	last = m_counters.newest().get();
-			ValueTimePairs	first = m_counters.oldest().get();
-			COUNTER_T		reached = first.m_counter - last.m_counter;
-			ClockTicks		elapsed = last.m_ticks - first.m_ticks;
-			size_t			inSize = m_counters.size();
-
-			if( m_usedCount )
+			ValueTimePair	last = m_counters.newest().get();
+			if( last.m_counter == m_last.m_counter && last.m_ticks == m_last.m_ticks )
 			{
-				while( reached > m_usedCount && m_counters.size() > MINDATA_COUNT && elapsed > MINDATA_TIME )
-				{
-					if( !m_counters.pop( &first ) )
-					{
-						break;
-					}
-					reached = first.m_counter - last.m_counter;
-					elapsed = last.m_ticks - first.m_ticks;
-				}
+				return getETAfromLast();
 			}
-			if( inSize != m_counters.size() )
-			{
-				doLogValueEx( gakLogging::llDetail, (inSize - m_counters.size()) );
-			}
+			m_last = last;
+			ValueTimePair	first = getFirst();
 
-			doLogValueEx( gakLogging::llDetail, reached );
-			doLogValueEx( gakLogging::llDetail, elapsed );
-			if(elapsed&&reached)
+			COUNTER_T		processed = first.m_counter - last.m_counter;
+			ClockTicks		elapsedTime = last.m_ticks - first.m_ticks;
+
+			doLogValueEx( gakLogging::llDetail, processed );
+			doLogValueEx( gakLogging::llDetail, elapsedTime );
+			if(elapsedTime&&processed)
 			{
-				ClockTicks	remain = ClockTicks((elapsed*last.m_counter)/reached);
-				if( m_lastresult > std::numeric_limits<ClockTicks>::min() && (expectedMinDiff || expectedMaxDiff) )
-				{
-					if( m_lastresult < remain )		// expectation is worse than before
-					{
-						if( m_usedCount < m_maxCount )
-						{
-							m_usedCount <<=  1;		// we need more data
-						}
-					}
-					else
-					{
-						ClockTicks actDiff = gak::math::abs(m_lastresult-remain);
-						if( actDiff < expectedMinDiff || actDiff > expectedMaxDiff)		// outside the accepted time range
-						{
-							if( m_usedCount > 8 )
-							{
-								m_usedCount >>= 1;		// we need less data
-							}
-							doLogMessageEx( gakLogging::llDetail,  "bad diff data" );
-							return m_lastresult = remain;
-						}
-					}
-				}
-				if( m_usedCount < m_maxCount )
-				{
-					m_usedCount +=  (m_maxCount >> 3);		// use more data to become more stable
-				}
-				return m_lastresult = remain;
+				ClockTicks	remain = ClockTicks((elapsedTime*m_last.m_counter)/processed);
+				return adjustRemainFromPast( remain, expectedMinDiff, expectedMaxDiff );
 			}
 		}
 		doLogMessageEx( gakLogging::llDetail, "few diff data" );
-		return m_lastresult;
+		m_markChar = '*';
+		return m_lastRemain;
+	}
+
+	char markChar() const
+	{
+		return m_markChar;
 	}
 };
 
@@ -227,11 +296,13 @@ private:
 template <class COUNTER_T, class ClockProvider_T>
 std::ostream & operator << ( std::ostream &out, Eta<COUNTER_T, ClockProvider_T> &eta )
 {
+	doEnterFunctionEx(gakLogging::llDetail, "operator << ( std::ostream &out, Eta<COUNTER_T, ClockProvider_T> &eta )"  );
 	if( eta.isValid() )
 	{
 		typename ClockProvider_T::ClockTicks	ticks = eta.getETA();
 
 #if 1
+		doLogValueEx( gakLogging::llDetail, ticks );
 		if( ticks > 0 )
 		{
 			out << std::setw(2) << std::setfill('0') << ticks / (24*60*60*CLOCKS_PER_SEC) << 'd';
@@ -244,9 +315,12 @@ std::ostream & operator << ( std::ostream &out, Eta<COUNTER_T, ClockProvider_T> 
 			ticks %= (60*CLOCKS_PER_SEC);
 
 			out << std::setw(2) << std::setfill('0') << ticks / (CLOCKS_PER_SEC);
+
+			out << eta.markChar();
 		}
+		else
+			out << ticks << 't' << eta.markChar();
 #else
-		out << ticks << 't';
 #endif
 	}
 	return out;
