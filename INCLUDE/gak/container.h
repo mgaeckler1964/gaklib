@@ -329,7 +329,7 @@ ContainerT intersect( const ContainerT &first, const ContainerT &second )
 template <class IterableT, class InserterT> 
 void intersectSorted( const IterableT &first, const IterableT &second, InserterT inserter )
 {
-	doEnterFunction("intersectSorted");
+	doEnterFunctionEx(gakLogging::llDetail,"intersectSorted");
 	for(
 		typename IterableT::const_iterator 
 			fIT = first.cbegin(), fEndIT = first.cend(),

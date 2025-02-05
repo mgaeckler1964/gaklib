@@ -685,6 +685,7 @@ inline std::ostream &operator << ( std::ostream &out, const StatistikEntry &entr
 
 	return out;
 }
+
 template<typename StringT, typename StringsT>
 StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 {
