@@ -225,10 +225,13 @@ class ThreadPool
 	{
 		return m_queue.total();
 	}
+	/// returns thr number of items in process
+	size_t inProgress() const;
+
 	/// returns thr number of items still waiting in this queue
 	size_t size() const
 	{
-		return m_queue.size();
+		return m_queue.size() + inProgress();
 	}
 
 	template<typename ProcessorT>
@@ -378,6 +381,26 @@ void ThreadPool<ObjectT, ThreadT>::flush()
 			Sleep( 100 );
 		}
 	}
+}
+
+template <typename ObjectT, typename ThreadT>
+size_t ThreadPool<ObjectT, ThreadT>::inProgress() const
+{
+	size_t inProgress = 0;
+
+	for( 
+		typename PoolArray::const_iterator it = m_pool.cbegin(), endIT = m_pool.cend();
+		it != endIT;
+		++it
+	)
+	{
+		if( !it->isFree() )
+		{
+			++inProgress;
+		}
+	}
+
+	return inProgress;
 }
 
 template <typename ObjectT, typename ThreadT>
