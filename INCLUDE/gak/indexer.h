@@ -354,6 +354,11 @@ class Index
 		const STRING &words,
 		bool withFuzzy, bool caseInsensitive, bool withWildcards
 	);
+
+	void clear()
+	{
+		m_searchIndex.clear();
+	}
 };
 
 // --------------------------------------------------------------------- //

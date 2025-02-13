@@ -149,6 +149,11 @@ class AiBrain
 		gak::fromBinaryStream(stream, &m_knowledge );
 		gak::fromBinaryStream(stream, &m_index );
 	}
+	void clear()
+	{
+		m_knowledge.clear();
+		m_index.clear();
+	}
 };
 
 // --------------------------------------------------------------------- //
