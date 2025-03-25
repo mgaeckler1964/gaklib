@@ -100,6 +100,7 @@ USEUNIT("VCL_TOOLS\getDatabaseDesc.cpp");
 USEUNIT("CTOOLS\hostResolver.cpp");
 USEUNIT("CTOOLS\console.cpp");
 USEUNIT("CTOOLS\aiBrain.cpp");
+USEUNIT("CTOOLS\chess.cpp");
 //---------------------------------------------------------------------------
 #define Library
 

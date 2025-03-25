@@ -125,21 +125,73 @@ void Board::clear()
 	}
 }
 
+void Board::uncheckedMove( const Position &src, const Position &dest )
+{
+	size_t srcIndex = getIndex( src );
+	size_t destIndex = getIndex( dest );
+
+	if( m_board[destIndex] )
+	{
+		delete m_board[destIndex];
+	}
+	m_board[destIndex] = m_board[srcIndex];
+	m_board[destIndex]->moveTo(dest);
+	m_board[srcIndex] = NULL;
+}
+
 // --------------------------------------------------------------------- //
 // ----- class protected ----------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+size_t Figure::checkDirection(TargetPositions *pos, Position (Position::*movement )(), size_t maxCount, bool allowSacrifice) const
+{
+	const size_t	begin = pos->numTargets;
+
+	Position targetPos = m_pos;
+	while( 1 )
+	{
+		targetPos = (targetPos.*movement)();
+		if( !targetPos )
+			break;
+
+		if( !allowSacrifice && m_board.getAttacker(m_color,targetPos) )
+		{
+			break;		// kling must not move over an attacked field
+		}
+		const Figure *figure = m_board.getFigure( targetPos );
+		if( !figure ) 
+		{
+			pos->targets[pos->numTargets++] = targetPos;
+		}
+		else 
+		{
+			if( figure->m_color != m_color )
+			{
+				pos->targets[pos->numTargets++] = targetPos;
+				pos->beats[pos->numBeats++] = targetPos;
+			}
+			break;
+		}
+		if( !--maxCount )
+		{
+			break;
+		}
+	}
+
+	return pos->numTargets - begin;
+}
 
 // --------------------------------------------------------------------- //
 // ----- class virtuals ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-TargetPositions Bauer::getPossible() const
+TargetPositions Pawn::calcPossible()
 {
 	// init
 	TargetPositions	result;
 
-	int direction = ( m_color == Figure::Weiss ) ? 1 : -1;
-	char startRow = ( m_color == Figure::Weiss ) ? 2 : 7;
+	int direction = ( m_color == Figure::White ) ? 1 : -1;
+	char startRow = ( m_color == Figure::White ) ? 2 : 7;
 
 	// one step no beat
 	Position targetPos = getPos().move( 0, direction );
@@ -217,7 +269,7 @@ TargetPositions Bauer::getPossible() const
 	return result;
 }
 
-TargetPositions  Turm::getPossible() const
+TargetPositions  Rook::calcPossible()
 {
 	TargetPositions	result;
 
@@ -229,23 +281,23 @@ TargetPositions  Turm::getPossible() const
 	return result;
 }
 
-TargetPositions  Springer::getPossible() const
+TargetPositions  Knight::calcPossible()
 {
 	TargetPositions	result;
 
-	checkDirection(&result, &Position::moveSNorthEast,1);
-	checkDirection(&result, &Position::moveSEastNorth,1);
-	checkDirection(&result, &Position::moveSEastSouth,1);
-	checkDirection(&result, &Position::moveSSouthEast,1);
-	checkDirection(&result, &Position::moveSSouthWest,1);
-	checkDirection(&result, &Position::moveSWestSouth,1);
-	checkDirection(&result, &Position::moveSWestNorth,1);
-	checkDirection(&result, &Position::moveSNorthWest,1);
+	checkDirection(&result, &Position::moveSNorthEast);
+	checkDirection(&result, &Position::moveSEastNorth);
+	checkDirection(&result, &Position::moveSEastSouth);
+	checkDirection(&result, &Position::moveSSouthEast);
+	checkDirection(&result, &Position::moveSSouthWest);
+	checkDirection(&result, &Position::moveSWestSouth);
+	checkDirection(&result, &Position::moveSWestNorth);
+	checkDirection(&result, &Position::moveSNorthWest);
 
 	return result;
 }
 
-TargetPositions  Laeufer::getPossible() const
+TargetPositions  Bishop::calcPossible()
 {
 	TargetPositions	result;
 
@@ -257,7 +309,7 @@ TargetPositions  Laeufer::getPossible() const
 	return result;
 }
 
-TargetPositions Dame::getPossible() const
+TargetPositions Queen::calcPossible()
 {
 	TargetPositions	result;
 
@@ -273,18 +325,50 @@ TargetPositions Dame::getPossible() const
 	return result;
 }
 
-TargetPositions Koenig::getPossible() const
+TargetPositions King::calcPossible()
 {
 	TargetPositions	result;
+	Attack attack = searchAttack(&Position::moveNorth);
+	if( isOK( attack ) )
+	{
+		checkDirection(&result, &Position::moveNorth, 1);
+	}
 
-	checkDirection(&result, &Position::moveNorth, 1);
-	checkDirection(&result, &Position::moveNorthEast, 1);
-	size_t canEast = checkDirection(&result, &Position::moveEast, 1);
-	checkDirection(&result, &Position::moveSouthEast, 1);
-	checkDirection(&result, &Position::moveSouth, 1);
-	checkDirection(&result, &Position::moveSouthWest, 1);
-	size_t canWest = checkDirection(&result, &Position::moveWest, 1);
-	checkDirection(&result, &Position::moveNorthWest, 1);
+	attack = searchAttack(&Position::moveNorthEast);
+	if( isOK( attack ) )
+	{
+		checkDirection(&result, &Position::moveNorthEast, 1);
+	}
+
+	attack = searchAttack(&Position::moveEast);
+	size_t canEast = isOK( attack ) ? checkDirection(&result, &Position::moveEast, 1) : 0;
+
+	attack = searchAttack(&Position::moveSouthEast);
+	if( isOK( attack ) )
+	{
+		checkDirection(&result, &Position::moveSouthEast, 1);
+	}
+
+	attack = searchAttack(&Position::moveSouth);
+	if( isOK( attack ) )
+	{
+		checkDirection(&result, &Position::moveSouth, 1);
+	}
+
+	attack = searchAttack(&Position::moveSouthWest);
+	if( isOK( attack ) )
+	{
+		checkDirection(&result, &Position::moveSouthWest, 1);
+	}
+
+	attack = searchAttack(&Position::moveWest);
+	size_t canWest = isOK( attack ) ? checkDirection(&result, &Position::moveWest, 1) : 0;
+
+	attack = searchAttack(&Position::moveNorthWest);
+	if( isOK( attack ) )
+	{
+		checkDirection(&result, &Position::moveNorthWest, 1);
+	}
 
 	if( !getMoved() )
 	{
@@ -294,16 +378,22 @@ TargetPositions Koenig::getPossible() const
 			checkDirection(&result2, &Position::moveWest, 2);
 			if( result2.numTargets == 2 && result2.numBeats == 0 )
 			{
-				const Figure *rock = m_board.getFigure( Position( 'A', getPos().row ) );
-				if( !rock->getMoved() )
+				Figure *rook = m_board.getFigure( Position( 'A', getPos().row ) );
+				if( !rook->getMoved() )
 				{
 					TargetPositions	result3;
-					rock->checkDirection(&result3, &Position::moveEast, 3);
-					if( result3.numTargets == 3 && result3.numBeats == 0 )
+					rook->checkDirection(&result3, &Position::moveEast);
+					if( result3.numTargets >= 3 && result3.numBeats == 0 )
 					{
 						Position &targetPosition = result2.targets[1];
-						targetPosition.second = rock;
 						result.targets[result.numTargets++] = targetPosition;
+						m_rochadeWest.myTarget = targetPosition;
+						m_rochadeWest.rookTarget = result3.targets[2];
+#ifdef __BORLANDC__
+						m_rochadeWest.rook = static_cast<Rook*>(rook);
+#else
+						m_rochadeWest.rook = dynamic_cast<Rook*>(rook);
+#endif
 					}
 				}
 			}
@@ -314,16 +404,22 @@ TargetPositions Koenig::getPossible() const
 			checkDirection(&result2, &Position::moveEast, 2);
 			if( result2.numTargets == 2 && result2.numBeats == 0 )
 			{
-				const Figure *rock = m_board.getFigure( Position( 'H', getPos().row ) );
-				if( !rock->getMoved() )
+				Figure *rook = m_board.getFigure( Position( 'H', getPos().row ) );
+				if( !rook->getMoved() )
 				{
 					TargetPositions	result3;
-					rock->checkDirection(&result3, &Position::moveWest, 2);
-					if( result3.numTargets == 2 && result3.numBeats == 0 )
+					rook->checkDirection(&result3, &Position::moveWest);
+					if( result3.numTargets >= 2 && result3.numBeats == 0 )
 					{
 						Position &targetPosition = result2.targets[1];
-						targetPosition.second = rock;
 						result.targets[result.numTargets++] = targetPosition;
+						m_rochadeEast.myTarget = targetPosition;
+						m_rochadeEast.rookTarget = result3.targets[1];
+#ifdef __BORLANDC__
+						m_rochadeEast.rook = static_cast<Rook*>(rook);
+#else
+						m_rochadeEast.rook = dynamic_cast<Rook*>(rook);
+#endif
 					}
 				}
 			}
@@ -338,38 +434,57 @@ TargetPositions Koenig::getPossible() const
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-size_t Figure::checkDirection(TargetPositions *pos, Position (Position::*movement )(), size_t maxCount) const
+void Figure::moveTo( const Position &pos )
 {
-	const size_t	begin = pos->numTargets;
+	m_moved = true;
+	m_pos = pos;
 
-	Position targetPos = m_pos;
+	m_board.refresh();
+}
+
+Figure::Attack Figure::searchAttack(const Position &pos, Position (Position::*movement )()) const
+{
+	Attack attack;
+	Position targetPos = pos;
 	while( 1 )
 	{
 		targetPos = (targetPos.*movement)();
 		if( !targetPos )
 			break;
-
+		++attack.steps;
 		const Figure *figure = m_board.getFigure( targetPos );
-		if( !figure ) 
-		{
-			pos->targets[pos->numTargets++] = targetPos;
-		}
-		else 
+		if( figure ) 
 		{
 			if( figure->m_color != m_color )
 			{
-				pos->targets[pos->numTargets++] = targetPos;
-				pos->beats[pos->numBeats++] = targetPos;
+				attack.figure = figure;
 			}
-			break;
-		}
-		if( !--maxCount )
-		{
 			break;
 		}
 	}
 
-	return pos->numTargets - begin;
+	return attack;
+}
+
+const Figure *Board::getAttacker( Figure::Color color, const Position &pos ) const
+{
+	for( size_t i=0; i<64; ++i )
+	{
+		const Figure *fig = m_board[i];
+		if( fig && fig->m_color != color )
+		{
+			const TargetPositions &targets = fig->getPossible();
+			for( size_t j=0; j<targets.numBeats; ++j )
+			{
+				if( targets.beats[j] == pos )
+				{
+					return fig;
+				}
+			}
+		}
+	}
+
+	return NULL;
 }
 
 bool Board::checkMoveTo( const Position &src, const Position &dest )
@@ -380,7 +495,12 @@ bool Board::checkMoveTo( const Position &src, const Position &dest )
 	{
 		return true;
 	}
-	TargetPositions targets = fig->getPossible();
+	if( fig->m_color !=	m_nextColor )
+	{
+		return true;
+	}
+
+	const TargetPositions &targets = fig->getPossible();
 	for( size_t i=0; i<targets.numTargets; ++i )
 	{
 		if( targets.targets[i] == dest )
@@ -394,20 +514,32 @@ bool Board::checkMoveTo( const Position &src, const Position &dest )
 void Board::moveTo( const Position &src, const Position &dest )
 {
 	assert(!checkMoveTo(src, dest) );
-	size_t srcIndex = getIndex( src );
-	size_t destIndex = getIndex( dest );
 
-	if( m_board[destIndex] )
-	{
-		delete m_board[destIndex];
-	}
-	m_board[destIndex] = m_board[srcIndex];
-	m_board[destIndex]->moveTo(dest);
-	m_board[srcIndex] = NULL;
+	uncheckedMove(src, dest );
 
 	Movement &move = m_moves.createElement();
 	move.src = src;
 	move.dest = dest;
+
+	m_nextColor = m_nextColor == Figure::White ? Figure::Black : Figure::White;
+	refresh();
+}
+
+void Board::rochade( const Figure *king, const Figure *rook, const Position &kingDest, const Position &rookDest )
+{
+	assert(!checkMoveTo(king->getPos(), kingDest) );
+	assert(!checkMoveTo(rook->getPos(), rookDest) );
+
+	uncheckedMove(king->getPos(), kingDest );
+	uncheckedMove(rook->getPos(), rookDest );
+
+	Movement &move = m_moves.createElement();
+	move.src = king->getPos();
+	move.dest = kingDest;
+	move.isRochade = true;
+
+	m_nextColor = m_nextColor == Figure::White ? Figure::Black : Figure::White;
+	refresh();
 }
 
 void Board::reset()
@@ -417,66 +549,80 @@ void Board::reset()
 	{
 		char row=2;
 		size_t index = getIndex(col, row);
-		m_board[index] = new Bauer(Figure::Weiss,Position(col,row),*this);
+		m_board[index] = new Pawn(Figure::White,Position(col,row),*this);
 
 		row=7;
 		index = getIndex(col, row);
-		m_board[index] = new Bauer(Figure::Schwarz,Position(col,row),*this);
+		m_board[index] = new Pawn(Figure::Black,Position(col,row),*this);
 	}
 
 	char col = 'A';
 	char row = 1;
 	size_t index = getIndex(col, row);
 
-	m_board[index] = new Turm(Figure::Weiss,Position(col,row),*this);
+	m_board[index] = new Rook(Figure::White,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = new Springer(Figure::Weiss,Position(col,row),*this);
+	m_board[index] = new Knight(Figure::White,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = new Laeufer(Figure::Weiss,Position(col,row),*this);
+	m_board[index] = new Bishop(Figure::White,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = new Dame(Figure::Weiss,Position(col,row),*this);
+	m_board[index] = new Queen(Figure::White,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = weissK = new Koenig(Figure::Weiss,Position(col,row),*this);
+	m_board[index] = m_whiteK = new King(Figure::White,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = new Laeufer(Figure::Weiss,Position(col,row),*this);
+	m_board[index] = new Bishop(Figure::White,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = new Springer(Figure::Weiss,Position(col,row),*this);
+	m_board[index] = new Knight(Figure::White,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = new Turm(Figure::Weiss,Position(col,row),*this);
+	m_board[index] = new Rook(Figure::White,Position(col,row),*this);
 
 	col = 'A';
 	row = 8;
 	index = getIndex(col, row);
 
-	m_board[index] = new Turm(Figure::Schwarz,Position(col,row),*this);
+	m_board[index] = new Rook(Figure::Black,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = new Springer(Figure::Schwarz,Position(col,row),*this);
+	m_board[index] = new Knight(Figure::Black,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = new Laeufer(Figure::Schwarz,Position(col,row),*this);
+	m_board[index] = new Bishop(Figure::Black,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = new Dame(Figure::Schwarz,Position(col,row),*this);
+	m_board[index] = new Queen(Figure::Black,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = schwarzK = new Koenig(Figure::Schwarz,Position(col,row),*this);
+	m_board[index] = m_blackK = new King(Figure::Black,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = new Laeufer(Figure::Schwarz,Position(col,row),*this);
+	m_board[index] = new Bishop(Figure::Black,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = new Springer(Figure::Schwarz,Position(col,row),*this);
+	m_board[index] = new Knight(Figure::Black,Position(col,row),*this);
 	++col;
 	++index;
-	m_board[index] = new Turm(Figure::Schwarz,Position(col,row),*this);
+	m_board[index] = new Rook(Figure::Black,Position(col,row),*this);
+
+	refresh();
+}
+
+
+void Board::refresh()
+{
+	for( size_t i=0; i<64; ++i )
+	{
+		if( m_board[i] )
+		{
+			m_board[i]->refresh();
+		}
+	}
 }
 
 void Board::evaluate1( int &whitePower, int &blackPower)
@@ -490,7 +636,7 @@ void Board::evaluate1( int &whitePower, int &blackPower)
 		if( m_board[i] )
 		{
 			int power = m_board[i]->getValue();
-			if( m_board[i]->m_color == Figure::Weiss )
+			if( m_board[i]->m_color == Figure::White )
 			{
 				whitePower += power;
 			}
@@ -509,21 +655,21 @@ void Board::evaluate2(int &whiteTargets, int &blackTargets, int &whiteBeats, int
 	{
 		if( m_board[i1] )
 		{
-			TargetPositions pos = m_board[i1]->getPossible();
+			const TargetPositions &pos = m_board[i1]->getPossible();
 			int beats=0;
 			for( int i2=0; i2<pos.numBeats; ++i2 )
 			{
 				beats += getFigure(pos.beats[i2])->getValue();
 			}
 
-			if( m_board[i1]->m_color == Figure::Weiss )
+			if( m_board[i1]->m_color == Figure::White )
 			{
-				whiteTargets += pos.numTargets;
+				whiteTargets += int(pos.numTargets);
 				whiteBeats += beats;
 			}
 			else
 			{
-				blackTargets += pos.numTargets;
+				blackTargets += int(pos.numTargets);
 				blackBeats += beats;
 			}
 		}

@@ -137,11 +137,19 @@ class ChessTest : public UnitTest
 		UT_ASSERT_EQUAL( 1, whiteBeats );
 		UT_ASSERT_EQUAL( 1, blackBeats );
 
-		// bauern, Dame, König, Springer
+		// Pawn, Queen, King, Knight
 		UT_ASSERT_EQUAL( 16 + 4 + 1 + 5 + 5, whiteTargets );
 
 		// try rochade
+		chess.moveTo(chess::Position( 'B', 8 ), chess::Position( 'A', 6 ));
+		badPos = chess.checkBoard();
+		UT_ASSERT_EQUAL( chess::Position(), badPos );
+
 		chess.moveTo( chess::Position( 'F', 1 ), chess::Position( 'E', 2 ) );
+		badPos = chess.checkBoard();
+		UT_ASSERT_EQUAL( chess::Position(), badPos );
+
+		chess.moveTo(chess::Position( 'D', 7 ), chess::Position( 'D', 6 ));
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
@@ -149,14 +157,28 @@ class ChessTest : public UnitTest
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess::TargetPositions	result = chess.getWeissK()->getPossible();
+		chess.moveTo( chess::Position( 'D', 6 ), chess::Position( 'D', 5 ) );
+		badPos = chess.checkBoard();
+		UT_ASSERT_EQUAL( chess::Position(), badPos );
+
+		const chess::King *king = chess.getWhiteK();
+		const chess::TargetPositions	&result = king->getPossible();
 		UT_ASSERT_EQUAL( result.numTargets, 2 );
 
-		const chess::Figure * rock1 = result.targets[1].second;
-		chess::Position	pos('H', 1);
-		const chess::Figure * rock2 = chess.getFigure( pos );
+		const chess::King::Rochade &eastRochade = king->getEastRochade();
 
-		UT_ASSERT_EQUAL( rock1, rock2 );
+		const chess::Figure * rook1 = eastRochade.rook;
+		chess::Position	pos('H', 1);
+		const chess::Figure * rook2 = chess.getFigure( pos );
+		UT_ASSERT_EQUAL( rook1, rook2 );
+		
+		chess.rochade(king, rook1, eastRochade.myTarget, eastRochade.rookTarget );
+		badPos = chess.checkBoard();
+		UT_ASSERT_EQUAL( chess::Position(), badPos );
+		UT_ASSERT_EQUAL( king->getPos().col, 'G' );
+		UT_ASSERT_EQUAL( king->getPos().row, 1 );
+		UT_ASSERT_EQUAL( rook1->getPos().col, 'F' );
+		UT_ASSERT_EQUAL( rook1->getPos().row, 1 );
 
 		chess.print();
 	}

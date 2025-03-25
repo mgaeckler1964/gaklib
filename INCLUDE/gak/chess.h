@@ -79,15 +79,16 @@ namespace chess
 // --------------------------------------------------------------------- //
 
 class Figure;
+class Board;
+
 struct Position
 {
-	char			col;
-	short			row;
-	char			enPassant;
-	const Figure	*second;		// for rochade
+	char	col;
+	char	row;
+	char	enPassant;
 
-	Position(const Position &src) : col(src.col),row(src.row), enPassant(src.enPassant), second(src.second) {}
-	Position(char col=0, char row=0) : col(col),row(row), enPassant(0), second(0) {}
+	Position(const Position &src) : col(src.col),row(src.row), enPassant(src.enPassant) {}
+	Position(char col=0, char row=0) : col(col),row(row), enPassant(0) {}
 
 	bool operator == ( const Position &o ) const
 	{
@@ -183,13 +184,16 @@ struct Position
 
 struct Movement
 {
+	bool		isRochade;
 	Position	src;
 	Position	dest;
+
+	Movement() : isRochade(false) {}
 };
 
 struct TargetPositions
 {
-	Position	targets[64];
+	Position	targets[32];
 	Position	beats[32];
 	size_t		numTargets;
 	size_t		numBeats;
@@ -199,42 +203,58 @@ struct TargetPositions
 		std::memset( this, 0, sizeof( *this ) );
 	}
 };
+
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-/*
-	const enum Type
-	{
-		Bauer, Laeufer, Springer, Turm, Dame, Koenig
-	}		m_type;
-*/
-class Board;
-
 class Figure
 {
-	bool		m_moved;
-	Position	m_pos;
+	public:
+	enum Color
+	{
+		White, Black
+	};
+	struct Attack
+	{
+		const Figure *figure;
+		size_t steps;
+		Attack()
+		{
+			figure = NULL;
+			steps = 0;
+		}
+	};
+
+	private:
+	bool				m_moved;
+	Position			m_pos;
+	TargetPositions		m_targets;
+
+	protected:
+	Board				&m_board;
+
+	public:
+	const enum Color	m_color;
 
 	private:
 	Figure( const Figure & );
 	Figure &operator=(const Figure &src );
 
+	virtual TargetPositions calcPossible() = 0;
+
+	protected:
+	size_t checkDirection(TargetPositions *pos, Position (Position::*movement )(), size_t maxCount, bool allowSacrifice) const;
+
 	public:
-	const enum Color
-	{
-		Weiss, Schwarz
-	}		m_color;
-
-	Board		&m_board;
-
 	Figure( Color color, Position pos, Board &board ) : m_color(color), m_pos(pos), m_board(board), m_moved(false) {}
 
-	void moveTo( const Position &pos )
+	void refresh()
 	{
-		m_moved = true;
-		m_pos = pos;
+		m_targets = calcPossible();
 	}
+	void moveTo( const Position &pos );
+	void rochade( const Position &pos );
 	const Position &getPos() const
 	{
 		return m_pos;
@@ -243,18 +263,50 @@ class Figure
 	{
 		return m_moved;
 	}
-	size_t checkDirection(TargetPositions *pos, Position (Position::*movement )(), size_t maxCount=8) const;
-	virtual TargetPositions getPossible() const = 0;
+	bool canBeat(const Position &pos) const
+	{
+		for( size_t i=0; i<m_targets.numBeats; ++i )
+		{
+			if( pos == m_targets.beats[i] )
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	bool isOK( const Attack &attack ) const
+	{
+		return !attack.figure						// no attacker
+			|| attack.figure->m_color == m_color	// no enemy
+			|| !attack.figure->canBeat(m_pos) ;		// too weak?
+	}
+	const TargetPositions &getPossible() const
+	{
+		return m_targets;
+	}
+
+	size_t checkDirection(TargetPositions *pos, Position (Position::*movement )()) const
+	{
+		return checkDirection(pos, movement, 8, true);
+	}
+
+	Attack searchAttack(const Position &pos, Position (Position::*movement )()) const;
+
+	Attack searchAttack(Position (Position::*movement )()) const
+	{
+		return searchAttack(m_pos, movement );
+	}
+
 	virtual int getValue() const = 0;
 	virtual char getFigure() const = 0;
 };
 
-class Bauer : public Figure
+class Pawn : public Figure
 {
 	public:
-	Bauer( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+	Pawn( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	virtual TargetPositions getPossible() const;
+	virtual TargetPositions calcPossible();
 	virtual int getValue() const
 	{
 		return 1;
@@ -265,12 +317,16 @@ class Bauer : public Figure
 	}
 };
 
-class Springer : public Figure
+class Knight : public Figure
 {
 	public:
-	Springer( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+	Knight( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	virtual TargetPositions getPossible() const;
+	size_t checkDirection(TargetPositions *pos, Position (Position::*movement )()) const
+	{
+		return Figure::checkDirection(pos, movement, 1, true);
+	}
+	virtual TargetPositions calcPossible();
 	virtual int getValue() const
 	{
 		return 3;
@@ -281,12 +337,12 @@ class Springer : public Figure
 	}
 };
 
-class Laeufer : public Figure
+class Bishop : public Figure
 {
 	public:
-	Laeufer( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+	Bishop( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	virtual TargetPositions getPossible() const;
+	virtual TargetPositions calcPossible();
 	virtual int getValue() const
 	{
 		return 3;
@@ -297,12 +353,12 @@ class Laeufer : public Figure
 	}
 };
 
-class Turm : public Figure
+class Rook : public Figure
 {
 	public:
-	Turm( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+	Rook( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	virtual TargetPositions getPossible() const;
+	virtual TargetPositions calcPossible();
 	virtual int getValue() const
 	{
 		return 5;
@@ -313,12 +369,12 @@ class Turm : public Figure
 	}
 };
 
-class Dame : public Figure
+class Queen : public Figure
 {
 	public:
-	Dame( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+	Queen( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	virtual TargetPositions getPossible() const;
+	virtual TargetPositions calcPossible();
 	virtual int getValue() const
 	{
 		return 8;
@@ -329,12 +385,40 @@ class Dame : public Figure
 	}
 };
 
-class Koenig : public Figure
+class King : public Figure
 {
 	public:
-	Koenig( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+	struct Rochade
+	{
+		Position	myTarget,
+					rookTarget;
+		Rook		*rook;
 
-	virtual TargetPositions getPossible() const;
+		Rochade() : rook(NULL) {}
+	};
+	
+	private:
+	Rochade m_rochadeWest, m_rochadeEast;
+
+	public:
+	King( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+
+	size_t checkDirection(TargetPositions *pos, Position (Position::*movement )(), size_t maxCount) const
+	{
+		return Figure::checkDirection(pos, movement, maxCount, false);
+	}
+	virtual TargetPositions calcPossible();
+
+	const Rochade &getEastRochade() const
+	{
+		return m_rochadeEast;
+	}
+	const Rochade &getWestRochade() const
+	{
+		return m_rochadeWest;
+	}
+
+
 	virtual int getValue() const
 	{
 		return 1000;
@@ -351,8 +435,10 @@ class Board
 
 	Figure *m_board[64];
 
-	Koenig	*weissK;
-	Koenig	*schwarzK;
+	King	*m_whiteK;
+	King	*m_blackK;
+
+	Figure::Color	m_nextColor;
 
 	void forget()
 	{
@@ -365,15 +451,20 @@ class Board
 		clear();
 		forget();
 	}
+
+	void uncheckedMove(const Position &src, const Position &dest);
+
 	public:
 	Board()
 	{
+		m_nextColor = Figure::White;
 		forget();
 	}
 	~Board()
 	{
 		clear();
 	}
+	void refresh();
 	void reset();
 
 	/* count figures */
@@ -384,6 +475,7 @@ class Board
 		evaluate1(whitePower, blackPower);
 		return whitePower - blackPower;
 	}
+
 	/* count targets and beats */
 	void evaluate2(int &whiteTargets, int &blackTargets, int &whiteBeats, int &blackBeats);
 	void evaluate2(int &targets, int &beats)
@@ -394,16 +486,20 @@ class Board
 		beats = whiteBeats - blackBeats;
 	}
 
-	const Koenig *getWeissK() const
+	const King *getWhiteK() const
 	{
-		return weissK;
+		return m_whiteK;
 	}
-	const Koenig *getSchwarzK() const
+	const King *getBlackK() const
 	{
-		return schwarzK;
+		return m_blackK;
 	}
 
 	const Figure *getFigure(size_t index) const
+	{
+		return m_board[index];
+	}
+	Figure *getFigure(size_t index)
 	{
 		return m_board[index];
 	}
@@ -411,7 +507,15 @@ class Board
 	{
 		return getFigure(getIndex(col, row));
 	}
+	Figure *getFigure(char col, char row)
+	{
+		return getFigure(getIndex(col, row));
+	}
 	const Figure *getFigure(const Position &pos) const
+	{
+		return getFigure(getIndex(pos));
+	}
+	Figure *getFigure(const Position &pos)
 	{
 		return getFigure(getIndex(pos));
 	}
@@ -427,16 +531,23 @@ class Board
 	{
 		return getIndex(pos.col, pos.row);
 	}
-
 	static Position getPosition( size_t index )
 	{
-		char row = index/8 +1;
-		char col = index%8 +'A';
+		char row = char(index/8 +1);
+		char col = char(index%8 +'A');
 		return Position(col, row);
 	}
 
+	const Figure *getAttacker( Figure::Color color, const Position &pos ) const;
+
+
 	bool checkMoveTo( const Position &src, const Position &dest ); 
 	void moveTo( const Position &src, const Position &dest ); 
+	void moveTo( const Figure *src, const Position &dest )
+	{
+		return moveTo( src->getPos(), dest );
+	}
+	void rochade( const Figure *king, const Figure *rook, const Position &kingDest, const Position &rookDest );
 
 	Position checkBoard() const
 	{
@@ -462,9 +573,9 @@ class Board
 		std::cout << std::endl;
 
 		bool whiteField = true;
-		for( int row=8; row >= 1; --row )
+		for( char row=8; row >= 1; --row )
 		{
-			std::cout << row << ' ';
+			std::cout << int(row) << ' ';
 			for( char col='A'; col <= 'H'; ++col )
 			{
 				const Figure *fig = getFigure(col, row );
@@ -478,7 +589,7 @@ class Board
 				else
 				{
 					char sym = fig->getFigure();
-					if( fig->m_color == Figure::Color::Schwarz )
+					if( fig->m_color == Figure::Black )
 						sym = char(tolower(sym));
 					std::cout << ' ' << sym;
 				}
