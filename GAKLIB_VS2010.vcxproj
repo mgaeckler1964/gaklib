@@ -34,6 +34,7 @@
     <ClCompile Include="CTOOLS\array.cpp" />
     <ClCompile Include="CTOOLS\cgitools.cpp" />
     <ClCompile Include="CTOOLS\changeManager.cpp" />
+    <ClCompile Include="CTOOLS\chess.cpp" />
     <ClCompile Include="CTOOLS\cmdlineParser.cpp" />
     <ClCompile Include="CTOOLS\console.cpp" />
     <ClCompile Include="CTOOLS\cppParser.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="INCLUDE\gak\blockedRingBuffer.h" />
     <ClInclude Include="INCLUDE\gak\cgitools.h" />
     <ClInclude Include="INCLUDE\gak\ChangeManager.h" />
+    <ClInclude Include="INCLUDE\gak\chess.h" />
     <ClInclude Include="INCLUDE\gak\ci_string.h" />
     <ClInclude Include="INCLUDE\gak\cmdlineParser.h" />
     <ClInclude Include="INCLUDE\gak\compare.h" />

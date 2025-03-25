@@ -57,6 +57,8 @@
 #include <gak/unitTest.h>
 #include <gak/directory.h>
 
+#include "Tests/ChessTest.h"
+
 #include "Tests/EtaTest.h"
 #include "Tests/RingBufferTest.h"
 

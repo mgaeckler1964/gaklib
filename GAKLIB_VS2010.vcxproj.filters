@@ -294,6 +294,9 @@
     <ClCompile Include="CTOOLS\mailParser.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="CTOOLS\chess.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INCLUDE\gak\aes.h">
@@ -660,6 +663,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="INCLUDE\gak\threadDirScanner.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="INCLUDE\gak\chess.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
