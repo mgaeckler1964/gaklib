@@ -125,18 +125,83 @@ void Board::clear()
 	}
 }
 
-void Board::uncheckedMove( const Position &src, const Position &dest )
+Figure *Board::checkEnPassant(const PlayerPos &src, const Position &dest) const
 {
-	size_t srcIndex = getIndex( src );
+	int rowMove = dest.row - src.pos.row;
+	int colMove = dest.col - src.pos.col;
+
+	if( !rowMove || rowMove < -1 ||  rowMove > 1 )
+	{
+		return NULL;
+	}
+	if( !colMove || colMove < -1 ||  colMove > 1 )
+	{
+		return NULL;
+	}
+
+	size_t srcIndex = src.index;
+	Figure *fig = m_board[srcIndex];
+	
+	if( !fig->getType() == Figure::ftPawn )
+	{
+		return NULL;
+	}
+
 	size_t destIndex = getIndex( dest );
+	Figure *destFig = m_board[destIndex];
+	if( destFig )
+	{
+		return NULL;
+	}
+
+	Position enPasantPos(dest.col, src.pos.row);
+	destIndex = getIndex( enPasantPos );
+	destFig = m_board[destIndex];
+	if( destFig && destFig->getType() == Figure::ftPawn && destFig->m_color != fig->m_color )
+	{
+		size_t size = m_moves.size();
+		if( size )
+		{
+			const Movement &last = m_moves[size-1];
+			if( last.dest != enPasantPos && last.src.col != last.dest.col )
+			{
+				return NULL;
+			}
+			int rowCount = last.src.row - last.dest.row;
+			if( rowCount == - 2 || rowCount == 2 )
+			{
+				return destFig;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+Figure *Board::uncheckedMove( const PlayerPos &src, const Position &dest )
+{
+	Figure *enPassantDel = checkEnPassant(src,dest);
+		
+	size_t srcIndex = src.index;
+	size_t destIndex = getIndex( dest );
+	Figure *fig = src.fig;
 
 	if( m_board[destIndex] )
 	{
 		delete m_board[destIndex];
 	}
-	m_board[destIndex] = m_board[srcIndex];
-	m_board[destIndex]->moveTo(dest);
+	m_board[destIndex] = fig;
+	fig->moveTo(dest);
 	m_board[srcIndex] = NULL;
+
+	if( enPassantDel )
+	{
+		destIndex = getIndex( enPassantDel->getPos() );
+		m_board[destIndex] = NULL;
+		delete enPassantDel;
+	}
+
+	return fig;
 }
 
 // --------------------------------------------------------------------- //
@@ -156,7 +221,7 @@ size_t Figure::checkDirection(TargetPositions *pos, Position (Position::*movemen
 
 		if( !allowSacrifice && m_board.getAttacker(m_color,targetPos) )
 		{
-			break;		// kling must not move over an attacked field
+			break;		// king must not move over an attacked field
 		}
 		const Figure *figure = m_board.getFigure( targetPos );
 		if( !figure ) 
@@ -168,7 +233,7 @@ size_t Figure::checkDirection(TargetPositions *pos, Position (Position::*movemen
 			if( figure->m_color != m_color )
 			{
 				pos->targets[pos->numTargets++] = targetPos;
-				pos->beats[pos->numBeats++] = targetPos;
+				pos->captures[pos->numCaptures++] = targetPos;
 			}
 			break;
 		}
@@ -217,7 +282,7 @@ TargetPositions Pawn::calcPossible()
 		if( figure && figure->m_color != m_color )
 		{
 			result.targets[result.numTargets++] = targetPos;
-			result.beats[result.numBeats++] = targetPos;
+			result.captures[result.numCaptures++] = targetPos;
 		}
 	}
 
@@ -229,7 +294,7 @@ TargetPositions Pawn::calcPossible()
 		if( figure && figure->m_color != m_color )
 		{
 			result.targets[result.numTargets++] = targetPos;
-			result.beats[result.numBeats++] = targetPos;
+			result.captures[result.numCaptures++] = targetPos;
 		}
 	}
 
@@ -246,9 +311,8 @@ TargetPositions Pawn::calcPossible()
 			if( lastMove.src == leftStart )
 			{
 				Position leftTarget = getPos().move( -1, direction );
-				leftTarget.enPassant = leftPos.row;
 				result.targets[result.numTargets++] = leftTarget;
-				result.beats[result.numBeats++] = leftTarget;
+				result.captures[result.numCaptures++] = leftTarget;
 			}
 		}
 
@@ -259,9 +323,8 @@ TargetPositions Pawn::calcPossible()
 			if( lastMove.src == rightStart )
 			{
 				Position rightTarget = getPos().move( 1, direction );
-				rightTarget.enPassant = rightPos.row;
 				result.targets[result.numTargets++] = rightTarget;
-				result.beats[result.numBeats++] = rightTarget;
+				result.captures[result.numCaptures++] = rightTarget;
 			}
 		}
 	}
@@ -376,14 +439,14 @@ TargetPositions King::calcPossible()
 		{
 			TargetPositions	result2;
 			checkDirection(&result2, &Position::moveWest, 2);
-			if( result2.numTargets == 2 && result2.numBeats == 0 )
+			if( result2.numTargets == 2 && result2.numCaptures == 0 )
 			{
 				Figure *rook = m_board.getFigure( Position( 'A', getPos().row ) );
 				if( !rook->getMoved() )
 				{
 					TargetPositions	result3;
 					rook->checkDirection(&result3, &Position::moveEast);
-					if( result3.numTargets >= 3 && result3.numBeats == 0 )
+					if( result3.numTargets >= 3 && result3.numCaptures == 0 )
 					{
 						Position &targetPosition = result2.targets[1];
 						result.targets[result.numTargets++] = targetPosition;
@@ -402,14 +465,14 @@ TargetPositions King::calcPossible()
 		{
 			TargetPositions	result2;
 			checkDirection(&result2, &Position::moveEast, 2);
-			if( result2.numTargets == 2 && result2.numBeats == 0 )
+			if( result2.numTargets == 2 && result2.numCaptures == 0 )
 			{
 				Figure *rook = m_board.getFigure( Position( 'H', getPos().row ) );
 				if( !rook->getMoved() )
 				{
 					TargetPositions	result3;
 					rook->checkDirection(&result3, &Position::moveWest);
-					if( result3.numTargets >= 2 && result3.numBeats == 0 )
+					if( result3.numTargets >= 2 && result3.numCaptures == 0 )
 					{
 						Position &targetPosition = result2.targets[1];
 						result.targets[result.numTargets++] = targetPosition;
@@ -474,9 +537,9 @@ const Figure *Board::getAttacker( Figure::Color color, const Position &pos ) con
 		if( fig && fig->m_color != color )
 		{
 			const TargetPositions &targets = fig->getPossible();
-			for( size_t j=0; j<targets.numBeats; ++j )
+			for( size_t j=0; j<targets.numCaptures; ++j )
 			{
-				if( targets.beats[j] == pos )
+				if( targets.captures[j] == pos )
 				{
 					return fig;
 				}
@@ -487,10 +550,31 @@ const Figure *Board::getAttacker( Figure::Color color, const Position &pos ) con
 	return NULL;
 }
 
-bool Board::checkMoveTo( const Position &src, const Position &dest )
+size_t Board::getAttackers( Figure::Color color, const Position &pos, const Figure **attackers ) const
 {
-	size_t srcIndex = getIndex( src );
-	Figure *fig = m_board[srcIndex];
+	size_t numAttackers = 0;
+	for( size_t i=0; i<64; ++i )
+	{
+		const Figure *fig = m_board[i];
+		if( fig && fig->m_color != color )
+		{
+			const TargetPositions &targets = fig->getPossible();
+			for( size_t j=0; j<targets.numCaptures; ++j )
+			{
+				if( targets.captures[j] == pos )
+				{
+					attackers[numAttackers++] = fig;
+				}
+			}
+		}
+	}
+
+	return numAttackers;
+}
+
+bool Board::checkMoveTo( const PlayerPos &src, const Position &dest, Figure::Type newFig ) const
+{
+	const Figure *fig = src.fig;
 	if( !fig )
 	{
 		return true;
@@ -500,6 +584,20 @@ bool Board::checkMoveTo( const Position &src, const Position &dest )
 		return true;
 	}
 
+	if( newFig > Figure::ftNone )
+	{
+		if( newFig <= Figure::ftPawn 
+		|| newFig >= Figure::ftKing 
+		|| fig->getType() != Figure::ftPawn
+		|| (dest.row != 1 && dest.row != 8)	)
+		{
+			return true;
+		}
+	}
+	else if(fig->getType() == Figure::ftPawn && (dest.row == 1 || dest.row == 8))
+	{
+		return true;
+	}
 	const TargetPositions &targets = fig->getPossible();
 	for( size_t i=0; i<targets.numTargets; ++i )
 	{
@@ -511,32 +609,73 @@ bool Board::checkMoveTo( const Position &src, const Position &dest )
 	return true;
 }
 
-void Board::moveTo( const Position &src, const Position &dest )
+void Board::moveTo( const PlayerPos &src, const Position &dest )
 {
 	assert(!checkMoveTo(src, dest) );
 
-	uncheckedMove(src, dest );
+	uncheckedMove(src, dest);
 
 	Movement &move = m_moves.createElement();
-	move.src = src;
+	move.src = src.pos;
 	move.dest = dest;
 
 	m_nextColor = m_nextColor == Figure::White ? Figure::Black : Figure::White;
 	refresh();
 }
 
-void Board::rochade( const Figure *king, const Figure *rook, const Position &kingDest, const Position &rookDest )
+void Board::rochade( const PlayerPos &king, const PlayerPos &rook, const Position &kingDest, const Position &rookDest )
 {
-	assert(!checkMoveTo(king->getPos(), kingDest) );
-	assert(!checkMoveTo(rook->getPos(), rookDest) );
+	assert(!checkMoveTo(king, kingDest) );
+	assert(!checkMoveTo(rook, rookDest) );
 
-	uncheckedMove(king->getPos(), kingDest );
-	uncheckedMove(rook->getPos(), rookDest );
+	uncheckedMove(king, kingDest );
+	uncheckedMove(rook, rookDest );
 
 	Movement &move = m_moves.createElement();
-	move.src = king->getPos();
+	move.src = king.pos;
 	move.dest = kingDest;
 	move.isRochade = true;
+
+	m_nextColor = m_nextColor == Figure::White ? Figure::Black : Figure::White;
+	refresh();
+}
+
+void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest )
+{
+	assert(!checkMoveTo(pawn, dest, newFig) );
+
+	size_t srcIndex = pawn.index;
+	size_t destIndex = getIndex( dest );
+
+	if( m_board[destIndex] )
+	{
+		delete m_board[destIndex];
+	}
+	Figure *newFigure;
+	switch(newFig)
+	{
+	case Figure::ftBishop:
+		newFigure = new Bishop(pawn.fig->m_color, dest, *this);
+		break;
+	case Figure::ftKnight:
+		newFigure = new Knight(pawn.fig->m_color, dest, *this);
+		break;
+	case Figure::ftRook:
+		newFigure = new Rook(pawn.fig->m_color, dest, *this);
+		break;
+	case Figure::ftQueen:
+		newFigure = new Queen(pawn.fig->m_color, dest, *this);
+		break;
+	}
+	m_board[destIndex] = newFigure;
+
+	m_board[srcIndex] = NULL;
+	delete pawn.fig;
+
+	Movement &move = m_moves.createElement();
+	move.src = pawn.pos;
+	move.dest = dest;
+	move.promotion = newFig;
 
 	m_nextColor = m_nextColor == Figure::White ? Figure::Black : Figure::White;
 	refresh();
@@ -625,7 +764,7 @@ void Board::refresh()
 	}
 }
 
-void Board::evaluate1( int &whitePower, int &blackPower)
+void Board::evaluatePower( int &whitePower, int &blackPower) const
 {
 	Position	board[64];
 
@@ -648,32 +787,100 @@ void Board::evaluate1( int &whitePower, int &blackPower)
 	}
 }
 
-void Board::evaluate2(int &whiteTargets, int &blackTargets, int &whiteBeats, int &blackBeats)
+void Board::evaluateRange(int &whiteTargets, int &blackTargets, int &whiteCaptures, int &blackCaptures) const
 {
-	whiteTargets = blackTargets = whiteBeats = blackBeats = 0;
-	for( size_t i1=0; i1<64; ++i1 )
+	whiteTargets = blackTargets = whiteCaptures = blackCaptures = 0;
+	for( size_t i=0; i<64; ++i )
 	{
-		if( m_board[i1] )
+		Figure *fig = m_board[i];
+		if( fig )
 		{
-			const TargetPositions &pos = m_board[i1]->getPossible();
-			int beats=0;
-			for( int i2=0; i2<pos.numBeats; ++i2 )
+			const TargetPositions &pos = fig->getPossible();
+			int captures=0;
+			for( int j=0; j<pos.numCaptures; ++j )
 			{
-				beats += getFigure(pos.beats[i2])->getValue();
+				captures += getFigure(pos.captures[j])->getValue();
 			}
 
-			if( m_board[i1]->m_color == Figure::White )
+			if( fig->m_color == Figure::White )
 			{
 				whiteTargets += int(pos.numTargets);
-				whiteBeats += beats;
+				whiteCaptures += captures;
 			}
 			else
 			{
 				blackTargets += int(pos.numTargets);
-				blackBeats += beats;
+				blackCaptures += captures;
 			}
 		}
 	}
+}
+
+int Board::evaluate() const
+{
+	int whitePower, blackPower;
+	int whiteTargets, blackTargets, whiteCaptures, blackCaptures;
+
+	evaluatePower( whitePower, blackPower);
+	if( whitePower < KING_VALUE )
+	{
+		return -PLAYER_WINS;
+	}
+	if( blackPower < KING_VALUE )
+	{
+		return PLAYER_WINS;
+	}
+
+	enum Check {
+		cNONE, cWHITE, cBLACK
+	} check = cNONE;
+
+	for( size_t i=0; i<64; ++i )
+	{
+		Figure *fig = m_board[i];
+		if( fig && fig!=m_whiteK && fig!=m_blackK )
+		{
+			const TargetPositions &targets = fig->getPossible();
+			for( size_t i=0; i<targets.numCaptures; ++i )
+			{
+				if( m_whiteK->getPos() == targets.captures[i] )
+				{
+					check = cWHITE;
+/*v*/				break;
+				}
+				if( m_blackK->getPos() == targets.captures[i] )
+				{
+					check = cBLACK;
+/*v*/				break;
+				}
+			}
+			if( check )
+			{
+/*v*/			break;
+			}
+		}
+	}
+
+	if( check == cWHITE )
+	{
+		if( m_nextColor == Figure::Black )
+		{
+			return -PLAYER_WINS;
+		}
+		return -CHECK;
+	}
+	else if( check == cBLACK )
+	{
+		if( m_nextColor == Figure::White )
+		{
+			return PLAYER_WINS;
+		}
+		return CHECK;
+	}
+
+	evaluateRange(whiteTargets, blackTargets, whiteCaptures, blackCaptures);
+
+	return whitePower + whiteTargets + whiteCaptures - blackPower - blackTargets - blackCaptures;
 }
 
 // --------------------------------------------------------------------- //

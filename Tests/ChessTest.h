@@ -89,88 +89,89 @@ class ChessTest : public UnitTest
 		chess::Board	chess;
 
 		chess.reset();
-		UT_ASSERT_EQUAL( 0, chess.evaluate1() );
+		UT_ASSERT_EQUAL( 0, chess.evaluatePower() );
 
 		int whitePower, blackPower;
-		chess.evaluate1(whitePower, blackPower);
+		chess.evaluatePower(whitePower, blackPower);
 		UT_ASSERT_EQUAL( whitePower, blackPower );
-		UT_ASSERT_EQUAL( whitePower, 1038 );
+		UT_ASSERT_EQUAL( whitePower, chess::INIT_VALUE );
 
-		int targets, beats;
-		chess.evaluate2(targets, beats);
+		int targets, captures;
+		chess.evaluateRange(targets, captures);
 		UT_ASSERT_EQUAL( 0, targets );
-		UT_ASSERT_EQUAL( 0, beats );
+		UT_ASSERT_EQUAL( 0, captures );
 
-		int whiteTargets, blackTargets, whiteBeats, blackBeats;
-		chess.evaluate2(whiteTargets, blackTargets, whiteBeats, blackBeats);
+		int whiteTargets, blackTargets, whiteCaptures, blackCaptures;
+		chess.evaluateRange(whiteTargets, blackTargets, whiteCaptures, blackCaptures);
 
 		UT_ASSERT_EQUAL( 20, whiteTargets );
 		UT_ASSERT_EQUAL( 20, blackTargets );
 
-		UT_ASSERT_EQUAL( 0, whiteBeats );
-		UT_ASSERT_EQUAL( 0, blackBeats );
+		UT_ASSERT_EQUAL( 0, whiteCaptures );
+		UT_ASSERT_EQUAL( 0, blackCaptures );
 
 		chess::Position badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::Position( 'E', 2 ), chess::Position( 'E', 4 ) );
+		chess.moveTo( chess::PlayerPos( 'E', 2, chess ), chess::Position( 'E', 4 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::Position( 'F', 7 ), chess::Position( 'F', 5 ) );
+		chess.moveTo( chess::PlayerPos( 'F', 7, chess ), chess::Position( 'F', 5 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::Position( 'E', 4 ), chess::Position( 'F', 5 ) );
+		chess.moveTo( chess::PlayerPos( 'E', 4, chess ), chess::Position( 'F', 5 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::Position( 'G', 7 ), chess::Position( 'G', 5 ) );
+		chess.moveTo( chess::PlayerPos( 'G', 7, chess ), chess::Position( 'G', 5 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::Position( 'F', 5 ), chess::Position( 'G', 6 ) );
+		chess.moveTo( chess::PlayerPos( 'F', 5, chess ), chess::Position( 'G', 6 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
+		const chess::Figure *fig = chess.getFigure('G', 5);
+		UT_ASSERT_TRUE( fig==NULL );
 
-		chess.evaluate2(whiteTargets, blackTargets, whiteBeats, blackBeats);
-		UT_ASSERT_EQUAL( 1, whiteBeats );
-		UT_ASSERT_EQUAL( 1, blackBeats );
+		chess.evaluateRange(whiteTargets, blackTargets, whiteCaptures, blackCaptures);
+		UT_ASSERT_EQUAL( 1, whiteCaptures );
+		UT_ASSERT_EQUAL( 1, blackCaptures );
 
 		// Pawn, Queen, King, Knight
 		UT_ASSERT_EQUAL( 16 + 4 + 1 + 5 + 5, whiteTargets );
 
 		// try rochade
-		chess.moveTo(chess::Position( 'B', 8 ), chess::Position( 'A', 6 ));
+		chess.moveTo(chess::PlayerPos( 'B', 8, chess ), chess::Position( 'A', 6 ));
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::Position( 'F', 1 ), chess::Position( 'E', 2 ) );
+		chess.moveTo( chess::PlayerPos( 'F', 1, chess ), chess::Position( 'E', 2 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo(chess::Position( 'D', 7 ), chess::Position( 'D', 6 ));
+		chess.moveTo(chess::PlayerPos( 'D', 7, chess ), chess::Position( 'D', 6 ));
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::Position( 'G', 1 ), chess::Position( 'F', 3 ) );
+		chess.moveTo( chess::PlayerPos( 'G', 1, chess ), chess::Position( 'F', 3 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::Position( 'D', 6 ), chess::Position( 'D', 5 ) );
+		chess.moveTo( chess::PlayerPos( 'D', 6, chess), chess::Position( 'D', 5 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		const chess::King *king = chess.getWhiteK();
+		chess::King *king = chess.getWhiteK();
 		const chess::TargetPositions	&result = king->getPossible();
 		UT_ASSERT_EQUAL( result.numTargets, 2 );
 
 		const chess::King::Rochade &eastRochade = king->getEastRochade();
 
-		const chess::Figure * rook1 = eastRochade.rook;
-		chess::Position	pos('H', 1);
-		const chess::Figure * rook2 = chess.getFigure( pos );
-		UT_ASSERT_EQUAL( rook1, rook2 );
+		chess::Figure		*rook1 = eastRochade.rook;
+		chess::PlayerPos	rook2('H', 1, chess);
+		UT_ASSERT_EQUAL( rook1, rook2.fig );
 		
 		chess.rochade(king, rook1, eastRochade.myTarget, eastRochade.rookTarget );
 		badPos = chess.checkBoard();
@@ -180,6 +181,25 @@ class ChessTest : public UnitTest
 		UT_ASSERT_EQUAL( rook1->getPos().col, 'F' );
 		UT_ASSERT_EQUAL( rook1->getPos().row, 1 );
 
+		chess.moveTo( chess::PlayerPos( 'H', 7, chess ), chess::Position( 'H', 5 ) );
+		badPos = chess.checkBoard();
+		UT_ASSERT_EQUAL( chess::Position(), badPos );
+
+		chess.moveTo( chess::PlayerPos( 'G', 6, chess ), chess::Position( 'G', 7 ) );
+		badPos = chess.checkBoard();
+		UT_ASSERT_EQUAL( chess::Position(), badPos );
+
+		chess.moveTo( chess::PlayerPos( 'E', 7, chess ), chess::Position( 'E', 6 ) );
+		badPos = chess.checkBoard();
+		UT_ASSERT_EQUAL( chess::Position(), badPos );
+
+		chess.promote( chess.getFigure(chess::Position( 'G', 7 )), 
+			chess::Figure::ftQueen, chess::Position( 'H', 8 ) );
+		badPos = chess.checkBoard();
+		UT_ASSERT_EQUAL( chess::Position(), badPos );
+
+
+//		UT_ASSERT_TRUE( false );
 		chess.print();
 	}
 };
