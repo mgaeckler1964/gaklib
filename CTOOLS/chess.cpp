@@ -51,7 +51,6 @@
 // --------------------------------------------------------------------- //
 
 #ifdef __BORLANDC__
-#	pragma option -RT-
 #	pragma option -b
 #	pragma option -a4
 #	pragma option -pc
@@ -114,17 +113,6 @@ namespace chess
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-void Board::clear()
-{
-	for( std::size_t i=0; i<64; ++i)
-	{
-		if( m_board[i] )
-		{
-			delete m_board[i];
-		}
-	}
-}
-
 Figure *Board::checkEnPassant(const PlayerPos &src, const Position &dest) const
 {
 	int rowMove = dest.row - src.pos.row;
@@ -180,29 +168,71 @@ Figure *Board::checkEnPassant(const PlayerPos &src, const Position &dest) const
 
 Figure *Board::uncheckedMove( const PlayerPos &src, const Position &dest )
 {
-	Figure *enPassantDel = checkEnPassant(src,dest);
-		
 	size_t srcIndex = src.index;
 	size_t destIndex = getIndex( dest );
 	Figure *fig = src.fig;
+	Figure *toCapture = m_board[destIndex];
 
-	if( m_board[destIndex] )
-	{
-		delete m_board[destIndex];
-	}
 	m_board[destIndex] = fig;
 	fig->moveTo(dest);
 	m_board[srcIndex] = NULL;
 
+	return toCapture;
+}
+
+Figure *Board::passantMove( const PlayerPos &src, const Position &dest )
+{
+	Figure *enPassantDel = checkEnPassant(src,dest);
+	Figure *toCapture = uncheckedMove(src,dest);
+
 	if( enPassantDel )
 	{
-		destIndex = getIndex( enPassantDel->getPos() );
+		assert(!toCapture);
+
+		size_t destIndex = getIndex( enPassantDel->getPos() );
 		m_board[destIndex] = NULL;
-		delete enPassantDel;
+
+		return enPassantDel;
 	}
 
-	return fig;
+	return toCapture;
 }
+
+void Board::reset(Figure::Color color)
+{
+	char row = (color == Figure::White) ? 2 : 7;
+	for( char col='A'; col <='H'; ++col )
+	{
+		create(color,Figure::ftPawn, Position(col,row));
+	}
+
+	char col = 'A';
+	row = (color == Figure::White) ? 1 : 8;
+
+	create(color, Figure::ftRook, Position(col,row));
+
+	++col;
+	create(color, Figure::ftKnight, Position(col,row));
+
+	++col;
+	create(color,Figure::ftBishop, Position(col,row));
+
+	++col;
+	create(color, Figure::ftQueen, Position(col,row));
+
+	++col;
+	create(color, Figure::ftKing, Position(col,row));
+
+	++col;
+	create(color,Figure::ftBishop, Position(col,row));
+
+	++col;
+	create(color, Figure::ftKnight, Position(col,row));
+
+	++col;
+	create(color, Figure::ftRook, Position(col,row));
+}
+
 
 // --------------------------------------------------------------------- //
 // ----- class protected ----------------------------------------------- //
@@ -219,7 +249,7 @@ size_t Figure::checkDirection(TargetPositions *pos, Position (Position::*movemen
 		if( !targetPos )
 			break;
 
-		if( !allowSacrifice && m_board.getAttacker(m_color,targetPos) )
+		if( !allowSacrifice && m_board.getThread(m_color,targetPos,false) )
 		{
 			break;		// king must not move over an attacked field
 		}
@@ -227,9 +257,11 @@ size_t Figure::checkDirection(TargetPositions *pos, Position (Position::*movemen
 		if( !figure ) 
 		{
 			pos->targets[pos->numTargets++] = targetPos;
+			pos->threads[pos->numThreads++] = targetPos;
 		}
 		else 
 		{
+			pos->threads[pos->numThreads++] = targetPos;
 			if( figure->m_color != m_color )
 			{
 				pos->targets[pos->numTargets++] = targetPos;
@@ -278,6 +310,8 @@ TargetPositions Pawn::calcPossible()
 	targetPos = getPos().move( 1, direction );
 	if( targetPos )
 	{
+		result.threads[result.numThreads++] = targetPos;
+
 		const Figure *figure = m_board.getFigure( targetPos );
 		if( figure && figure->m_color != m_color )
 		{
@@ -290,6 +324,8 @@ TargetPositions Pawn::calcPossible()
 	targetPos = getPos().move( -1, direction );
 	if( targetPos )
 	{
+		result.threads[result.numThreads++] = targetPos;
+
 		const Figure *figure = m_board.getFigure( targetPos );
 		if( figure && figure->m_color != m_color )
 		{
@@ -299,7 +335,7 @@ TargetPositions Pawn::calcPossible()
 	}
 
 	// en-passant
-	const Array<Movement>	&moves = m_board.getMoves();
+	const PODarray<Movement>	&moves = m_board.getMoves();
 	if( size_t size = moves.size() )
 	{
 		const Movement &lastMove = moves[size-1];
@@ -452,11 +488,7 @@ TargetPositions King::calcPossible()
 						result.targets[result.numTargets++] = targetPosition;
 						m_rochadeWest.myTarget = targetPosition;
 						m_rochadeWest.rookTarget = result3.targets[2];
-#ifdef __BORLANDC__
-						m_rochadeWest.rook = static_cast<Rook*>(rook);
-#else
 						m_rochadeWest.rook = dynamic_cast<Rook*>(rook);
-#endif
 					}
 				}
 			}
@@ -478,11 +510,7 @@ TargetPositions King::calcPossible()
 						result.targets[result.numTargets++] = targetPosition;
 						m_rochadeEast.myTarget = targetPosition;
 						m_rochadeEast.rookTarget = result3.targets[1];
-#ifdef __BORLANDC__
-						m_rochadeEast.rook = static_cast<Rook*>(rook);
-#else
 						m_rochadeEast.rook = dynamic_cast<Rook*>(rook);
-#endif
 					}
 				}
 			}
@@ -499,9 +527,7 @@ TargetPositions King::calcPossible()
 
 void Figure::moveTo( const Position &pos )
 {
-	m_moved = true;
-	m_pos = pos;
-
+	setPosition(pos);
 	m_board.refresh();
 }
 
@@ -529,8 +555,11 @@ Figure::Attack Figure::searchAttack(const Position &pos, Position (Position::*mo
 	return attack;
 }
 
-const Figure *Board::getAttacker( Figure::Color color, const Position &pos ) const
+const Figure *Board::getAttacker( const Figure *fig ) const
 {
+	const Figure::Color color = fig->m_color;
+	const Position &pos = fig->getPos();
+
 	for( size_t i=0; i<64; ++i )
 	{
 		const Figure *fig = m_board[i];
@@ -550,8 +579,10 @@ const Figure *Board::getAttacker( Figure::Color color, const Position &pos ) con
 	return NULL;
 }
 
-size_t Board::getAttackers( Figure::Color color, const Position &pos, const Figure **attackers ) const
+size_t Board::getAttackers( const Figure *fig, const Figure **attackers ) const
 {
+	const Figure::Color color = fig->m_color;
+	const Position &pos = fig->getPos();
 	size_t numAttackers = 0;
 	for( size_t i=0; i<64; ++i )
 	{
@@ -570,6 +601,49 @@ size_t Board::getAttackers( Figure::Color color, const Position &pos, const Figu
 	}
 
 	return numAttackers;
+}
+
+const Figure *Board::getThread( Figure::Color color, const Position &pos, bool checkEnPassant ) const
+{
+	for( size_t i=0; i<64; ++i )
+	{
+		const Figure *fig = m_board[i];
+		if( fig && fig->m_color != color )
+		{
+			const TargetPositions &targets = fig->getPossible();
+			for( size_t j=0; j<targets.numThreads; ++j )
+			{
+				if( targets.threads[j] == pos )
+				{
+					return fig;
+				}
+			}
+		}
+	}
+
+	return NULL;
+}
+
+size_t Board::getThreads( Figure::Color color, const Position &pos, const Figure **threads, bool checkEnPassant ) const
+{
+	size_t numThreads = 0;
+	for( size_t i=0; i<64; ++i )
+	{
+		const Figure *fig = m_board[i];
+		if( fig && fig->m_color != color )
+		{
+			const TargetPositions &targets = fig->getPossible();
+			for( size_t j=0; j<targets.numThreads; ++j )
+			{
+				if( targets.threads[j] == pos )
+				{
+					threads[numThreads++] = fig;
+				}
+			}
+		}
+	}
+
+	return numThreads;
 }
 
 bool Board::checkMoveTo( const PlayerPos &src, const Position &dest, Figure::Type newFig ) const
@@ -613,11 +687,19 @@ void Board::moveTo( const PlayerPos &src, const Position &dest )
 {
 	assert(!checkMoveTo(src, dest) );
 
-	uncheckedMove(src, dest);
+	Figure *toCapture = passantMove(src, dest);
 
 	Movement &move = m_moves.createElement();
+	move.fig = src.fig;
 	move.src = src.pos;
 	move.dest = dest;
+
+	if( toCapture )
+	{
+		move.captured = toCapture;
+		move.capturePos = toCapture->getPos();
+		toCapture->capture();
+	}
 
 	m_nextColor = m_nextColor == Figure::White ? Figure::Black : Figure::White;
 	refresh();
@@ -628,16 +710,53 @@ void Board::rochade( const PlayerPos &king, const PlayerPos &rook, const Positio
 	assert(!checkMoveTo(king, kingDest) );
 	assert(!checkMoveTo(rook, rookDest) );
 
-	uncheckedMove(king, kingDest );
-	uncheckedMove(rook, rookDest );
+	Figure *toCapture = uncheckedMove(king, kingDest );
+	assert(!toCapture);
+	toCapture = uncheckedMove(rook, rookDest );
+	assert(!toCapture);
 
 	Movement &move = m_moves.createElement();
+	move.fig = king.fig;
 	move.src = king.pos;
 	move.dest = kingDest;
-	move.isRochade = true;
+	move.rook = rook.fig;
+	move.rookSrc = rook.pos;
+	move.rookDest = rookDest;
 
 	m_nextColor = m_nextColor == Figure::White ? Figure::Black : Figure::White;
 	refresh();
+}
+
+Figure *Board::create( Figure::Color color, Figure::Type newFig, const Position &dest )
+{
+	Figure *newFigure;
+	size_t destIndex = getIndex( dest );
+
+	switch(newFig)
+	{
+	case Figure::ftPawn:
+		newFigure = new Pawn(color, dest, *this);
+		break;
+	case Figure::ftBishop:
+		newFigure = new Bishop(color, dest, *this);
+		break;
+	case Figure::ftKnight:
+		newFigure = new Knight(color, dest, *this);
+		break;
+	case Figure::ftRook:
+		newFigure = new Rook(color, dest, *this);
+		break;
+	case Figure::ftQueen:
+		newFigure = new Queen(color, dest, *this);
+		break;
+	case Figure::ftKing:
+		newFigure = new King(color, dest, *this);
+		break;
+	}
+	m_board[destIndex] = newFigure;
+	m_all.addElement(newFigure);
+
+	return newFigure;
 }
 
 void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest )
@@ -647,35 +766,24 @@ void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position 
 	size_t srcIndex = pawn.index;
 	size_t destIndex = getIndex( dest );
 
-	if( m_board[destIndex] )
-	{
-		delete m_board[destIndex];
-	}
-	Figure *newFigure;
-	switch(newFig)
-	{
-	case Figure::ftBishop:
-		newFigure = new Bishop(pawn.fig->m_color, dest, *this);
-		break;
-	case Figure::ftKnight:
-		newFigure = new Knight(pawn.fig->m_color, dest, *this);
-		break;
-	case Figure::ftRook:
-		newFigure = new Rook(pawn.fig->m_color, dest, *this);
-		break;
-	case Figure::ftQueen:
-		newFigure = new Queen(pawn.fig->m_color, dest, *this);
-		break;
-	}
-	m_board[destIndex] = newFigure;
-
 	m_board[srcIndex] = NULL;
-	delete pawn.fig;
+
+	Figure *toCapture = m_board[destIndex];
+	Figure *newFigure = create( pawn.fig->m_color, newFig, dest );
+
+	pawn.fig->capture();
 
 	Movement &move = m_moves.createElement();
+	move.fig = pawn.fig;
 	move.src = pawn.pos;
 	move.dest = dest;
-	move.promotion = newFig;
+	move.promotion = newFigure;
+	if( toCapture )
+	{
+		move.captured = toCapture;
+		move.capturePos = toCapture->getPos();
+		toCapture->capture();
+	}
 
 	m_nextColor = m_nextColor == Figure::White ? Figure::Black : Figure::White;
 	refresh();
@@ -683,75 +791,15 @@ void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position 
 
 void Board::reset()
 {
-	empty();
-	for( char col='A'; col <='H'; ++col )
-	{
-		char row=2;
-		size_t index = getIndex(col, row);
-		m_board[index] = new Pawn(Figure::White,Position(col,row),*this);
+	clear();
+	reset(Figure::White);
+	reset(Figure::Black);
 
-		row=7;
-		index = getIndex(col, row);
-		m_board[index] = new Pawn(Figure::Black,Position(col,row),*this);
-	}
-
-	char col = 'A';
-	char row = 1;
-	size_t index = getIndex(col, row);
-
-	m_board[index] = new Rook(Figure::White,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = new Knight(Figure::White,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = new Bishop(Figure::White,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = new Queen(Figure::White,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = m_whiteK = new King(Figure::White,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = new Bishop(Figure::White,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = new Knight(Figure::White,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = new Rook(Figure::White,Position(col,row),*this);
-
-	col = 'A';
-	row = 8;
-	index = getIndex(col, row);
-
-	m_board[index] = new Rook(Figure::Black,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = new Knight(Figure::Black,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = new Bishop(Figure::Black,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = new Queen(Figure::Black,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = m_blackK = new King(Figure::Black,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = new Bishop(Figure::Black,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = new Knight(Figure::Black,Position(col,row),*this);
-	++col;
-	++index;
-	m_board[index] = new Rook(Figure::Black,Position(col,row),*this);
+	m_whiteK = dynamic_cast<King*>(getFigure('E', 1));
+	m_blackK = dynamic_cast<King*>(getFigure('E', 8));
 
 	refresh();
 }
-
 
 void Board::refresh()
 {
@@ -883,6 +931,91 @@ int Board::evaluate() const
 	return whitePower + whiteTargets + whiteCaptures - blackPower - blackTargets - blackCaptures;
 }
 
+void Board::undoMove(const Movement &move)
+{
+	size_t srcIndex = getIndex(move.src);
+	size_t destIndex = getIndex(move.dest);
+
+	// re pos figure
+	move.fig->setPosition(move.src);
+	m_board[srcIndex] = move.fig;
+
+	// if it was a promotion, remove new figure
+	if( move.promotion )
+	{
+		move.promotion->capture();
+	}
+
+	if( !move.captured )
+	{
+		// no caption -> the old destination is now empty
+		m_board[destIndex] = NULL;
+	}
+	else
+	{
+		// restore captured
+		size_t capIndex = getIndex(move.capturePos);
+		m_board[capIndex] = move.captured;
+		if( destIndex != capIndex )
+		{
+			// if it is en-passant -> the old destination is now empty
+			m_board[destIndex] = NULL;
+		}
+	}
+
+	if( move.rook )
+	{
+		// restore rook, if it was a rochade
+		size_t srcIndex = getIndex(move.rookSrc);
+		size_t destIndex = getIndex(move.rookDest);
+		move.rook->setPosition(move.rookSrc);
+		m_board[srcIndex] = move.rook;
+		m_board[destIndex] = NULL;
+	}
+}
+
+void Board::redoMove(const Movement &move)
+{
+	size_t srcIndex = getIndex(move.src);
+	size_t destIndex = getIndex(move.dest);
+
+	// position figure
+	if( move.promotion )
+	{
+		move.fig->capture();
+		move.promotion->setPosition(move.dest);
+		m_board[destIndex] = move.promotion;
+	}
+	else
+	{
+		move.fig->setPosition(move.dest);
+		m_board[destIndex] = move.fig;
+	}
+	m_board[srcIndex] = NULL;
+
+	if( move.captured )
+	{
+		move.captured->capture();
+	}
+
+	if( move.rook )
+	{
+		// restore rook, if it was a rochade
+		size_t srcIndex = getIndex(move.rookSrc);
+		size_t destIndex = getIndex(move.rookDest);
+		move.rook->setPosition(move.rookDest);
+		m_board[destIndex] = move.rook;
+		m_board[srcIndex] = NULL;
+	}
+}
+
+Movement Board::findBest()
+{
+	Movement	best;
+
+	return best;
+}
+
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -891,7 +1024,6 @@ int Board::evaluate() const
 }	//namespace gak
 
 #ifdef __BORLANDC__
-#	pragma option -RT.
 #	pragma option -b.
 #	pragma option -a.
 #	pragma option -p.

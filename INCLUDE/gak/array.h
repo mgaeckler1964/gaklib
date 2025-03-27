@@ -217,6 +217,8 @@ class ArrayOfPointer : public PODarray<OBJ*>
 	ArrayOfPointer &operator = ( const ArrayOfPointer &source );
 
 	public:
+	/// destroy all objects
+	void clear();
 
 	typedef typename Array< OBJ*, PODallocator<OBJ*> >::iterator			
 		iterator;
@@ -225,7 +227,10 @@ class ArrayOfPointer : public PODarray<OBJ*>
 	ArrayOfPointer() : PODarray<OBJ*>() {}
 
 	/// destroy the array and all objects
-	~ArrayOfPointer();
+	~ArrayOfPointer()
+	{
+		clear();
+	}
 };
 
 /// an aray that is used to store binary data
@@ -397,15 +402,6 @@ class ArrayOfStrings : public Array<STRING>
 // ----- class constructors/destructors -------------------------------- //
 // --------------------------------------------------------------------- //
 
-template <class OBJ>
-ArrayOfPointer<OBJ>::~ArrayOfPointer()
-{
-	for( iterator it = this->begin(), endIT = this->end(); it != endIT; ++it )
-	{
-		delete *it;
-	}
-}
-
 // --------------------------------------------------------------------- //
 // ----- class static functions ---------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -425,6 +421,16 @@ ArrayOfPointer<OBJ>::~ArrayOfPointer()
 // --------------------------------------------------------------------- //
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+template<typename OBJ>
+void ArrayOfPointer<OBJ>::clear()
+{
+	for( iterator it = this->begin(), endIT = this->end(); it != endIT; ++it )
+	{
+		delete *it;
+	}
+	PODarray<OBJ*>::clear();
+}
 
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //

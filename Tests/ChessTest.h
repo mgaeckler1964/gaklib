@@ -87,6 +87,14 @@ class ChessTest : public UnitTest
 	{
 		//TestScope scope( "PerformTest" );
 		chess::Board	chess;
+		const STRING start = "TSLDKLST"
+							 "BBBBBBBB"
+							 "        "
+							 "        "
+							 "        "
+							 "        "
+							 "bbbbbbbb"
+							 "tsldklst" ;
 
 		chess.reset();
 		UT_ASSERT_EQUAL( 0, chess.evaluatePower() );
@@ -112,6 +120,9 @@ class ChessTest : public UnitTest
 
 		chess::Position badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
+
+		const STRING initString = chess.generateString(); 
+		UT_ASSERT_EQUAL( start, initString );
 
 		chess.moveTo( chess::PlayerPos( 'E', 2, chess ), chess::Position( 'E', 4 ) );
 		badPos = chess.checkBoard();
@@ -198,6 +209,18 @@ class ChessTest : public UnitTest
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
+		const STRING expected =
+			"TSLD TK "
+			"BBBBLBBB"
+			"     S  "
+			"        "
+			"   b   b"
+			"s   b   "
+			"bbb     "
+			"t ldklsD" ;
+
+		const STRING finalString = chess.generateString(); 
+		UT_ASSERT_EQUAL( expected, finalString );
 
 //		UT_ASSERT_TRUE( false );
 		chess.print();

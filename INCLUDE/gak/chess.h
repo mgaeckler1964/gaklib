@@ -55,7 +55,6 @@
 // --------------------------------------------------------------------- //
 
 #ifdef __BORLANDC__
-#	pragma option -RT-
 #	pragma option -b
 #	pragma option -a4
 #	pragma option -pc
@@ -211,8 +210,10 @@ struct TargetPositions
 {
 	Position	targets[32];
 	Position	captures[32];
+	Position	threads[32];
 	size_t		numTargets;
 	size_t		numCaptures;
+	size_t		numThreads;
 	
 	TargetPositions()
 	{
@@ -279,8 +280,22 @@ class Figure
 	{
 		m_targets = calcPossible();
 	}
+	void capture()
+	{
+		m_pos = Position();
+	}
+	bool isActive() const
+	{
+		return m_pos;
+	}
+	
+	void setPosition( const Position &pos )
+	{
+		m_moved = true;
+		m_pos = pos;
+	}
 	void moveTo( const Position &pos );
-	void rochade( const Position &pos );
+
 	const Position &getPos() const
 	{
 		return m_pos;
@@ -289,7 +304,7 @@ class Figure
 	{
 		return m_moved;
 	}
-	bool canBeat(const Position &pos) const
+	bool canCapture(const Position &pos) const
 	{
 		for( size_t i=0; i<m_targets.numCaptures; ++i )
 		{
@@ -304,7 +319,7 @@ class Figure
 	{
 		return !attack.figure						// no attacker
 			|| attack.figure->m_color == m_color	// no enemy
-			|| !attack.figure->canBeat(m_pos) ;		// too weak?
+			|| !attack.figure->canCapture(m_pos) ;	// too weak?
 	}
 	const TargetPositions &getPossible() const
 	{
@@ -313,6 +328,7 @@ class Figure
 
 	size_t checkDirection(TargetPositions *pos, Position (Position::*movement )()) const
 	{
+		// good for Rook, Bishop and Queen, they may go the longest distance and it is allowed to be sacrified
 		return checkDirection(pos, movement, 8, true);
 	}
 
@@ -355,6 +371,7 @@ class Knight : public Figure
 
 	size_t checkDirection(TargetPositions *pos, Position (Position::*movement )()) const
 	{
+		// knight can gon one step, only, and it is allowed to be sacrified
 		return Figure::checkDirection(pos, movement, 1, true);
 	}
 	virtual TargetPositions calcPossible();
@@ -452,6 +469,7 @@ class King : public Figure
 
 	size_t checkDirection(TargetPositions *pos, Position (Position::*movement )(), size_t maxCount) const
 	{
+		// knight can go one,  only, or two while rochade, and it is NOT allowed to be sacrified
 		return Figure::checkDirection(pos, movement, maxCount, false);
 	}
 	virtual TargetPositions calcPossible();
@@ -482,45 +500,57 @@ class King : public Figure
 
 struct Movement
 {
-	Figure::Type	promotion;
-	bool			isRochade;
-	Position		src;
-	Position		dest;
+	Figure		*fig;
+	Position	src;
+	Position	dest;
+	Figure		*promotion;
 
-	Movement() : isRochade(false), promotion(Figure::ftNone) {}
+	Figure		*captured;
+	Position	capturePos;
+
+	// rochade
+	Figure		*rook;
+	Position	rookSrc;
+	Position	rookDest;
+
+	Movement() : fig(NULL), promotion(NULL), captured(NULL), rook(NULL)  {}
 };
 
 class Board
 {
-	Array<Movement>	m_moves;
+	PODarray<Movement>	m_moves;
 
 	Figure *m_board[64];
+
+	ArrayOfPointer<Figure>	m_all;
 
 	King	*m_whiteK;
 	King	*m_blackK;
 
 	Figure::Color	m_nextColor;
 
-	void forget()
+	void clear()
 	{
+		m_moves.clear();
+		m_all.clear();
 		std::memset(m_board, 0, sizeof(m_board) );
-	}
-
-	void clear();
-	void empty()
-	{
-		clear();
-		forget();
+		m_whiteK = m_blackK = NULL;
 	}
 
 	Figure *checkEnPassant(const PlayerPos &src, const Position &dest) const;
 	Figure *uncheckedMove(const PlayerPos &src, const Position &dest);
+	Figure *passantMove(const PlayerPos &src, const Position &dest);
+	void reset( Figure::Color color );
 
+	// do nothing, just forbid
+	Board( const Board &source );
+	Board &operator = ( const Board &source );
+	
 	public:
 	Board()
 	{
 		m_nextColor = Figure::White;
-		forget();
+		clear();
 	}
 	~Board()
 	{
@@ -590,14 +620,22 @@ class Board
 		return Position(col, row);
 	}
 
-	const Figure *getAttacker( Figure::Color color, const Position &pos ) const;
-	size_t getAttackers( Figure::Color color, const Position &pos, const Figure **attackers ) const;
+	const Figure *getThread( Figure::Color color, const Position &pos, bool checkEnPassant ) const;
+	size_t getThreads( Figure::Color color, const Position &pos, const Figure **threads, bool checkEnPassant ) const;
+
+	const Figure *getAttacker( const Figure *fig ) const;
+	size_t getAttackers( const Figure *fig, const Figure **attackers ) const;
 
 	bool checkMoveTo( const PlayerPos &src, const Position &dest, Figure::Type newFig=Figure::ftNone ) const;
 
 	void moveTo( const PlayerPos &src, const Position &dest ); 
 	void rochade( const PlayerPos &king, const PlayerPos &rook, const Position &kingDest, const Position &rookDest );
+	Figure *create( Figure::Color color, Figure::Type newFig, const Position &dest );
 	void promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest );
+
+	Movement findBest();
+	void undoMove(const Movement &move);
+	void redoMove(const Movement &move);
 
 	Position checkBoard() const
 	{
@@ -656,7 +694,28 @@ class Board
 		std::cout << "Next: " << (m_nextColor == Figure::White ? "White" : "Black") << std::endl;
 		std::cout << "Eval: " << evaluate() << std::endl;
 	}
-	const Array<Movement> &getMoves() const
+	STRING generateString() const
+	{
+		STRING result;
+		for( int i=0; i<64; ++i )
+		{
+			char sym = ' ';
+			const Figure *fig = m_board[i];
+			if( fig )
+			{
+				sym = fig->getLetter();
+				if( fig->m_color == Figure::Black )
+				{
+					sym = char(tolower(sym));
+				}
+			}
+
+			result += sym;
+		}
+
+		return result;
+	}
+	const PODarray<Movement> &getMoves() const
 	{
 		return m_moves;
 	}
@@ -728,7 +787,6 @@ inline PlayerPos::PlayerPos(char col, char row, Board &board) : pos(col,row), in
 
 
 #ifdef __BORLANDC__
-#	pragma option -RT.
 #	pragma option -b.
 #	pragma option -a.
 #	pragma option -p.
