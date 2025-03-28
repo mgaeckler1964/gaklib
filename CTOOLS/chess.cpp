@@ -207,7 +207,7 @@ void Board::reset(Figure::Color color)
 	}
 
 	char col = 'A';
-	row = (color == Figure::White) ? 1 : 8;
+	row = (color == Figure::White) ? 1 : NUM_ROWS;
 
 	create(color, Figure::ftRook, Position(col,row));
 
@@ -238,7 +238,7 @@ void Board::reset(Figure::Color color)
 // ----- class protected ----------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-size_t Figure::checkDirection(TargetPositions *pos, Position (Position::*movement )(), size_t maxCount, bool allowSacrifice) const
+size_t Figure::checkDirection(TargetPositions *pos, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const
 {
 	const size_t	begin = pos->numTargets;
 
@@ -335,7 +335,7 @@ TargetPositions Pawn::calcPossible()
 	}
 
 	// en-passant
-	const PODarray<Movement>	&moves = m_board.getMoves();
+	const Movements	&moves = m_board.getMoves();
 	if( size_t size = moves.size() )
 	{
 		const Movement &lastMove = moves[size-1];
@@ -560,7 +560,7 @@ const Figure *Board::getAttacker( const Figure *fig ) const
 	const Figure::Color color = fig->m_color;
 	const Position &pos = fig->getPos();
 
-	for( size_t i=0; i<64; ++i )
+	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
 		const Figure *fig = m_board[i];
 		if( fig && fig->m_color != color )
@@ -579,14 +579,14 @@ const Figure *Board::getAttacker( const Figure *fig ) const
 	return NULL;
 }
 
-size_t Board::getAttackers( const Figure *fig, const Figure **attackers ) const
+size_t Board::getAttackers( const Figure *fig, FigurePtr *attackers ) const
 {
 	const Figure::Color color = fig->m_color;
 	const Position &pos = fig->getPos();
 	size_t numAttackers = 0;
-	for( size_t i=0; i<64; ++i )
+	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
-		const Figure *fig = m_board[i];
+		FigurePtr fig = m_board[i];
 		if( fig && fig->m_color != color )
 		{
 			const TargetPositions &targets = fig->getPossible();
@@ -605,7 +605,7 @@ size_t Board::getAttackers( const Figure *fig, const Figure **attackers ) const
 
 const Figure *Board::getThread( Figure::Color color, const Position &pos, bool checkEnPassant ) const
 {
-	for( size_t i=0; i<64; ++i )
+	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
 		const Figure *fig = m_board[i];
 		if( fig && fig->m_color != color )
@@ -624,12 +624,12 @@ const Figure *Board::getThread( Figure::Color color, const Position &pos, bool c
 	return NULL;
 }
 
-size_t Board::getThreads( Figure::Color color, const Position &pos, const Figure **threads, bool checkEnPassant ) const
+size_t Board::getThreads( Figure::Color color, const Position &pos, FigurePtr *threads, bool checkEnPassant ) const
 {
 	size_t numThreads = 0;
-	for( size_t i=0; i<64; ++i )
+	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
-		const Figure *fig = m_board[i];
+		Figure *fig = m_board[i];
 		if( fig && fig->m_color != color )
 		{
 			const TargetPositions &targets = fig->getPossible();
@@ -663,12 +663,12 @@ bool Board::checkMoveTo( const PlayerPos &src, const Position &dest, Figure::Typ
 		if( newFig <= Figure::ftPawn 
 		|| newFig >= Figure::ftKing 
 		|| fig->getType() != Figure::ftPawn
-		|| (dest.row != 1 && dest.row != 8)	)
+		|| (dest.row != 1 && dest.row != NUM_ROWS)	)
 		{
 			return true;
 		}
 	}
-	else if(fig->getType() == Figure::ftPawn && (dest.row == 1 || dest.row == 8))
+	else if(fig->getType() == Figure::ftPawn && (dest.row == 1 || dest.row == NUM_ROWS))
 	{
 		return true;
 	}
@@ -701,7 +701,7 @@ void Board::moveTo( const PlayerPos &src, const Position &dest )
 		toCapture->capture();
 	}
 
-	m_nextColor = m_nextColor == Figure::White ? Figure::Black : Figure::White;
+	flipTurn();
 	refresh();
 }
 
@@ -723,7 +723,7 @@ void Board::rochade( const PlayerPos &king, const PlayerPos &rook, const Positio
 	move.rookSrc = rook.pos;
 	move.rookDest = rookDest;
 
-	m_nextColor = m_nextColor == Figure::White ? Figure::Black : Figure::White;
+	flipTurn();
 	refresh();
 }
 
@@ -785,7 +785,7 @@ void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position 
 		toCapture->capture();
 	}
 
-	m_nextColor = m_nextColor == Figure::White ? Figure::Black : Figure::White;
+	flipTurn();
 	refresh();
 }
 
@@ -796,14 +796,14 @@ void Board::reset()
 	reset(Figure::Black);
 
 	m_whiteK = dynamic_cast<King*>(getFigure('E', 1));
-	m_blackK = dynamic_cast<King*>(getFigure('E', 8));
+	m_blackK = dynamic_cast<King*>(getFigure('E', NUM_ROWS));
 
 	refresh();
 }
 
 void Board::refresh()
 {
-	for( size_t i=0; i<64; ++i )
+	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
 		if( m_board[i] )
 		{
@@ -814,11 +814,11 @@ void Board::refresh()
 
 void Board::evaluatePower( int &whitePower, int &blackPower) const
 {
-	Position	board[64];
+	Position	board[NUM_FIELDS];
 
 	whitePower=0;
 	blackPower=0;
-	for( size_t i=0; i<64; ++i )
+	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
 		if( m_board[i] )
 		{
@@ -838,7 +838,7 @@ void Board::evaluatePower( int &whitePower, int &blackPower) const
 void Board::evaluateRange(int &whiteTargets, int &blackTargets, int &whiteCaptures, int &blackCaptures) const
 {
 	whiteTargets = blackTargets = whiteCaptures = blackCaptures = 0;
-	for( size_t i=0; i<64; ++i )
+	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
 		Figure *fig = m_board[i];
 		if( fig )
@@ -883,7 +883,7 @@ int Board::evaluate() const
 		cNONE, cWHITE, cBLACK
 	} check = cNONE;
 
-	for( size_t i=0; i<64; ++i )
+	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
 		Figure *fig = m_board[i];
 		if( fig && fig!=m_whiteK && fig!=m_blackK )
@@ -911,7 +911,7 @@ int Board::evaluate() const
 
 	if( check == cWHITE )
 	{
-		if( m_nextColor == Figure::Black )
+		if( isBlackTurn() )
 		{
 			return -PLAYER_WINS;
 		}
@@ -919,7 +919,7 @@ int Board::evaluate() const
 	}
 	else if( check == cBLACK )
 	{
-		if( m_nextColor == Figure::White )
+		if( isWhiteTurn() )
 		{
 			return PLAYER_WINS;
 		}
@@ -1009,10 +1009,108 @@ void Board::redoMove(const Movement &move)
 	}
 }
 
-Movement Board::findBest()
+Movements Board::collectMoves() const
+{
+	Movements moves;
+	for( size_t i=0; i<NUM_FIELDS; ++i )
+	{
+		Figure *fig = m_board[i];
+		if( fig && fig->m_color == m_nextColor )
+		{
+			const TargetPositions &curMoves = fig->getPossible();
+			for( int i=0; i<curMoves.numTargets; ++i )
+			{
+				Movement &move = moves.createElement();
+				move.fig = fig;
+				move.src = fig->getPos();
+				move.dest = curMoves.targets[i];
+			}
+		}
+	}
+	return moves;
+}
+
+Movements Board::findCheckDefend(size_t *numAttackers) const
+{
+	assert(numAttackers);
+	Movements defends;
+	Figure *king = isWhiteTurn() ? m_whiteK : m_blackK;
+	FigurePtr attackers[NUM_TEAM_FIGURES];
+	*numAttackers = getAttackers(king, attackers);
+
+	if( *numAttackers == 1 )
+	{
+		// try to capture the attacker
+		FigurePtr defenders[NUM_TEAM_FIGURES];
+		size_t numDefenders = getAttackers(attackers[0], defenders);
+		for( size_t i=0; i<numDefenders; ++i )
+		{
+			Movement &defend = defends.createElement();
+			defend.fig = defenders[i];
+			defend.src = defenders[i]->getPos();
+			defend.capturePos = defend.dest = attackers[0]->getPos();
+			defend.captured = attackers[0];
+		}
+
+		// try to shield the king 
+		if( attackers[0]->getType() != Figure::ftKnight )
+		{
+			Position targetPos = king->getPos();
+			const Position &attackerPos = attackers[0]->getPos();
+			Position::MoveFunc	move = Position::findMoveFunc(targetPos, attackerPos);
+			int dist = Position::getDistance(king->getPos(), attackers[0]->getPos());
+			assert(move);
+
+			if(dist>1)
+			{
+				while(1)
+				{
+					targetPos = (targetPos.*move)();
+					if( !targetPos || targetPos == attackerPos)
+						break;
+
+					FigurePtr defenders[NUM_TEAM_FIGURES];
+					size_t numDefenders = getThreads(attackers[0]->m_color, targetPos, defenders, false);
+					for( size_t i=0; i<numDefenders; ++i )
+					{
+						Movement &defend = defends.createElement();
+						defend.fig = defenders[i];
+						defend.src = defenders[i]->getPos();
+						defend.dest = targetPos;
+					}
+				}
+			}
+		}
+	}
+
+	// final we add the escape options this is possible regardless the number of attackers
+	const TargetPositions &escapes = king->getPossible();
+	for( int i=0; i<escapes.numTargets; ++i )
+	{
+		Movement &defend = defends.createElement();
+		defend.fig = king;
+		defend.src = king->getPos();
+		defend.dest = escapes.targets[i];
+	}
+	return defends;
+}
+
+Movement Board::findBest() const
 {
 	Movement	best;
+	size_t		numAttackers;
+	Movements	movements = findCheckDefend(&numAttackers);
 
+	if( !numAttackers )
+	{
+		movements = collectMoves();
+	}
+
+	if( movements.size() )
+	{
+		size_t index = randomNumber(movements.size());
+		best = movements[index];
+	}
 	return best;
 }
 

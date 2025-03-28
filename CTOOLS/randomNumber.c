@@ -34,6 +34,7 @@
 /* --------------------------------------------------------------------- */
 
 #include <stdlib.h>
+#include <time.h>
 
 #include <gak/gaklib.h>
 
@@ -86,7 +87,15 @@
 #ifndef __BORLANDC__
 int randomNumber( int max )
 {
-	int result = (int)((double)rand() / (((double)RAND_MAX+1.0) / (double)max));
+	static int firstCall = 1;
+	int result;
+
+	if(firstCall)
+	{
+		srand((unsigned)time(NULL) );
+		firstCall = 0;
+	}
+	result = (int)((double)rand() / (((double)RAND_MAX+1.0) / (double)max));
 
 	return result;
 }

@@ -45,6 +45,7 @@
 #include <assert.h>
 
 #include <gak/array.h>
+#include <gak/math.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -69,14 +70,22 @@ namespace chess
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+static const size_t NUM_ROWS = 8;
+static const size_t NUM_COLS = 8;
+static const size_t MAX_DISTANCE = 8;
+static const size_t NUM_FIELDS = NUM_ROWS*NUM_COLS;
+static const size_t NUM_TEAM_PAWNS = NUM_COLS;
+static const size_t NUM_TEAM_FIGURES = 2*NUM_COLS;
+static const size_t NUM_TOT_FIGURES = 2*NUM_TEAM_FIGURES;
+
 static const int PAWN_VALUE = 1;
 static const int BISHOP_VALUE = 3;
 static const int KNIGHT_VALUE = 3;
 static const int ROOK_VALUE = 5;
 static const int QUEEN_VALUE = 8;
 
-static const int BASE_VALUE = (PAWN_VALUE * 8 + BISHOP_VALUE*2 + KNIGHT_VALUE*2 + ROOK_VALUE * 2 + QUEEN_VALUE);
-static const int PROMOTED_VALUE = (QUEEN_VALUE * 8 + BISHOP_VALUE*2 + KNIGHT_VALUE*2 + ROOK_VALUE * 2 + QUEEN_VALUE);
+static const int BASE_VALUE = (PAWN_VALUE * NUM_COLS + BISHOP_VALUE*2 + KNIGHT_VALUE*2 + ROOK_VALUE * 2 + QUEEN_VALUE);
+static const int PROMOTED_VALUE = (QUEEN_VALUE * NUM_COLS + BISHOP_VALUE*2 + KNIGHT_VALUE*2 + ROOK_VALUE * 2 + QUEEN_VALUE);
 
 static const int KING_VALUE = PROMOTED_VALUE *2;
 
@@ -93,11 +102,15 @@ static const  int CHECK = KING_VALUE;
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-class Figure;
 class Board;
+class Figure;
+
+typedef Figure *FigurePtr;
 
 struct Position
 {
+	typedef Position (Position::*MoveFunc )();
+
 	char	col;
 	char	row;
 
@@ -120,7 +133,7 @@ struct Position
 	{
 		char newCol = char(col + cDir);
 		char newRow = char(row + rDir);
-		if( newCol <= 'H' && newCol >= 'A' && newRow >= 1 && newRow <= 8 )
+		if( newCol <= 'H' && newCol >= 'A' && newRow >= 1 && newRow <= NUM_ROWS )
 		{
 			return Position(newCol,newRow);
 		}
@@ -193,6 +206,59 @@ struct Position
 	Position moveSNorthWest()
 	{
 		return move(-1,2);
+	}
+
+	static MoveFunc findMoveFunc( const Position &src, const Position &dest )
+	{
+		MoveFunc	result = NULL;
+
+		if( src.col == dest.col )
+		{
+			if( src.row < dest.row )
+			{
+				return &moveNorth;
+			}
+			else if( src.row > dest.row )
+			{
+				return &moveSouth;
+			}
+		}
+		else if( src.row == dest.row )
+		{
+			if( src.col < dest.col )
+			{
+				return &moveEast;
+			}
+			else if( src.col > dest.col )
+			{
+				return &moveWest;
+			}
+		}
+		else
+		{
+			int horizDistance = dest.col - src.col;
+			int vertDistance = dest.row - src.row;
+
+			if( horizDistance == vertDistance )
+			{
+				if( vertDistance > 0 )
+					return &moveNorthEast;
+				if( vertDistance < 0 )
+					return &moveSouthWest;
+			}
+			else if( horizDistance == -vertDistance )
+			{
+				if( vertDistance > 0 )
+					return &moveNorthWest;
+				if( vertDistance < 0 )
+					return &moveSouthEast;
+			}
+		}
+		return result;
+	}
+	static int getDistance( const Position &src, const Position &dest )
+	{
+		return math::max(math::abs(src.col-dest.col),math::abs(src.row-dest.row));
 	}
 };
 
@@ -271,7 +337,7 @@ class Figure
 	virtual TargetPositions calcPossible() = 0;
 
 	protected:
-	size_t checkDirection(TargetPositions *pos, Position (Position::*movement )(), size_t maxCount, bool allowSacrifice) const;
+	size_t checkDirection(TargetPositions *pos, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const;
 
 	public:
 	Figure( Color color, Position pos, Board &board ) : m_color(color), m_pos(pos), m_board(board), m_moved(false) {}
@@ -326,10 +392,10 @@ class Figure
 		return m_targets;
 	}
 
-	size_t checkDirection(TargetPositions *pos, Position (Position::*movement )()) const
+	size_t checkDirection(TargetPositions *pos, Position::MoveFunc movement ) const
 	{
 		// good for Rook, Bishop and Queen, they may go the longest distance and it is allowed to be sacrified
-		return checkDirection(pos, movement, 8, true);
+		return checkDirection(pos, movement, MAX_DISTANCE, true);
 	}
 
 	Attack searchAttack(const Position &pos, Position (Position::*movement )()) const;
@@ -369,7 +435,7 @@ class Knight : public Figure
 	public:
 	Knight( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	size_t checkDirection(TargetPositions *pos, Position (Position::*movement )()) const
+	size_t checkDirection(TargetPositions *pos, Position::MoveFunc movement) const
 	{
 		// knight can gon one step, only, and it is allowed to be sacrified
 		return Figure::checkDirection(pos, movement, 1, true);
@@ -467,7 +533,7 @@ class King : public Figure
 	public:
 	King( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	size_t checkDirection(TargetPositions *pos, Position (Position::*movement )(), size_t maxCount) const
+	size_t checkDirection(TargetPositions *pos, Position::MoveFunc movement, size_t maxCount) const
 	{
 		// knight can go one,  only, or two while rochade, and it is NOT allowed to be sacrified
 		return Figure::checkDirection(pos, movement, maxCount, false);
@@ -516,11 +582,13 @@ struct Movement
 	Movement() : fig(NULL), promotion(NULL), captured(NULL), rook(NULL)  {}
 };
 
+typedef Array<Movement>	Movements;
+
 class Board
 {
-	PODarray<Movement>	m_moves;
+	Movements	m_moves;
 
-	Figure *m_board[64];
+	Figure *m_board[NUM_FIELDS];
 
 	ArrayOfPointer<Figure>	m_all;
 
@@ -528,6 +596,19 @@ class Board
 	King	*m_blackK;
 
 	Figure::Color	m_nextColor;
+
+	bool isWhiteTurn() const
+	{
+		return m_nextColor == Figure::White;
+	}
+	bool isBlackTurn() const
+	{
+		return m_nextColor == Figure::Black;
+	}
+	bool flipTurn()
+	{
+		return m_nextColor = isWhiteTurn() ? Figure::Black : Figure::White;
+	}
 
 	void clear()
 	{
@@ -605,9 +686,9 @@ class Board
 	static size_t getIndex( char col, char row )
 	{
 		assert(col >= 'A' && col <= 'H' );
-		assert(row >= 1 && row <= 8 );
+		assert(row >= 1 && row <= NUM_ROWS );
 
-		return (row-1)*8+col-'A';
+		return (row-1)*NUM_COLS+col-'A';
 	}
 	static size_t getIndex( const Position &pos )
 	{
@@ -615,16 +696,16 @@ class Board
 	}
 	static Position getPosition( size_t index )
 	{
-		char row = char(index/8 +1);
-		char col = char(index%8 +'A');
+		char row = char(index/NUM_COLS +1);
+		char col = char(index%NUM_COLS +'A');
 		return Position(col, row);
 	}
 
 	const Figure *getThread( Figure::Color color, const Position &pos, bool checkEnPassant ) const;
-	size_t getThreads( Figure::Color color, const Position &pos, const Figure **threads, bool checkEnPassant ) const;
+	size_t getThreads( Figure::Color color, const Position &pos, FigurePtr *threads, bool checkEnPassant ) const;
 
 	const Figure *getAttacker( const Figure *fig ) const;
-	size_t getAttackers( const Figure *fig, const Figure **attackers ) const;
+	size_t getAttackers( const Figure *fig, FigurePtr *attackers ) const;
 
 	bool checkMoveTo( const PlayerPos &src, const Position &dest, Figure::Type newFig=Figure::ftNone ) const;
 
@@ -633,13 +714,15 @@ class Board
 	Figure *create( Figure::Color color, Figure::Type newFig, const Position &dest );
 	void promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest );
 
-	Movement findBest();
+	Movements collectMoves()  const;
+	Movements findCheckDefend( size_t *numAttackers) const;
+	Movement findBest() const;
 	void undoMove(const Movement &move);
 	void redoMove(const Movement &move);
 
 	Position checkBoard() const
 	{
-		for( size_t i=0; i<64; ++i )
+		for( size_t i=0; i<NUM_FIELDS; ++i )
 		{
 			Position pos = getPosition(i);
 			if( m_board[i] && m_board[i]->getPos() != pos )
@@ -663,7 +746,7 @@ class Board
 		std::cout << "+-+-+-+-+-+-+-+-+-+\n";
 
 		bool whiteField = true;
-		for( char row=8; row >= 1; --row )
+		for( char row=NUM_ROWS; row >= 1; --row )
 		{
 			std::cout << '|' << int(row) << '|';
 			for( char col='A'; col <= 'H'; ++col )
@@ -691,13 +774,13 @@ class Board
 			std::cout << "+-+-+-+-+-+-+-+-+-+\n";
 		}
 
-		std::cout << "Next: " << (m_nextColor == Figure::White ? "White" : "Black") << std::endl;
+		std::cout << "Next: " << (isWhiteTurn() ? "White" : "Black") << std::endl;
 		std::cout << "Eval: " << evaluate() << std::endl;
 	}
 	STRING generateString() const
 	{
 		STRING result;
-		for( int i=0; i<64; ++i )
+		for( int i=0; i<NUM_FIELDS; ++i )
 		{
 			char sym = ' ';
 			const Figure *fig = m_board[i];
@@ -715,7 +798,7 @@ class Board
 
 		return result;
 	}
-	const PODarray<Movement> &getMoves() const
+	const Movements &getMoves() const
 	{
 		return m_moves;
 	}

@@ -212,5 +212,8 @@
     <ClInclude Include="Tests\ChessTest.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\RandomTest.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

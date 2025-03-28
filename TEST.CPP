@@ -58,6 +58,7 @@
 #include <gak/directory.h>
 
 #include "Tests/ChessTest.h"
+#include "Tests/RandomTest.h"
 
 #include "Tests/EtaTest.h"
 #include "Tests/RingBufferTest.h"

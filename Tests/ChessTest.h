@@ -224,6 +224,46 @@ class ChessTest : public UnitTest
 
 //		UT_ASSERT_TRUE( false );
 		chess.print();
+
+		// from upper right to lower left
+		chess::Position::MoveFunc func = chess::Position::findMoveFunc(chess::Position( 'H', 8 ), chess::Position( 'A', 1 ));
+		UT_ASSERT_EQUAL( func, &chess::Position::moveSouthWest );
+
+		// from right to left
+		func = chess::Position::findMoveFunc(chess::Position( 'H', 8 ), chess::Position( 'A', 8 ));
+		UT_ASSERT_EQUAL( func, &chess::Position::moveWest );
+
+		// from lower right to upper left
+		func = chess::Position::findMoveFunc(chess::Position( 'H', 1 ), chess::Position( 'A', 8 ));
+		UT_ASSERT_EQUAL( func, &chess::Position::moveNorthWest );
+
+		// from lower to upper
+		func = chess::Position::findMoveFunc(chess::Position( 'H', 1 ), chess::Position( 'H', 8 ));
+		UT_ASSERT_EQUAL( func, &chess::Position::moveNorth );
+
+		// from lower left to upper right
+		func = chess::Position::findMoveFunc(chess::Position( 'A', 1 ), chess::Position( 'H', 8 ));
+		UT_ASSERT_EQUAL( func, &chess::Position::moveNorthEast );
+
+		// from left to right
+		func = chess::Position::findMoveFunc(chess::Position( 'A', 1 ), chess::Position( 'H', 1 ));
+		UT_ASSERT_EQUAL( func, &chess::Position::moveEast );
+
+		// from upper left to lower right
+		func = chess::Position::findMoveFunc(chess::Position( 'A', 8 ), chess::Position( 'H', 1 ));
+		UT_ASSERT_EQUAL( func, &chess::Position::moveSouthEast );
+
+		// from upper to lower
+		func = chess::Position::findMoveFunc(chess::Position( 'H', 8 ), chess::Position( 'H', 1 ));
+		UT_ASSERT_EQUAL( func, &chess::Position::moveSouth );
+
+		// bad
+		func = chess::Position::findMoveFunc(chess::Position( 'C', 8 ), chess::Position( 'H', 1 ));
+		UT_ASSERT_EQUAL( func, chess::Position::MoveFunc(NULL) );
+
+		// equal
+		func = chess::Position::findMoveFunc(chess::Position( 'C', 5 ), chess::Position( 'C', 5 ));
+		UT_ASSERT_EQUAL( func, chess::Position::MoveFunc(NULL) );
 	}
 };
 
