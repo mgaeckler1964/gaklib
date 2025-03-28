@@ -641,12 +641,12 @@ class Board
 	void reset();
 
 	/* count figures */
-	void evaluatePower(int &whitePower, int &blackPower) const;
-	int evaluatePower() const
+	void evaluateForce(int &whiteForce, int &blackForce) const;
+	int evaluateForce() const
 	{
-		int whitePower, blackPower;
-		evaluatePower(whitePower, blackPower);
-		return whitePower - blackPower;
+		int whiteForce, blackForce;
+		evaluateForce(whiteForce, blackForce);
+		return whiteForce - blackForce;
 	}
 
 	/* count targets and captures */

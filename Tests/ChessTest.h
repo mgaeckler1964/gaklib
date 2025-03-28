@@ -97,12 +97,12 @@ class ChessTest : public UnitTest
 							 "tsldklst" ;
 
 		chess.reset();
-		UT_ASSERT_EQUAL( 0, chess.evaluatePower() );
+		UT_ASSERT_EQUAL( 0, chess.evaluateForce() );
 
-		int whitePower, blackPower;
-		chess.evaluatePower(whitePower, blackPower);
-		UT_ASSERT_EQUAL( whitePower, blackPower );
-		UT_ASSERT_EQUAL( whitePower, chess::INIT_VALUE );
+		int whiteForce, blackForce;
+		chess.evaluateForce(whiteForce, blackForce);
+		UT_ASSERT_EQUAL( whiteForce, blackForce );
+		UT_ASSERT_EQUAL( whiteForce, chess::INIT_VALUE );
 
 		int targets, captures;
 		chess.evaluateRange(targets, captures);

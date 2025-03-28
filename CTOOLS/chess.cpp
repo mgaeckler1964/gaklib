@@ -812,24 +812,24 @@ void Board::refresh()
 	}
 }
 
-void Board::evaluatePower( int &whitePower, int &blackPower) const
+void Board::evaluateForce( int &whiteForce, int &blackForce) const
 {
 	Position	board[NUM_FIELDS];
 
-	whitePower=0;
-	blackPower=0;
+	whiteForce=0;
+	blackForce=0;
 	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
 		if( m_board[i] )
 		{
-			int power = m_board[i]->getValue();
+			int force = m_board[i]->getValue();
 			if( m_board[i]->m_color == Figure::White )
 			{
-				whitePower += power;
+				whiteForce += force;
 			}
 			else
 			{
-				blackPower += power;
+				blackForce += force;
 			}
 		}
 	}
@@ -866,15 +866,15 @@ void Board::evaluateRange(int &whiteTargets, int &blackTargets, int &whiteCaptur
 
 int Board::evaluate() const
 {
-	int whitePower, blackPower;
+	int whiteForce, blackForce;
 	int whiteTargets, blackTargets, whiteCaptures, blackCaptures;
 
-	evaluatePower( whitePower, blackPower);
-	if( whitePower < KING_VALUE )
+	evaluateForce( whiteForce, blackForce);
+	if( whiteForce < KING_VALUE )
 	{
 		return -PLAYER_WINS;
 	}
-	if( blackPower < KING_VALUE )
+	if( blackForce < KING_VALUE )
 	{
 		return PLAYER_WINS;
 	}
@@ -928,7 +928,7 @@ int Board::evaluate() const
 
 	evaluateRange(whiteTargets, blackTargets, whiteCaptures, blackCaptures);
 
-	return whitePower + whiteTargets + whiteCaptures - blackPower - blackTargets - blackCaptures;
+	return whiteForce + whiteTargets + whiteCaptures - blackForce - blackTargets - blackCaptures;
 }
 
 void Board::undoMove(const Movement &move)
