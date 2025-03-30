@@ -94,6 +94,24 @@ static const int INIT_VALUE = BASE_VALUE + KING_VALUE;
 static const  int PLAYER_WINS = KING_VALUE*4;
 static const  int CHECK = KING_VALUE;
 
+#if 1
+// for german chess. 
+static const char PAWN_LETTER = 'B';		// Bauer
+static const char ROOK_LETTER = 'T';		// Turm
+static const char KNIGHT_LETTER = 'S';		// Springer
+static const char BISHOP_LETTER = 'L';		// Läufer
+static const char QUEEN_LETTER = 'D';		// Dame
+static const char KING_LETTER = 'K';		// König
+#else
+// for english chess. warning; unit test works with german, only
+static const char PAWN_LETTER = 'P';
+static const char ROOK_LETTER = 'R';
+static const char KNIGHT_LETTER = 'N';
+static const char BISHOP_LETTER = 'B';
+static const char QUEEN_LETTER = 'Q';
+static const char KING_LETTER = 'K';
+#endif
+
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -277,9 +295,9 @@ struct TargetPositions
 	Position	targets[32];
 	Position	captures[32];
 	Position	threads[32];
-	size_t		numTargets;
-	size_t		numCaptures;
-	size_t		numThreads;
+	int			numTargets;
+	int			numCaptures;
+	int			numThreads;
 	
 	TargetPositions()
 	{
@@ -337,7 +355,7 @@ class Figure
 	virtual TargetPositions calcPossible() = 0;
 
 	protected:
-	size_t checkDirection(TargetPositions *pos, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const;
+	size_t checkRange(TargetPositions *pos, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const;
 
 	public:
 	Figure( Color color, Position pos, Board &board ) : m_color(color), m_pos(pos), m_board(board), m_moved(false) {}
@@ -366,7 +384,7 @@ class Figure
 	{
 		return m_pos;
 	}
-	bool getMoved() const
+	bool hasMoved() const
 	{
 		return m_moved;
 	}
@@ -392,17 +410,23 @@ class Figure
 		return m_targets;
 	}
 
-	size_t checkDirection(TargetPositions *pos, Position::MoveFunc movement ) const
+	size_t checkRange(TargetPositions *pos, Position::MoveFunc movement ) const
 	{
 		// good for Rook, Bishop and Queen, they may go the longest distance and it is allowed to be sacrified
-		return checkDirection(pos, movement, MAX_DISTANCE, true);
+		return checkRange(pos, movement, MAX_DISTANCE, true);
 	}
 
-	Attack searchAttack(const Position &pos, Position (Position::*movement )()) const;
+	Attack searchAttack(const Position &pos, Position::MoveFunc movement, const Position &ignore, const Position &stop, int maxCount=MAX_DISTANCE ) const;
 
-	Attack searchAttack(Position (Position::*movement )()) const
+	Attack searchAttack(Position (Position::*movement )(), const Position &ignore=Position(), const Position &stop=Position() ) const
 	{
-		return searchAttack(m_pos, movement );
+		return searchAttack(m_pos, movement, ignore, stop  );
+	}
+	Attack searchAttack(const Position &ignore=Position(), const Position &stop=Position() ) const;
+	bool isAttacked(const Position &ignore, const Position &stop ) const
+	{
+		Attack attack = searchAttack(ignore,stop);
+		return isOK(attack);
 	}
 
 	virtual Type getType() const = 0;
@@ -426,7 +450,7 @@ class Pawn : public Figure
 	}
 	virtual char getLetter() const
 	{
-		return 'B';
+		return PAWN_LETTER;
 	}
 };
 
@@ -435,10 +459,10 @@ class Knight : public Figure
 	public:
 	Knight( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	size_t checkDirection(TargetPositions *pos, Position::MoveFunc movement) const
+	size_t checkRange(TargetPositions *pos, Position::MoveFunc movement) const
 	{
 		// knight can gon one step, only, and it is allowed to be sacrified
-		return Figure::checkDirection(pos, movement, 1, true);
+		return Figure::checkRange(pos, movement, 1, true);
 	}
 	virtual TargetPositions calcPossible();
 	virtual Type getType() const
@@ -451,7 +475,7 @@ class Knight : public Figure
 	}
 	virtual char getLetter() const
 	{
-		return 'S';
+		return KNIGHT_LETTER;
 	}
 };
 
@@ -471,7 +495,7 @@ class Bishop : public Figure
 	}
 	virtual char getLetter() const
 	{
-		return 'L';
+		return BISHOP_LETTER;
 	}
 };
 
@@ -491,7 +515,7 @@ class Rook : public Figure
 	}
 	virtual char getLetter() const
 	{
-		return 'T';
+		return ROOK_LETTER;
 	}
 };
 
@@ -511,7 +535,7 @@ class Queen : public Figure
 	}
 	virtual char getLetter() const
 	{
-		return 'D';
+		return QUEEN_LETTER;
 	}
 };
 
@@ -533,10 +557,10 @@ class King : public Figure
 	public:
 	King( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	size_t checkDirection(TargetPositions *pos, Position::MoveFunc movement, size_t maxCount) const
+	size_t checkRange(TargetPositions *pos, Position::MoveFunc movement, size_t maxCount) const
 	{
 		// knight can go one,  only, or two while rochade, and it is NOT allowed to be sacrified
-		return Figure::checkDirection(pos, movement, maxCount, false);
+		return Figure::checkRange(pos, movement, maxCount, false);
 	}
 	virtual TargetPositions calcPossible();
 
@@ -560,7 +584,7 @@ class King : public Figure
 	}
 	virtual char getLetter() const
 	{
-		return 'K';
+		return KING_LETTER;
 	}
 };
 
@@ -586,36 +610,56 @@ typedef Array<Movement>	Movements;
 
 class Board
 {
-	Movements	m_moves;
+	public:
+	enum State
+	{
+		csBlank, 
+		csPlaying, csWhiteCheck, csBlackCheck, 
+		csEnd, csWhiteMatt, csBlackMatt, csPatt
+	};
 
-	Figure *m_board[NUM_FIELDS];
+	private:
 
+	Figure					*m_board[NUM_FIELDS];
 	ArrayOfPointer<Figure>	m_all;
+	King					*m_whiteK;
+	King					*m_blackK;
+	State					m_state;
+	Figure::Color			m_nextColor;
+	Movements				m_moves;
 
-	King	*m_whiteK;
-	King	*m_blackK;
-
-	Figure::Color	m_nextColor;
-
+	static bool isWhiteTurn(Figure::Color nextColor)
+	{
+		return nextColor == Figure::White;
+	}
 	bool isWhiteTurn() const
 	{
-		return m_nextColor == Figure::White;
+		return isWhiteTurn(m_nextColor);
+	}
+	static bool isBlackTurn(Figure::Color nextColor)
+	{
+		return nextColor == Figure::Black;
 	}
 	bool isBlackTurn() const
 	{
-		return m_nextColor == Figure::Black;
+		return isBlackTurn(m_nextColor);
 	}
 	bool flipTurn()
 	{
 		return m_nextColor = isWhiteTurn() ? Figure::Black : Figure::White;
 	}
 
+	bool canPlay() const
+	{
+		return m_state > csBlank && m_state < csEnd;
+	}
 	void clear()
 	{
 		m_moves.clear();
 		m_all.clear();
 		std::memset(m_board, 0, sizeof(m_board) );
 		m_whiteK = m_blackK = NULL;
+		m_state = csBlank;
 	}
 
 	Figure *checkEnPassant(const PlayerPos &src, const Position &dest) const;
@@ -630,7 +674,6 @@ class Board
 	public:
 	Board()
 	{
-		m_nextColor = Figure::White;
 		clear();
 	}
 	~Board()
@@ -638,6 +681,7 @@ class Board
 		clear();
 	}
 	void refresh();
+	void checkCheck();
 	void reset();
 
 	/* count figures */
@@ -661,6 +705,10 @@ class Board
 
 	int evaluate() const;
 
+	King *getCurKing() const
+	{
+		return isWhiteTurn() ? getWhiteK() : getBlackK();
+	}
 	King *getWhiteK() const
 	{
 		return m_whiteK;
@@ -797,6 +845,61 @@ class Board
 		}
 
 		return result;
+	}
+	static void generateFromString(const STRING &string, Board &result )
+	{
+		if(string.size() < NUM_FIELDS )
+		{
+			return;
+		}
+		result.clear();
+		const char *src = string;
+		Figure::Color	newColor;
+		Figure::Type	newType;
+		for( int i=0; i<NUM_FIELDS; ++i )
+		{
+			char sym = *src++;
+			char upperLetter = char(toupper(sym));
+			newColor = upperLetter == sym ? Figure::White : Figure::Black;
+			switch(upperLetter)
+			{
+			case PAWN_LETTER:
+				newType = Figure::ftPawn;
+				break;
+			case ROOK_LETTER:
+				newType = Figure::ftRook;
+				break;
+			case KNIGHT_LETTER:
+				newType = Figure::ftKnight;
+				break;
+			case BISHOP_LETTER:
+				newType = Figure::ftBishop;
+				break;
+			case QUEEN_LETTER:
+				newType = Figure::ftQueen;
+				break;
+			case KING_LETTER:
+				newType = Figure::ftKing;
+				break;
+			default:
+				newType = Figure::ftNone;
+				break;
+			}
+			if(newType != Figure::ftNone)
+			{
+				Position pos = getPosition(i);
+				Figure *fig = result.create(newColor,newType, pos);
+				result.m_board[i] = fig;
+				if(newType==Figure::ftKing)
+				{
+					if(isWhiteTurn(newColor))
+						result.m_whiteK = static_cast<King*>(fig);
+					else
+						result.m_blackK = static_cast<King*>(fig);;
+				}
+			}
+		}
+		return;
 	}
 	const Movements &getMoves() const
 	{

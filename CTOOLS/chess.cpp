@@ -238,7 +238,7 @@ void Board::reset(Figure::Color color)
 // ----- class protected ----------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-size_t Figure::checkDirection(TargetPositions *pos, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const
+size_t Figure::checkRange(TargetPositions *pos, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const
 {
 	const size_t	begin = pos->numTargets;
 
@@ -372,10 +372,10 @@ TargetPositions  Rook::calcPossible()
 {
 	TargetPositions	result;
 
-	checkDirection(&result, &Position::moveNorth);
-	checkDirection(&result, &Position::moveEast);
-	checkDirection(&result, &Position::moveSouth);
-	checkDirection(&result, &Position::moveWest);
+	checkRange(&result, &Position::moveNorth);
+	checkRange(&result, &Position::moveEast);
+	checkRange(&result, &Position::moveSouth);
+	checkRange(&result, &Position::moveWest);
 
 	return result;
 }
@@ -384,14 +384,14 @@ TargetPositions  Knight::calcPossible()
 {
 	TargetPositions	result;
 
-	checkDirection(&result, &Position::moveSNorthEast);
-	checkDirection(&result, &Position::moveSEastNorth);
-	checkDirection(&result, &Position::moveSEastSouth);
-	checkDirection(&result, &Position::moveSSouthEast);
-	checkDirection(&result, &Position::moveSSouthWest);
-	checkDirection(&result, &Position::moveSWestSouth);
-	checkDirection(&result, &Position::moveSWestNorth);
-	checkDirection(&result, &Position::moveSNorthWest);
+	checkRange(&result, &Position::moveSNorthEast);
+	checkRange(&result, &Position::moveSEastNorth);
+	checkRange(&result, &Position::moveSEastSouth);
+	checkRange(&result, &Position::moveSSouthEast);
+	checkRange(&result, &Position::moveSSouthWest);
+	checkRange(&result, &Position::moveSWestSouth);
+	checkRange(&result, &Position::moveSWestNorth);
+	checkRange(&result, &Position::moveSNorthWest);
 
 	return result;
 }
@@ -400,10 +400,10 @@ TargetPositions  Bishop::calcPossible()
 {
 	TargetPositions	result;
 
-	checkDirection(&result, &Position::moveNorthEast);
-	checkDirection(&result, &Position::moveSouthEast);
-	checkDirection(&result, &Position::moveSouthWest);
-	checkDirection(&result, &Position::moveNorthWest);
+	checkRange(&result, &Position::moveNorthEast);
+	checkRange(&result, &Position::moveSouthEast);
+	checkRange(&result, &Position::moveSouthWest);
+	checkRange(&result, &Position::moveNorthWest);
 
 	return result;
 }
@@ -412,14 +412,14 @@ TargetPositions Queen::calcPossible()
 {
 	TargetPositions	result;
 
-	checkDirection(&result, &Position::moveNorth);
-	checkDirection(&result, &Position::moveNorthEast);
-	checkDirection(&result, &Position::moveEast);
-	checkDirection(&result, &Position::moveSouthEast);
-	checkDirection(&result, &Position::moveSouth);
-	checkDirection(&result, &Position::moveSouthWest);
-	checkDirection(&result, &Position::moveWest);
-	checkDirection(&result, &Position::moveNorthWest);
+	checkRange(&result, &Position::moveNorth);
+	checkRange(&result, &Position::moveNorthEast);
+	checkRange(&result, &Position::moveEast);
+	checkRange(&result, &Position::moveSouthEast);
+	checkRange(&result, &Position::moveSouth);
+	checkRange(&result, &Position::moveSouthWest);
+	checkRange(&result, &Position::moveWest);
+	checkRange(&result, &Position::moveNorthWest);
 
 	return result;
 }
@@ -430,58 +430,58 @@ TargetPositions King::calcPossible()
 	Attack attack = searchAttack(&Position::moveNorth);
 	if( isOK( attack ) )
 	{
-		checkDirection(&result, &Position::moveNorth, 1);
+		checkRange(&result, &Position::moveNorth, 1);
 	}
 
 	attack = searchAttack(&Position::moveNorthEast);
 	if( isOK( attack ) )
 	{
-		checkDirection(&result, &Position::moveNorthEast, 1);
+		checkRange(&result, &Position::moveNorthEast, 1);
 	}
 
 	attack = searchAttack(&Position::moveEast);
-	size_t canEast = isOK( attack ) ? checkDirection(&result, &Position::moveEast, 1) : 0;
+	size_t canEast = isOK( attack ) ? checkRange(&result, &Position::moveEast, 1) : 0;
 
 	attack = searchAttack(&Position::moveSouthEast);
 	if( isOK( attack ) )
 	{
-		checkDirection(&result, &Position::moveSouthEast, 1);
+		checkRange(&result, &Position::moveSouthEast, 1);
 	}
 
 	attack = searchAttack(&Position::moveSouth);
 	if( isOK( attack ) )
 	{
-		checkDirection(&result, &Position::moveSouth, 1);
+		checkRange(&result, &Position::moveSouth, 1);
 	}
 
 	attack = searchAttack(&Position::moveSouthWest);
 	if( isOK( attack ) )
 	{
-		checkDirection(&result, &Position::moveSouthWest, 1);
+		checkRange(&result, &Position::moveSouthWest, 1);
 	}
 
 	attack = searchAttack(&Position::moveWest);
-	size_t canWest = isOK( attack ) ? checkDirection(&result, &Position::moveWest, 1) : 0;
+	size_t canWest = isOK( attack ) ? checkRange(&result, &Position::moveWest, 1) : 0;
 
 	attack = searchAttack(&Position::moveNorthWest);
 	if( isOK( attack ) )
 	{
-		checkDirection(&result, &Position::moveNorthWest, 1);
+		checkRange(&result, &Position::moveNorthWest, 1);
 	}
 
-	if( !getMoved() )
+	if( !hasMoved() )
 	{
 		if( canWest )
 		{
 			TargetPositions	result2;
-			checkDirection(&result2, &Position::moveWest, 2);
+			checkRange(&result2, &Position::moveWest, 2);
 			if( result2.numTargets == 2 && result2.numCaptures == 0 )
 			{
 				Figure *rook = m_board.getFigure( Position( 'A', getPos().row ) );
-				if( !rook->getMoved() )
+				if( !rook->hasMoved() )
 				{
 					TargetPositions	result3;
-					rook->checkDirection(&result3, &Position::moveEast);
+					rook->checkRange(&result3, &Position::moveEast);
 					if( result3.numTargets >= 3 && result3.numCaptures == 0 )
 					{
 						Position &targetPosition = result2.targets[1];
@@ -496,14 +496,14 @@ TargetPositions King::calcPossible()
 		if( canEast )
 		{
 			TargetPositions	result2;
-			checkDirection(&result2, &Position::moveEast, 2);
+			checkRange(&result2, &Position::moveEast, 2);
 			if( result2.numTargets == 2 && result2.numCaptures == 0 )
 			{
 				Figure *rook = m_board.getFigure( Position( 'H', getPos().row ) );
-				if( !rook->getMoved() )
+				if( !rook->hasMoved() )
 				{
 					TargetPositions	result3;
-					rook->checkDirection(&result3, &Position::moveWest);
+					rook->checkRange(&result3, &Position::moveWest);
 					if( result3.numTargets >= 2 && result3.numCaptures == 0 )
 					{
 						Position &targetPosition = result2.targets[1];
@@ -531,28 +531,68 @@ void Figure::moveTo( const Position &pos )
 	m_board.refresh();
 }
 
-Figure::Attack Figure::searchAttack(const Position &pos, Position (Position::*movement )()) const
+Figure::Attack Figure::searchAttack(const Position &pos, Position::MoveFunc movement, const Position &ignore, const Position &stop, int maxCount ) const
 {
 	Attack attack;
 	Position targetPos = pos;
-	while( 1 )
+	while( maxCount-- )
 	{
 		targetPos = (targetPos.*movement)();
-		if( !targetPos )
+		if( !targetPos || targetPos == stop)
 			break;
 		++attack.steps;
-		const Figure *figure = m_board.getFigure( targetPos );
-		if( figure ) 
+		if(ignore != targetPos)
 		{
-			if( figure->m_color != m_color )
+			const Figure *figure = m_board.getFigure( targetPos );
+			if( figure ) 
 			{
-				attack.figure = figure;
+				if( figure->m_color != m_color )
+				{
+					attack.figure = figure;
+				}
+				break;
 			}
-			break;
 		}
 	}
 
 	return attack;
+}
+
+Figure::Attack Figure::searchAttack(const Position &ignore, const Position &stop ) const
+{
+	static struct 
+	{
+		Position::MoveFunc	move;
+		int				maxDistance;
+	} moves[] =
+	{
+		{ &Position::moveNorth,			MAX_DISTANCE },
+		{ &Position::moveNorthEast,		MAX_DISTANCE },
+		{ &Position::moveEast,			MAX_DISTANCE },
+		{ &Position::moveSouthEast,		MAX_DISTANCE },
+		{ &Position::moveSouth,			MAX_DISTANCE },
+		{ &Position::moveSouthWest,		MAX_DISTANCE },
+		{ &Position::moveWest,			MAX_DISTANCE },
+		{ &Position::moveNorthWest,		MAX_DISTANCE },
+		{ &Position::moveSNorthEast,	1 },
+		{ &Position::moveSEastNorth,	1 },
+		{ &Position::moveSEastSouth,	1 },
+		{ &Position::moveSSouthEast,	1 },
+		{ &Position::moveSSouthWest,	1 },
+		{ &Position::moveSWestSouth,	1 },
+		{ &Position::moveSWestNorth,	1 },
+		{ &Position::moveSNorthWest,	1 }
+	};
+	FOR_EACH(i,moves)
+	{
+		Attack attack = searchAttack(m_pos, moves[i].move, ignore, stop, moves[i].maxDistance );
+		if( !isOK(attack) )
+		{
+			return attack;
+		}
+	}
+
+	return Attack();
 }
 
 const Figure *Board::getAttacker( const Figure *fig ) const
@@ -648,6 +688,10 @@ size_t Board::getThreads( Figure::Color color, const Position &pos, FigurePtr *t
 
 bool Board::checkMoveTo( const PlayerPos &src, const Position &dest, Figure::Type newFig ) const
 {
+	if( !canPlay() )
+	{
+		return true;
+	}
 	const Figure *fig = src.fig;
 	if( !fig )
 	{
@@ -680,7 +724,9 @@ bool Board::checkMoveTo( const PlayerPos &src, const Position &dest, Figure::Typ
 			return false;
 		}
 	}
-	return true;
+
+	// final we have to check whether our king is now checked
+	return getCurKing()->isAttacked(src.pos,dest);
 }
 
 void Board::moveTo( const PlayerPos &src, const Position &dest )
@@ -798,6 +844,8 @@ void Board::reset()
 	m_whiteK = dynamic_cast<King*>(getFigure('E', 1));
 	m_blackK = dynamic_cast<King*>(getFigure('E', NUM_ROWS));
 
+	m_nextColor = Figure::White;
+	m_state = csPlaying;
 	refresh();
 }
 
@@ -810,12 +858,36 @@ void Board::refresh()
 			m_board[i]->refresh();
 		}
 	}
+	checkCheck();
+}
+
+void Board::checkCheck()
+{
+	for( size_t i=0; i<NUM_FIELDS; ++i )
+	{
+		Figure *fig = m_board[i];
+		if( fig && fig->getType() != Figure::ftKing )
+		{
+			const TargetPositions &targets = fig->getPossible();
+			for( size_t i=0; i<targets.numCaptures; ++i )
+			{
+				if( m_whiteK->getPos() == targets.captures[i] )
+				{
+					m_state = csWhiteCheck;
+/*@*/				return;
+				}
+				else if( m_blackK->getPos() == targets.captures[i] )
+				{
+					m_state = csBlackCheck;
+/*@*/				return;
+				}
+			}
+		}
+	}
 }
 
 void Board::evaluateForce( int &whiteForce, int &blackForce) const
 {
-	Position	board[NUM_FIELDS];
-
 	whiteForce=0;
 	blackForce=0;
 	for( size_t i=0; i<NUM_FIELDS; ++i )
@@ -838,7 +910,7 @@ void Board::evaluateForce( int &whiteForce, int &blackForce) const
 void Board::evaluateRange(int &whiteTargets, int &blackTargets, int &whiteCaptures, int &blackCaptures) const
 {
 	whiteTargets = blackTargets = whiteCaptures = blackCaptures = 0;
-	for( size_t i=0; i<NUM_FIELDS; ++i )
+	for( int i=0; i<NUM_FIELDS; ++i )
 	{
 		Figure *fig = m_board[i];
 		if( fig )
@@ -879,37 +951,7 @@ int Board::evaluate() const
 		return PLAYER_WINS;
 	}
 
-	enum Check {
-		cNONE, cWHITE, cBLACK
-	} check = cNONE;
-
-	for( size_t i=0; i<NUM_FIELDS; ++i )
-	{
-		Figure *fig = m_board[i];
-		if( fig && fig!=m_whiteK && fig!=m_blackK )
-		{
-			const TargetPositions &targets = fig->getPossible();
-			for( size_t i=0; i<targets.numCaptures; ++i )
-			{
-				if( m_whiteK->getPos() == targets.captures[i] )
-				{
-					check = cWHITE;
-/*v*/				break;
-				}
-				if( m_blackK->getPos() == targets.captures[i] )
-				{
-					check = cBLACK;
-/*v*/				break;
-				}
-			}
-			if( check )
-			{
-/*v*/			break;
-			}
-		}
-	}
-
-	if( check == cWHITE )
+	if( m_state == csWhiteCheck )
 	{
 		if( isBlackTurn() )
 		{
@@ -917,7 +959,7 @@ int Board::evaluate() const
 		}
 		return -CHECK;
 	}
-	else if( check == cBLACK )
+	else if( m_state == csBlackCheck )
 	{
 		if( isWhiteTurn() )
 		{
@@ -1034,7 +1076,7 @@ Movements Board::findCheckDefend(size_t *numAttackers) const
 {
 	assert(numAttackers);
 	Movements defends;
-	Figure *king = isWhiteTurn() ? m_whiteK : m_blackK;
+	Figure *king = getCurKing();
 	FigurePtr attackers[NUM_TEAM_FIGURES];
 	*numAttackers = getAttackers(king, attackers);
 
