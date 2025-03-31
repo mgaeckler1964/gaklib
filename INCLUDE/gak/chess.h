@@ -92,7 +92,10 @@ static const int KING_VALUE = PROMOTED_VALUE *2;
 static const int INIT_VALUE = BASE_VALUE + KING_VALUE;
 
 static const  int PLAYER_WINS = KING_VALUE*4;
-static const  int CHECK = KING_VALUE;
+static const  int WHITE_WINS = PLAYER_WINS;
+static const  int BLACK_WINS = -PLAYER_WINS;
+static const  int WHITE_CHECK = -KING_VALUE;
+static const  int BLACK_CHECK = KING_VALUE;
 
 #if 1
 // for german chess. 
@@ -308,6 +311,7 @@ struct TargetPositions
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
+class King;
 
 class Figure
 {
@@ -330,10 +334,8 @@ class Figure
 	{
 		const Figure *figure;
 		size_t steps;
-		Attack()
+		Attack() : figure(NULL), steps(0)
 		{
-			figure = NULL;
-			steps = 0;
 		}
 	};
 
@@ -341,6 +343,7 @@ class Figure
 	bool				m_moved;
 	Position			m_pos;
 	TargetPositions		m_targets;
+	Position::MoveFunc	m_toKing, m_fromKing;
 
 	protected:
 	Board				&m_board;
@@ -355,13 +358,18 @@ class Figure
 	virtual TargetPositions calcPossible() = 0;
 
 	protected:
-	size_t checkRange(TargetPositions *pos, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const;
+	size_t checkRange(TargetPositions *result, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const;
 
 	public:
-	Figure( Color color, Position pos, Board &board ) : m_color(color), m_pos(pos), m_board(board), m_moved(false) {}
+	Figure( Color color, Position pos, Board &board ) : m_color(color), m_pos(pos), m_board(board), m_moved(false), m_toKing(NULL), m_fromKing(NULL) {}
+
+	King *getKing() const;
+	void checkInterPos();
 
 	void refresh()
 	{
+		// check whether figure is interposed between our king and an oponent
+		checkInterPos();
 		m_targets = calcPossible();
 	}
 	void capture()
@@ -418,7 +426,7 @@ class Figure
 
 	Attack searchAttack(const Position &pos, Position::MoveFunc movement, const Position &ignore, const Position &stop, int maxCount=MAX_DISTANCE ) const;
 
-	Attack searchAttack(Position (Position::*movement )(), const Position &ignore=Position(), const Position &stop=Position() ) const
+	Attack searchAttack(Position::MoveFunc movement, const Position &ignore=Position(), const Position &stop=Position() ) const
 	{
 		return searchAttack(m_pos, movement, ignore, stop  );
 	}
@@ -615,7 +623,7 @@ class Board
 	{
 		csBlank, 
 		csPlaying, csWhiteCheck, csBlackCheck, 
-		csEnd, csWhiteMatt, csBlackMatt, csPatt
+		csEnd, csWhiteCheckMate, csBlackCheckMate, csDraw
 	};
 
 	private:
@@ -705,6 +713,10 @@ class Board
 
 	int evaluate() const;
 
+	King *getKing( Figure::Color color ) const
+	{
+		return isWhiteTurn(color) ? getWhiteK() : getBlackK();
+	}
 	King *getCurKing() const
 	{
 		return isWhiteTurn() ? getWhiteK() : getBlackK();

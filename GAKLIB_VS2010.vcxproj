@@ -32,6 +32,7 @@
     <ClCompile Include="CTOOLS\aiBrain.cpp" />
     <ClCompile Include="CTOOLS\ansiChar.cpp" />
     <ClCompile Include="CTOOLS\array.cpp" />
+    <ClCompile Include="CTOOLS\board.cpp" />
     <ClCompile Include="CTOOLS\cgitools.cpp" />
     <ClCompile Include="CTOOLS\changeManager.cpp" />
     <ClCompile Include="CTOOLS\chess.cpp" />
@@ -57,6 +58,7 @@
     <ClCompile Include="CTOOLS\exception.cpp" />
     <ClCompile Include="CTOOLS\exif.cpp" />
     <ClCompile Include="CTOOLS\fieldSet.cpp" />
+    <ClCompile Include="CTOOLS\figure.cpp" />
     <ClCompile Include="CTOOLS\fileID.cpp" />
     <ClCompile Include="CTOOLS\filename.cpp" />
     <ClCompile Include="CTOOLS\fLink.cpp" />

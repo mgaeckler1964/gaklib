@@ -294,7 +294,13 @@
     <ClCompile Include="CTOOLS\mailParser.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="CTOOLS\board.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
     <ClCompile Include="CTOOLS\chess.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="CTOOLS\figure.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
