@@ -131,7 +131,7 @@ size_t Figure::checkRange(TargetPositions *result, Position::MoveFunc movement, 
 		if( !targetPos )
 			break;
 
-		if( !allowSacrifice && m_board.getThread(m_color,targetPos,false) )
+		if( !allowSacrifice && m_board.getThread(m_color,targetPos,false, true) )
 		{
 			break;		// king must not move over an attacked field
 		}
@@ -360,7 +360,7 @@ TargetPositions King::calcPossible()
 			if( result2.numTargets == 2 && result2.numCaptures == 0 )
 			{
 				Figure *rook = m_board.getFigure( Position( 'A', getPos().row ) );
-				if( !rook->hasMoved() )
+				if( rook && !rook->hasMoved() )
 				{
 					TargetPositions	result3;
 					rook->checkRange(&result3, &Position::moveEast);
@@ -382,7 +382,7 @@ TargetPositions King::calcPossible()
 			if( result2.numTargets == 2 && result2.numCaptures == 0 )
 			{
 				Figure *rook = m_board.getFigure( Position( 'H', getPos().row ) );
-				if( !rook->hasMoved() )
+				if( rook && !rook->hasMoved() )
 				{
 					TargetPositions	result3;
 					rook->checkRange(&result3, &Position::moveWest);

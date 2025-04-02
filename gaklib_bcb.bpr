@@ -91,7 +91,8 @@
       ..\..\Object\gaklib\win\bcb\hostResolver.obj 
       ..\..\Object\gaklib\win\bcb\console.obj 
       ..\..\Object\gaklib\win\bcb\aiBrain.obj 
-      ..\..\Object\gaklib\win\bcb\chess.obj"/>
+      ..\..\Object\gaklib\win\bcb\chess.obj 
+      ..\..\Object\gaklib\win\bcb\board.obj ..\..\Object\gaklib\win\bcb\figure.obj"/>
     <RESFILES value=""/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>

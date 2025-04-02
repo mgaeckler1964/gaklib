@@ -85,8 +85,52 @@ class ChessTest : public UnitTest
 	}
 	virtual void PerformTest( void )
 	{
+		doDisableLog();
 		//TestScope scope( "PerformTest" );
 		chess::Board	chess;
+		int quality;
+
+		// find move for king
+		{
+			chess.generateFromString(
+				"     K  "
+				"     d  "
+				"        "
+				"     k  "
+				"        "
+				"        "
+				"        "
+				"        "
+				"W"
+			);
+			chess::King *king = chess.getCurKing();
+			const chess::TargetPositions &targets = king->getPossible();
+			UT_ASSERT_EQUAL(targets.numTargets, 1);
+			UT_ASSERT_EQUAL(targets.numCaptures, 1);
+
+			chess.findBest(2, &quality);
+			UT_ASSERT_EQUAL(quality, 1);
+		}
+
+		// find mate
+		{
+			chess.generateFromString(
+				"     K  "
+				"        "
+				"     k  "
+				"        "
+				"        "
+				"        "
+				"d       "
+				"        "
+				"S"
+			);
+			chess.findBest(2, &quality);
+			UT_ASSERT_EQUAL(quality, 2);
+			chess.findBest(1, &quality);
+			UT_ASSERT_EQUAL(quality, 4);
+		}
+
 		const STRING start = "TSLDKLST"
 							 "BBBBBBBB"
 							 "        "

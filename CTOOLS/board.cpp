@@ -40,6 +40,8 @@
 
 #include <gak/chess.h>
 
+#include <gak/logfile.h>
+
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -63,6 +65,8 @@ namespace chess
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+static const gakLogging::LogLevel logLegel = gakLogging::llDetail;
 
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
@@ -292,12 +296,20 @@ size_t Board::getAttackers( const Figure *fig, FigurePtr *attackers ) const
 	return numAttackers;
 }
 
-const Figure *Board::getThread( Figure::Color color, const Position &pos, bool checkEnPassant ) const
+const Figure *Board::getThread( Figure::Color color, const Position &pos, bool checkEnPassant, bool check4King ) const
 {
+	if( check4King )
+	{
+		King *king = getOponentKing(color);
+		if( math::abs(king->getPos().row - pos.row) <2 && math::abs(king->getPos().col - pos.col) <2 )
+		{
+			return king;
+		}
+	}
 	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
 		const Figure *fig = m_board[i];
-		if( fig && fig->m_color != color )
+		if( fig && fig->m_color != color && fig->getPos() != pos )
 		{
 			const TargetPositions &targets = fig->getPossible();
 			for( size_t j=0; j<targets.numThreads; ++j )
@@ -500,14 +512,27 @@ void Board::reset()
 
 void Board::refresh()
 {
+	if( canPlay() )
+	{
+		m_state = csPlaying;
+	}
 	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
-		if( m_board[i] )
+		Figure *fig = m_board[i];
+		if( fig && fig->getType() != Figure::ftKing)
 		{
-			m_board[i]->refresh();
+			fig->refresh();
 		}
 	}
-	checkCheck();
+
+	// since king must not move to attacked fields all other figures must be refreshed befor 
+	m_whiteK->refresh();
+	m_blackK->refresh();
+
+	if( canPlay() )
+	{
+		checkCheck();
+	}
 }
 
 void Board::checkCheck()
@@ -587,6 +612,7 @@ void Board::evaluateRange(int &whiteTargets, int &blackTargets, int &whiteCaptur
 
 int Board::evaluate() const
 {
+	doEnterFunctionEx(logLegel, "Board::evaluate");
 	int whiteForce, blackForce;
 	int whiteTargets, blackTargets, whiteCaptures, blackCaptures;
 
@@ -619,6 +645,8 @@ int Board::evaluate() const
 
 	evaluateRange(whiteTargets, blackTargets, whiteCaptures, blackCaptures);
 
+	int evaluation = whiteForce + whiteTargets + whiteCaptures - blackForce - blackTargets - blackCaptures;
+	doLogValueEx(logLegel, evaluation);
 	return whiteForce + whiteTargets + whiteCaptures - blackForce - blackTargets - blackCaptures;
 }
 
@@ -670,6 +698,13 @@ void Board::redoMove(const Movement &move)
 	size_t srcIndex = getIndex(move.src);
 	size_t destIndex = getIndex(move.dest);
 
+#ifndef NDEBUG
+	if( srcIndex == 48 && (destIndex == 40 || destIndex == 13 || destIndex == 6 || destIndex == 0))
+	{
+		srcIndex = 48;
+	}
+#endif
+
 	// position figure
 	if( move.promotion )
 	{
@@ -702,6 +737,8 @@ void Board::redoMove(const Movement &move)
 
 Movements Board::collectMoves() const
 {
+	doEnterFunctionEx(logLegel, "Board::collectMoves");
+
 	Movements moves;
 	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
@@ -719,6 +756,19 @@ Movements Board::collectMoves() const
 		}
 	}
 	return moves;
+}
+
+size_t Board::findMove(const Movements &moves, const Position &src, const Position &dest )
+{
+	for( size_t i=0; i<moves.size(); ++i )
+	{
+		const Movement &move = moves[i];
+		if( move.src == src && move.dest == dest )
+		{
+			return i;
+		}
+	}
+	return Movements::no_index;
 }
 
 Movements Board::findCheckDefend(size_t *numAttackers) const
@@ -776,18 +826,106 @@ Movements Board::findCheckDefend(size_t *numAttackers) const
 
 	// final we add the escape options this is possible regardless the number of attackers
 	const TargetPositions &escapes = king->getPossible();
+	const Position &src = king->getPos();
 	for( int i=0; i<escapes.numTargets; ++i )
 	{
-		Movement &defend = defends.createElement();
-		defend.fig = king;
-		defend.src = king->getPos();
-		defend.dest = escapes.targets[i];
+		const Position &dest = escapes.targets[i];
+		if( findMove( defends, src, dest ) == defends.no_index )
+		{
+			Movement &defend = defends.createElement();
+			defend.fig = king;
+			defend.src = src;
+			defend.dest = dest;
+		}
 	}
 	return defends;
 }
 
-Movement Board::findBest() const
+int Board::evaluateMovements(Movements &movements, int maxLevel)
 {
+	doEnterFunctionEx(logLegel, "Board::evaluateMovements");
+
+	--maxLevel;
+	int minVal = std::numeric_limits<int>::max();
+	int maxVal = std::numeric_limits<int>::min();;
+	flipTurn();
+	for(
+		Movements::iterator it = movements.begin(), endIT = movements.end();
+		it != endIT;
+		++it
+	)
+	{
+		Movement &theMove = *it;
+
+#ifndef NDEBUG
+		size_t srcIndex = getIndex(theMove.src);
+		size_t destIndex = getIndex(theMove.dest);
+
+		if( srcIndex == 48 && (destIndex == 40 || destIndex == 13 || destIndex == 6 || destIndex == 0))
+		{
+			doLogValueEx(gakLogging::llDetail, theMove.src.col );
+			doLogValueEx(gakLogging::llDetail, int(theMove.src.row) );
+		}
+		if( srcIndex == 21 && (destIndex == 30 || destIndex == 13))
+		{
+			doLogValueEx(gakLogging::llDetail, theMove.src.col );
+			doLogValueEx(gakLogging::llDetail, int(theMove.src.row) );
+		}
+#endif
+		redoMove(theMove);
+		refresh();
+		theMove.evaluate = evaluate();
+		minVal = math::min(minVal, theMove.evaluate);
+		maxVal = math::max(maxVal, theMove.evaluate);
+#ifndef NDEBUG
+		if(minVal == -752)
+		{
+			doLogValueEx(gakLogging::llDetail, theMove.src.col );
+			doLogValueEx(gakLogging::llDetail, int(theMove.src.row) );
+		}
+#endif
+		if( maxLevel )
+		{
+			int quality;
+			Movement nextMove = findBest( maxLevel, &quality );
+			if( nextMove )
+			{
+				theMove.nextValue = nextMove.nextValue;
+			}
+			else
+			{
+				if( isWhiteTurn() )
+				{
+					theMove.evaluate = BLACK_WINS;
+					theMove.nextValue = BLACK_WINS;
+				}
+				else
+				{
+					theMove.evaluate = WHITE_WINS;
+					theMove.nextValue = WHITE_WINS;
+				}
+				minVal = math::min(minVal, theMove.evaluate);
+				maxVal = math::max(maxVal, theMove.evaluate);
+#ifndef NDEBUG
+				if(minVal == -752)
+				{
+					doLogValueEx(gakLogging::llDetail, theMove.src.col );
+					doLogValueEx(gakLogging::llDetail, int(theMove.src.row) );
+				}
+#endif
+			}
+		}
+
+		undoMove(*it);
+	}
+	flipTurn();
+	return isWhiteTurn() ? maxVal : minVal;
+}
+
+Movement Board::findBest( int maxLevel, int *quality )
+{
+	doEnterFunctionEx(logLegel, "Board::findBest");
+	int			bestEval;
 	Movement	best;
 	size_t		numAttackers;
 	Movements	movements = findCheckDefend(&numAttackers);
@@ -799,9 +937,50 @@ Movement Board::findBest() const
 
 	if( movements.size() )
 	{
+		bestEval = evaluateMovements(movements, maxLevel);
+
+		int maxNextEvalBlack = std::numeric_limits<int>::max();
+		int maxNextEvalWhite = std::numeric_limits<int>::min();;
+
+		size_t	numMoves=0;
+		for( size_t i=0; i<movements.size(); ++i )
+		{
+			const Movement &move = movements[i];
+			if( move.evaluate == bestEval )
+			{
+				if(i != numMoves)
+				{
+					movements[numMoves] = move;
+				}
+				numMoves++;
+				maxNextEvalWhite = math::max(maxNextEvalWhite, move.nextValue);
+				maxNextEvalBlack = math::min(maxNextEvalBlack, move.nextValue);
+			}
+		}
+		movements.removeElementsAt(numMoves, movements.size());
+
+		int nextValue = isWhiteTurn() ? maxNextEvalBlack : maxNextEvalWhite;
+		numMoves=0;
+		for( size_t i=0; i<movements.size(); ++i )
+		{
+			if( movements[i].nextValue == nextValue )
+			{
+				if(i != numMoves)
+				{
+					movements[numMoves] = movements[i];
+				}
+				numMoves++;
+			}
+		}
+		movements.removeElementsAt(numMoves, movements.size());
+	}
+	if( movements.size() )
+	{
 		size_t index = randomNumber(movements.size());
 		best = movements[index];
 	}
+	*quality = int(movements.size());
+	refresh();
 	return best;
 }
 

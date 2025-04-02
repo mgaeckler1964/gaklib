@@ -411,6 +411,7 @@ class Figure
 	{
 		return !attack.figure						// no attacker
 			|| attack.figure->m_color == m_color	// no enemy
+			|| attack.steps < 2						// king can self defend
 			|| !attack.figure->canCapture(m_pos) ;	// too weak?
 	}
 	const TargetPositions &getPossible() const
@@ -611,7 +612,14 @@ struct Movement
 	Position	rookSrc;
 	Position	rookDest;
 
-	Movement() : fig(NULL), promotion(NULL), captured(NULL), rook(NULL)  {}
+	int			evaluate;
+	int			nextValue;
+
+	Movement() : fig(NULL), promotion(NULL), captured(NULL), rook(NULL), evaluate(0), nextValue(0)  {}
+	operator bool ()
+	{
+		return fig != NULL && src && dest;
+	}
 };
 
 typedef Array<Movement>	Movements;
@@ -717,6 +725,10 @@ class Board
 	{
 		return isWhiteTurn(color) ? getWhiteK() : getBlackK();
 	}
+	King *getOponentKing( Figure::Color color ) const
+	{
+		return isWhiteTurn(color) ? getBlackK() : getWhiteK();
+	}
 	King *getCurKing() const
 	{
 		return isWhiteTurn() ? getWhiteK() : getBlackK();
@@ -761,7 +773,7 @@ class Board
 		return Position(col, row);
 	}
 
-	const Figure *getThread( Figure::Color color, const Position &pos, bool checkEnPassant ) const;
+	const Figure *getThread( Figure::Color color, const Position &pos, bool checkEnPassant, bool check4King  ) const;
 	size_t getThreads( Figure::Color color, const Position &pos, FigurePtr *threads, bool checkEnPassant ) const;
 
 	const Figure *getAttacker( const Figure *fig ) const;
@@ -774,9 +786,12 @@ class Board
 	Figure *create( Figure::Color color, Figure::Type newFig, const Position &dest );
 	void promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest );
 
+	static size_t findMove(const Movements &moves, const Position &src, const Position &dest );
+
 	Movements collectMoves()  const;
 	Movements findCheckDefend( size_t *numAttackers) const;
-	Movement findBest() const;
+	int evaluateMovements(Movements &movements, int maxLevel);
+	Movement findBest(int maxLevel, int *quality);
 	void undoMove(const Movement &move);
 	void redoMove(const Movement &move);
 
@@ -858,13 +873,13 @@ class Board
 
 		return result;
 	}
-	static void generateFromString(const STRING &string, Board &result )
+	void generateFromString(const STRING &string )
 	{
 		if(string.size() < NUM_FIELDS )
 		{
 			return;
 		}
-		result.clear();
+		clear();
 		const char *src = string;
 		Figure::Color	newColor;
 		Figure::Type	newType;
@@ -900,17 +915,20 @@ class Board
 			if(newType != Figure::ftNone)
 			{
 				Position pos = getPosition(i);
-				Figure *fig = result.create(newColor,newType, pos);
-				result.m_board[i] = fig;
+				Figure *fig = create(newColor,newType, pos);
+				m_board[i] = fig;
 				if(newType==Figure::ftKing)
 				{
 					if(isWhiteTurn(newColor))
-						result.m_whiteK = static_cast<King*>(fig);
+						m_whiteK = static_cast<King*>(fig);
 					else
-						result.m_blackK = static_cast<King*>(fig);;
+						m_blackK = static_cast<King*>(fig);;
 				}
 			}
 		}
+		m_nextColor = *src == 'W' ? Figure::White : Figure::Black;
+		m_state = csPlaying;
+		refresh();
 		return;
 	}
 	const Movements &getMoves() const
@@ -979,6 +997,13 @@ inline PlayerPos::PlayerPos(char col, char row, Board &board) : pos(col,row), in
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+#ifdef __BORLANDC__
+inline std::ostream &operator << (std::ostream &stream, Position::MoveFunc func )
+{
+	return stream << reinterpret_cast<void*>(&func);
+}
+#endif
 
 }	// namespace chess
 }	//namespace gak

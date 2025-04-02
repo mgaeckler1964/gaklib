@@ -101,6 +101,8 @@ USEUNIT("CTOOLS\hostResolver.cpp");
 USEUNIT("CTOOLS\console.cpp");
 USEUNIT("CTOOLS\aiBrain.cpp");
 USEUNIT("CTOOLS\chess.cpp");
+USEUNIT("CTOOLS\board.cpp");
+USEUNIT("CTOOLS\figure.cpp");
 //---------------------------------------------------------------------------
 #define Library
 
