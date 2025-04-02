@@ -698,13 +698,6 @@ void Board::redoMove(const Movement &move)
 	size_t srcIndex = getIndex(move.src);
 	size_t destIndex = getIndex(move.dest);
 
-#ifndef NDEBUG
-	if( srcIndex == 48 && (destIndex == 40 || destIndex == 13 || destIndex == 6 || destIndex == 0))
-	{
-		srcIndex = 48;
-	}
-#endif
-
 	// position figure
 	if( move.promotion )
 	{
@@ -857,33 +850,11 @@ int Board::evaluateMovements(Movements &movements, int maxLevel)
 	{
 		Movement &theMove = *it;
 
-#ifndef NDEBUG
-		size_t srcIndex = getIndex(theMove.src);
-		size_t destIndex = getIndex(theMove.dest);
-
-		if( srcIndex == 48 && (destIndex == 40 || destIndex == 13 || destIndex == 6 || destIndex == 0))
-		{
-			doLogValueEx(gakLogging::llDetail, theMove.src.col );
-			doLogValueEx(gakLogging::llDetail, int(theMove.src.row) );
-		}
-		if( srcIndex == 21 && (destIndex == 30 || destIndex == 13))
-		{
-			doLogValueEx(gakLogging::llDetail, theMove.src.col );
-			doLogValueEx(gakLogging::llDetail, int(theMove.src.row) );
-		}
-#endif
 		redoMove(theMove);
 		refresh();
 		theMove.evaluate = evaluate();
 		minVal = math::min(minVal, theMove.evaluate);
 		maxVal = math::max(maxVal, theMove.evaluate);
-#ifndef NDEBUG
-		if(minVal == -752)
-		{
-			doLogValueEx(gakLogging::llDetail, theMove.src.col );
-			doLogValueEx(gakLogging::llDetail, int(theMove.src.row) );
-		}
-#endif
 		if( maxLevel )
 		{
 			int quality;
@@ -906,13 +877,6 @@ int Board::evaluateMovements(Movements &movements, int maxLevel)
 				}
 				minVal = math::min(minVal, theMove.evaluate);
 				maxVal = math::max(maxVal, theMove.evaluate);
-#ifndef NDEBUG
-				if(minVal == -752)
-				{
-					doLogValueEx(gakLogging::llDetail, theMove.src.col );
-					doLogValueEx(gakLogging::llDetail, int(theMove.src.row) );
-				}
-#endif
 			}
 		}
 
@@ -925,6 +889,12 @@ int Board::evaluateMovements(Movements &movements, int maxLevel)
 Movement Board::findBest( int maxLevel, int *quality )
 {
 	doEnterFunctionEx(logLegel, "Board::findBest");
+	assert( quality );
+	if( maxLevel <= 0 )
+	{
+		return Movement();
+	}
+
 	int			bestEval;
 	Movement	best;
 	size_t		numAttackers;
@@ -939,8 +909,8 @@ Movement Board::findBest( int maxLevel, int *quality )
 	{
 		bestEval = evaluateMovements(movements, maxLevel);
 
-		int maxNextEvalBlack = std::numeric_limits<int>::max();
-		int maxNextEvalWhite = std::numeric_limits<int>::min();;
+		int minNextEval = std::numeric_limits<int>::max();
+		int maxNextEval = std::numeric_limits<int>::min();;
 
 		size_t	numMoves=0;
 		for( size_t i=0; i<movements.size(); ++i )
@@ -953,13 +923,13 @@ Movement Board::findBest( int maxLevel, int *quality )
 					movements[numMoves] = move;
 				}
 				numMoves++;
-				maxNextEvalWhite = math::max(maxNextEvalWhite, move.nextValue);
-				maxNextEvalBlack = math::min(maxNextEvalBlack, move.nextValue);
+				maxNextEval = math::max(maxNextEval, move.nextValue);
+				minNextEval = math::min(minNextEval, move.nextValue);
 			}
 		}
 		movements.removeElementsAt(numMoves, movements.size());
 
-		int nextValue = isWhiteTurn() ? maxNextEvalBlack : maxNextEvalWhite;
+		int nextValue = isWhiteTurn() ? minNextEval : maxNextEval;
 		numMoves=0;
 		for( size_t i=0; i<movements.size(); ++i )
 		{

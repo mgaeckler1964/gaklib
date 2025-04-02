@@ -156,7 +156,7 @@
 #endif
 
 #define arraySize( array )		(sizeof( array ) / sizeof( array[0] ))
-#define FOR_EACH(idx, array) for( size_t idx=0; idx<arraySize( array ); ++idx )
+#define FOR_EACH(idx, array)	for( size_t idx=0; idx<arraySize( array ); ++idx )
 
 #if defined( _WIN32 ) && defined( _MSC_VER )
 #define _pascal /* dummy */

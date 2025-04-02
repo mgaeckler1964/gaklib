@@ -953,6 +953,8 @@ class Board
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+std::ostream &operator << (std::ostream &stream, Position::MoveFunc func );
+
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -997,13 +999,6 @@ inline PlayerPos::PlayerPos(char col, char row, Board &board) : pos(col,row), in
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-#ifdef __BORLANDC__
-inline std::ostream &operator << (std::ostream &stream, Position::MoveFunc func )
-{
-	return stream << reinterpret_cast<void*>(&func);
-}
-#endif
 
 }	// namespace chess
 }	//namespace gak

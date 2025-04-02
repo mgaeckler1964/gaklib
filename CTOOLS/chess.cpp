@@ -173,6 +173,44 @@ Figure::Attack Figure::searchAttack(const Position &ignore, const Position &stop
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+std::ostream &operator << (std::ostream &stream, Position::MoveFunc func )
+{
+	char *name="unknown";
+	static struct 
+	{
+		Position::MoveFunc	move;
+		char				*name;
+	} moves[] =
+	{
+		{ &Position::moveNorth,			"Position::moveNorth" },
+		{ &Position::moveNorthEast,		"Position::moveNorthEast" },
+		{ &Position::moveEast,			"Position::moveEast" },
+		{ &Position::moveSouthEast,		"Position::moveSouthEast" },
+		{ &Position::moveSouth,			"Position::moveSouth" },
+		{ &Position::moveSouthWest,		"Position::moveSouthWest" },
+		{ &Position::moveWest,			"Position::moveWest" },
+		{ &Position::moveNorthWest,		"Position::moveNorthWest" },
+		{ &Position::moveSNorthEast,	"Position::moveSNorthEast" },
+		{ &Position::moveSEastNorth,	"Position::moveSEastNorth" },
+		{ &Position::moveSEastSouth,	"Position::moveSEastSouth" },
+		{ &Position::moveSSouthEast,	"Position::moveSSouthEast" },
+		{ &Position::moveSSouthWest,	"Position::moveSSouthWest" },
+		{ &Position::moveSWestSouth,	"Position::moveSWestSouth" },
+		{ &Position::moveSWestNorth,	"Position::moveSWestNorth" },
+		{ &Position::moveSNorthWest,	"Position::moveSNorthWest" }
+	};
+	FOR_EACH(i,moves)
+	{
+		if(moves[i].move == func)
+		{
+			name = moves[i].name;
+			break;
+		}
+	}
+
+	return stream << name;
+}
+
 }	// namespace chess
 }	//namespace gak
 
