@@ -681,6 +681,17 @@ class Board
 	Figure *checkEnPassant(const PlayerPos &src, const Position &dest) const;
 	Figure *uncheckedMove(const PlayerPos &src, const Position &dest);
 	Figure *passantMove(const PlayerPos &src, const Position &dest);
+
+	void undoMove(const Movement &move);
+	void redoMove(const Movement &move);
+
+	static size_t findMove(const Movements &moves, const Position &src, const Position &dest );
+
+	Movements collectMoves()  const;
+	Movements findCheckDefend( size_t *numAttackers) const;
+
+	int evaluateMovements(Movements &movements, int maxLevel);
+
 	void reset( Figure::Color color );
 
 	// do nothing, just forbid
@@ -755,6 +766,11 @@ class Board
 		return getFigure(getIndex(pos));
 	}
 
+	const Movements &getMoves() const
+	{
+		return m_moves;
+	}
+
 	static size_t getIndex( char col, char row )
 	{
 		assert(col >= 'A' && col <= 'H' );
@@ -786,155 +802,12 @@ class Board
 	Figure *create( Figure::Color color, Figure::Type newFig, const Position &dest );
 	void promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest );
 
-	static size_t findMove(const Movements &moves, const Position &src, const Position &dest );
-
-	Movements collectMoves()  const;
-	Movements findCheckDefend( size_t *numAttackers) const;
-	int evaluateMovements(Movements &movements, int maxLevel);
 	Movement findBest(int maxLevel, int *quality);
-	void undoMove(const Movement &move);
-	void redoMove(const Movement &move);
 
-	Position checkBoard() const
-	{
-		for( size_t i=0; i<NUM_FIELDS; ++i )
-		{
-			Position pos = getPosition(i);
-			if( m_board[i] && m_board[i]->getPos() != pos )
-			{
-				return pos;
-			}
-		}
-
-		return Position(0,0);
-	}
-
-	void print() const
-	{
-		std::cout << "+-+-+-+-+-+-+-+-+-+\n";
-		std::cout << "| ";
-		for( char c='A';c<='H'; ++c )
-		{
-			std::cout << '|' << c;
-		}
-		std::cout << '|' << std::endl;
-		std::cout << "+-+-+-+-+-+-+-+-+-+\n";
-
-		bool whiteField = true;
-		for( char row=NUM_ROWS; row >= 1; --row )
-		{
-			std::cout << '|' << int(row) << '|';
-			for( char col='A'; col <= 'H'; ++col )
-			{
-				const Figure *fig = getFigure(col, row );
-				if( !fig )
-				{
-					if( whiteField )
-						std::cout << " ";
-					else
-						std::cout << "X";
-				}
-				else
-				{
-					char sym = fig->getLetter();
-					if( fig->m_color == Figure::Black )
-						sym = char(tolower(sym));
-					std::cout << sym;
-				}
-				std::cout << '|';
-				whiteField = !whiteField;
-			}
-			whiteField = !whiteField;
-			std::cout << std::endl;
-			std::cout << "+-+-+-+-+-+-+-+-+-+\n";
-		}
-
-		std::cout << "Next: " << (isWhiteTurn() ? "White" : "Black") << std::endl;
-		std::cout << "Eval: " << evaluate() << std::endl;
-	}
-	STRING generateString() const
-	{
-		STRING result;
-		for( int i=0; i<NUM_FIELDS; ++i )
-		{
-			char sym = ' ';
-			const Figure *fig = m_board[i];
-			if( fig )
-			{
-				sym = fig->getLetter();
-				if( fig->m_color == Figure::Black )
-				{
-					sym = char(tolower(sym));
-				}
-			}
-
-			result += sym;
-		}
-
-		return result;
-	}
-	void generateFromString(const STRING &string )
-	{
-		if(string.size() < NUM_FIELDS )
-		{
-			return;
-		}
-		clear();
-		const char *src = string;
-		Figure::Color	newColor;
-		Figure::Type	newType;
-		for( int i=0; i<NUM_FIELDS; ++i )
-		{
-			char sym = *src++;
-			char upperLetter = char(toupper(sym));
-			newColor = upperLetter == sym ? Figure::White : Figure::Black;
-			switch(upperLetter)
-			{
-			case PAWN_LETTER:
-				newType = Figure::ftPawn;
-				break;
-			case ROOK_LETTER:
-				newType = Figure::ftRook;
-				break;
-			case KNIGHT_LETTER:
-				newType = Figure::ftKnight;
-				break;
-			case BISHOP_LETTER:
-				newType = Figure::ftBishop;
-				break;
-			case QUEEN_LETTER:
-				newType = Figure::ftQueen;
-				break;
-			case KING_LETTER:
-				newType = Figure::ftKing;
-				break;
-			default:
-				newType = Figure::ftNone;
-				break;
-			}
-			if(newType != Figure::ftNone)
-			{
-				Position pos = getPosition(i);
-				Figure *fig = create(newColor,newType, pos);
-				m_board[i] = fig;
-				if(newType==Figure::ftKing)
-				{
-					if(isWhiteTurn(newColor))
-						m_whiteK = static_cast<King*>(fig);
-					else
-						m_blackK = static_cast<King*>(fig);;
-				}
-			}
-		}
-		m_nextColor = *src == 'W' ? Figure::White : Figure::Black;
-		m_state = csPlaying;
-		refresh();
-		return;
-	}
-	const Movements &getMoves() const
-	{
-		return m_moves;
-	}
+	Position checkBoard() const;
+	void print() const;
+	STRING generateString() const;
+	void generateFromString(const STRING &string );
 };
 
 // --------------------------------------------------------------------- //

@@ -112,6 +112,19 @@ static const gakLogging::LogLevel logLegel = gakLogging::llDetail;
 // ----- class static functions ---------------------------------------- //
 // --------------------------------------------------------------------- //
 
+size_t Board::findMove(const Movements &moves, const Position &src, const Position &dest )
+{
+	for( size_t i=0; i<moves.size(); ++i )
+	{
+		const Movement &move = moves[i];
+		if( move.src == src && move.dest == dest )
+		{
+			return i;
+		}
+	}
+	return Movements::no_index;
+}
+
 // --------------------------------------------------------------------- //
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -199,6 +212,229 @@ Figure *Board::passantMove( const PlayerPos &src, const Position &dest )
 	}
 
 	return toCapture;
+}
+
+void Board::undoMove(const Movement &move)
+{
+	size_t srcIndex = getIndex(move.src);
+	size_t destIndex = getIndex(move.dest);
+
+	// re pos figure
+	move.fig->setPosition(move.src);
+	m_board[srcIndex] = move.fig;
+
+	// if it was a promotion, remove new figure
+	if( move.promotion )
+	{
+		move.promotion->capture();
+	}
+
+	if( !move.captured )
+	{
+		// no caption -> the old destination is now empty
+		m_board[destIndex] = NULL;
+	}
+	else
+	{
+		// restore captured
+		size_t capIndex = getIndex(move.capturePos);
+		m_board[capIndex] = move.captured;
+		if( destIndex != capIndex )
+		{
+			// if it is en-passant -> the old destination is now empty
+			m_board[destIndex] = NULL;
+		}
+	}
+
+	if( move.rook )
+	{
+		// restore rook, if it was a rochade
+		size_t srcIndex = getIndex(move.rookSrc);
+		size_t destIndex = getIndex(move.rookDest);
+		move.rook->setPosition(move.rookSrc);
+		m_board[srcIndex] = move.rook;
+		m_board[destIndex] = NULL;
+	}
+}
+
+void Board::redoMove(const Movement &move)
+{
+	size_t srcIndex = getIndex(move.src);
+	size_t destIndex = getIndex(move.dest);
+
+	// position figure
+	if( move.promotion )
+	{
+		move.fig->capture();
+		move.promotion->setPosition(move.dest);
+		m_board[destIndex] = move.promotion;
+	}
+	else
+	{
+		move.fig->setPosition(move.dest);
+		m_board[destIndex] = move.fig;
+	}
+	m_board[srcIndex] = NULL;
+
+	if( move.captured )
+	{
+		move.captured->capture();
+	}
+
+	if( move.rook )
+	{
+		// restore rook, if it was a rochade
+		size_t srcIndex = getIndex(move.rookSrc);
+		size_t destIndex = getIndex(move.rookDest);
+		move.rook->setPosition(move.rookDest);
+		m_board[destIndex] = move.rook;
+		m_board[srcIndex] = NULL;
+	}
+}
+
+Movements Board::collectMoves() const
+{
+	doEnterFunctionEx(logLegel, "Board::collectMoves");
+
+	Movements moves;
+	for( size_t i=0; i<NUM_FIELDS; ++i )
+	{
+		Figure *fig = m_board[i];
+		if( fig && fig->m_color == m_nextColor )
+		{
+			const TargetPositions &curMoves = fig->getPossible();
+			for( int i=0; i<curMoves.numTargets; ++i )
+			{
+				Movement &move = moves.createElement();
+				move.fig = fig;
+				move.src = fig->getPos();
+				move.dest = curMoves.targets[i];
+			}
+		}
+	}
+	return moves;
+}
+
+Movements Board::findCheckDefend(size_t *numAttackers) const
+{
+	assert(numAttackers);
+	Movements defends;
+	Figure *king = getCurKing();
+	FigurePtr attackers[NUM_TEAM_FIGURES];
+	*numAttackers = getAttackers(king, attackers);
+
+	if( *numAttackers == 1 )
+	{
+		// try to capture the attacker
+		FigurePtr defenders[NUM_TEAM_FIGURES];
+		size_t numDefenders = getAttackers(attackers[0], defenders);
+		for( size_t i=0; i<numDefenders; ++i )
+		{
+			Movement &defend = defends.createElement();
+			defend.fig = defenders[i];
+			defend.src = defenders[i]->getPos();
+			defend.capturePos = defend.dest = attackers[0]->getPos();
+			defend.captured = attackers[0];
+		}
+
+		// try to shield the king 
+		if( attackers[0]->getType() != Figure::ftKnight )
+		{
+			Position targetPos = king->getPos();
+			const Position &attackerPos = attackers[0]->getPos();
+			Position::MoveFunc	move = Position::findMoveFunc(targetPos, attackerPos);
+			int dist = Position::getDistance(king->getPos(), attackers[0]->getPos());
+			assert(move);
+
+			if(dist>1)
+			{
+				while(1)
+				{
+					targetPos = (targetPos.*move)();
+					if( !targetPos || targetPos == attackerPos)
+						break;
+
+					FigurePtr defenders[NUM_TEAM_FIGURES];
+					size_t numDefenders = getThreads(attackers[0]->m_color, targetPos, defenders, false);
+					for( size_t i=0; i<numDefenders; ++i )
+					{
+						Movement &defend = defends.createElement();
+						defend.fig = defenders[i];
+						defend.src = defenders[i]->getPos();
+						defend.dest = targetPos;
+					}
+				}
+			}
+		}
+	}
+
+	// final we add the escape options this is possible regardless the number of attackers
+	const TargetPositions &escapes = king->getPossible();
+	const Position &src = king->getPos();
+	for( int i=0; i<escapes.numTargets; ++i )
+	{
+		const Position &dest = escapes.targets[i];
+		if( findMove( defends, src, dest ) == defends.no_index )
+		{
+			Movement &defend = defends.createElement();
+			defend.fig = king;
+			defend.src = src;
+			defend.dest = dest;
+		}
+	}
+	return defends;
+}
+
+int Board::evaluateMovements(Movements &movements, int maxLevel)
+{
+	doEnterFunctionEx(logLegel, "Board::evaluateMovements");
+
+	--maxLevel;
+	int minVal = std::numeric_limits<int>::max();
+	int maxVal = std::numeric_limits<int>::min();;
+	flipTurn();
+	for(
+		Movements::iterator it = movements.begin(), endIT = movements.end();
+		it != endIT;
+		++it
+	)
+	{
+		Movement &theMove = *it;
+
+		redoMove(theMove);
+		refresh();
+		theMove.evaluate = evaluate();
+		minVal = math::min(minVal, theMove.evaluate);
+		maxVal = math::max(maxVal, theMove.evaluate);
+		if( maxLevel )
+		{
+			int quality;
+			Movement nextMove = findBest( maxLevel, &quality );
+			if( nextMove )
+			{
+				theMove.nextValue = nextMove.nextValue;
+			}
+			else
+			{
+				if( isWhiteTurn() )
+				{
+					theMove.evaluate = BLACK_WINS;
+					theMove.nextValue = BLACK_WINS;
+				}
+				else
+				{
+					theMove.evaluate = WHITE_WINS;
+					theMove.nextValue = WHITE_WINS;
+				}
+				minVal = math::min(minVal, theMove.evaluate);
+				maxVal = math::max(maxVal, theMove.evaluate);
+			}
+		}
+
+		undoMove(*it);
+	}
+	flipTurn();
+	return isWhiteTurn() ? maxVal : minVal;
 }
 
 void Board::reset(Figure::Color color)
@@ -650,242 +886,6 @@ int Board::evaluate() const
 	return whiteForce + whiteTargets + whiteCaptures - blackForce - blackTargets - blackCaptures;
 }
 
-void Board::undoMove(const Movement &move)
-{
-	size_t srcIndex = getIndex(move.src);
-	size_t destIndex = getIndex(move.dest);
-
-	// re pos figure
-	move.fig->setPosition(move.src);
-	m_board[srcIndex] = move.fig;
-
-	// if it was a promotion, remove new figure
-	if( move.promotion )
-	{
-		move.promotion->capture();
-	}
-
-	if( !move.captured )
-	{
-		// no caption -> the old destination is now empty
-		m_board[destIndex] = NULL;
-	}
-	else
-	{
-		// restore captured
-		size_t capIndex = getIndex(move.capturePos);
-		m_board[capIndex] = move.captured;
-		if( destIndex != capIndex )
-		{
-			// if it is en-passant -> the old destination is now empty
-			m_board[destIndex] = NULL;
-		}
-	}
-
-	if( move.rook )
-	{
-		// restore rook, if it was a rochade
-		size_t srcIndex = getIndex(move.rookSrc);
-		size_t destIndex = getIndex(move.rookDest);
-		move.rook->setPosition(move.rookSrc);
-		m_board[srcIndex] = move.rook;
-		m_board[destIndex] = NULL;
-	}
-}
-
-void Board::redoMove(const Movement &move)
-{
-	size_t srcIndex = getIndex(move.src);
-	size_t destIndex = getIndex(move.dest);
-
-	// position figure
-	if( move.promotion )
-	{
-		move.fig->capture();
-		move.promotion->setPosition(move.dest);
-		m_board[destIndex] = move.promotion;
-	}
-	else
-	{
-		move.fig->setPosition(move.dest);
-		m_board[destIndex] = move.fig;
-	}
-	m_board[srcIndex] = NULL;
-
-	if( move.captured )
-	{
-		move.captured->capture();
-	}
-
-	if( move.rook )
-	{
-		// restore rook, if it was a rochade
-		size_t srcIndex = getIndex(move.rookSrc);
-		size_t destIndex = getIndex(move.rookDest);
-		move.rook->setPosition(move.rookDest);
-		m_board[destIndex] = move.rook;
-		m_board[srcIndex] = NULL;
-	}
-}
-
-Movements Board::collectMoves() const
-{
-	doEnterFunctionEx(logLegel, "Board::collectMoves");
-
-	Movements moves;
-	for( size_t i=0; i<NUM_FIELDS; ++i )
-	{
-		Figure *fig = m_board[i];
-		if( fig && fig->m_color == m_nextColor )
-		{
-			const TargetPositions &curMoves = fig->getPossible();
-			for( int i=0; i<curMoves.numTargets; ++i )
-			{
-				Movement &move = moves.createElement();
-				move.fig = fig;
-				move.src = fig->getPos();
-				move.dest = curMoves.targets[i];
-			}
-		}
-	}
-	return moves;
-}
-
-size_t Board::findMove(const Movements &moves, const Position &src, const Position &dest )
-{
-	for( size_t i=0; i<moves.size(); ++i )
-	{
-		const Movement &move = moves[i];
-		if( move.src == src && move.dest == dest )
-		{
-			return i;
-		}
-	}
-	return Movements::no_index;
-}
-
-Movements Board::findCheckDefend(size_t *numAttackers) const
-{
-	assert(numAttackers);
-	Movements defends;
-	Figure *king = getCurKing();
-	FigurePtr attackers[NUM_TEAM_FIGURES];
-	*numAttackers = getAttackers(king, attackers);
-
-	if( *numAttackers == 1 )
-	{
-		// try to capture the attacker
-		FigurePtr defenders[NUM_TEAM_FIGURES];
-		size_t numDefenders = getAttackers(attackers[0], defenders);
-		for( size_t i=0; i<numDefenders; ++i )
-		{
-			Movement &defend = defends.createElement();
-			defend.fig = defenders[i];
-			defend.src = defenders[i]->getPos();
-			defend.capturePos = defend.dest = attackers[0]->getPos();
-			defend.captured = attackers[0];
-		}
-
-		// try to shield the king 
-		if( attackers[0]->getType() != Figure::ftKnight )
-		{
-			Position targetPos = king->getPos();
-			const Position &attackerPos = attackers[0]->getPos();
-			Position::MoveFunc	move = Position::findMoveFunc(targetPos, attackerPos);
-			int dist = Position::getDistance(king->getPos(), attackers[0]->getPos());
-			assert(move);
-
-			if(dist>1)
-			{
-				while(1)
-				{
-					targetPos = (targetPos.*move)();
-					if( !targetPos || targetPos == attackerPos)
-						break;
-
-					FigurePtr defenders[NUM_TEAM_FIGURES];
-					size_t numDefenders = getThreads(attackers[0]->m_color, targetPos, defenders, false);
-					for( size_t i=0; i<numDefenders; ++i )
-					{
-						Movement &defend = defends.createElement();
-						defend.fig = defenders[i];
-						defend.src = defenders[i]->getPos();
-						defend.dest = targetPos;
-					}
-				}
-			}
-		}
-	}
-
-	// final we add the escape options this is possible regardless the number of attackers
-	const TargetPositions &escapes = king->getPossible();
-	const Position &src = king->getPos();
-	for( int i=0; i<escapes.numTargets; ++i )
-	{
-		const Position &dest = escapes.targets[i];
-		if( findMove( defends, src, dest ) == defends.no_index )
-		{
-			Movement &defend = defends.createElement();
-			defend.fig = king;
-			defend.src = src;
-			defend.dest = dest;
-		}
-	}
-	return defends;
-}
-
-int Board::evaluateMovements(Movements &movements, int maxLevel)
-{
-	doEnterFunctionEx(logLegel, "Board::evaluateMovements");
-
-	--maxLevel;
-	int minVal = std::numeric_limits<int>::max();
-	int maxVal = std::numeric_limits<int>::min();;
-	flipTurn();
-	for(
-		Movements::iterator it = movements.begin(), endIT = movements.end();
-		it != endIT;
-		++it
-	)
-	{
-		Movement &theMove = *it;
-
-		redoMove(theMove);
-		refresh();
-		theMove.evaluate = evaluate();
-		minVal = math::min(minVal, theMove.evaluate);
-		maxVal = math::max(maxVal, theMove.evaluate);
-		if( maxLevel )
-		{
-			int quality;
-			Movement nextMove = findBest( maxLevel, &quality );
-			if( nextMove )
-			{
-				theMove.nextValue = nextMove.nextValue;
-			}
-			else
-			{
-				if( isWhiteTurn() )
-				{
-					theMove.evaluate = BLACK_WINS;
-					theMove.nextValue = BLACK_WINS;
-				}
-				else
-				{
-					theMove.evaluate = WHITE_WINS;
-					theMove.nextValue = WHITE_WINS;
-				}
-				minVal = math::min(minVal, theMove.evaluate);
-				maxVal = math::max(maxVal, theMove.evaluate);
-			}
-		}
-
-		undoMove(*it);
-	}
-	flipTurn();
-	return isWhiteTurn() ? maxVal : minVal;
-}
-
 Movement Board::findBest( int maxLevel, int *quality )
 {
 	doEnterFunctionEx(logLegel, "Board::findBest");
@@ -946,12 +946,151 @@ Movement Board::findBest( int maxLevel, int *quality )
 	}
 	if( movements.size() )
 	{
-		size_t index = randomNumber(movements.size());
+		size_t index = randomNumber(int(movements.size()));
 		best = movements[index];
 	}
 	*quality = int(movements.size());
 	refresh();
 	return best;
+}
+
+Position Board::checkBoard() const
+{
+	for( size_t i=0; i<NUM_FIELDS; ++i )
+	{
+		Position pos = getPosition(i);
+		if( m_board[i] && m_board[i]->getPos() != pos )
+		{
+			return pos;
+		}
+	}
+
+	return Position(0,0);
+}
+
+void Board::print() const
+{
+	std::cout << "+-+-+-+-+-+-+-+-+-+\n";
+	std::cout << "| ";
+	for( char c='A';c<='H'; ++c )
+	{
+		std::cout << '|' << c;
+	}
+	std::cout << '|' << std::endl;
+	std::cout << "+-+-+-+-+-+-+-+-+-+\n";
+
+	bool whiteField = true;
+	for( char row=NUM_ROWS; row >= 1; --row )
+	{
+		std::cout << '|' << int(row) << '|';
+		for( char col='A'; col <= 'H'; ++col )
+		{
+			const Figure *fig = getFigure(col, row );
+			if( !fig )
+			{
+				if( whiteField )
+					std::cout << " ";
+				else
+					std::cout << "X";
+			}
+			else
+			{
+				char sym = fig->getLetter();
+				if( fig->m_color == Figure::Black )
+					sym = char(tolower(sym));
+				std::cout << sym;
+			}
+			std::cout << '|';
+			whiteField = !whiteField;
+		}
+		whiteField = !whiteField;
+		std::cout << std::endl;
+		std::cout << "+-+-+-+-+-+-+-+-+-+\n";
+	}
+
+	std::cout << "Next: " << (isWhiteTurn() ? "White" : "Black") << std::endl;
+	std::cout << "Eval: " << evaluate() << std::endl;
+}
+
+STRING Board::generateString() const
+{
+	STRING result;
+	for( int i=0; i<NUM_FIELDS; ++i )
+	{
+		char sym = ' ';
+		const Figure *fig = m_board[i];
+		if( fig )
+		{
+			sym = fig->getLetter();
+			if( fig->m_color == Figure::Black )
+			{
+				sym = char(tolower(sym));
+			}
+		}
+
+		result += sym;
+	}
+
+	return result;
+}
+
+void Board::generateFromString(const STRING &string )
+{
+	if(string.size() < NUM_FIELDS )
+	{
+		return;
+	}
+	clear();
+	const char *src = string;
+	Figure::Color	newColor;
+	Figure::Type	newType;
+	for( int i=0; i<NUM_FIELDS; ++i )
+	{
+		char sym = *src++;
+		char upperLetter = char(toupper(sym));
+		newColor = upperLetter == sym ? Figure::White : Figure::Black;
+		switch(upperLetter)
+		{
+		case PAWN_LETTER:
+			newType = Figure::ftPawn;
+			break;
+		case ROOK_LETTER:
+			newType = Figure::ftRook;
+			break;
+		case KNIGHT_LETTER:
+			newType = Figure::ftKnight;
+			break;
+		case BISHOP_LETTER:
+			newType = Figure::ftBishop;
+			break;
+		case QUEEN_LETTER:
+			newType = Figure::ftQueen;
+			break;
+		case KING_LETTER:
+			newType = Figure::ftKing;
+			break;
+		default:
+			newType = Figure::ftNone;
+			break;
+		}
+		if(newType != Figure::ftNone)
+		{
+			Position pos = getPosition(i);
+			Figure *fig = create(newColor,newType, pos);
+			m_board[i] = fig;
+			if(newType==Figure::ftKing)
+			{
+				if(isWhiteTurn(newColor))
+					m_whiteK = static_cast<King*>(fig);
+				else
+					m_blackK = static_cast<King*>(fig);;
+			}
+		}
+	}
+	m_nextColor = *src == 'W' ? Figure::White : Figure::Black;
+	m_state = csPlaying;
+	refresh();
+	return;
 }
 
 // --------------------------------------------------------------------- //
