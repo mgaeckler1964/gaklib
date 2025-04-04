@@ -78,6 +78,8 @@ static const size_t NUM_FIELDS = NUM_ROWS*NUM_COLS;
 static const size_t NUM_TEAM_PAWNS = NUM_COLS;
 static const size_t NUM_TEAM_FIGURES = 2*NUM_COLS;
 static const size_t NUM_TOT_FIGURES = 2*NUM_TEAM_FIGURES;
+static const char MIN_COL_LETTER = 'a';
+static const char MAX_COL_LETTER = MIN_COL_LETTER + NUM_COLS -1;	//  'h'
 
 static const int PAWN_VALUE = 1;
 static const int BISHOP_VALUE = 3;
@@ -106,6 +108,14 @@ static const char KNIGHT_LETTER = 'S';		// Springer
 static const char BISHOP_LETTER = 'L';		// Läufer
 static const char QUEEN_LETTER = 'D';		// Dame
 static const char KING_LETTER = 'K';		// König
+
+#define CHESS_WHITE			"Wei" OEM_sz
+#define CHESS_BLACK			"Schwarz"
+#define CHESS_DRAW			"Patt/Remis"
+#define CHESS_CHECK_MATE	"Schwachmatt"
+#define CHESS_CHECK_NEXT	"N" OEM_ae "chster"
+#define CHESS_EVAL			"Bewertung"
+#define CHESS_WINS			"(Nadja) gewinnt durch"
 #else
 // for english chess. warning; unit test works with german, only
 static const char PAWN_LETTER = 'P';
@@ -114,6 +124,14 @@ static const char KNIGHT_LETTER = 'N';
 static const char BISHOP_LETTER = 'B';
 static const char QUEEN_LETTER = 'Q';
 static const char KING_LETTER = 'K';
+
+#define CHESS_WHITE			"White"
+#define CHESS_BLACK			"Black"
+#define CHESS_DRAW			"Draw"
+#define CHESS_CHECK_MATE	"Check Mate"
+#define CHESS_CHECK_NEXT	"Next"
+#define CHESS_EVAL			"Evaluation"
+#define CHESS_WINS			"(Nadja) wins by"
 #endif
 
 // --------------------------------------------------------------------- //
@@ -155,7 +173,7 @@ struct Position
 	{
 		char newCol = char(col + cDir);
 		char newRow = char(row + rDir);
-		if( newCol <= 'h' && newCol >= 'a' && newRow >= 1 && newRow <= NUM_ROWS )
+		if( newCol <= MAX_COL_LETTER && newCol >= MIN_COL_LETTER && newRow >= 1 && newRow <= NUM_ROWS )
 		{
 			return Position(newCol,newRow);
 		}
@@ -404,7 +422,7 @@ class Figure
 	}
 	bool canCapture(const Position &pos) const
 	{
-		for( size_t i=0; i<m_targets.numTargets; ++i )
+		for( int i=0; i<m_targets.numTargets; ++i )
 		{
 			if( pos == m_targets.targets[i].captures )
 			{
@@ -440,7 +458,11 @@ class Figure
 
 	virtual Type getType() const = 0;
 	virtual int getValue() const = 0;
-	virtual char getLetter() const = 0;
+	char getLetter() const
+	{
+		return getLetter( getType() );
+	}
+	static char getLetter( Type type );
 };
 
 class Pawn : public Figure
@@ -456,10 +478,6 @@ class Pawn : public Figure
 	virtual int getValue() const
 	{
 		return PAWN_VALUE;
-	}
-	virtual char getLetter() const
-	{
-		return PAWN_LETTER;
 	}
 };
 
@@ -482,10 +500,6 @@ class Knight : public Figure
 	{
 		return KNIGHT_VALUE;
 	}
-	virtual char getLetter() const
-	{
-		return KNIGHT_LETTER;
-	}
 };
 
 class Bishop : public Figure
@@ -501,10 +515,6 @@ class Bishop : public Figure
 	virtual int getValue() const
 	{
 		return BISHOP_VALUE;
-	}
-	virtual char getLetter() const
-	{
-		return BISHOP_LETTER;
 	}
 };
 
@@ -522,10 +532,6 @@ class Rook : public Figure
 	{
 		return ROOK_VALUE;
 	}
-	virtual char getLetter() const
-	{
-		return ROOK_LETTER;
-	}
 };
 
 class Queen : public Figure
@@ -541,10 +547,6 @@ class Queen : public Figure
 	virtual int getValue() const
 	{
 		return QUEEN_VALUE;
-	}
-	virtual char getLetter() const
-	{
-		return QUEEN_LETTER;
 	}
 };
 
@@ -591,10 +593,6 @@ class King : public Figure
 	{
 		return KING_VALUE;
 	}
-	virtual char getLetter() const
-	{
-		return KING_LETTER;
-	}
 };
 
 struct Movement
@@ -620,6 +618,7 @@ struct Movement
 	{
 		return fig != NULL && src && dest;
 	}
+	STRING toString() const;
 };
 
 typedef Array<Movement>	Movements;
@@ -789,10 +788,10 @@ class Board
 
 	static size_t getIndex( char col, char row )
 	{
-		assert(col >= 'a' && col <= 'h' );
+		assert(col >= MIN_COL_LETTER && col <= MAX_COL_LETTER );
 		assert(row >= 1 && row <= NUM_ROWS );
 
-		return (row-1)*NUM_COLS+col-'a';
+		return (row-1)*NUM_COLS+col-MIN_COL_LETTER;
 	}
 	static size_t getIndex( const Position &pos )
 	{
@@ -801,7 +800,7 @@ class Board
 	static Position getPosition( size_t index )
 	{
 		char row = char(index/NUM_COLS +1);
-		char col = char(index%NUM_COLS +'a');
+		char col = char(index%NUM_COLS +MIN_COL_LETTER);
 		return Position(col, row);
 	}
 
@@ -816,7 +815,7 @@ class Board
 	void moveTo( const PlayerPos &src, const Position &dest ); 
 	void rochade( const PlayerPos &king, const PlayerPos &rook, const Position &kingDest, const Position &rookDest );
 	Figure *create( Figure::Color color, Figure::Type newFig, const Position &dest );
-	char promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest );
+	void promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest );
 
 	Movement findBest(int maxLevel, int *quality);
 

@@ -42,6 +42,8 @@
 
 #include <memory>
 
+#include <gak/fmtNumber.h>
+
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -218,6 +220,23 @@ Figure::Attack Figure::searchAttack(const Position &ignore, const Position &stop
 	}
 
 	return Attack();
+}
+
+STRING Movement::toString() const
+{
+	STRING result;
+
+	if( fig )
+	{
+		result = fig->getLetter() + STRING(fig->getPos().col) + formatNumber(unsigned(fig->getPos().row));
+		result += captured ? 'x' : '-';
+		result += STRING(dest.col) + formatNumber(unsigned(dest.row));
+		if( promotionType )
+		{
+			result += Figure::getLetter(promotionType);
+		}
+	}
+	return result;
 }
 
 // --------------------------------------------------------------------- //

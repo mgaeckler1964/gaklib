@@ -465,12 +465,12 @@ int Board::evaluateMovements(Movements &movements, int maxLevel)
 void Board::reset(Figure::Color color)
 {
 	char row = (color == Figure::White) ? 2 : 7;
-	for( char col='a'; col <='h'; ++col )
+	for( char col=MIN_COL_LETTER; col <=MAX_COL_LETTER; ++col )
 	{
 		create(color,Figure::ftPawn, Position(col,row));
 	}
 
-	char col = 'a';
+	char col = MIN_COL_LETTER;
 	row = (color == Figure::White) ? 1 : NUM_ROWS;
 
 	create(color, Figure::ftRook, Position(col,row));
@@ -733,7 +733,7 @@ Figure *Board::create( Figure::Color color, Figure::Type newFig, const Position 
 	return newFigure;
 }
 
-char Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest )
+void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest )
 {
 	assert(!checkMoveTo(pawn, dest, newFig) );
 
@@ -753,7 +753,6 @@ char Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position 
 	move.dest = dest;
 	move.promotion = newFigure;
 	move.promotionType = newFig;
-	char newLetter = newFigure->getLetter();
 	if( toCapture )
 	{
 		move.captured = toCapture;
@@ -763,7 +762,6 @@ char Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position 
 
 	flipTurn();
 	refresh();
-	return newLetter;
 }
 
 void Board::reset()
@@ -1033,7 +1031,7 @@ void Board::print() const
 {
 	std::cout << "+-+-+-+-+-+-+-+-+-+\n";
 	std::cout << "| ";
-	for( char c='a';c<='h'; ++c )
+	for( char c=MIN_COL_LETTER;c<=MAX_COL_LETTER; ++c )
 	{
 		std::cout << '|' << c;
 	}
@@ -1044,7 +1042,7 @@ void Board::print() const
 	for( char row=NUM_ROWS; row >= 1; --row )
 	{
 		std::cout << '|' << int(row) << '|';
-		for( char col='a'; col <= 'h'; ++col )
+		for( char col=MIN_COL_LETTER; col <= MAX_COL_LETTER; ++col )
 		{
 			const Figure *fig = getFigure(col, row );
 			if( !fig )
@@ -1071,20 +1069,20 @@ void Board::print() const
 
 	if( m_state == csDraw )
 	{
-		std::cout << "Patt/Remis" << std::endl;
+		std::cout << CHESS_DRAW << std::endl;
 	}
 	else if( m_state == csWhiteCheckMate )
 	{
-		std::cout << "Schwarz (Nadja) gewinnt durch Schachmatt" << std::endl;
+		std::cout << CHESS_BLACK " " CHESS_WINS " " CHESS_CHECK_MATE << std::endl;
 	}
 	else if( m_state == csBlackCheckMate )
 	{
-		std::cout << "Weiss (Nadja) gewinnt durch Schachmatt" << std::endl;
+		std::cout << CHESS_WHITE " " CHESS_WINS " " CHESS_CHECK_MATE << std::endl;
 	}
 	else
 	{
-		std::cout << "Next: " << (isWhiteTurn() ? "White" : "Black") << std::endl;
-		std::cout << "Eval: " << evaluate() << std::endl;
+		std::cout << CHESS_CHECK_NEXT ": " << (isWhiteTurn() ? CHESS_WHITE : CHESS_BLACK) << std::endl;
+		std::cout << CHESS_EVAL ": " << evaluate() << std::endl;
 	}
 }
 

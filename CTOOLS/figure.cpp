@@ -107,6 +107,20 @@ namespace chess
 // --------------------------------------------------------------------- //
 // ----- class static functions ---------------------------------------- //
 // --------------------------------------------------------------------- //
+char Figure::getLetter( Type type )
+{
+	switch(type)
+	{
+	case ftPawn:	return PAWN_LETTER;
+	case ftRook:	return ROOK_LETTER;
+	case ftKnight:	return KNIGHT_LETTER;
+	case ftBishop:	return BISHOP_LETTER;
+	case ftQueen:	return QUEEN_LETTER;
+	case ftKing:	return KING_LETTER;
+	}
+
+	return 0;
+}
 
 // --------------------------------------------------------------------- //
 // ----- class privates ------------------------------------------------ //
@@ -399,7 +413,7 @@ PotentialDestinations King::calcPossible()
 			checkRange(&result2, &Position::moveWest, 2);
 			if( result2.numTargets == 2 && !result2.hasCaptures )
 			{
-				Figure *rook = m_board.getFigure( Position( 'a', getPos().row ) );
+				Figure *rook = m_board.getFigure( Position( MIN_COL_LETTER, getPos().row ) );
 				if( rook && !rook->hasMoved() )
 				{
 					PotentialDestinations	result3;
@@ -421,7 +435,7 @@ PotentialDestinations King::calcPossible()
 			checkRange(&result2, &Position::moveEast, 2);
 			if( result2.numTargets == 2 && !result2.hasCaptures )
 			{
-				Figure *rook = m_board.getFigure( Position( 'h', getPos().row ) );
+				Figure *rook = m_board.getFigure( Position( MAX_COL_LETTER, getPos().row ) );
 				if( rook && !rook->hasMoved() )
 				{
 					PotentialDestinations	result3;
