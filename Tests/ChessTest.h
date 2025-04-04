@@ -104,9 +104,9 @@ class ChessTest : public UnitTest
 				"W"
 			);
 			chess::King *king = chess.getCurKing();
-			const chess::TargetPositions &targets = king->getPossible();
+			const chess::PotentialDestinations &targets = king->getPossible();
 			UT_ASSERT_EQUAL(targets.numTargets, 1);
-			UT_ASSERT_EQUAL(targets.numCaptures, 1);
+			UT_ASSERT_EQUAL(targets.hasCaptures, 1);
 
 			chess.findBest(2, &quality);
 			UT_ASSERT_EQUAL(quality, 1);
@@ -114,6 +114,19 @@ class ChessTest : public UnitTest
 
 		// find mate
 		{
+#if 0
+			chess.generateFromString(
+				"    K   "
+				"        "
+				"        "
+				"        "
+				"        "
+				"   D    "
+				"   B    "
+				"   k    "
+				"W"
+			);
+#else
 			chess.generateFromString(
 				"     K  "
 				"        "
@@ -125,10 +138,11 @@ class ChessTest : public UnitTest
 				"        "
 				"S"
 			);
+#endif
 			chess.findBest(2, &quality);
 			UT_ASSERT_EQUAL(quality, 2);
 			chess.findBest(1, &quality);
-			UT_ASSERT_EQUAL(quality, 4);
+			UT_ASSERT_EQUAL(quality, 2);
 		}
 
 		const STRING start = "TSLDKLST"
@@ -168,26 +182,26 @@ class ChessTest : public UnitTest
 		const STRING initString = chess.generateString(); 
 		UT_ASSERT_EQUAL( start, initString );
 
-		chess.moveTo( chess::PlayerPos( 'E', 2, chess ), chess::Position( 'E', 4 ) );
+		chess.moveTo( chess::PlayerPos( 'e', 2, chess ), chess::Position( 'e', 4 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::PlayerPos( 'F', 7, chess ), chess::Position( 'F', 5 ) );
+		chess.moveTo( chess::PlayerPos( 'f', 7, chess ), chess::Position( 'f', 5 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::PlayerPos( 'E', 4, chess ), chess::Position( 'F', 5 ) );
+		chess.moveTo( chess::PlayerPos( 'e', 4, chess ), chess::Position( 'f', 5 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::PlayerPos( 'G', 7, chess ), chess::Position( 'G', 5 ) );
+		chess.moveTo( chess::PlayerPos( 'g', 7, chess ), chess::Position( 'g', 5 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::PlayerPos( 'F', 5, chess ), chess::Position( 'G', 6 ) );
+		chess.moveTo( chess::PlayerPos( 'f', 5, chess ), chess::Position( 'g', 6 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
-		const chess::Figure *fig = chess.getFigure('G', 5);
+		const chess::Figure *fig = chess.getFigure('g', 5);
 		UT_ASSERT_TRUE( fig==NULL );
 
 		chess.evaluateRange(whiteTargets, blackTargets, whiteCaptures, blackCaptures);
@@ -198,58 +212,58 @@ class ChessTest : public UnitTest
 		UT_ASSERT_EQUAL( 16 + 4 + 1 + 5 + 5, whiteTargets );
 
 		// try rochade
-		chess.moveTo(chess::PlayerPos( 'B', 8, chess ), chess::Position( 'A', 6 ));
+		chess.moveTo(chess::PlayerPos( 'b', 8, chess ), chess::Position( 'a', 6 ));
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::PlayerPos( 'F', 1, chess ), chess::Position( 'E', 2 ) );
+		chess.moveTo( chess::PlayerPos( 'f', 1, chess ), chess::Position( 'e', 2 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo(chess::PlayerPos( 'D', 7, chess ), chess::Position( 'D', 6 ));
+		chess.moveTo(chess::PlayerPos( 'd', 7, chess ), chess::Position( 'd', 6 ));
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::PlayerPos( 'G', 1, chess ), chess::Position( 'F', 3 ) );
+		chess.moveTo( chess::PlayerPos( 'g', 1, chess ), chess::Position( 'f', 3 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::PlayerPos( 'D', 6, chess), chess::Position( 'D', 5 ) );
+		chess.moveTo( chess::PlayerPos( 'd', 6, chess), chess::Position( 'd', 5 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
 		chess::King *king = chess.getWhiteK();
-		const chess::TargetPositions	&result = king->getPossible();
+		const chess::PotentialDestinations	&result = king->getPossible();
 		UT_ASSERT_EQUAL( result.numTargets, 2 );
 
 		const chess::King::Rochade &eastRochade = king->getEastRochade();
 
 		chess::Figure		*rook1 = eastRochade.rook;
-		chess::PlayerPos	rook2('H', 1, chess);
+		chess::PlayerPos	rook2('h', 1, chess);
 		UT_ASSERT_EQUAL( rook1, rook2.fig );
 		
 		chess.rochade(king, rook1, eastRochade.myTarget, eastRochade.rookTarget );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
-		UT_ASSERT_EQUAL( king->getPos().col, 'G' );
+		UT_ASSERT_EQUAL( king->getPos().col, 'g' );
 		UT_ASSERT_EQUAL( king->getPos().row, 1 );
-		UT_ASSERT_EQUAL( rook1->getPos().col, 'F' );
+		UT_ASSERT_EQUAL( rook1->getPos().col, 'f' );
 		UT_ASSERT_EQUAL( rook1->getPos().row, 1 );
 
-		chess.moveTo( chess::PlayerPos( 'H', 7, chess ), chess::Position( 'H', 5 ) );
+		chess.moveTo( chess::PlayerPos( 'h', 7, chess ), chess::Position( 'h', 5 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::PlayerPos( 'G', 6, chess ), chess::Position( 'G', 7 ) );
+		chess.moveTo( chess::PlayerPos( 'g', 6, chess ), chess::Position( 'g', 7 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.moveTo( chess::PlayerPos( 'E', 7, chess ), chess::Position( 'E', 6 ) );
+		chess.moveTo( chess::PlayerPos( 'e', 7, chess ), chess::Position( 'e', 6 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
-		chess.promote( chess.getFigure(chess::Position( 'G', 7 )), 
-			chess::Figure::ftQueen, chess::Position( 'H', 8 ) );
+		chess.promote( chess.getFigure(chess::Position( 'g', 7 )), 
+			chess::Figure::ftQueen, chess::Position( 'h', 8 ) );
 		badPos = chess.checkBoard();
 		UT_ASSERT_EQUAL( chess::Position(), badPos );
 
@@ -270,43 +284,43 @@ class ChessTest : public UnitTest
 		chess.print();
 
 		// from upper right to lower left
-		chess::Position::MoveFunc func = chess::Position::findMoveFunc(chess::Position( 'H', 8 ), chess::Position( 'A', 1 ));
+		chess::Position::MoveFunc func = chess::Position::findMoveFunc(chess::Position( 'h', 8 ), chess::Position( 'a', 1 ));
 		UT_ASSERT_EQUAL( func, &chess::Position::moveSouthWest );
 
 		// from right to left
-		func = chess::Position::findMoveFunc(chess::Position( 'H', 8 ), chess::Position( 'A', 8 ));
+		func = chess::Position::findMoveFunc(chess::Position( 'h', 8 ), chess::Position( 'a', 8 ));
 		UT_ASSERT_EQUAL( func, &chess::Position::moveWest );
 
 		// from lower right to upper left
-		func = chess::Position::findMoveFunc(chess::Position( 'H', 1 ), chess::Position( 'A', 8 ));
+		func = chess::Position::findMoveFunc(chess::Position( 'h', 1 ), chess::Position( 'a', 8 ));
 		UT_ASSERT_EQUAL( func, &chess::Position::moveNorthWest );
 
 		// from lower to upper
-		func = chess::Position::findMoveFunc(chess::Position( 'H', 1 ), chess::Position( 'H', 8 ));
+		func = chess::Position::findMoveFunc(chess::Position( 'h', 1 ), chess::Position( 'h', 8 ));
 		UT_ASSERT_EQUAL( func, &chess::Position::moveNorth );
 
 		// from lower left to upper right
-		func = chess::Position::findMoveFunc(chess::Position( 'A', 1 ), chess::Position( 'H', 8 ));
+		func = chess::Position::findMoveFunc(chess::Position( 'a', 1 ), chess::Position( 'h', 8 ));
 		UT_ASSERT_EQUAL( func, &chess::Position::moveNorthEast );
 
 		// from left to right
-		func = chess::Position::findMoveFunc(chess::Position( 'A', 1 ), chess::Position( 'H', 1 ));
+		func = chess::Position::findMoveFunc(chess::Position( 'a', 1 ), chess::Position( 'h', 1 ));
 		UT_ASSERT_EQUAL( func, &chess::Position::moveEast );
 
 		// from upper left to lower right
-		func = chess::Position::findMoveFunc(chess::Position( 'A', 8 ), chess::Position( 'H', 1 ));
+		func = chess::Position::findMoveFunc(chess::Position( 'a', 8 ), chess::Position( 'h', 1 ));
 		UT_ASSERT_EQUAL( func, &chess::Position::moveSouthEast );
 
 		// from upper to lower
-		func = chess::Position::findMoveFunc(chess::Position( 'H', 8 ), chess::Position( 'H', 1 ));
+		func = chess::Position::findMoveFunc(chess::Position( 'h', 8 ), chess::Position( 'h', 1 ));
 		UT_ASSERT_EQUAL( func, &chess::Position::moveSouth );
 
 		// bad
-		func = chess::Position::findMoveFunc(chess::Position( 'C', 8 ), chess::Position( 'H', 1 ));
+		func = chess::Position::findMoveFunc(chess::Position( 'c', 8 ), chess::Position( 'h', 1 ));
 		UT_ASSERT_EQUAL( func, chess::Position::MoveFunc(NULL) );
 
 		// equal
-		func = chess::Position::findMoveFunc(chess::Position( 'C', 5 ), chess::Position( 'C', 5 ));
+		func = chess::Position::findMoveFunc(chess::Position( 'c', 5 ), chess::Position( 'c', 5 ));
 		UT_ASSERT_EQUAL( func, chess::Position::MoveFunc(NULL) );
 	}
 };

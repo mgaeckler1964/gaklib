@@ -1,6 +1,6 @@
 /*
 		Project:		GAKLIB
-		Module:			figure.coo
+		Module:			figure.cpp
 		Description:	chess figures
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
@@ -116,7 +116,7 @@ namespace chess
 // ----- class protected ----------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-size_t Figure::checkRange(TargetPositions *result, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const
+size_t Figure::checkRange(PotentialDestinations *result, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const
 {
 	if( m_toKing && m_fromKing && movement != m_toKing && movement != m_fromKing)
 	{
@@ -131,14 +131,14 @@ size_t Figure::checkRange(TargetPositions *result, Position::MoveFunc movement, 
 		if( !targetPos )
 			break;
 
-		if( !allowSacrifice && m_board.getThread(m_color,targetPos,false, true) )
+		if( !allowSacrifice && m_board.getThread(m_color,targetPos,true) )
 		{
 			break;		// king must not move over an attacked field
 		}
 		const Figure *figure = m_board.getFigure( targetPos );
 		if( !figure ) 
 		{
-			result->targets[result->numTargets++] = targetPos;
+			result->targets[result->numTargets++].target = targetPos;
 			result->threads[result->numThreads++] = targetPos;
 		}
 		else 
@@ -146,8 +146,10 @@ size_t Figure::checkRange(TargetPositions *result, Position::MoveFunc movement, 
 			result->threads[result->numThreads++] = targetPos;
 			if( figure->m_color != m_color )
 			{
-				result->targets[result->numTargets++] = targetPos;
-				result->captures[result->numCaptures++] = targetPos;
+				result->targets[result->numTargets].target = targetPos;
+				result->targets[result->numTargets].captures = targetPos;
+				++result->numTargets;
+				result->hasCaptures = true;
 			}
 			break;
 		}
@@ -164,10 +166,10 @@ size_t Figure::checkRange(TargetPositions *result, Position::MoveFunc movement, 
 // ----- class virtuals ------------------------------------------------ //
 // --------------------------------------------------------------------- //
    
-TargetPositions Pawn::calcPossible()
+PotentialDestinations Pawn::calcPossible()
 {
 	// init
-	TargetPositions	result;
+	PotentialDestinations	result;
 
 	int direction = ( m_color == Figure::White ) ? 1 : -1;
 	char startRow = ( m_color == Figure::White ) ? 2 : 7;
@@ -176,14 +178,14 @@ TargetPositions Pawn::calcPossible()
 	Position targetPos = getPos().move( 0, direction );
 	if( targetPos && !m_board.getFigure( targetPos ) )
 	{
-		result.targets[result.numTargets++] = targetPos;
+		result.targets[result.numTargets++].target = targetPos;
 		// two step no beat
 		if( getPos().row == startRow )
 		{
 			targetPos = targetPos.move( 0, direction );
 			if( !m_board.getFigure( targetPos ) )
 			{
-				result.targets[result.numTargets++] = targetPos;
+				result.targets[result.numTargets++].target = targetPos;
 			}
 		}
 	}
@@ -197,8 +199,10 @@ TargetPositions Pawn::calcPossible()
 		const Figure *figure = m_board.getFigure( targetPos );
 		if( figure && figure->m_color != m_color )
 		{
-			result.targets[result.numTargets++] = targetPos;
-			result.captures[result.numCaptures++] = targetPos;
+			result.targets[result.numTargets].target = targetPos;
+			result.targets[result.numTargets].captures = targetPos;
+			++result.numTargets;
+			result.hasCaptures = true;
 		}
 	}
 
@@ -211,8 +215,10 @@ TargetPositions Pawn::calcPossible()
 		const Figure *figure = m_board.getFigure( targetPos );
 		if( figure && figure->m_color != m_color )
 		{
-			result.targets[result.numTargets++] = targetPos;
-			result.captures[result.numCaptures++] = targetPos;
+			result.targets[result.numTargets].target = targetPos;
+			result.targets[result.numTargets].captures = targetPos;
+			++result.numTargets;
+			result.hasCaptures = true;
 		}
 	}
 
@@ -229,8 +235,10 @@ TargetPositions Pawn::calcPossible()
 			if( lastMove.src == leftStart )
 			{
 				Position leftTarget = getPos().move( -1, direction );
-				result.targets[result.numTargets++] = leftTarget;
-				result.captures[result.numCaptures++] = leftTarget;
+				result.targets[result.numTargets].target = leftTarget;
+				result.targets[result.numTargets].captures = leftPos;
+				++result.numTargets;
+				result.hasCaptures = true;
 			}
 		}
 
@@ -241,8 +249,10 @@ TargetPositions Pawn::calcPossible()
 			if( lastMove.src == rightStart )
 			{
 				Position rightTarget = getPos().move( 1, direction );
-				result.targets[result.numTargets++] = rightTarget;
-				result.captures[result.numCaptures++] = rightTarget;
+				result.targets[result.numTargets].target = rightTarget;
+				result.targets[result.numTargets].captures = rightPos;
+				++result.numTargets;
+				result.hasCaptures = true;
 			}
 		}
 	}
@@ -250,9 +260,9 @@ TargetPositions Pawn::calcPossible()
 	return result;
 }
 
-TargetPositions  Rook::calcPossible()
+PotentialDestinations  Rook::calcPossible()
 {
-	TargetPositions	result;
+	PotentialDestinations	result;
 
 	checkRange(&result, &Position::moveNorth);
 	checkRange(&result, &Position::moveEast);
@@ -262,9 +272,9 @@ TargetPositions  Rook::calcPossible()
 	return result;
 }
 
-TargetPositions  Knight::calcPossible()
+PotentialDestinations  Knight::calcPossible()
 {
-	TargetPositions	result;
+	PotentialDestinations	result;
 
 	checkRange(&result, &Position::moveSNorthEast);
 	checkRange(&result, &Position::moveSEastNorth);
@@ -278,9 +288,9 @@ TargetPositions  Knight::calcPossible()
 	return result;
 }
 
-TargetPositions  Bishop::calcPossible()
+PotentialDestinations  Bishop::calcPossible()
 {
-	TargetPositions	result;
+	PotentialDestinations	result;
 
 	checkRange(&result, &Position::moveNorthEast);
 	checkRange(&result, &Position::moveSouthEast);
@@ -290,9 +300,9 @@ TargetPositions  Bishop::calcPossible()
 	return result;
 }
 
-TargetPositions Queen::calcPossible()
+PotentialDestinations Queen::calcPossible()
 {
-	TargetPositions	result;
+	PotentialDestinations	result;
 
 	checkRange(&result, &Position::moveNorth);
 	checkRange(&result, &Position::moveNorthEast);
@@ -306,70 +316,100 @@ TargetPositions Queen::calcPossible()
 	return result;
 }
 
-TargetPositions King::calcPossible()
+PotentialDestinations King::calcPossible()
 {
-	TargetPositions	result;
-	Attack attack = searchAttack(&Position::moveNorth);
-	if( isOK( attack ) )
+	PotentialDestinations	result;
+	size_t canEast = 0;
+	size_t canWest = 0;
+
 	{
-		checkRange(&result, &Position::moveNorth, 1);
+		Attack moveNorthAttack = searchAttack(&Position::moveNorth);
+		Attack moveSouthAtack = searchAttack(&Position::moveSouth);
+		if( isOK( moveNorthAttack ) && isOK( moveSouthAtack ))
+		{
+			checkRange(&result, &Position::moveNorth, 1);
+			checkRange(&result, &Position::moveSouth, 1);
+		}
+		else if( isOK( moveNorthAttack ) && moveSouthAtack.figure->getType() == Figure::ftKing )
+		{
+			checkRange(&result, &Position::moveNorth, 1);
+		}
+		else if( isOK( moveSouthAtack ) && moveNorthAttack.figure->getType() == Figure::ftKing )
+		{
+			checkRange(&result, &Position::moveSouth, 1);
+		}
 	}
-
-	attack = searchAttack(&Position::moveNorthEast);
-	if( isOK( attack ) )
 	{
-		checkRange(&result, &Position::moveNorthEast, 1);
+		Attack moveEastAtack = searchAttack(&Position::moveEast);
+		Attack moveWestAttack = searchAttack(&Position::moveWest);
+		if( isOK( moveEastAtack ) && isOK( moveWestAttack ))
+		{
+			canEast = checkRange(&result, &Position::moveEast, 1);
+			canWest = checkRange(&result, &Position::moveWest, 1);
+		}
+		else if( isOK( moveEastAtack ) && moveWestAttack.figure->getType() == Figure::ftKing )
+		{
+			canEast = checkRange(&result, &Position::moveEast, 1);
+		}
+		else if( isOK( moveWestAttack ) && moveEastAtack.figure->getType() == Figure::ftKing )
+		{
+			canWest = checkRange(&result, &Position::moveWest, 1);
+		}
 	}
-
-	attack = searchAttack(&Position::moveEast);
-	size_t canEast = isOK( attack ) ? checkRange(&result, &Position::moveEast, 1) : 0;
-
-	attack = searchAttack(&Position::moveSouthEast);
-	if( isOK( attack ) )
 	{
-		checkRange(&result, &Position::moveSouthEast, 1);
+		Attack moveNorthEastAtack = searchAttack(&Position::moveNorthEast);
+		Attack moveSouthWestAtack = searchAttack(&Position::moveSouthWest);
+		if( isOK( moveNorthEastAtack ) && isOK( moveSouthWestAtack ))
+		{
+			checkRange(&result, &Position::moveNorthEast, 1);
+			checkRange(&result, &Position::moveSouthWest, 1);
+		}
+		else if( isOK( moveNorthEastAtack ) && moveSouthWestAtack.figure->getType() == Figure::ftKing )
+		{
+			checkRange(&result, &Position::moveNorthEast, 1);
+		}
+		else if( isOK( moveSouthWestAtack ) && moveNorthEastAtack .figure->getType() == Figure::ftKing )
+		{
+			checkRange(&result, &Position::moveSouthWest, 1);
+		}
 	}
-
-	attack = searchAttack(&Position::moveSouth);
-	if( isOK( attack ) )
 	{
-		checkRange(&result, &Position::moveSouth, 1);
-	}
-
-	attack = searchAttack(&Position::moveSouthWest);
-	if( isOK( attack ) )
-	{
-		checkRange(&result, &Position::moveSouthWest, 1);
-	}
-
-	attack = searchAttack(&Position::moveWest);
-	size_t canWest = isOK( attack ) ? checkRange(&result, &Position::moveWest, 1) : 0;
-
-	attack = searchAttack(&Position::moveNorthWest);
-	if( isOK( attack ) )
-	{
-		checkRange(&result, &Position::moveNorthWest, 1);
+		Attack moveNorthWestAtack = searchAttack(&Position::moveNorthWest);
+		Attack moveSouthEastAtack = searchAttack(&Position::moveSouthEast);
+		if( isOK( moveNorthWestAtack ) && isOK( moveSouthEastAtack ))
+		{
+			checkRange(&result, &Position::moveNorthWest, 1);
+			checkRange(&result, &Position::moveSouthEast, 1);
+		}
+		else if( isOK( moveNorthWestAtack ) && moveSouthEastAtack.figure->getType() == Figure::ftKing )
+		{
+			checkRange(&result, &Position::moveNorthWest, 1);
+		}
+		else if( isOK( moveSouthEastAtack ) && moveNorthWestAtack .figure->getType() == Figure::ftKing )
+		{
+			checkRange(&result, &Position::moveSouthEast, 1);
+		}
 	}
 
 	if( !hasMoved() )
 	{
 		if( canWest )
 		{
-			TargetPositions	result2;
+			PotentialDestinations	result2;
 			checkRange(&result2, &Position::moveWest, 2);
-			if( result2.numTargets == 2 && result2.numCaptures == 0 )
+			if( result2.numTargets == 2 && !result2.hasCaptures )
 			{
-				Figure *rook = m_board.getFigure( Position( 'A', getPos().row ) );
+				Figure *rook = m_board.getFigure( Position( 'a', getPos().row ) );
 				if( rook && !rook->hasMoved() )
 				{
-					TargetPositions	result3;
+					PotentialDestinations	result3;
 					rook->checkRange(&result3, &Position::moveEast);
-					if( result3.numTargets >= 3 && result3.numCaptures == 0 )
+					if( result3.numTargets >= 3 && !result3.hasCaptures )
 					{
-						Position &targetPosition = result2.targets[1];
+						Destination &targetPosition = result2.targets[1];
 						result.targets[result.numTargets++] = targetPosition;
-						m_rochadeWest.myTarget = targetPosition;
-						m_rochadeWest.rookTarget = result3.targets[2];
+						m_rochadeWest.myTarget = targetPosition.target;
+						m_rochadeWest.rookTarget = result3.targets[2].target;
 						m_rochadeWest.rook = dynamic_cast<Rook*>(rook);
 					}
 				}
@@ -377,35 +417,45 @@ TargetPositions King::calcPossible()
 		}
 		if( canEast )
 		{
-			TargetPositions	result2;
+			PotentialDestinations	result2;
 			checkRange(&result2, &Position::moveEast, 2);
-			if( result2.numTargets == 2 && result2.numCaptures == 0 )
+			if( result2.numTargets == 2 && !result2.hasCaptures )
 			{
-				Figure *rook = m_board.getFigure( Position( 'H', getPos().row ) );
+				Figure *rook = m_board.getFigure( Position( 'h', getPos().row ) );
 				if( rook && !rook->hasMoved() )
 				{
-					TargetPositions	result3;
+					PotentialDestinations	result3;
 					rook->checkRange(&result3, &Position::moveWest);
-					if( result3.numTargets >= 2 && result3.numCaptures == 0 )
+					if( result3.numTargets >= 2 && !result3.hasCaptures )
 					{
-						Position &targetPosition = result2.targets[1];
+						Destination &targetPosition = result2.targets[1];
 						result.targets[result.numTargets++] = targetPosition;
-						m_rochadeEast.myTarget = targetPosition;
-						m_rochadeEast.rookTarget = result3.targets[1];
+						m_rochadeEast.myTarget = targetPosition.target;
+						m_rochadeEast.rookTarget = result3.targets[1].target;
 						m_rochadeEast.rook = dynamic_cast<Rook*>(rook);
 					}
 				}
 			}
 		}
 	}
-
-
 	return result;
 }
 
 // --------------------------------------------------------------------- //
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+
+bool Figure::isOK( const Attack &attack ) const
+{
+	return !attack.figure						// no attacker
+		|| attack.figure->m_color == m_color	// no enemy
+		|| (
+			attack.steps < 2 &&					// king can self defend
+			!m_board.getThread(m_color, attack.figure->getPos(), false )
+		)
+		|| !attack.figure->canCapture(m_pos) ;	// too weak?
+}
 
 
 void Figure::moveTo( const Position &pos )

@@ -46,6 +46,7 @@
 
 #include <gak/array.h>
 #include <gak/math.h>
+#include <gak/map.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -154,7 +155,7 @@ struct Position
 	{
 		char newCol = char(col + cDir);
 		char newRow = char(row + rDir);
-		if( newCol <= 'H' && newCol >= 'A' && newRow >= 1 && newRow <= NUM_ROWS )
+		if( newCol <= 'h' && newCol >= 'a' && newRow >= 1 && newRow <= NUM_ROWS )
 		{
 			return Position(newCol,newRow);
 		}
@@ -293,16 +294,21 @@ struct PlayerPos
 	PlayerPos(char col, char row, Board &board);
 };
 
-struct TargetPositions
+struct Destination
 {
-	Position	targets[32];
-	Position	captures[32];
-	Position	threads[32];
+	Position	target;			// where I can move
+	Position	captures;		// what I capture
+};
+
+struct PotentialDestinations
+{
+	Destination	targets[32];
+	Position	threads[32];		// where I can capture, if a oponent is comming
 	int			numTargets;
-	int			numCaptures;
+	bool		hasCaptures;
 	int			numThreads;
 	
-	TargetPositions()
+	PotentialDestinations()
 	{
 		std::memset( this, 0, sizeof( *this ) );
 	}
@@ -340,25 +346,25 @@ class Figure
 	};
 
 	private:
-	bool				m_moved;
-	Position			m_pos;
-	TargetPositions		m_targets;
-	Position::MoveFunc	m_toKing, m_fromKing;
+	bool					m_moved;
+	Position				m_pos;
+	PotentialDestinations	m_targets;
+	Position::MoveFunc		m_toKing, m_fromKing;
 
 	protected:
-	Board				&m_board;
+	Board					&m_board;
 
 	public:
-	const enum Color	m_color;
+	const enum Color		m_color;
 
 	private:
 	Figure( const Figure & );
 	Figure &operator=(const Figure &src );
 
-	virtual TargetPositions calcPossible() = 0;
+	virtual PotentialDestinations calcPossible() = 0;
 
 	protected:
-	size_t checkRange(TargetPositions *result, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const;
+	size_t checkRange(PotentialDestinations *result, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const;
 
 	public:
 	Figure( Color color, Position pos, Board &board ) : m_color(color), m_pos(pos), m_board(board), m_moved(false), m_toKing(NULL), m_fromKing(NULL) {}
@@ -398,28 +404,22 @@ class Figure
 	}
 	bool canCapture(const Position &pos) const
 	{
-		for( size_t i=0; i<m_targets.numCaptures; ++i )
+		for( size_t i=0; i<m_targets.numTargets; ++i )
 		{
-			if( pos == m_targets.captures[i] )
+			if( pos == m_targets.targets[i].captures )
 			{
 				return true;
 			}
 		}
 		return false;
 	}
-	bool isOK( const Attack &attack ) const
-	{
-		return !attack.figure						// no attacker
-			|| attack.figure->m_color == m_color	// no enemy
-			|| attack.steps < 2						// king can self defend
-			|| !attack.figure->canCapture(m_pos) ;	// too weak?
-	}
-	const TargetPositions &getPossible() const
+	bool isOK( const Attack &attack ) const;
+	const PotentialDestinations &getPossible() const
 	{
 		return m_targets;
 	}
 
-	size_t checkRange(TargetPositions *pos, Position::MoveFunc movement ) const
+	size_t checkRange(PotentialDestinations *pos, Position::MoveFunc movement ) const
 	{
 		// good for Rook, Bishop and Queen, they may go the longest distance and it is allowed to be sacrified
 		return checkRange(pos, movement, MAX_DISTANCE, true);
@@ -448,7 +448,7 @@ class Pawn : public Figure
 	public:
 	Pawn( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	virtual TargetPositions calcPossible();
+	virtual PotentialDestinations calcPossible();
 	virtual Type getType() const
 	{
 		return ftPawn;
@@ -468,12 +468,12 @@ class Knight : public Figure
 	public:
 	Knight( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	size_t checkRange(TargetPositions *pos, Position::MoveFunc movement) const
+	size_t checkRange(PotentialDestinations *pos, Position::MoveFunc movement) const
 	{
 		// knight can gon one step, only, and it is allowed to be sacrified
 		return Figure::checkRange(pos, movement, 1, true);
 	}
-	virtual TargetPositions calcPossible();
+	virtual PotentialDestinations calcPossible();
 	virtual Type getType() const
 	{
 		return ftKnight;
@@ -493,7 +493,7 @@ class Bishop : public Figure
 	public:
 	Bishop( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	virtual TargetPositions calcPossible();
+	virtual PotentialDestinations calcPossible();
 	virtual Type getType() const
 	{
 		return ftBishop;
@@ -513,7 +513,7 @@ class Rook : public Figure
 	public:
 	Rook( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	virtual TargetPositions calcPossible();
+	virtual PotentialDestinations calcPossible();
 	virtual Type getType() const
 	{
 		return ftRook;
@@ -533,7 +533,7 @@ class Queen : public Figure
 	public:
 	Queen( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	virtual TargetPositions calcPossible();
+	virtual PotentialDestinations calcPossible();
 	virtual Type getType() const
 	{
 		return ftQueen;
@@ -566,12 +566,12 @@ class King : public Figure
 	public:
 	King( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
-	size_t checkRange(TargetPositions *pos, Position::MoveFunc movement, size_t maxCount) const
+	size_t checkRange(PotentialDestinations *pos, Position::MoveFunc movement, size_t maxCount) const
 	{
 		// knight can go one,  only, or two while rochade, and it is NOT allowed to be sacrified
 		return Figure::checkRange(pos, movement, maxCount, false);
 	}
-	virtual TargetPositions calcPossible();
+	virtual PotentialDestinations calcPossible();
 
 	const Rochade &getEastRochade() const
 	{
@@ -599,13 +599,14 @@ class King : public Figure
 
 struct Movement
 {
-	Figure		*fig;
-	Position	src;
-	Position	dest;
-	Figure		*promotion;
+	Figure			*fig;
+	Position		src;
+	Position		dest;
+	Figure			*promotion;
+	Figure::Type	promotionType;
 
-	Figure		*captured;
-	Position	capturePos;
+	Figure			*captured;
+	Position		capturePos;
 
 	// rochade
 	Figure		*rook;
@@ -613,9 +614,8 @@ struct Movement
 	Position	rookDest;
 
 	int			evaluate;
-	int			nextValue;
 
-	Movement() : fig(NULL), promotion(NULL), captured(NULL), rook(NULL), evaluate(0), nextValue(0)  {}
+	Movement() : fig(NULL), promotion(NULL), promotionType(Figure::ftNone), captured(NULL), rook(NULL), evaluate(0) {}
 	operator bool ()
 	{
 		return fig != NULL && src && dest;
@@ -623,6 +623,18 @@ struct Movement
 };
 
 typedef Array<Movement>	Movements;
+
+struct PortableMove
+{
+	char	figure;
+	char	fromCol;
+	char	fromRow;
+	char	toCol;
+	char	toCRow;
+	int		evaluation;
+};
+typedef Array<PortableMove>	PortableMoves;
+typedef PairMap<STRING, PortableMoves> ChessLibrary;
 
 class Board
 {
@@ -644,6 +656,7 @@ class Board
 	Figure::Color			m_nextColor;
 	Movements				m_moves;
 
+	public:
 	static bool isWhiteTurn(Figure::Color nextColor)
 	{
 		return nextColor == Figure::White;
@@ -660,9 +673,10 @@ class Board
 	{
 		return isBlackTurn(m_nextColor);
 	}
-	bool flipTurn()
+	private:
+	void flipTurn()
 	{
-		return m_nextColor = isWhiteTurn() ? Figure::Black : Figure::White;
+		m_nextColor = isWhiteTurn() ? Figure::Black : Figure::White;
 	}
 
 	bool canPlay() const
@@ -683,10 +697,11 @@ class Board
 	Figure *passantMove(const PlayerPos &src, const Position &dest);
 
 	void undoMove(const Movement &move);
-	void redoMove(const Movement &move);
+	void redoMove(Movement &move);
 
 	static size_t findMove(const Movements &moves, const Position &src, const Position &dest );
 
+	bool canMove(Figure::Color color) const;
 	Movements collectMoves()  const;
 	Movements findCheckDefend( size_t *numAttackers) const;
 
@@ -708,6 +723,7 @@ class Board
 		clear();
 	}
 	void refresh();
+	void checkMate();
 	void checkCheck();
 	void reset();
 
@@ -773,10 +789,10 @@ class Board
 
 	static size_t getIndex( char col, char row )
 	{
-		assert(col >= 'A' && col <= 'H' );
+		assert(col >= 'a' && col <= 'h' );
 		assert(row >= 1 && row <= NUM_ROWS );
 
-		return (row-1)*NUM_COLS+col-'A';
+		return (row-1)*NUM_COLS+col-'a';
 	}
 	static size_t getIndex( const Position &pos )
 	{
@@ -785,12 +801,12 @@ class Board
 	static Position getPosition( size_t index )
 	{
 		char row = char(index/NUM_COLS +1);
-		char col = char(index%NUM_COLS +'A');
+		char col = char(index%NUM_COLS +'a');
 		return Position(col, row);
 	}
 
-	const Figure *getThread( Figure::Color color, const Position &pos, bool checkEnPassant, bool check4King  ) const;
-	size_t getThreads( Figure::Color color, const Position &pos, FigurePtr *threads, bool checkEnPassant ) const;
+	const Figure *getThread( Figure::Color color, const Position &pos, bool check4King  ) const;
+	size_t getThreads( Figure::Color color, const Position &pos, FigurePtr *threads ) const;
 
 	const Figure *getAttacker( const Figure *fig ) const;
 	size_t getAttackers( const Figure *fig, FigurePtr *attackers ) const;
@@ -800,7 +816,7 @@ class Board
 	void moveTo( const PlayerPos &src, const Position &dest ); 
 	void rochade( const PlayerPos &king, const PlayerPos &rook, const Position &kingDest, const Position &rookDest );
 	Figure *create( Figure::Color color, Figure::Type newFig, const Position &dest );
-	void promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest );
+	char promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest );
 
 	Movement findBest(int maxLevel, int *quality);
 

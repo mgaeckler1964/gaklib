@@ -244,6 +244,7 @@ void Board::undoMove(const Movement &move)
 			// if it is en-passant -> the old destination is now empty
 			m_board[destIndex] = NULL;
 		}
+		move.captured->setPosition(move.capturePos);
 	}
 
 	if( move.rook )
@@ -255,14 +256,25 @@ void Board::undoMove(const Movement &move)
 		m_board[srcIndex] = move.rook;
 		m_board[destIndex] = NULL;
 	}
+
+	m_state = csPlaying;
 }
 
-void Board::redoMove(const Movement &move)
+void Board::redoMove(Movement &move)
 {
 	size_t srcIndex = getIndex(move.src);
 	size_t destIndex = getIndex(move.dest);
 
+	// save captured
+	if(m_board[destIndex])
+	{
+		move.captured = m_board[destIndex];
+	}
 	// position figure
+	if( move.promotionType && !move.promotion )
+	{
+		move.promotion = create( move.fig->m_color, move.promotionType, move.dest );
+	}
 	if( move.promotion )
 	{
 		move.fig->capture();
@@ -276,43 +288,47 @@ void Board::redoMove(const Movement &move)
 	}
 	m_board[srcIndex] = NULL;
 
-	if( move.captured )
+	Figure *cap = move.captured;
+	if( cap )
 	{
-		move.captured->capture();
+		const Position &cPos = cap->getPos();
+		if( cPos )
+		{
+			move.capturePos = cPos;
+		}
+		cap->capture();
+		assert(move.capturePos);
 	}
 
-	if( move.rook )
+	Figure *rook = move.rook;
+	if( rook )
 	{
 		// restore rook, if it was a rochade
 		size_t srcIndex = getIndex(move.rookSrc);
 		size_t destIndex = getIndex(move.rookDest);
-		move.rook->setPosition(move.rookDest);
-		m_board[destIndex] = move.rook;
+		rook->setPosition(move.rookDest);
+		m_board[destIndex] = rook;
 		m_board[srcIndex] = NULL;
 	}
 }
 
-Movements Board::collectMoves() const
+bool Board::canMove(Figure::Color color) const
 {
-	doEnterFunctionEx(logLegel, "Board::collectMoves");
-
-	Movements moves;
+	doEnterFunctionEx(logLegel, "Board::canMove");
 	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
 		Figure *fig = m_board[i];
-		if( fig && fig->m_color == m_nextColor )
+		if( fig && fig->m_color == color )
 		{
-			const TargetPositions &curMoves = fig->getPossible();
-			for( int i=0; i<curMoves.numTargets; ++i )
+			const PotentialDestinations &curMoves = fig->getPossible();
+			if( curMoves.numTargets )
 			{
-				Movement &move = moves.createElement();
-				move.fig = fig;
-				move.src = fig->getPos();
-				move.dest = curMoves.targets[i];
+				return true;
 			}
 		}
 	}
-	return moves;
+
+	return false;
 }
 
 Movements Board::findCheckDefend(size_t *numAttackers) const
@@ -355,7 +371,7 @@ Movements Board::findCheckDefend(size_t *numAttackers) const
 						break;
 
 					FigurePtr defenders[NUM_TEAM_FIGURES];
-					size_t numDefenders = getThreads(attackers[0]->m_color, targetPos, defenders, false);
+					size_t numDefenders = getThreads(attackers[0]->m_color, targetPos, defenders);
 					for( size_t i=0; i<numDefenders; ++i )
 					{
 						Movement &defend = defends.createElement();
@@ -369,11 +385,11 @@ Movements Board::findCheckDefend(size_t *numAttackers) const
 	}
 
 	// final we add the escape options this is possible regardless the number of attackers
-	const TargetPositions &escapes = king->getPossible();
+	const PotentialDestinations &escapes = king->getPossible();
 	const Position &src = king->getPos();
 	for( int i=0; i<escapes.numTargets; ++i )
 	{
-		const Position &dest = escapes.targets[i];
+		const Position &dest = escapes.targets[i].target;
 		if( findMove( defends, src, dest ) == defends.no_index )
 		{
 			Movement &defend = defends.createElement();
@@ -401,35 +417,44 @@ int Board::evaluateMovements(Movements &movements, int maxLevel)
 	{
 		Movement &theMove = *it;
 
+#ifndef NDEBUG
+		size_t srcIndex = getIndex(theMove.src);
+		size_t destIndex = getIndex(theMove.dest);
+		if(srcIndex == 48 && maxLevel<=1)
+		{
+			doLogValue(srcIndex);
+			doLogValue(destIndex);
+		}
+#endif
 		redoMove(theMove);
 		refresh();
 		theMove.evaluate = evaluate();
-		minVal = math::min(minVal, theMove.evaluate);
-		maxVal = math::max(maxVal, theMove.evaluate);
 		if( maxLevel )
 		{
 			int quality;
 			Movement nextMove = findBest( maxLevel, &quality );
 			if( nextMove )
 			{
-				theMove.nextValue = nextMove.nextValue;
+				theMove.evaluate = nextMove.evaluate;
 			}
 			else
 			{
-				if( isWhiteTurn() )
-				{
-					theMove.evaluate = BLACK_WINS;
-					theMove.nextValue = BLACK_WINS;
-				}
-				else
+				if( (m_state == csBlackCheck && isBlackTurn()) ||  m_state == csBlackCheckMate )
 				{
 					theMove.evaluate = WHITE_WINS;
-					theMove.nextValue = WHITE_WINS;
 				}
-				minVal = math::min(minVal, theMove.evaluate);
-				maxVal = math::max(maxVal, theMove.evaluate);
+				else if( (m_state == csWhiteCheck && isWhiteTurn()) ||  m_state == csWhiteCheckMate )
+				{
+					theMove.evaluate = BLACK_WINS;
+				}
+				else if(m_state == csDraw)
+				{
+					theMove.evaluate = 0;
+				}
 			}
 		}
+		minVal = math::min(minVal, theMove.evaluate);
+		maxVal = math::max(maxVal, theMove.evaluate);
 
 		undoMove(*it);
 	}
@@ -440,12 +465,12 @@ int Board::evaluateMovements(Movements &movements, int maxLevel)
 void Board::reset(Figure::Color color)
 {
 	char row = (color == Figure::White) ? 2 : 7;
-	for( char col='A'; col <='H'; ++col )
+	for( char col='a'; col <='h'; ++col )
 	{
 		create(color,Figure::ftPawn, Position(col,row));
 	}
 
-	char col = 'A';
+	char col = 'a';
 	row = (color == Figure::White) ? 1 : NUM_ROWS;
 
 	create(color, Figure::ftRook, Position(col,row));
@@ -494,12 +519,15 @@ const Figure *Board::getAttacker( const Figure *fig ) const
 		const Figure *fig = m_board[i];
 		if( fig && fig->m_color != color )
 		{
-			const TargetPositions &targets = fig->getPossible();
-			for( size_t j=0; j<targets.numCaptures; ++j )
+			const PotentialDestinations &targets = fig->getPossible();
+			if( targets.hasCaptures )
 			{
-				if( targets.captures[j] == pos )
+				for( size_t j=0; j<targets.numTargets; ++j )
 				{
-					return fig;
+					if( targets.targets[j].captures == pos )
+					{
+						return fig;
+					}
 				}
 			}
 		}
@@ -518,12 +546,15 @@ size_t Board::getAttackers( const Figure *fig, FigurePtr *attackers ) const
 		FigurePtr fig = m_board[i];
 		if( fig && fig->m_color != color )
 		{
-			const TargetPositions &targets = fig->getPossible();
-			for( size_t j=0; j<targets.numCaptures; ++j )
+			const PotentialDestinations &targets = fig->getPossible();
+			if( targets.hasCaptures )
 			{
-				if( targets.captures[j] == pos )
+				for( size_t j=0; j<targets.numTargets; ++j )
 				{
-					attackers[numAttackers++] = fig;
+					if( targets.targets[j].captures == pos )
+					{
+						attackers[numAttackers++] = fig;
+					}
 				}
 			}
 		}
@@ -532,7 +563,7 @@ size_t Board::getAttackers( const Figure *fig, FigurePtr *attackers ) const
 	return numAttackers;
 }
 
-const Figure *Board::getThread( Figure::Color color, const Position &pos, bool checkEnPassant, bool check4King ) const
+const Figure *Board::getThread( Figure::Color color, const Position &pos, bool check4King ) const
 {
 	if( check4King )
 	{
@@ -547,7 +578,7 @@ const Figure *Board::getThread( Figure::Color color, const Position &pos, bool c
 		const Figure *fig = m_board[i];
 		if( fig && fig->m_color != color && fig->getPos() != pos )
 		{
-			const TargetPositions &targets = fig->getPossible();
+			const PotentialDestinations &targets = fig->getPossible();
 			for( size_t j=0; j<targets.numThreads; ++j )
 			{
 				if( targets.threads[j] == pos )
@@ -561,7 +592,7 @@ const Figure *Board::getThread( Figure::Color color, const Position &pos, bool c
 	return NULL;
 }
 
-size_t Board::getThreads( Figure::Color color, const Position &pos, FigurePtr *threads, bool checkEnPassant ) const
+size_t Board::getThreads( Figure::Color color, const Position &pos, FigurePtr *threads ) const
 {
 	size_t numThreads = 0;
 	for( size_t i=0; i<NUM_FIELDS; ++i )
@@ -569,7 +600,7 @@ size_t Board::getThreads( Figure::Color color, const Position &pos, FigurePtr *t
 		Figure *fig = m_board[i];
 		if( fig && fig->m_color != color )
 		{
-			const TargetPositions &targets = fig->getPossible();
+			const PotentialDestinations &targets = fig->getPossible();
 			for( size_t j=0; j<targets.numThreads; ++j )
 			{
 				if( targets.threads[j] == pos )
@@ -613,10 +644,10 @@ bool Board::checkMoveTo( const PlayerPos &src, const Position &dest, Figure::Typ
 	{
 		return true;
 	}
-	const TargetPositions &targets = fig->getPossible();
+	const PotentialDestinations &targets = fig->getPossible();
 	for( size_t i=0; i<targets.numTargets; ++i )
 	{
-		if( targets.targets[i] == dest )
+		if( targets.targets[i].target == dest )
 		{
 			return false;
 		}
@@ -702,7 +733,7 @@ Figure *Board::create( Figure::Color color, Figure::Type newFig, const Position 
 	return newFigure;
 }
 
-void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest )
+char Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest )
 {
 	assert(!checkMoveTo(pawn, dest, newFig) );
 
@@ -721,6 +752,8 @@ void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position 
 	move.src = pawn.pos;
 	move.dest = dest;
 	move.promotion = newFigure;
+	move.promotionType = newFig;
+	char newLetter = newFigure->getLetter();
 	if( toCapture )
 	{
 		move.captured = toCapture;
@@ -730,6 +763,7 @@ void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position 
 
 	flipTurn();
 	refresh();
+	return newLetter;
 }
 
 void Board::reset()
@@ -738,8 +772,8 @@ void Board::reset()
 	reset(Figure::White);
 	reset(Figure::Black);
 
-	m_whiteK = dynamic_cast<King*>(getFigure('E', 1));
-	m_blackK = dynamic_cast<King*>(getFigure('E', NUM_ROWS));
+	m_whiteK = dynamic_cast<King*>(getFigure('e', 1));
+	m_blackK = dynamic_cast<King*>(getFigure('e', NUM_ROWS));
 
 	m_nextColor = Figure::White;
 	m_state = csPlaying;
@@ -767,7 +801,30 @@ void Board::refresh()
 
 	if( canPlay() )
 	{
-		checkCheck();
+		checkMate();
+	}
+}
+
+void Board::checkMate()
+{
+	checkCheck();
+	if( m_state == csWhiteCheck )
+	{
+		if( !canMove(Figure::White) )
+		{
+			m_state = csWhiteCheckMate;
+		}
+	}
+	else if( m_state == csBlackCheck )
+	{
+		if( !canMove(Figure::Black) )
+		{
+			m_state = csBlackCheckMate;
+		}
+	}
+	else if( !canMove(m_nextColor) )
+	{
+		m_state = csDraw;
 	}
 }
 
@@ -778,15 +835,15 @@ void Board::checkCheck()
 		Figure *fig = m_board[i];
 		if( fig && fig->getType() != Figure::ftKing )
 		{
-			const TargetPositions &targets = fig->getPossible();
-			for( size_t i=0; i<targets.numCaptures; ++i )
+			const PotentialDestinations &targets = fig->getPossible();
+			for( size_t i=0; i<targets.numTargets; ++i )
 			{
-				if( m_whiteK->getPos() == targets.captures[i] )
+				if( m_whiteK->getPos() == targets.targets[i].captures )
 				{
 					m_state = csWhiteCheck;
 /*@*/				return;
 				}
-				else if( m_blackK->getPos() == targets.captures[i] )
+				else if( m_blackK->getPos() == targets.targets[i].captures )
 				{
 					m_state = csBlackCheck;
 /*@*/				return;
@@ -825,21 +882,25 @@ void Board::evaluateRange(int &whiteTargets, int &blackTargets, int &whiteCaptur
 		Figure *fig = m_board[i];
 		if( fig )
 		{
-			const TargetPositions &pos = fig->getPossible();
+			const PotentialDestinations &pot = fig->getPossible();
 			int captures=0;
-			for( int j=0; j<pos.numCaptures; ++j )
+			for( int j=0; j<pot.numTargets; ++j )
 			{
-				captures += getFigure(pos.captures[j])->getValue();
+				const Position &pos = pot.targets[j].captures;
+				if( pos )
+				{
+					captures += getFigure(pos)->getValue();
+				}
 			}
 
 			if( fig->m_color == Figure::White )
 			{
-				whiteTargets += int(pos.numTargets);
+				whiteTargets += int(pot.numTargets);
 				whiteCaptures += captures;
 			}
 			else
 			{
-				blackTargets += int(pos.numTargets);
+				blackTargets += int(pot.numTargets);
 				blackCaptures += captures;
 			}
 		}
@@ -852,17 +913,19 @@ int Board::evaluate() const
 	int whiteForce, blackForce;
 	int whiteTargets, blackTargets, whiteCaptures, blackCaptures;
 
-	evaluateForce( whiteForce, blackForce);
-	if( whiteForce < KING_VALUE )
+	if( m_state == csDraw )
+	{
+		return 0;
+	}
+	else if( m_state == csWhiteCheckMate )
 	{
 		return BLACK_WINS;
 	}
-	if( blackForce < KING_VALUE )
+	else if( m_state == csBlackCheckMate )
 	{
 		return WHITE_WINS;
 	}
-
-	if( m_state == csWhiteCheck )
+	else if( m_state == csWhiteCheck )
 	{
 		if( isBlackTurn() )
 		{
@@ -879,11 +942,22 @@ int Board::evaluate() const
 		return BLACK_CHECK;
 	}
 
+
+	evaluateForce( whiteForce, blackForce);
+	if( whiteForce < KING_VALUE )
+	{
+		return BLACK_WINS;
+	}
+	if( blackForce < KING_VALUE )
+	{
+		return WHITE_WINS;
+	}
+
 	evaluateRange(whiteTargets, blackTargets, whiteCaptures, blackCaptures);
 
 	int evaluation = whiteForce + whiteTargets + whiteCaptures - blackForce - blackTargets - blackCaptures;
 	doLogValueEx(logLegel, evaluation);
-	return whiteForce + whiteTargets + whiteCaptures - blackForce - blackTargets - blackCaptures;
+	return evaluation;
 }
 
 Movement Board::findBest( int maxLevel, int *quality )
@@ -894,6 +968,9 @@ Movement Board::findBest( int maxLevel, int *quality )
 	{
 		return Movement();
 	}
+
+	State state = m_state;
+	Figure::Color nextColor = m_nextColor;
 
 	int			bestEval;
 	Movement	best;
@@ -909,9 +986,6 @@ Movement Board::findBest( int maxLevel, int *quality )
 	{
 		bestEval = evaluateMovements(movements, maxLevel);
 
-		int minNextEval = std::numeric_limits<int>::max();
-		int maxNextEval = std::numeric_limits<int>::min();;
-
 		size_t	numMoves=0;
 		for( size_t i=0; i<movements.size(); ++i )
 		{
@@ -921,23 +995,6 @@ Movement Board::findBest( int maxLevel, int *quality )
 				if(i != numMoves)
 				{
 					movements[numMoves] = move;
-				}
-				numMoves++;
-				maxNextEval = math::max(maxNextEval, move.nextValue);
-				minNextEval = math::min(minNextEval, move.nextValue);
-			}
-		}
-		movements.removeElementsAt(numMoves, movements.size());
-
-		int nextValue = isWhiteTurn() ? minNextEval : maxNextEval;
-		numMoves=0;
-		for( size_t i=0; i<movements.size(); ++i )
-		{
-			if( movements[i].nextValue == nextValue )
-			{
-				if(i != numMoves)
-				{
-					movements[numMoves] = movements[i];
 				}
 				numMoves++;
 			}
@@ -950,6 +1007,10 @@ Movement Board::findBest( int maxLevel, int *quality )
 		best = movements[index];
 	}
 	*quality = int(movements.size());
+
+	m_state = state;
+	m_nextColor = nextColor;
+
 	refresh();
 	return best;
 }
@@ -972,7 +1033,7 @@ void Board::print() const
 {
 	std::cout << "+-+-+-+-+-+-+-+-+-+\n";
 	std::cout << "| ";
-	for( char c='A';c<='H'; ++c )
+	for( char c='a';c<='h'; ++c )
 	{
 		std::cout << '|' << c;
 	}
@@ -983,7 +1044,7 @@ void Board::print() const
 	for( char row=NUM_ROWS; row >= 1; --row )
 	{
 		std::cout << '|' << int(row) << '|';
-		for( char col='A'; col <= 'H'; ++col )
+		for( char col='a'; col <= 'h'; ++col )
 		{
 			const Figure *fig = getFigure(col, row );
 			if( !fig )
@@ -1008,8 +1069,23 @@ void Board::print() const
 		std::cout << "+-+-+-+-+-+-+-+-+-+\n";
 	}
 
-	std::cout << "Next: " << (isWhiteTurn() ? "White" : "Black") << std::endl;
-	std::cout << "Eval: " << evaluate() << std::endl;
+	if( m_state == csDraw )
+	{
+		std::cout << "Patt/Remis" << std::endl;
+	}
+	else if( m_state == csWhiteCheckMate )
+	{
+		std::cout << "Schwarz (Nadja) gewinnt durch Schachmatt" << std::endl;
+	}
+	else if( m_state == csBlackCheckMate )
+	{
+		std::cout << "Weiss (Nadja) gewinnt durch Schachmatt" << std::endl;
+	}
+	else
+	{
+		std::cout << "Next: " << (isWhiteTurn() ? "White" : "Black") << std::endl;
+		std::cout << "Eval: " << evaluate() << std::endl;
+	}
 }
 
 STRING Board::generateString() const

@@ -113,11 +113,62 @@ namespace chess
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+Movements Board::collectMoves() const
+{
+	doEnterFunctionEx(gakLogging::llInfo, "Board::collectMoves");
+	static Figure::Type promoTypes[] =
+	{
+		Figure::ftQueen, Figure::ftRook, Figure::ftKnight, Figure::ftBishop
+	};
+	Movements moves;
+	for( size_t i1=0; i1<NUM_FIELDS; ++i1 )
+	{
+		Figure *fig = m_board[i1];
+		if( fig && fig->m_color == m_nextColor )
+		{
+			const Position &src = fig->getPos();
+			const PotentialDestinations &curMoves = fig->getPossible();
+			for( int i2=0; i2<curMoves.numTargets; ++i2 )
+			{
+				const Position &dest = curMoves.targets[i2].target;
+				Figure *cap = m_board[getIndex(dest)];
+				if(fig->getType() == Figure::ftPawn && (dest.row == 8 || dest.row == 1) )
+				{
+					FOR_EACH(i3,promoTypes)
+					{
+						Movement &move = moves.createElement();
+						move.fig = fig;
+						move.src = src;
+						move.dest = dest;
+						move.promotionType = promoTypes[i3];
+						move.captured = cap;
+						if( cap )
+						{
+							move.capturePos = cap->getPos();
+						}
+					}
+				}
+				else
+				{
+					Movement &move = moves.createElement();
+					move.fig = fig;
+					move.src = src;
+					move.dest = dest;
+					move.captured = cap;
+					if( cap )
+					{
+						move.capturePos = cap->getPos();
+					}
+				}
+			}
+		}
+	}
+	return moves;
+}
+
 // --------------------------------------------------------------------- //
 // ----- class protected ----------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-
 
 // --------------------------------------------------------------------- //
 // ----- class virtuals ------------------------------------------------ //
