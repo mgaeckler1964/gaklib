@@ -228,12 +228,29 @@ STRING Movement::toString() const
 
 	if( fig )
 	{
-		result = fig->getLetter() + STRING(fig->getPos().col) + formatNumber(unsigned(fig->getPos().row));
-		result += captured ? 'x' : '-';
-		result += STRING(dest.col) + formatNumber(unsigned(dest.row));
-		if( promotionType )
+		// check rochade
+		if( rook )
 		{
-			result += Figure::getLetter(promotionType);
+			assert(fig->getType() == Figure::ftKing);
+			assert(rook->getType() == Figure::ftRook);
+			if( rook->getPos().col == MAX_COL_LETTER )
+			{
+				result = "O-O";
+			}
+			else
+			{
+				result = "O-O-O";
+			}
+		}
+		else
+		{
+			result = fig->getLetter() + STRING(fig->getPos().col) + formatNumber(unsigned(fig->getPos().row));
+			result += captured ? 'x' : '-';
+			result += STRING(dest.col) + formatNumber(unsigned(dest.row));
+			if( promotionType )
+			{
+				result += Figure::getLetter(promotionType);
+			}
 		}
 	}
 	return result;

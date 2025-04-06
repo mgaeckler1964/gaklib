@@ -651,7 +651,7 @@ STRING Parser::readIdentifier( void )
 
 Element *Parser::readObject( Element *theXMLData, bool includeBlanks, int level )
 {
-	doEnterFunction( "XML_PARSER::readObject" );
+	doEnterFunctionEx( gakLogging::llDetail, "XML_PARSER::readObject" );
 
 	STRING	pcData;
 	bool	terminatorFound = false;

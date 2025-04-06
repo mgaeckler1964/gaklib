@@ -138,6 +138,13 @@
 #endif
 
 #define OEM_ae	"\x84"
+#define OEM_oe	"\x94"
+#define OEM_ue	"\x81"
+
+#define OEM_AE	"\x8E"
+#define OEM_OE	"\x99"
+#define OEM_UE	"\x9A"
+
 #define OEM_sz	"\xE1"
 
 /* --------------------------------------------------------------------- */
