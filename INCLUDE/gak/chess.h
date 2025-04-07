@@ -322,9 +322,9 @@ struct PotentialDestinations
 {
 	Destination	targets[32];
 	Position	threads[32];		// where I can capture, if a oponent is comming
-	int			numTargets;
+	size_t		numTargets;
 	bool		hasCaptures;
-	int			numThreads;
+	size_t		numThreads;
 	
 	PotentialDestinations()
 	{
@@ -422,7 +422,7 @@ class Figure
 	}
 	bool canCapture(const Position &pos) const
 	{
-		for( int i=0; i<m_targets.numTargets; ++i )
+		for( size_t i=0; i<m_targets.numTargets; ++i )
 		{
 			if( pos == m_targets.targets[i].captures )
 			{
@@ -672,6 +672,10 @@ class Board
 	{
 		return isBlackTurn(m_nextColor);
 	}
+	Figure::Color getNextColor() const
+	{
+		return m_nextColor;
+	}
 	private:
 	void flipTurn()
 	{
@@ -805,7 +809,7 @@ class Board
 	}
 
 	const Figure *getThread( Figure::Color color, const Position &pos, bool check4King  ) const;
-	size_t getThreads( Figure::Color color, const Position &pos, FigurePtr *threads ) const;
+	size_t getShields( Figure::Color color, const Position &pos, FigurePtr *threads ) const;
 
 	const Figure *getAttacker( const Figure *fig ) const;
 	size_t getAttackers( const Figure *fig, FigurePtr *attackers ) const;

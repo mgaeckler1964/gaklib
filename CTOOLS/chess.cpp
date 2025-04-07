@@ -130,7 +130,7 @@ Movements Board::collectMoves() const
 		{
 			const Position &src = fig->getPos();
 			const PotentialDestinations &curMoves = fig->getPossible();
-			for( int i2=0; i2<curMoves.numTargets; ++i2 )
+			for( size_t i2=0; i2<curMoves.numTargets; ++i2 )
 			{
 				const Position &dest = curMoves.targets[i2].target;
 				Figure *cap = m_board[getIndex(dest)];

@@ -371,7 +371,7 @@ Movements Board::findCheckDefend(size_t *numAttackers) const
 						break;
 
 					FigurePtr defenders[NUM_TEAM_FIGURES];
-					size_t numDefenders = getThreads(attackers[0]->m_color, targetPos, defenders);
+					size_t numDefenders = getShields(attackers[0]->m_color, targetPos, defenders);
 					for( size_t i=0; i<numDefenders; ++i )
 					{
 						Movement &defend = defends.createElement();
@@ -387,7 +387,7 @@ Movements Board::findCheckDefend(size_t *numAttackers) const
 	// final we add the escape options this is possible regardless the number of attackers
 	const PotentialDestinations &escapes = king->getPossible();
 	const Position &src = king->getPos();
-	for( int i=0; i<escapes.numTargets; ++i )
+	for( size_t i=0; i<escapes.numTargets; ++i )
 	{
 		const Position &dest = escapes.targets[i].target;
 		if( findMove( defends, src, dest ) == defends.no_index )
@@ -592,26 +592,27 @@ const Figure *Board::getThread( Figure::Color color, const Position &pos, bool c
 	return NULL;
 }
 
-size_t Board::getThreads( Figure::Color color, const Position &pos, FigurePtr *threads ) const
+size_t Board::getShields( Figure::Color color, const Position &pos, FigurePtr *shields ) const
 {
-	size_t numThreads = 0;
+	size_t numShields = 0;
 	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
 		Figure *fig = m_board[i];
 		if( fig && fig->m_color != color )
 		{
 			const PotentialDestinations &targets = fig->getPossible();
-			for( size_t j=0; j<targets.numThreads; ++j )
+
+			for( size_t j=0; j<targets.numTargets; ++j )
 			{
-				if( targets.threads[j] == pos )
+				if( targets.targets[j].target == pos )
 				{
-					threads[numThreads++] = fig;
+					shields[numShields++] = fig;
 				}
 			}
 		}
 	}
 
-	return numThreads;
+	return numShields;
 }
 
 bool Board::checkMoveTo( const PlayerPos &src, const Position &dest, Figure::Type newFig ) const
@@ -882,7 +883,7 @@ void Board::evaluateRange(int &whiteTargets, int &blackTargets, int &whiteCaptur
 		{
 			const PotentialDestinations &pot = fig->getPossible();
 			int captures=0;
-			for( int j=0; j<pot.numTargets; ++j )
+			for( size_t j=0; j<pot.numTargets; ++j )
 			{
 				const Position &pos = pot.targets[j].captures;
 				if( pos )
