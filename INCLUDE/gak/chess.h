@@ -47,6 +47,7 @@
 #include <gak/array.h>
 #include <gak/math.h>
 #include <gak/map.h>
+#include <gak/stopWatch.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -661,7 +662,6 @@ class Board
 	};
 
 	private:
-
 	Figure					*m_board[NUM_FIELDS];
 	ArrayOfPointer<Figure>	m_all;
 	King					*m_whiteK;
@@ -669,6 +669,7 @@ class Board
 	State					m_state;
 	Figure::Color			m_nextColor;
 	Movements				m_moves;
+	StopWatch				m_whiteClock, m_blackClock;
 
 	public:
 	static bool isWhiteTurn(Figure::Color nextColor)
@@ -691,10 +692,34 @@ class Board
 	{
 		return m_nextColor;
 	}
+	const StopWatch &getWhiteClock() const
+	{
+		return m_whiteClock;
+	}
+	const StopWatch &getBlackClock() const
+	{
+		return m_blackClock;
+	}
+
 	private:
 	void flipTurn()
 	{
 		m_nextColor = isWhiteTurn() ? Figure::Black : Figure::White;
+	}
+	void flipWatch()
+	{
+		if( isWhiteTurn() )
+		{
+			m_nextColor = Figure::Black;
+			m_whiteClock.pause();
+			m_blackClock.start();
+		}
+		else
+		{
+			m_nextColor = Figure::White;
+			m_whiteClock.start();
+			m_blackClock.pause();
+		}
 	}
 
 	bool canPlay() const

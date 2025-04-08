@@ -738,7 +738,7 @@ void Board::moveTo( const PlayerPos &src, const Position &dest )
 		toCapture->capture();
 	}
 
-	flipTurn();
+	flipWatch();
 	refresh();
 }
 
@@ -760,7 +760,7 @@ void Board::rochade( const PlayerPos &king, const PlayerPos &rook, const Positio
 	move.rookSrc = rook.pos;
 	move.rookDest = rookDest;
 
-	flipTurn();
+	flipWatch();
 	refresh();
 }
 
@@ -823,7 +823,7 @@ void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position 
 		toCapture->capture();
 	}
 
-	flipTurn();
+	flipWatch();
 	refresh();
 }
 
@@ -838,6 +838,7 @@ void Board::reset()
 
 	m_nextColor = Figure::White;
 	m_state = csPlaying;
+	m_whiteClock.start();
 	refresh();
 }
 

@@ -231,7 +231,7 @@ class Seconds : public MilliSeconds<BaseT>
 	{
 	}
 	/// constructs a time value from a scalar type in seconds
-	explicit Seconds( BaseT seconds=BaseT() ) : MilliSeconds<BaseT>(seconds*this->MILLIS_PER_SECOND)
+	explicit Seconds( BaseT seconds=BaseT() ) : MilliSeconds<BaseT>(seconds*Seconds<BaseT>::MILLIS_PER_SECOND)
 	{
 	}
 	/// assigns a scalar type value as number of seconds to the ellapsed time
@@ -274,7 +274,7 @@ class Minutes : public Seconds<BaseT>
 	{
 	}
 	/// constructs from scalar type value as number of minutes to the ellapsed time
-	explicit Minutes( BaseT minutes=BaseT() ) : Seconds<BaseT>(minutes*this->SECONDS_PER_MINUTE)
+	explicit Minutes( BaseT minutes=BaseT() ) : Seconds<BaseT>(minutes*Minutes<BaseT>::SECONDS_PER_MINUTE)
 	{
 	}
 	/// assigns a scalar type value as number of minutes to the ellapsed time
@@ -317,7 +317,7 @@ class Hours : public Minutes<BaseT>
 	{
 	}
 	/// constructs a time value from a scalar type in hours
-	explicit Hours( BaseT hours=BaseT() ) : Minutes<BaseT>(hours*this->MINUTES_PER_HOUR)
+	explicit Hours( BaseT hours=BaseT() ) : Minutes<BaseT>(hours*Hours<BaseT>::MINUTES_PER_HOUR)
 	{
 	}
 	/// assigns a scalar type value as number of hours to the ellapsed time
@@ -360,7 +360,7 @@ class Days : public Hours<BaseT>
 	{
 	}
 	/// constructs from scalar type value as number of days to the ellapsed time
-	explicit Days( BaseT days=BaseT() ) : Hours<BaseT>(days*this->HOURS_PER_DAY)
+	explicit Days( BaseT days=BaseT() ) : Hours<BaseT>(days*Days<BaseT>::HOURS_PER_DAY)
 	{
 	}
 	/// assigns a scalar type value as number of days to the ellapsed time
@@ -397,7 +397,7 @@ class Weeks : public Days<BaseT>
 	{
 	}
 	/// constructs from scalar type value as number of weeks to the ellapsed time
-	explicit Weeks( BaseT weeks=BaseT() ) : Days<BaseT>(weeks*this->DAYS_PER_WEEK)
+	explicit Weeks( BaseT weeks=BaseT() ) : Days<BaseT>(weeks*Weeks<BaseT>::DAYS_PER_WEEK)
 	{
 	}
 	/// assigns a scalar type value as number of weeks to the ellapsed time
@@ -485,7 +485,7 @@ struct CpuTimeClock : private TimeConverter
 template<typename ClockT>
 class BasicStopWatch
 {
-	std::clock_t	m_startTime, m_endTime;
+	std::clock_t	m_startTime, m_endTime, m_offset;
 	bool			m_isRunning;
 
 	public:
@@ -496,7 +496,7 @@ class BasicStopWatch
 	BasicStopWatch( bool start=false )
 	{
 		m_startTime = start ? ClockT::clock() : 0;
-		m_endTime = 0;
+		m_offset = m_endTime = 0;
 		m_isRunning = start;
 	}
 
@@ -516,6 +516,16 @@ class BasicStopWatch
 		}
 	}
 
+	/// pause the stop watch if its currenty running
+	void pause()
+	{
+		if( m_isRunning )
+		{
+			stop();
+			m_offset = getMillis();
+		}
+	}
+
 	/**
 		@brief returns the execution time of the stop watch
 		@tparam TimerT The type of the clock ticks
@@ -529,7 +539,7 @@ class BasicStopWatch
 	/// returns the execution time in milliseconds
 	std::clock_t getMillis() const
 	{
-		return (m_isRunning ? ClockT::clock() : m_endTime) - m_startTime;
+		return m_offset + (m_isRunning ? ClockT::clock() : m_endTime) - m_startTime;
 	}
 };
 
