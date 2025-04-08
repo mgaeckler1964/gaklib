@@ -111,8 +111,10 @@ static const char KING_LETTER = 'K';		// König
 
 #define CHESS_WHITE			"Wei" OEM_sz
 #define CHESS_BLACK			"Schwarz"
+#define CHESS_BLANK			"Leer"
 #define CHESS_DRAW			"Patt/Remis"
-#define CHESS_CHECK_MATE	"Schwachmatt"
+#define CHESS_CHECK_MATE	"Schachmatt"
+#define CHESS_CHECK			"Schach"
 #define CHESS_CHECK_NEXT	"N" OEM_ae "chster"
 #define CHESS_EVAL			"Bewertung"
 #define CHESS_WINS			"(Nadja) gewinnt durch"
@@ -127,8 +129,10 @@ static const char KING_LETTER = 'K';
 
 #define CHESS_WHITE			"White"
 #define CHESS_BLACK			"Black"
+#define CHESS_BLANK			"Empty"
 #define CHESS_DRAW			"Draw"
 #define CHESS_CHECK_MATE	"Check Mate"
+#define CHESS_CHECK			"Check"
 #define CHESS_CHECK_NEXT	"Next"
 #define CHESS_EVAL			"Evaluation"
 #define CHESS_WINS			"(Nadja) wins by"
@@ -431,6 +435,17 @@ class Figure
 		}
 		return false;
 	}
+	bool canPromote() const
+	{
+		if( getType() != ftPawn )
+			return false;
+		if( m_color == White && m_pos.row == 7 )
+			return true;
+		if( m_color == Black && m_pos.row == 2 )
+			return true;
+
+		return false;
+	}
 	bool isOK( const Attack &attack ) const;
 	const PotentialDestinations &getPossible() const
 	{
@@ -702,6 +717,7 @@ class Board
 	void undoMove(const Movement &move);
 	void redoMove(Movement &move);
 
+	Movement findBest(int maxLevel, int *quality, bool recalcState);
 	static size_t findMove(const Movements &moves, const Position &src, const Position &dest );
 
 	bool canMove(Figure::Color color) const;
@@ -821,9 +837,17 @@ class Board
 	Figure *create( Figure::Color color, Figure::Type newFig, const Position &dest );
 	void promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest );
 
-	Movement findBest(int maxLevel, int *quality);
+	Movement findBest(int maxLevel, int *quality)
+	{
+		return findBest(maxLevel, quality, true );
+	}
 
 	Position checkBoard() const;
+	State getState() const
+	{
+		return m_state;
+	}
+	STRING getStateString() const;
 	void print() const;
 	STRING generateString() const;
 	void generateFromString(const STRING &string );

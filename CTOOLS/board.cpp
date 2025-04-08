@@ -331,6 +331,68 @@ bool Board::canMove(Figure::Color color) const
 	return false;
 }
 
+Movement Board::findBest( int maxLevel, int *quality, bool recalcState )
+{
+	doEnterFunctionEx(logLegel, "Board::findBest( int maxLevel, int *quality, bool recalcState )");
+	assert( quality );
+
+	const State			state = m_state;
+	const Figure::Color	nextColor = m_nextColor;
+
+	int			bestEval;
+	Movement	best;
+	size_t		numAttackers;
+	Movements	movements = findCheckDefend(&numAttackers);
+
+	if( !numAttackers )
+	{
+		movements = collectMoves();
+	}
+
+	if( movements.size() && maxLevel > 0)
+	{
+		bestEval = evaluateMovements(movements, maxLevel);
+
+		size_t	numMoves=0;
+		for( size_t i=0; i<movements.size(); ++i )
+		{
+			const Movement &move = movements[i];
+			if( move.evaluate == bestEval )
+			{
+				if(i != numMoves)
+				{
+					movements[numMoves] = move;
+				}
+				numMoves++;
+			}
+		}
+		movements.removeElementsAt(numMoves, movements.size());
+	}
+	if( movements.size() )
+	{
+		size_t index = randomNumber(int(movements.size()));
+		best = movements[index];
+	}
+	*quality = int(movements.size());
+
+
+	m_nextColor = nextColor;
+	if( recalcState )
+	{
+		refresh();
+		if( numAttackers && !movements.size() )
+		{
+			m_state = isWhiteTurn() ? csWhiteCheckMate : csBlackCheckMate;
+		}
+	}
+	else
+	{
+		m_state = state;
+	}
+
+	return best;
+}
+
 Movements Board::findCheckDefend(size_t *numAttackers) const
 {
 	assert(numAttackers);
@@ -429,10 +491,10 @@ int Board::evaluateMovements(Movements &movements, int maxLevel)
 		redoMove(theMove);
 		refresh();
 		theMove.evaluate = evaluate();
-		if( maxLevel )
+		if( maxLevel > 0 )
 		{
 			int quality;
-			Movement nextMove = findBest( maxLevel, &quality );
+			Movement nextMove = findBest( maxLevel, &quality, false );
 			if( nextMove )
 			{
 				theMove.evaluate = nextMove.evaluate;
@@ -959,61 +1021,6 @@ int Board::evaluate() const
 	return evaluation;
 }
 
-Movement Board::findBest( int maxLevel, int *quality )
-{
-	doEnterFunctionEx(logLegel, "Board::findBest");
-	assert( quality );
-	if( maxLevel <= 0 )
-	{
-		return Movement();
-	}
-
-	State state = m_state;
-	Figure::Color nextColor = m_nextColor;
-
-	int			bestEval;
-	Movement	best;
-	size_t		numAttackers;
-	Movements	movements = findCheckDefend(&numAttackers);
-
-	if( !numAttackers )
-	{
-		movements = collectMoves();
-	}
-
-	if( movements.size() )
-	{
-		bestEval = evaluateMovements(movements, maxLevel);
-
-		size_t	numMoves=0;
-		for( size_t i=0; i<movements.size(); ++i )
-		{
-			const Movement &move = movements[i];
-			if( move.evaluate == bestEval )
-			{
-				if(i != numMoves)
-				{
-					movements[numMoves] = move;
-				}
-				numMoves++;
-			}
-		}
-		movements.removeElementsAt(numMoves, movements.size());
-	}
-	if( movements.size() )
-	{
-		size_t index = randomNumber(int(movements.size()));
-		best = movements[index];
-	}
-	*quality = int(movements.size());
-
-	m_state = state;
-	m_nextColor = nextColor;
-
-	refresh();
-	return best;
-}
-
 Position Board::checkBoard() const
 {
 	for( size_t i=0; i<NUM_FIELDS; ++i )
@@ -1026,6 +1033,38 @@ Position Board::checkBoard() const
 	}
 
 	return Position(0,0);
+}
+
+STRING Board::getStateString() const
+{
+	STRING	result;
+	if( m_state == csBlank )
+	{
+		result = CHESS_DRAW;
+	}
+	else if( m_state == csDraw )
+	{
+		result = CHESS_DRAW;
+	}
+	else if( m_state == csWhiteCheckMate )
+	{
+		result = STRING(CHESS_BLACK " " CHESS_WINS " " CHESS_CHECK_MATE);
+	}
+	else if( m_state == csBlackCheckMate )
+	{
+		result = STRING(CHESS_WHITE " " CHESS_WINS " " CHESS_CHECK_MATE);
+	}
+	else if( m_state == csWhiteCheck || m_state == csBlackCheck )
+	{
+		result = CHESS_CHECK;
+	}
+	else
+	{
+		result = STRING(CHESS_CHECK_NEXT ": ") + (isWhiteTurn() ? CHESS_WHITE : CHESS_BLACK);
+	}
+	result.setCharSet( STR_OEM );
+
+	return result;
 }
 
 void Board::print() const
@@ -1068,23 +1107,8 @@ void Board::print() const
 		std::cout << "+-+-+-+-+-+-+-+-+-+\n";
 	}
 
-	if( m_state == csDraw )
-	{
-		std::cout << CHESS_DRAW << std::endl;
-	}
-	else if( m_state == csWhiteCheckMate )
-	{
-		std::cout << CHESS_BLACK " " CHESS_WINS " " CHESS_CHECK_MATE << std::endl;
-	}
-	else if( m_state == csBlackCheckMate )
-	{
-		std::cout << CHESS_WHITE " " CHESS_WINS " " CHESS_CHECK_MATE << std::endl;
-	}
-	else
-	{
-		std::cout << CHESS_CHECK_NEXT ": " << (isWhiteTurn() ? CHESS_WHITE : CHESS_BLACK) << std::endl;
-		std::cout << CHESS_EVAL ": " << evaluate() << std::endl;
-	}
+	std::cout << getStateString() << std::endl;
+	std::cout << CHESS_EVAL ": " << evaluate() << std::endl;
 }
 
 STRING Board::generateString() const
