@@ -158,9 +158,26 @@ struct Position
 
 	char	col;
 	char	row;
+#ifndef NDEBUG
+	size_t	index;
 
-	Position(const Position &src) : col(src.col),row(src.row) {}
-	Position(char col=0, char row=0) : col(col),row(row) {}
+	void setIndex()
+	{
+		index = (row-1)*NUM_COLS+col-MIN_COL_LETTER;
+	}
+#endif
+
+	Position(const Position &src) : col(src.col),row(src.row) {
+#ifndef NDEBUG
+		setIndex();
+#endif
+	}
+	Position(char col=0, char row=0) : col(col),row(row) 
+	{
+#ifndef NDEBUG
+		setIndex();
+#endif
+	}
 
 	bool operator == ( const Position &o ) const
 	{
@@ -317,10 +334,24 @@ struct PlayerPos
 	PlayerPos(char col, char row, Board &board);
 };
 
-struct Destination
+class Destination
 {
-	Position	target;			// where I can move
-	Position	captures;		// what I capture
+	Position	m_target;			// where I can move
+	Position	m_capture;			// what I capture
+	public:
+	Destination( Position target=Position(), Position capture=Position() ) 
+		: m_target(target), m_capture(capture) {}
+	Destination( const Destination &src) 
+		: m_target(src.m_target), m_capture(src.m_capture) {}
+
+	const Position &getTarget() const
+	{
+		return m_target;
+	}
+	const Position &getCapture() const
+	{
+		return m_capture;
+	}
 };
 
 struct PotentialDestinations
@@ -331,9 +362,9 @@ struct PotentialDestinations
 	bool		hasCaptures;
 	size_t		numThreads;
 	
-	PotentialDestinations()
+	PotentialDestinations() : numTargets(0), hasCaptures(false), numThreads(0)
 	{
-		std::memset( this, 0, sizeof( *this ) );
+		std::memset( threads, 0, sizeof( threads ) );
 	}
 };
 
@@ -429,7 +460,7 @@ class Figure
 	{
 		for( size_t i=0; i<m_targets.numTargets; ++i )
 		{
-			if( pos == m_targets.targets[i].captures )
+			if( pos == m_targets.targets[i].getCapture() )
 			{
 				return true;
 			}

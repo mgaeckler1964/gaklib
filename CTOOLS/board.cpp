@@ -217,6 +217,8 @@ Figure *Board::passantMove( const PlayerPos &src, const Position &dest )
 
 void Board::undoMove(const Movement &move)
 {
+	m_moves.removeElementAt(m_moves.size()-1);
+
 	size_t srcIndex = getIndex(move.src);
 	size_t destIndex = getIndex(move.dest);
 
@@ -311,6 +313,8 @@ void Board::redoMove(Movement &move)
 		m_board[destIndex] = rook;
 		m_board[srcIndex] = NULL;
 	}
+
+	m_moves.addElement(move);
 }
 
 bool Board::canMove(Figure::Color color) const
@@ -452,7 +456,7 @@ Movements Board::findCheckDefend(size_t *numAttackers) const
 	const Position &src = king->getPos();
 	for( size_t i=0; i<escapes.numTargets; ++i )
 	{
-		const Position &dest = escapes.targets[i].target;
+		const Position &dest = escapes.targets[i].getTarget();
 		if( findMove( defends, src, dest ) == defends.no_index )
 		{
 			Movement &defend = defends.createElement();
@@ -588,7 +592,7 @@ const Figure *Board::getAttacker( const Figure *fig ) const
 			{
 				for( size_t j=0; j<targets.numTargets; ++j )
 				{
-					if( targets.targets[j].captures == pos )
+					if( targets.targets[j].getCapture() == pos )
 					{
 						return fig;
 					}
@@ -615,7 +619,7 @@ size_t Board::getAttackers( const Figure *fig, FigurePtr *attackers ) const
 			{
 				for( size_t j=0; j<targets.numTargets; ++j )
 				{
-					if( targets.targets[j].captures == pos )
+					if( targets.targets[j].getCapture() == pos )
 					{
 						attackers[numAttackers++] = fig;
 					}
@@ -668,7 +672,7 @@ size_t Board::getShields( Figure::Color color, const Position &pos, FigurePtr *s
 
 			for( size_t j=0; j<targets.numTargets; ++j )
 			{
-				if( targets.targets[j].target == pos )
+				if( targets.targets[j].getTarget() == pos )
 				{
 					shields[numShields++] = fig;
 				}
@@ -712,7 +716,7 @@ bool Board::checkMoveTo( const PlayerPos &src, const Position &dest, Figure::Typ
 	const PotentialDestinations &targets = fig->getPossible();
 	for( size_t i=0; i<targets.numTargets; ++i )
 	{
-		if( targets.targets[i].target == dest )
+		if( targets.targets[i].getTarget() == dest )
 		{
 			return false;
 		}
@@ -902,12 +906,12 @@ void Board::checkCheck()
 			const PotentialDestinations &targets = fig->getPossible();
 			for( size_t i=0; i<targets.numTargets; ++i )
 			{
-				if( m_whiteK->getPos() == targets.targets[i].captures )
+				if( m_whiteK->getPos() == targets.targets[i].getCapture() )
 				{
 					m_state = csWhiteCheck;
 /*@*/				return;
 				}
-				else if( m_blackK->getPos() == targets.targets[i].captures )
+				else if( m_blackK->getPos() == targets.targets[i].getCapture() )
 				{
 					m_state = csBlackCheck;
 /*@*/				return;
@@ -950,7 +954,7 @@ void Board::evaluateRange(int &whiteTargets, int &blackTargets, int &whiteCaptur
 			int captures=0;
 			for( size_t j=0; j<pot.numTargets; ++j )
 			{
-				const Position &pos = pot.targets[j].captures;
+				const Position &pos = pot.targets[j].getCapture();
 				if( pos )
 				{
 					captures += getFigure(pos)->getValue();

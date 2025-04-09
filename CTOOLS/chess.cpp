@@ -132,7 +132,7 @@ Movements Board::collectMoves() const
 			const PotentialDestinations &curMoves = fig->getPossible();
 			for( size_t i2=0; i2<curMoves.numTargets; ++i2 )
 			{
-				const Position &dest = curMoves.targets[i2].target;
+				const Position &dest = curMoves.targets[i2].getTarget();
 				Figure *cap = m_board[getIndex(dest)];
 				if(fig->getType() == Figure::ftPawn && (dest.row == 8 || dest.row == 1) )
 				{

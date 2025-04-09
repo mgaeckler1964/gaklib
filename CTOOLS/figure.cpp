@@ -152,7 +152,7 @@ size_t Figure::checkRange(PotentialDestinations *result, Position::MoveFunc move
 		const Figure *figure = m_board.getFigure( targetPos );
 		if( !figure ) 
 		{
-			result->targets[result->numTargets++].target = targetPos;
+			result->targets[result->numTargets++] = Destination(targetPos);
 			result->threads[result->numThreads++] = targetPos;
 		}
 		else 
@@ -160,9 +160,7 @@ size_t Figure::checkRange(PotentialDestinations *result, Position::MoveFunc move
 			result->threads[result->numThreads++] = targetPos;
 			if( figure->m_color != m_color )
 			{
-				result->targets[result->numTargets].target = targetPos;
-				result->targets[result->numTargets].captures = targetPos;
-				++result->numTargets;
+				result->targets[result->numTargets++] = Destination(targetPos, targetPos );
 				result->hasCaptures = true;
 			}
 			break;
@@ -192,14 +190,14 @@ PotentialDestinations Pawn::calcPossible()
 	Position targetPos = getPos().move( 0, direction );
 	if( targetPos && !m_board.getFigure( targetPos ) )
 	{
-		result.targets[result.numTargets++].target = targetPos;
+		result.targets[result.numTargets++] = Destination(targetPos);
 		// two step no beat
 		if( getPos().row == startRow )
 		{
 			targetPos = targetPos.move( 0, direction );
 			if( !m_board.getFigure( targetPos ) )
 			{
-				result.targets[result.numTargets++].target = targetPos;
+				result.targets[result.numTargets++] = Destination(targetPos);
 			}
 		}
 	}
@@ -213,9 +211,7 @@ PotentialDestinations Pawn::calcPossible()
 		const Figure *figure = m_board.getFigure( targetPos );
 		if( figure && figure->m_color != m_color )
 		{
-			result.targets[result.numTargets].target = targetPos;
-			result.targets[result.numTargets].captures = targetPos;
-			++result.numTargets;
+			result.targets[result.numTargets++] = Destination(targetPos, targetPos);
 			result.hasCaptures = true;
 		}
 	}
@@ -229,9 +225,7 @@ PotentialDestinations Pawn::calcPossible()
 		const Figure *figure = m_board.getFigure( targetPos );
 		if( figure && figure->m_color != m_color )
 		{
-			result.targets[result.numTargets].target = targetPos;
-			result.targets[result.numTargets].captures = targetPos;
-			++result.numTargets;
+			result.targets[result.numTargets++] = Destination(targetPos, targetPos);
 			result.hasCaptures = true;
 		}
 	}
@@ -249,9 +243,7 @@ PotentialDestinations Pawn::calcPossible()
 			if( lastMove.src == leftStart )
 			{
 				Position leftTarget = getPos().move( -1, direction );
-				result.targets[result.numTargets].target = leftTarget;
-				result.targets[result.numTargets].captures = leftPos;
-				++result.numTargets;
+				result.targets[result.numTargets++] = Destination(leftTarget,leftPos);
 				result.hasCaptures = true;
 			}
 		}
@@ -263,9 +255,7 @@ PotentialDestinations Pawn::calcPossible()
 			if( lastMove.src == rightStart )
 			{
 				Position rightTarget = getPos().move( 1, direction );
-				result.targets[result.numTargets].target = rightTarget;
-				result.targets[result.numTargets].captures = rightPos;
-				++result.numTargets;
+				result.targets[result.numTargets++] = Destination(rightTarget,rightPos);
 				result.hasCaptures = true;
 			}
 		}
@@ -422,8 +412,8 @@ PotentialDestinations King::calcPossible()
 					{
 						Destination &targetPosition = result2.targets[1];
 						result.targets[result.numTargets++] = targetPosition;
-						m_rochadeWest.myTarget = targetPosition.target;
-						m_rochadeWest.rookTarget = result3.targets[2].target;
+						m_rochadeWest.myTarget = targetPosition.getTarget();
+						m_rochadeWest.rookTarget = result3.targets[2].getTarget();
 						m_rochadeWest.rook = dynamic_cast<Rook*>(rook);
 					}
 				}
@@ -444,8 +434,8 @@ PotentialDestinations King::calcPossible()
 					{
 						Destination &targetPosition = result2.targets[1];
 						result.targets[result.numTargets++] = targetPosition;
-						m_rochadeEast.myTarget = targetPosition.target;
-						m_rochadeEast.rookTarget = result3.targets[1].target;
+						m_rochadeEast.myTarget = targetPosition.getTarget();
+						m_rochadeEast.rookTarget = result3.targets[1].getTarget();
 						m_rochadeEast.rook = dynamic_cast<Rook*>(rook);
 					}
 				}
