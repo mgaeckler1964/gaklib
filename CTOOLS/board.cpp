@@ -41,6 +41,7 @@
 #include <gak/chess.h>
 
 #include <gak/logfile.h>
+#include <gak/thread.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -466,6 +467,7 @@ Movements Board::findCheckDefend(size_t *numAttackers) const
 int Board::evaluateMovements(Movements &movements, int maxLevel)
 {
 	doEnterFunctionEx(logLegel, "Board::evaluateMovements");
+	SharedObjectPointer<Thread>	currentThread = Thread::FindCurrentThread();
 
 	--maxLevel;
 	int minVal = std::numeric_limits<int>::max();
@@ -491,7 +493,7 @@ int Board::evaluateMovements(Movements &movements, int maxLevel)
 		redoMove(theMove);
 		refresh();
 		theMove.evaluate = evaluate();
-		if( maxLevel > 0 )
+		if( maxLevel > 0 && (!currentThread || !currentThread->terminated) )
 		{
 			int quality;
 			Movement nextMove = findBest( maxLevel, &quality, false );
@@ -837,9 +839,9 @@ void Board::reset()
 	m_blackK = dynamic_cast<King*>(getFigure('e', NUM_ROWS));
 
 	m_nextColor = Figure::White;
-	m_state = csPlaying;
 	m_whiteClock.start();
 	refresh();
+	m_state = csPlaying;
 }
 
 void Board::refresh()
@@ -1187,7 +1189,16 @@ void Board::generateFromString(const STRING &string )
 			}
 		}
 	}
-	m_nextColor = *src == 'W' ? Figure::White : Figure::Black;
+	if(*src == 'W')
+	{
+		m_nextColor =  Figure::White;
+		m_whiteClock.start();
+	}
+	else
+	{
+		m_nextColor =  Figure::Black;
+		m_blackClock.start();
+	}
 	m_state = csPlaying;
 	refresh();
 	return;

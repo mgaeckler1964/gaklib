@@ -514,6 +514,8 @@ class BasicStopWatch
 			m_endTime = ClockT::clock();
 			m_isRunning = false;
 		}
+		m_startTime -= m_offset;
+		m_offset = 0;
 	}
 
 	/// pause the stop watch if its currenty running

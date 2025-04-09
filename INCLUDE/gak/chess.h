@@ -733,6 +733,8 @@ class Board
 		std::memset(m_board, 0, sizeof(m_board) );
 		m_whiteK = m_blackK = NULL;
 		m_state = csBlank;
+		m_whiteClock.stop();
+		m_blackClock.stop();
 	}
 
 	Figure *checkEnPassant(const PlayerPos &src, const Position &dest) const;
