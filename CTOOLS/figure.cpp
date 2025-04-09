@@ -231,32 +231,37 @@ PotentialDestinations Pawn::calcPossible()
 	}
 
 	// en-passant
-	const Movements	&moves = m_board.getMoves();
-	if( size_t size = moves.size() )
+	if( shouldCheckPassant() )
 	{
-		const Movement &lastMove = moves[size-1];
-
-		Position leftPos = getPos().move( -1, 0 );
-		if( leftPos && lastMove.dest == leftPos )
+		const Movements	&moves = m_board.getMoves();
+		if( size_t size = moves.size() )
 		{
-			Position leftStart = getPos().move( -1, 2*direction );
-			if( lastMove.src == leftStart )
+			const Movement &lastMove = moves[size-1];
+			if( lastMove.fig->getType() == Figure::ftPawn )
 			{
-				Position leftTarget = getPos().move( -1, direction );
-				result.targets[result.numTargets++] = Destination(leftTarget,leftPos);
-				result.hasCaptures = true;
-			}
-		}
+				Position leftPos = getPos().move( -1, 0 );
+				if( leftPos && lastMove.dest == leftPos )
+				{
+					Position leftStart = getPos().move( -1, 2*direction );
+					if( lastMove.src == leftStart )
+					{
+						Position leftTarget = getPos().move( -1, direction );
+						result.targets[result.numTargets++] = Destination(leftTarget,leftPos);
+						result.hasCaptures = true;
+					}
+				}
 
-		Position rightPos = getPos().move( 1, 0 );
-		if( rightPos && lastMove.dest == rightPos )
-		{
-			Position rightStart = getPos().move( 1, 2*direction );
-			if( lastMove.src == rightStart )
-			{
-				Position rightTarget = getPos().move( 1, direction );
-				result.targets[result.numTargets++] = Destination(rightTarget,rightPos);
-				result.hasCaptures = true;
+				Position rightPos = getPos().move( 1, 0 );
+				if( rightPos && lastMove.dest == rightPos )
+				{
+					Position rightStart = getPos().move( 1, 2*direction );
+					if( lastMove.src == rightStart )
+					{
+						Position rightTarget = getPos().move( 1, direction );
+						result.targets[result.numTargets++] = Destination(rightTarget,rightPos);
+						result.hasCaptures = true;
+					}
+				}
 			}
 		}
 	}

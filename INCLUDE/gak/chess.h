@@ -514,6 +514,14 @@ class Figure
 
 class Pawn : public Figure
 {
+	char enPassantRow() const
+	{
+		return m_color == White ? 5 : 4;
+	}
+	bool shouldCheckPassant() const
+	{
+		return getPos().row == enPassantRow();
+	}
 	public:
 	Pawn( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
 
