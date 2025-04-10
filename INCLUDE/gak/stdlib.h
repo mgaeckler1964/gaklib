@@ -3,10 +3,10 @@
 		Module:			stdlib.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2023 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -156,6 +156,7 @@ class Buffer
 {
 	TYPE	*buff;
 
+	// do not copy
 	Buffer( const Buffer &src );
 	const Buffer & operator = ( const Buffer &src );
 
@@ -176,6 +177,11 @@ class Buffer
 	{
 		if( buff )
 			::free( buff );
+	}
+	/// Returns true if pointer is valid
+	operator bool ( void )
+	{
+		return buff != NULL;
 	}
 	/// Returns a pointer to TYPE
 	operator TYPE * ( void )
@@ -211,6 +217,11 @@ class Buffer
 			::free( buff );
 			buff = NULL;
 		}
+	}
+	/// resizes the buffer
+	void resize(size_t newSize)
+	{
+		buff = static_cast<TYPE*>(realloc(buff, newSize));
 	}
 };
 

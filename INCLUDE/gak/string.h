@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -302,7 +302,7 @@ class STRING
 		Size
 		-----------------------------------------------------------------------
 	*/
-	void setMinSize( size_t newSize )
+	char *setMinSize( size_t newSize )
 	{
 		makePrivate();
 
@@ -310,10 +310,11 @@ class STRING
 		if( text )
 		{
 			text->usageCount = 1;
+			return text->string;
 		}
+		return NULL;
 	}
-	/// @todo check usage
-	void setActSize( size_t newSize )
+	char *setActSize( size_t newSize )
 	{
 		makePrivate();
 		text = resizeStr( text, newSize, cTrue );
@@ -322,7 +323,9 @@ class STRING
 			text->actSize = newSize;
 			text->string[newSize] = 0;
 			text->usageCount = 1;
+			return text->string;
 		}
+		return NULL;
 	}
 	size_t strlen( void ) const
 	{
