@@ -454,7 +454,6 @@ PotentialDestinations King::calcPossible()
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-
 bool Figure::isOK( const Attack &attack ) const
 {
 	return !attack.figure						// no attacker
@@ -464,13 +463,6 @@ bool Figure::isOK( const Attack &attack ) const
 			!m_board.getThread(m_color, attack.figure->getPos(), false )
 		)
 		|| !attack.figure->canCapture(m_pos) ;	// too weak?
-}
-
-
-void Figure::moveTo( const Position &pos )
-{
-	setPosition(pos);
-	m_board.refresh();
 }
 
 Figure::Attack Figure::searchAttack(const Position &pos, Position::MoveFunc movement, const Position &ignore, const Position &stop, int maxCount ) const

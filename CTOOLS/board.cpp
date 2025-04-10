@@ -191,8 +191,8 @@ Figure *Board::uncheckedMove( const PlayerPos &src, const Position &dest )
 	Figure *toCapture = m_board[destIndex];
 
 	m_board[destIndex] = fig;
-	fig->moveTo(dest);
 	m_board[srcIndex] = NULL;
+	fig->setPosition(dest);
 
 	return toCapture;
 }

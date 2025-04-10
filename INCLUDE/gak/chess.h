@@ -446,8 +446,6 @@ class Figure
 		m_moved = true;
 		m_pos = pos;
 	}
-	void moveTo( const Position &pos );
-
 	const Position &getPos() const
 	{
 		return m_pos;
