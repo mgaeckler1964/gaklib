@@ -638,6 +638,18 @@ class King : public Figure
 	{
 		return m_rochadeWest;
 	}
+	const Rochade *getRochade( const Position &dest ) const
+	{
+		if( dest == m_rochadeWest.myTarget )
+		{
+			return &m_rochadeWest;
+		}
+		if( dest == m_rochadeEast.myTarget )
+		{
+			return &m_rochadeEast;
+		}
+		return NULL;
+	}
 
 
 	virtual Type getType() const

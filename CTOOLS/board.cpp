@@ -380,7 +380,6 @@ Movement Board::findBest( int maxLevel, int *quality, bool recalcState )
 	}
 	*quality = int(movements.size());
 
-
 	m_nextColor = nextColor;
 	if( recalcState )
 	{

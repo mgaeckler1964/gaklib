@@ -161,6 +161,17 @@ Movements Board::collectMoves() const
 					{
 						move.capturePos = cap->getPos();
 					}
+					if(fig->getType() == Figure::ftKing)
+					{
+						const King *king = static_cast<const King*>(fig);
+						const gak::chess::King::Rochade *rochade = king->getRochade(dest);
+						if( rochade )
+						{
+							move.rook = rochade->rook;
+							move.rookSrc = rochade->rook->getPos();
+							move.rookDest = rochade->rookTarget;
+						}
+					}
 				}
 			}
 		}
@@ -233,7 +244,7 @@ STRING Movement::toString() const
 		{
 			assert(fig->getType() == Figure::ftKing);
 			assert(rook->getType() == Figure::ftRook);
-			if( rook->getPos().col == MAX_COL_LETTER )
+			if( rookSrc.col == MAX_COL_LETTER )
 			{
 				result = "O-O";
 			}
@@ -244,7 +255,7 @@ STRING Movement::toString() const
 		}
 		else
 		{
-			result = fig->getLetter() + STRING(fig->getPos().col) + formatNumber(unsigned(fig->getPos().row));
+			result = fig->getLetter() + STRING(src.col) + formatNumber(unsigned(src.row));
 			result += captured ? 'x' : '-';
 			result += STRING(dest.col) + formatNumber(unsigned(dest.row));
 			if( promotionType )
