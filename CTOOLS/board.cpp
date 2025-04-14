@@ -462,15 +462,15 @@ Movement Board::findBest( int maxLevel, int *quality, bool recalcState )
 	return best;
 }
 
-Movements Board::findCheckDefend(size_t *numAttackers) const
+Movements Board::findCheckDefend(size_t *numCheckers) const
 {
-	assert(numAttackers);
+	assert(numCheckers);
 	Movements defends;
 	Figure *king = getCurKing();
 	FigurePtr attackers[NUM_TEAM_FIGURES];
-	*numAttackers = getAttackers(king, attackers);
+	*numCheckers = getCheckers(king, attackers);
 
-	if( *numAttackers == 1 )
+	if( *numCheckers == 1 )
 	{
 		// try to capture the attacker
 		FigurePtr defenders[NUM_TEAM_FIGURES];
@@ -683,24 +683,24 @@ const Figure *Board::getAttacker( const Figure *fig ) const
 	return NULL;
 }
 
-size_t Board::getAttackers( const Figure *fig, FigurePtr *attackers ) const
+size_t Board::getAttackers( const Figure *myFig, FigurePtr *attackers ) const
 {
-	const Figure::Color color = fig->m_color;
-	const Position &pos = fig->getPos();
+	const Figure::Color color = myFig->m_color;
+	const Position &pos = myFig->getPos();
 	size_t numAttackers = 0;
 	for( size_t i=0; i<NUM_FIELDS; ++i )
 	{
-		FigurePtr fig = m_board[i];
-		if( fig && fig->m_color != color )
+		FigurePtr oponent = m_board[i];
+		if( oponent && oponent->m_color != color )
 		{
-			const PotentialDestinations &targets = fig->getPossible();
+			const PotentialDestinations &targets = oponent->getPossible();
 			if( targets.hasCaptures )
 			{
 				for( size_t j=0; j<targets.numTargets; ++j )
 				{
 					if( targets.targets[j].getCapture() == pos )
 					{
-						attackers[numAttackers++] = fig;
+						attackers[numAttackers++] = oponent;
 					}
 				}
 			}
@@ -708,6 +708,30 @@ size_t Board::getAttackers( const Figure *fig, FigurePtr *attackers ) const
 	}
 
 	return numAttackers;
+}
+
+size_t Board::getCheckers( const Figure *king, FigurePtr *checkers ) const
+{
+	const Figure::Color color = king->m_color;
+	const Position &pos = king->getPos();
+	size_t numCheckers = 0;
+	for( size_t i=0; i<NUM_FIELDS; ++i )
+	{
+		FigurePtr oponent = m_board[i];
+		if( oponent && oponent->m_color != color )
+		{
+			const PotentialDestinations &targets = oponent->getPossible();
+			for( size_t j=0; j<targets.numThreads; ++j )
+			{
+				if( targets.threads[j] == pos )
+				{
+					checkers[numCheckers++] = oponent;
+				}
+			}
+		}
+	}
+
+	return numCheckers;
 }
 
 const Figure *Board::getThread( Figure::Color color, const Position &pos, bool check4King ) const

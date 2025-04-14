@@ -811,7 +811,7 @@ class Board
 	Movements collectMoves()  const;
 
 	bool canMove() const;
-	Movements findCheckDefend( size_t *numAttackers) const;
+	Movements findCheckDefend( size_t *numCheckers) const;
 
 	int evaluateMovements(Movements &movements, int maxLevel);
 
@@ -922,6 +922,7 @@ class Board
 
 	const Figure *getAttacker( const Figure *fig ) const;
 	size_t getAttackers( const Figure *fig, FigurePtr *attackers ) const;
+	size_t getCheckers( const Figure *king, FigurePtr *checkers ) const;
 
 	bool checkMoveTo( const PlayerPos &src, const Position &dest, Figure::Type newFig=Figure::ftNone ) const;
 

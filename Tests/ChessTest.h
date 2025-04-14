@@ -144,6 +144,26 @@ class ChessTest : public UnitTest
 			chess.findBest(1, &quality);
 			UT_ASSERT_EQUAL(quality, 1);
 		}
+		{
+			chess.generateFromString(
+				"T LDK  T"
+				"B B    B"
+				" B  S   "
+				"S   B  b"
+				"        "
+				"  LB  B "
+				"        "
+				"  ldklst"
+				"B"
+			);
+			chess.findBest(0, &quality);
+			UT_ASSERT_EQUAL(quality, 2);
+			if( quality != 2 )
+			{
+				chess.print();
+			}
+		}
+
 
 		const STRING start = "TSLDKLST"
 							 "BBBBBBBB"
