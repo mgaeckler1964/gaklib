@@ -192,7 +192,7 @@ Figure *Board::uncheckedMove( const PlayerPos &src, const Position &dest )
 
 	m_board[destIndex] = fig;
 	m_board[srcIndex] = NULL;
-	fig->setPosition(dest);
+	fig->setPosition(dest, true);
 
 	return toCapture;
 }
@@ -223,7 +223,7 @@ void Board::undoMove(const Movement &move)
 	size_t destIndex = getIndex(move.dest);
 
 	// re pos figure
-	move.fig->setPosition(move.src);
+	move.fig->setPosition(move.src, false);
 	m_board[srcIndex] = move.fig;
 
 	// if it was a promotion, remove new figure
@@ -247,7 +247,7 @@ void Board::undoMove(const Movement &move)
 			// if it is en-passant -> the old destination is now empty
 			m_board[destIndex] = NULL;
 		}
-		move.captured->setPosition(move.capturePos);
+		move.captured->setPosition(move.capturePos, false);
 	}
 
 	if( move.rook )
@@ -255,7 +255,7 @@ void Board::undoMove(const Movement &move)
 		// restore rook, if it was a rochade
 		size_t srcIndex = getIndex(move.rookSrc);
 		size_t destIndex = getIndex(move.rookDest);
-		move.rook->setPosition(move.rookSrc);
+		move.rook->setPosition(move.rookSrc, false);
 		m_board[srcIndex] = move.rook;
 		m_board[destIndex] = NULL;
 	}
@@ -281,12 +281,12 @@ void Board::redoMove(Movement &move)
 	if( move.promotion )
 	{
 		move.fig->capture();
-		move.promotion->setPosition(move.dest);
+		move.promotion->setPosition(move.dest, false);
 		m_board[destIndex] = move.promotion;
 	}
 	else
 	{
-		move.fig->setPosition(move.dest);
+		move.fig->setPosition(move.dest, false);
 		m_board[destIndex] = move.fig;
 	}
 	m_board[srcIndex] = NULL;
@@ -309,7 +309,7 @@ void Board::redoMove(Movement &move)
 		// restore rook, if it was a rochade
 		size_t srcIndex = getIndex(move.rookSrc);
 		size_t destIndex = getIndex(move.rookDest);
-		rook->setPosition(move.rookDest);
+		rook->setPosition(move.rookDest, false);
 		m_board[destIndex] = rook;
 		m_board[srcIndex] = NULL;
 	}

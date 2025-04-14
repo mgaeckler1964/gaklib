@@ -446,9 +446,12 @@ class Figure
 		return m_pos;
 	}
 	
-	void setPosition( const Position &pos )
+	void setPosition( const Position &pos, bool mark )
 	{
-		m_moved = true;
+		if( mark )
+		{
+			m_moved = true;
+		}
 		m_pos = pos;
 	}
 	const Position &getPos() const
