@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -115,68 +115,17 @@ namespace chess
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-Movements Board::collectMoves() const
+void Board::addPromoteMoves( Movements &moves, const Movement &moveTemplate ) const
 {
-	doEnterFunctionEx(gakLogging::llInfo, "Board::collectMoves");
 	static Figure::Type promoTypes[] =
 	{
 		Figure::ftQueen, Figure::ftRook, Figure::ftKnight, Figure::ftBishop
 	};
-	Movements moves;
-	for( size_t i1=0; i1<NUM_FIELDS; ++i1 )
+	FOR_EACH(i,promoTypes)
 	{
-		Figure *fig = m_board[i1];
-		if( fig && fig->m_color == m_nextColor )
-		{
-			const Position &src = fig->getPos();
-			const PotentialDestinations &curMoves = fig->getPossible();
-			for( size_t i2=0; i2<curMoves.numTargets; ++i2 )
-			{
-				const Position &dest = curMoves.targets[i2].getTarget();
-				Figure *cap = m_board[getIndex(dest)];
-				if(fig->getType() == Figure::ftPawn && (dest.row == 8 || dest.row == 1) )
-				{
-					FOR_EACH(i3,promoTypes)
-					{
-						Movement &move = moves.createElement();
-						move.fig = fig;
-						move.src = src;
-						move.dest = dest;
-						move.promotionType = promoTypes[i3];
-						move.captured = cap;
-						if( cap )
-						{
-							move.capturePos = cap->getPos();
-						}
-					}
-				}
-				else
-				{
-					Movement &move = moves.createElement();
-					move.fig = fig;
-					move.src = src;
-					move.dest = dest;
-					move.captured = cap;
-					if( cap )
-					{
-						move.capturePos = cap->getPos();
-					}
-					if(fig->getType() == Figure::ftKing)
-					{
-						const King *king = static_cast<const King*>(fig);
-						const gak::chess::King::Rochade *rochade = king->getRochade(dest);
-						if( rochade )
-						{
-							move.rook = rochade->rook;
-							move.rookSrc = rochade->rook->getPos();
-							move.rookDest = rochade->rookTarget;
-						}
-					}
-				}
-			}
-		}
+		Movement &move = moves.addElement(moveTemplate);
+		move.promotionType = promoTypes[i];
 	}
-	return moves;
 }
 
 // --------------------------------------------------------------------- //
@@ -226,7 +175,7 @@ Figure::Attack Figure::searchAttack(const Position &ignore, const Position &stop
 		Attack attack = searchAttack(m_pos, moves[i].move, ignore, stop, moves[i].maxDistance );
 		if( !isOK(attack) )
 		{
-			return attack;
+		return attack;
 		}
 	}
 
@@ -255,12 +204,24 @@ STRING Movement::toString() const
 		}
 		else
 		{
-			result = fig->getLetter() + STRING(src.col) + formatNumber(unsigned(src.row));
+			if( fig->getType() != Figure::ftPawn )
+			{
+				result = fig->getLetter();
+			}
+			result += src.col + formatNumber(unsigned(src.row));
 			result += captured ? 'x' : '-';
-			result += STRING(dest.col) + formatNumber(unsigned(dest.row));
+			result += dest.col + formatNumber(unsigned(dest.row));
 			if( promotionType )
 			{
 				result += Figure::getLetter(promotionType);
+			}
+			if( state == csBlackCheck || state == csWhiteCheck )
+			{
+				result += '+';
+			}
+			else if( state == csBlackCheckMate || state == csWhiteCheckMate )
+			{
+				result += '#';
 			}
 		}
 	}

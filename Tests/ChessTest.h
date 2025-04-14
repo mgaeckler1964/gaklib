@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -140,9 +140,9 @@ class ChessTest : public UnitTest
 			);
 #endif
 			chess.findBest(2, &quality);
-			UT_ASSERT_EQUAL(quality, 2);
+			UT_ASSERT_EQUAL(quality, 1);
 			chess.findBest(1, &quality);
-			UT_ASSERT_EQUAL(quality, 2);
+			UT_ASSERT_EQUAL(quality, 1);
 		}
 
 		const STRING start = "TSLDKLST"

@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -87,19 +87,16 @@ static const int BISHOP_VALUE = 3;
 static const int KNIGHT_VALUE = 3;
 static const int ROOK_VALUE = 5;
 static const int QUEEN_VALUE = 8;
+static const int KING_VALUE = PAWN_VALUE *2;
 
-static const int BASE_VALUE = (PAWN_VALUE * NUM_COLS + BISHOP_VALUE*2 + KNIGHT_VALUE*2 + ROOK_VALUE * 2 + QUEEN_VALUE);
-static const int PROMOTED_VALUE = (QUEEN_VALUE * NUM_COLS + BISHOP_VALUE*2 + KNIGHT_VALUE*2 + ROOK_VALUE * 2 + QUEEN_VALUE);
-
-static const int KING_VALUE = PROMOTED_VALUE *2;
+static const int BASE_VALUE		= PAWN_VALUE * NUM_COLS + BISHOP_VALUE*2 + KNIGHT_VALUE*2 + ROOK_VALUE * 2 + QUEEN_VALUE;
+static const int PROMOTED_VALUE	= QUEEN_VALUE * NUM_COLS + BISHOP_VALUE*2 + KNIGHT_VALUE*2 + ROOK_VALUE * 2 + QUEEN_VALUE;
 
 static const int INIT_VALUE = BASE_VALUE + KING_VALUE;
 
-static const  int PLAYER_WINS = KING_VALUE*4;
+static const  int PLAYER_WINS = PROMOTED_VALUE*4;
 static const  int WHITE_WINS = PLAYER_WINS;
-static const  int BLACK_WINS = -PLAYER_WINS;
-static const  int WHITE_CHECK = -KING_VALUE;
-static const  int BLACK_CHECK = KING_VALUE;
+static const  int BLACK_WINS = PLAYER_WINS;
 
 #if 1
 // for german chess. 
@@ -151,6 +148,13 @@ class Board;
 class Figure;
 
 typedef Figure *FigurePtr;
+
+enum State
+{
+	csBlank, 
+	csPlaying, csWhiteCheck, csBlackCheck, 
+	csEnd, csWhiteCheckMate, csBlackCheckMate, csDraw
+};
 
 struct Position
 {
@@ -434,6 +438,7 @@ class Figure
 	}
 	void capture()
 	{
+		assert( getType() != ftKing );
 		m_pos = Position();
 	}
 	bool isActive() const
@@ -453,6 +458,17 @@ class Figure
 	bool hasMoved() const
 	{
 		return m_moved;
+	}
+	bool isThread(const Position &pos) const
+	{
+		for( size_t i=0; i<m_targets.numThreads; ++i )
+		{
+			if( pos == m_targets.threads[i] )
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	bool canCapture(const Position &pos) const
 	{
@@ -497,10 +513,13 @@ class Figure
 	Attack searchAttack(const Position &ignore=Position(), const Position &stop=Position() ) const;
 	bool isAttacked(const Position &ignore, const Position &stop ) const
 	{
-		Attack attack = searchAttack(ignore,stop);
-		return isOK(attack);
+		return !isOK(searchAttack(ignore,stop));
 	}
 
+	bool mustPromote(const Position &dest) const
+	{
+		return getType() == ftPawn && (dest.row == 8 || dest.row == 1);
+	}
 	virtual Type getType() const = 0;
 	virtual int getValue() const = 0;
 	char getLetter() const
@@ -677,6 +696,7 @@ struct Movement
 	Position	rookDest;
 
 	int			evaluate;
+	State		state;
 
 	Movement() : fig(NULL), promotion(NULL), promotionType(Figure::ftNone), captured(NULL), rook(NULL), evaluate(0) {}
 	operator bool ()
@@ -702,14 +722,6 @@ typedef PairMap<STRING, PortableMoves> ChessLibrary;
 
 class Board
 {
-	public:
-	enum State
-	{
-		csBlank, 
-		csPlaying, csWhiteCheck, csBlackCheck, 
-		csEnd, csWhiteCheckMate, csBlackCheckMate, csDraw
-	};
-
 	private:
 	Figure					*m_board[NUM_FIELDS];
 	ArrayOfPointer<Figure>	m_all;
@@ -771,10 +783,6 @@ class Board
 		}
 	}
 
-	bool canPlay() const
-	{
-		return m_state > csBlank && m_state < csEnd;
-	}
 	void clear()
 	{
 		m_moves.clear();
@@ -796,8 +804,10 @@ class Board
 	Movement findBest(int maxLevel, int *quality, bool recalcState);
 	static size_t findMove(const Movements &moves, const Position &src, const Position &dest );
 
-	bool canMove(Figure::Color color) const;
+	void addPromoteMoves(Movements &moves, const Movement &moveTemplate)  const;
 	Movements collectMoves()  const;
+
+	bool canMove() const;
 	Movements findCheckDefend( size_t *numAttackers) const;
 
 	int evaluateMovements(Movements &movements, int maxLevel);
@@ -821,6 +831,10 @@ class Board
 	void checkMate();
 	void checkCheck();
 	void reset();
+	bool canPlay() const
+	{
+		return m_state > csBlank && m_state < csEnd;
+	}
 
 	/* count figures */
 	void evaluateForce(int &whiteForce, int &blackForce) const;

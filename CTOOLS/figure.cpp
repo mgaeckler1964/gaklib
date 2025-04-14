@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -158,7 +158,7 @@ size_t Figure::checkRange(PotentialDestinations *result, Position::MoveFunc move
 		else 
 		{
 			result->threads[result->numThreads++] = targetPos;
-			if( figure->m_color != m_color )
+			if( figure->m_color != m_color && figure->getType() != ftKing )		// it is not allowed to capture the king
 			{
 				result->targets[result->numTargets++] = Destination(targetPos, targetPos );
 				result->hasCaptures = true;
@@ -462,7 +462,7 @@ bool Figure::isOK( const Attack &attack ) const
 			attack.steps < 2 &&					// king can self defend
 			!m_board.getThread(m_color, attack.figure->getPos(), false )
 		)
-		|| !attack.figure->canCapture(m_pos) ;	// too weak?
+		|| !attack.figure->isThread(m_pos) ;	// too weak?
 }
 
 Figure::Attack Figure::searchAttack(const Position &pos, Position::MoveFunc movement, const Position &ignore, const Position &stop, int maxCount ) const
