@@ -276,7 +276,7 @@ void Board::redoMove(Movement &move)
 	// position figure
 	if( move.promotionType && !move.promotion )
 	{
-		move.promotion = create( move.fig->m_color, move.promotionType, move.dest );
+		move.promotion = create( move.fig->m_color, move.promotionType, move.dest, true );
 	}
 	if( move.promotion )
 	{
@@ -614,34 +614,34 @@ void Board::reset(Figure::Color color)
 	char row = (color == Figure::White) ? 2 : 7;
 	for( char col=MIN_COL_LETTER; col <=MAX_COL_LETTER; ++col )
 	{
-		create(color,Figure::ftPawn, Position(col,row));
+		create(color,Figure::ftPawn, Position(col,row), false);
 	}
 
 	char col = MIN_COL_LETTER;
 	row = (color == Figure::White) ? 1 : NUM_ROWS;
 
-	create(color, Figure::ftRook, Position(col,row));
+	create(color, Figure::ftRook, Position(col,row), false);
 
 	++col;
-	create(color, Figure::ftKnight, Position(col,row));
+	create(color, Figure::ftKnight, Position(col,row), false);
 
 	++col;
-	create(color,Figure::ftBishop, Position(col,row));
+	create(color,Figure::ftBishop, Position(col,row), false);
 
 	++col;
-	create(color, Figure::ftQueen, Position(col,row));
+	create(color, Figure::ftQueen, Position(col,row), false);
 
 	++col;
-	create(color, Figure::ftKing, Position(col,row));
+	create(color, Figure::ftKing, Position(col,row), false);
 
 	++col;
-	create(color,Figure::ftBishop, Position(col,row));
+	create(color,Figure::ftBishop, Position(col,row), false);
 
 	++col;
-	create(color, Figure::ftKnight, Position(col,row));
+	create(color, Figure::ftKnight, Position(col,row), false);
 
 	++col;
-	create(color, Figure::ftRook, Position(col,row));
+	create(color, Figure::ftRook, Position(col,row), false);
 }
 
 // --------------------------------------------------------------------- //
@@ -878,7 +878,7 @@ void Board::rochade( const PlayerPos &king, const PlayerPos &rook, const Positio
 	move.state = m_state;
 }
 
-Figure *Board::create( Figure::Color color, Figure::Type newFig, const Position &dest )
+Figure *Board::create( Figure::Color color, Figure::Type newFig, const Position &dest, bool moved )
 {
 	Figure *newFigure;
 	size_t destIndex = getIndex( dest );
@@ -886,22 +886,22 @@ Figure *Board::create( Figure::Color color, Figure::Type newFig, const Position 
 	switch(newFig)
 	{
 	case Figure::ftPawn:
-		newFigure = new Pawn(color, dest, *this);
+		newFigure = new Pawn(color, dest, moved, *this);
 		break;
 	case Figure::ftBishop:
-		newFigure = new Bishop(color, dest, *this);
+		newFigure = new Bishop(color, dest, moved, *this);
 		break;
 	case Figure::ftKnight:
-		newFigure = new Knight(color, dest, *this);
+		newFigure = new Knight(color, dest, moved, *this);
 		break;
 	case Figure::ftRook:
-		newFigure = new Rook(color, dest, *this);
+		newFigure = new Rook(color, dest, moved, *this);
 		break;
 	case Figure::ftQueen:
-		newFigure = new Queen(color, dest, *this);
+		newFigure = new Queen(color, dest, moved, *this);
 		break;
 	case Figure::ftKing:
-		newFigure = new King(color, dest, *this);
+		newFigure = new King(color, dest, moved, *this);
 		break;
 	}
 	m_board[destIndex] = newFigure;
@@ -920,7 +920,7 @@ void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position 
 	m_board[srcIndex] = NULL;
 
 	Figure *toCapture = m_board[destIndex];
-	Figure *newFigure = create( pawn.fig->m_color, newFig, dest );
+	Figure *newFigure = create( pawn.fig->m_color, newFig, dest, true );
 
 	pawn.fig->capture();
 
@@ -1241,17 +1241,20 @@ STRING Board::generateString() const
 
 void Board::generateFromString(const STRING &string )
 {
+
 	if(string.size() < NUM_FIELDS )
 	{
 		return;
 	}
 	clear();
 	const char *src = string;
+	const char *def = S_START;
 	Figure::Color	newColor;
 	Figure::Type	newType;
 	for( int i=0; i<NUM_FIELDS; ++i )
 	{
 		char sym = *src++;
+		char defSym = *def++;
 		char upperLetter = char(toupper(sym));
 		newColor = upperLetter == sym ? Figure::White : Figure::Black;
 		switch(upperLetter)
@@ -1281,7 +1284,7 @@ void Board::generateFromString(const STRING &string )
 		if(newType != Figure::ftNone)
 		{
 			Position pos = getPosition(i);
-			Figure *fig = create(newColor,newType, pos);
+			Figure *fig = create(newColor,newType, pos, sym!=defSym);
 			m_board[i] = fig;
 			if(newType==Figure::ftKing)
 			{

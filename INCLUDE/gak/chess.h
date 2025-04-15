@@ -107,6 +107,16 @@ static const char BISHOP_LETTER = 'L';		// Läufer
 static const char QUEEN_LETTER = 'D';		// Dame
 static const char KING_LETTER = 'K';		// König
 
+static const char S_START[] = 
+	"TSLDKLST"
+	"BBBBBBBB"
+	"        "
+	"        "
+	"        "
+	"        "
+	"bbbbbbbb"
+	"tsldklst";
+
 #define CHESS_WHITE			"Wei" OEM_sz
 #define CHESS_BLACK			"Schwarz"
 #define CHESS_BLANK			"Leer"
@@ -124,6 +134,16 @@ static const char KNIGHT_LETTER = 'N';
 static const char BISHOP_LETTER = 'B';
 static const char QUEEN_LETTER = 'Q';
 static const char KING_LETTER = 'K';
+
+static const char S_START[] = 
+	"RNBQKBNR"
+	"PPPPPPPP"
+	"        "
+	"        "
+	"        "
+	"        "
+	"pppppppp"
+	"rnbqkbnr";
 
 #define CHESS_WHITE			"White"
 #define CHESS_BLACK			"Black"
@@ -425,7 +445,7 @@ class Figure
 	size_t checkRange(PotentialDestinations *result, Position::MoveFunc movement, size_t maxCount, bool allowSacrifice) const;
 
 	public:
-	Figure( Color color, Position pos, Board &board ) : m_color(color), m_pos(pos), m_board(board), m_moved(false), m_toKing(NULL), m_fromKing(NULL) {}
+	Figure( Color color, Position pos, bool moved, Board &board ) : m_color(color), m_pos(pos), m_board(board), m_moved(moved), m_toKing(NULL), m_fromKing(NULL) {}
 
 	King *getKing() const;
 	void checkInterPos();
@@ -543,7 +563,7 @@ class Pawn : public Figure
 		return getPos().row == enPassantRow();
 	}
 	public:
-	Pawn( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+	Pawn( Color color, Position pos, bool moved, Board &board ) : Figure( color, pos, moved, board ) {}
 
 	virtual PotentialDestinations calcPossible();
 	virtual Type getType() const
@@ -559,7 +579,7 @@ class Pawn : public Figure
 class Knight : public Figure
 {
 	public:
-	Knight( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+	Knight( Color color, Position pos, bool moved, Board &board ) : Figure( color, pos, moved, board ) {}
 
 	size_t checkRange(PotentialDestinations *pos, Position::MoveFunc movement) const
 	{
@@ -580,7 +600,7 @@ class Knight : public Figure
 class Bishop : public Figure
 {
 	public:
-	Bishop( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+	Bishop( Color color, Position pos, bool moved, Board &board ) : Figure( color, pos, moved, board ) {}
 
 	virtual PotentialDestinations calcPossible();
 	virtual Type getType() const
@@ -596,7 +616,7 @@ class Bishop : public Figure
 class Rook : public Figure
 {
 	public:
-	Rook( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+	Rook( Color color, Position pos, bool moved, Board &board ) : Figure( color, pos, moved, board ) {}
 
 	virtual PotentialDestinations calcPossible();
 	virtual Type getType() const
@@ -612,7 +632,7 @@ class Rook : public Figure
 class Queen : public Figure
 {
 	public:
-	Queen( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+	Queen( Color color, Position pos, bool moved, Board &board ) : Figure( color, pos, moved, board ) {}
 
 	virtual PotentialDestinations calcPossible();
 	virtual Type getType() const
@@ -641,7 +661,7 @@ class King : public Figure
 	Rochade m_rochadeWest, m_rochadeEast;
 
 	public:
-	King( Color color, Position pos, Board &board ) : Figure( color, pos, board ) {}
+	King( Color color, Position pos, bool moved, Board &board ) : Figure( color, pos, moved, board ) {}
 
 	size_t checkRange(PotentialDestinations *pos, Position::MoveFunc movement, size_t maxCount) const
 	{
@@ -928,7 +948,7 @@ class Board
 
 	void moveTo( const PlayerPos &src, const Position &dest ); 
 	void rochade( const PlayerPos &king, const PlayerPos &rook, const Position &kingDest, const Position &rookDest );
-	Figure *create( Figure::Color color, Figure::Type newFig, const Position &dest );
+	Figure *create( Figure::Color color, Figure::Type newFig, const Position &dest, bool moved );
 	void promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest );
 
 	Movement findBest(int maxLevel, int *quality)
