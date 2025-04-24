@@ -137,6 +137,7 @@
     <ClInclude Include="Tests\CondQueueTest.h" />
     <ClInclude Include="Tests\ConsoleTest.h" />
     <ClInclude Include="Tests\DateTest.h" />
+    <ClInclude Include="Tests\EnsembleTest.h" />
     <ClInclude Include="Tests\EtaTest.h" />
     <ClInclude Include="Tests\GeoGraphTest.h" />
     <ClInclude Include="Tests\HostResolverTest.h" />

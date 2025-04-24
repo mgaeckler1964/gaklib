@@ -157,6 +157,7 @@
     <ClInclude Include="INCLUDE\gak\directoryEntry.h" />
     <ClInclude Include="INCLUDE\gak\dirScanner.h" />
     <ClInclude Include="INCLUDE\gak\dynamic.h" />
+    <ClInclude Include="INCLUDE\gak\ensemble.h" />
     <ClInclude Include="INCLUDE\gak\eta.h" />
     <ClInclude Include="INCLUDE\gak\exception.h" />
     <ClInclude Include="INCLUDE\gak\exif.h" />

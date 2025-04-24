@@ -674,5 +674,8 @@
     <ClInclude Include="INCLUDE\gak\chess.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="INCLUDE\gak\ensemble.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

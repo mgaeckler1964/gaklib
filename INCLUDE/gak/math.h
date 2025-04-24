@@ -42,8 +42,10 @@
 
 #include <math.h>		// otherwise i will loose isnan on Mac
 #include <iostream>
+#include <limits>
 
 #include <gak/fixedArray.h>
+#include <gak/ensemble.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -270,6 +272,34 @@ struct MixedFraction
 		integer = src.numerator/long(src.denominator);
 		fraction.numerator = src.numerator%long(src.denominator);
 		fraction.denominator = src.denominator;
+	}
+};
+
+template <typename NUMBER>
+struct MinMax : private Duo<NUMBER,NUMBER>
+{
+	MinMax(NUMBER first) : Duo(first, first) {}
+	MinMax() : Duo(std::numeric_limits<NUMBER>::max(), std::numeric_limits<NUMBER>::min()) {}
+
+	void test( NUMBER val )
+	{
+		if( val < val1 )
+		{
+			val1 = val;
+		}
+		if( val	> val2 )
+		{
+			val2 = val;
+		}
+	}
+
+	NUMBER getMin() const
+	{
+		return val1;
+	}
+	NUMBER getMax() const
+	{
+		return val2;
 	}
 };
 

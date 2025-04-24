@@ -59,6 +59,7 @@
 
 #include "Tests/ChessTest.h"
 #include "Tests/RandomTest.h"
+#include "Tests/EnsembleTest.h"
 
 #include "Tests/EtaTest.h"
 #include "Tests/RingBufferTest.h"

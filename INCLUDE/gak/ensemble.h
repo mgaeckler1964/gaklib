@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
-		Module:			MathTest.h
-		Description:	
+		Module:			ensemble-h
+		Description:	different aggregation types
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -29,6 +29,8 @@
 		SUCH DAMAGE.
 */
 
+#ifndef GAK_ENSEMBLE_H
+#define GAK_ENSEMBLE_H
 
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
@@ -37,11 +39,6 @@
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
-
-#include <iostream>
-#include <gak/unitTest.h>
-
-#include <gak/math.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -61,85 +58,6 @@
 namespace gak
 {
 
-class MathTest : public UnitTest
-{
-	virtual const char *GetClassName( void ) const
-	{
-		return "MathTest";
-	}
-	virtual void PerformTest( void )
-	{
-		UT_ASSERT_EQUAL( 2, math::getExponent( 999.9999 ) );
-		UT_ASSERT_EQUAL( 2, math::getExponent( 100.0 ) );
-		UT_ASSERT_EQUAL( 2, math::getExponent( -100.0 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( 99.99999 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( 10.0 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( -10.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( 9.999999 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( 1.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( -1.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( .0 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( 0.9999999 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( 0.1 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( -0.1 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( 0.09999999 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( 0.01 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( -0.01 ) );
-
-		int exponent;
-		double value;
-
-		value = math::normalize( 999.9999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 2, exponent );
-		value = math::normalize( 99.99999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 1, exponent );
-		value = math::normalize( 9.999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 0, exponent );
-		value = math::normalize( .9999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( -1, exponent );
-		value = math::normalize( .09999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( -2, exponent );
-
-		value = math::normalize( -999.9999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 2, exponent );
-		value = math::normalize( -99.99999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 1, exponent );
-		value = math::normalize( -9.999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 0, exponent );
-		value = math::normalize( -0.9999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( -1, exponent );
-		value = math::normalize( -0.09999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( -2, exponent );
-
-		math::MinMax<int>	minMax;
-
-		UT_ASSERT_LESS( 0, minMax.getMin() );
-		UT_ASSERT_GREATER( 0, minMax.getMax() );
-
-		minMax.test( 5 );
-
-		UT_ASSERT_EQUAL( 5, minMax.getMin() );
-		UT_ASSERT_EQUAL( 5, minMax.getMax() );
-
-		minMax.test( 10 );
-		minMax.test( 3 );
-
-		UT_ASSERT_EQUAL( 3, minMax.getMin() );
-		UT_ASSERT_EQUAL( 10, minMax.getMax() );
-
-	}
-};
-
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -156,6 +74,32 @@ class MathTest : public UnitTest
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+template<class TYPE1, class TYPE2>
+struct Duo
+{
+	TYPE1	val1;
+	TYPE2	val2;
+
+	Duo(TYPE1 val1=TYPE1(), TYPE2 val2=TYPE2() ) : val1(val1), val2(val2) {}
+};
+
+template<class TYPE1, class TYPE2, class TYPE3>
+struct Trio : public Duo<TYPE1, TYPE2>
+{
+	TYPE3	val3;
+
+	Trio(TYPE1 val1=TYPE1(), TYPE2 val2=TYPE2(), TYPE3 val3=TYPE3() ) : Duo(val1, val2), val3(val3) {}
+};
+
+template<class TYPE1, class TYPE2, class TYPE3, class TYPE4>
+struct Quartet : public Trio<TYPE1, TYPE2, TYPE3>
+{
+	TYPE4	val4;
+
+	Quartet(TYPE1 val1=TYPE1(), TYPE2 val2=TYPE2(), TYPE3 val3=TYPE3(), TYPE4 val4=TYPE4() ) : Trio(val1, val2, val3), val4(val4) {}
+};
+
+
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -163,8 +107,6 @@ class MathTest : public UnitTest
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-static MathTest	myMathTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -219,3 +161,4 @@ static MathTest	myMathTest;
 #	pragma option -p.
 #endif
 
+#endif

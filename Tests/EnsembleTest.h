@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
-		Module:			MathTest.h
+		Module:			EnsembleTest.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -41,7 +41,7 @@
 #include <iostream>
 #include <gak/unitTest.h>
 
-#include <gak/math.h>
+#include <gak/ensemble.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -61,85 +61,6 @@
 namespace gak
 {
 
-class MathTest : public UnitTest
-{
-	virtual const char *GetClassName( void ) const
-	{
-		return "MathTest";
-	}
-	virtual void PerformTest( void )
-	{
-		UT_ASSERT_EQUAL( 2, math::getExponent( 999.9999 ) );
-		UT_ASSERT_EQUAL( 2, math::getExponent( 100.0 ) );
-		UT_ASSERT_EQUAL( 2, math::getExponent( -100.0 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( 99.99999 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( 10.0 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( -10.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( 9.999999 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( 1.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( -1.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( .0 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( 0.9999999 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( 0.1 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( -0.1 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( 0.09999999 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( 0.01 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( -0.01 ) );
-
-		int exponent;
-		double value;
-
-		value = math::normalize( 999.9999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 2, exponent );
-		value = math::normalize( 99.99999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 1, exponent );
-		value = math::normalize( 9.999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 0, exponent );
-		value = math::normalize( .9999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( -1, exponent );
-		value = math::normalize( .09999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( -2, exponent );
-
-		value = math::normalize( -999.9999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 2, exponent );
-		value = math::normalize( -99.99999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 1, exponent );
-		value = math::normalize( -9.999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 0, exponent );
-		value = math::normalize( -0.9999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( -1, exponent );
-		value = math::normalize( -0.09999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( -2, exponent );
-
-		math::MinMax<int>	minMax;
-
-		UT_ASSERT_LESS( 0, minMax.getMin() );
-		UT_ASSERT_GREATER( 0, minMax.getMax() );
-
-		minMax.test( 5 );
-
-		UT_ASSERT_EQUAL( 5, minMax.getMin() );
-		UT_ASSERT_EQUAL( 5, minMax.getMax() );
-
-		minMax.test( 10 );
-		minMax.test( 3 );
-
-		UT_ASSERT_EQUAL( 3, minMax.getMin() );
-		UT_ASSERT_EQUAL( 10, minMax.getMax() );
-
-	}
-};
-
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -156,6 +77,24 @@ class MathTest : public UnitTest
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+class EnsembleTest : public UnitTest
+{
+	virtual const char *GetClassName( void ) const
+	{
+		return "EnsembleTest";
+	}
+	virtual void PerformTest( void )
+	{
+		TestScope scope( "PerformTest" );
+		Quartet<int,int,int,int>	myQuartet(1,2,3,4);
+
+		UT_ASSERT_EQUAL( myQuartet.val1, 1 );
+		UT_ASSERT_EQUAL( myQuartet.val2, 2 );
+		UT_ASSERT_EQUAL( myQuartet.val3, 3 );
+		UT_ASSERT_EQUAL( myQuartet.val4, 4 );
+	}
+};
+
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -164,7 +103,7 @@ class MathTest : public UnitTest
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static MathTest	myMathTest;
+static EnsembleTest myEnsembleTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
