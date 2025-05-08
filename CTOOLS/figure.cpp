@@ -233,7 +233,7 @@ PotentialDestinations Pawn::calcPossible()
 	// en-passant
 	if( shouldCheckPassant() )
 	{
-		const Movements	&moves = m_board.getMoves();
+		const Movements	&moves = m_board.getHistory();
 		if( size_t size = moves.size() )
 		{
 			const Movement &lastMove = moves[size-1];
@@ -333,34 +333,24 @@ PotentialDestinations King::calcPossible()
 
 	{
 		Attack moveNorthAttack = searchAttack(&Position::moveNorth);
-		Attack moveSouthAtack = searchAttack(&Position::moveSouth);
-		if( isOK( moveNorthAttack ) && isOK( moveSouthAtack ))
-		{
-			checkRange(&result, &Position::moveNorth, 1);
-			checkRange(&result, &Position::moveSouth, 1);
-		}
-		else if( isOK( moveNorthAttack ) && moveSouthAtack.figure->getType() == Figure::ftKing )
+		Attack moveSouthAttack = searchAttack(&Position::moveSouth);
+		if( isOK( moveNorthAttack, 2 ) && isOK( moveSouthAttack, 0 ) )
 		{
 			checkRange(&result, &Position::moveNorth, 1);
 		}
-		else if( isOK( moveSouthAtack ) && moveNorthAttack.figure->getType() == Figure::ftKing )
+		if( isOK( moveNorthAttack, 0 ) && isOK( moveSouthAttack, 2 ) )
 		{
 			checkRange(&result, &Position::moveSouth, 1);
 		}
 	}
 	{
-		Attack moveEastAtack = searchAttack(&Position::moveEast);
+		Attack moveEastAttack = searchAttack(&Position::moveEast);
 		Attack moveWestAttack = searchAttack(&Position::moveWest);
-		if( isOK( moveEastAtack ) && isOK( moveWestAttack ))
-		{
-			canEast = checkRange(&result, &Position::moveEast, 1);
-			canWest = checkRange(&result, &Position::moveWest, 1);
-		}
-		else if( isOK( moveEastAtack ) && moveWestAttack.figure->getType() == Figure::ftKing )
+		if( isOK( moveEastAttack, 2 ) && isOK( moveWestAttack, 0 ) )
 		{
 			canEast = checkRange(&result, &Position::moveEast, 1);
 		}
-		else if( isOK( moveWestAttack ) && moveEastAtack.figure->getType() == Figure::ftKing )
+		if( isOK( moveEastAttack, 0 ) && isOK( moveWestAttack, 2 ) )
 		{
 			canWest = checkRange(&result, &Position::moveWest, 1);
 		}
@@ -368,16 +358,11 @@ PotentialDestinations King::calcPossible()
 	{
 		Attack moveNorthEastAtack = searchAttack(&Position::moveNorthEast);
 		Attack moveSouthWestAtack = searchAttack(&Position::moveSouthWest);
-		if( isOK( moveNorthEastAtack ) && isOK( moveSouthWestAtack ))
-		{
-			checkRange(&result, &Position::moveNorthEast, 1);
-			checkRange(&result, &Position::moveSouthWest, 1);
-		}
-		else if( isOK( moveNorthEastAtack ) && moveSouthWestAtack.figure->getType() == Figure::ftKing )
+		if( isOK( moveNorthEastAtack, 2 ) && isOK( moveSouthWestAtack, 0 ))
 		{
 			checkRange(&result, &Position::moveNorthEast, 1);
 		}
-		else if( isOK( moveSouthWestAtack ) && moveNorthEastAtack .figure->getType() == Figure::ftKing )
+		if( isOK( moveNorthEastAtack, 0 ) && isOK( moveSouthWestAtack, 2 ))
 		{
 			checkRange(&result, &Position::moveSouthWest, 1);
 		}
@@ -385,16 +370,11 @@ PotentialDestinations King::calcPossible()
 	{
 		Attack moveNorthWestAtack = searchAttack(&Position::moveNorthWest);
 		Attack moveSouthEastAtack = searchAttack(&Position::moveSouthEast);
-		if( isOK( moveNorthWestAtack ) && isOK( moveSouthEastAtack ))
-		{
-			checkRange(&result, &Position::moveNorthWest, 1);
-			checkRange(&result, &Position::moveSouthEast, 1);
-		}
-		else if( isOK( moveNorthWestAtack ) && moveSouthEastAtack.figure->getType() == Figure::ftKing )
+		if( isOK( moveNorthWestAtack, 2 ) && isOK( moveSouthEastAtack, 0 ))
 		{
 			checkRange(&result, &Position::moveNorthWest, 1);
 		}
-		else if( isOK( moveSouthEastAtack ) && moveNorthWestAtack .figure->getType() == Figure::ftKing )
+		if( isOK( moveNorthWestAtack, 0 ) && isOK( moveSouthEastAtack, 2 ))
 		{
 			checkRange(&result, &Position::moveSouthEast, 1);
 		}
@@ -454,12 +434,12 @@ PotentialDestinations King::calcPossible()
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-bool Figure::isOK( const Attack &attack ) const
+bool Figure::isOK( const Attack &attack, unsigned maxSteps ) const
 {
 	return !attack.figure						// no attacker
 		|| attack.figure->m_color == m_color	// no enemy
 		|| (
-			attack.steps < 2 &&					// king can self defend
+			attack.steps < maxSteps &&			// king can self defend
 			!m_board.getThread(m_color, attack.figure->getPos(), false )
 		)
 		|| !attack.figure->isThread(m_pos) ;	// too weak?
@@ -480,7 +460,7 @@ Figure::Attack Figure::searchAttack(const Position &pos, Position::MoveFunc move
 			const Figure *figure = m_board.getFigure( targetPos );
 			if( figure ) 
 			{
-				if( figure->m_color != m_color )
+				if( figure->m_color != m_color && figure->isThread(pos) )
 				{
 					attack.figure = figure;
 				}
@@ -500,12 +480,12 @@ King *Figure::getKing() const
 void Figure::checkInterPos()
 {
 	King * king = getKing();
-	Position::MoveFunc	m_toKing = Position::findMoveFunc( m_pos, king->getPos() );
-	Position::MoveFunc	m_fromKing = Position::findMoveFunc( king->getPos(), m_pos );
+	m_toKing = Position::findMoveFunc( m_pos, king->getPos() );
+	m_fromKing = Position::findMoveFunc( king->getPos(), m_pos );
 	if( m_fromKing )
 	{
 		Attack attack = searchAttack(m_fromKing);
-		if( isOK( attack ) )
+		if( isOK( attack, 0 ) )
 		{
 			m_toKing = NULL;
 			m_fromKing = NULL;

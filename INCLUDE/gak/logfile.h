@@ -193,7 +193,7 @@ inline void logValue( LogLevel level, const char *fName, int lineNum, size_t cal
 #if DEBUG_LOG
 #define doLogValueEx(lvl,  val)														\
 {																					\
-	if( gakLogging::g_minLevel <= lvl )											\
+	if( gakLogging::g_minLevel <= lvl )												\
 	{																				\
 		static size_t callCount = 0;												\
 		gakLogging::logValue( lvl, __FILE__, __LINE__, ++callCount, #val, val );	\
@@ -209,13 +209,13 @@ inline void logValue( LogLevel level, const char *fName, int lineNum, size_t cal
 	messages
 */
 #if DEBUG_LOG
-#define doLogMessageEx(lvl,msg)														\
-{																					\
-	if( gakLogging::g_minLevel <= lvl )												\
-	{																				\
-		static size_t callCount = 0;												\
+#define doLogMessageEx(lvl,msg)															\
+{																						\
+	if( gakLogging::g_minLevel <= lvl )													\
+	{																					\
+		static size_t callCount = 0;													\
 		gakLogging::logValue( lvl, __FILE__, __LINE__, ++callCount, "message", msg );	\
-	}																				\
+	}																					\
 }
 #else
 #define doLogMessageEx(lvl,msg)		/* nothing */
@@ -239,9 +239,9 @@ void logError( const char *file, int line, unsigned long dw );
 	positions
 */
 #if DEBUG_LOG
-#define doLogPositionEx(lvl)													\
-{																		\
-	static size_t callCount = 0;										\
+#define doLogPositionEx(lvl)												\
+{																			\
+	static size_t callCount = 0;											\
 	gakLogging::logValue( lvl, __FILE__, __LINE__, ++callCount, "", "" );	\
 }
 #else

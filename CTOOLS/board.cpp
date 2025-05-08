@@ -67,7 +67,7 @@ namespace chess
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static const gakLogging::LogLevel logLegel = gakLogging::llDetail;
+static const gakLogging::LogLevel logLevel = gakLogging::llDetail;
 
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
@@ -164,10 +164,10 @@ Figure *Board::checkEnPassant(const PlayerPos &src, const Position &dest) const
 	destFig = m_board[destIndex];
 	if( destFig && destFig->getType() == Figure::ftPawn && destFig->m_color != fig->m_color )
 	{
-		size_t size = m_moves.size();
+		size_t size = m_history.size();
 		if( size )
 		{
-			const Movement &last = m_moves[size-1];
+			const Movement &last = m_history[size-1];
 			if( last.dest != enPasantPos && last.src.col != last.dest.col )
 			{
 				return NULL;
@@ -215,9 +215,9 @@ Figure *Board::passantMove( const PlayerPos &src, const Position &dest )
 	return toCapture;
 }
 
-void Board::undoMove(const Movement &move)
+void Board::undoTmpMove(const Movement &move)
 {
-	m_moves.removeElementAt(m_moves.size()-1);
+	m_history.removeElementAt(m_history.size()-1);
 
 	size_t srcIndex = getIndex(move.src);
 	size_t destIndex = getIndex(move.dest);
@@ -263,7 +263,7 @@ void Board::undoMove(const Movement &move)
 	m_state = csPlaying;
 }
 
-void Board::redoMove(Movement &move)
+void Board::tmpMove(Movement &move)
 {
 	size_t srcIndex = getIndex(move.src);
 	size_t destIndex = getIndex(move.dest);
@@ -314,7 +314,7 @@ void Board::redoMove(Movement &move)
 		m_board[srcIndex] = NULL;
 	}
 
-	m_moves.addElement(move);
+	m_history.addElement(move);
 }
 
 Movements Board::collectMoves() const
@@ -376,7 +376,7 @@ Movements Board::collectMoves() const
 
 bool Board::canMove() const
 {
-	doEnterFunctionEx(logLegel, "Board::canMove");
+	doEnterFunctionEx(logLevel, "Board::canMove");
 	
 	size_t numAttackers;
 	Movements moves = Board::findCheckDefend(&numAttackers);
@@ -401,9 +401,9 @@ bool Board::canMove() const
 	return false;
 }
 
-Movement Board::findBest( int maxLevel, int *quality, bool recalcState )
+Movement Board::findBest( int maxLevel, int *quality, bool fromPublic )
 {
-	doEnterFunctionEx(logLegel, "Board::findBest( int maxLevel, int *quality, bool recalcState )");
+	doEnterFunctionEx(logLevel, "Board::findBest( int maxLevel, int *quality, bool recalcState )");
 	assert( quality );
 
 	const State			state = m_state;
@@ -438,21 +438,36 @@ Movement Board::findBest( int maxLevel, int *quality, bool recalcState )
 		}
 		movements.removeElementsAt(numMoves, movements.size());
 	}
-	if( movements.size() )
-	{
-		size_t index = randomNumber(int(movements.size()));
-		best = movements[index];
-	}
-	*quality = int(movements.size());
 
 	m_nextColor = nextColor;
-	if( recalcState )
+	int size = int(movements.size());
+	if( size )
 	{
-		refresh();
-		if( numAttackers && !movements.size() )
+		size_t index = size > 1 ? randomNumber(size) : 0;
+		best = movements[index];
+	}
+	if( fromPublic )
+	{
+		*quality = size;
+		if( numAttackers && !size )
 		{
 			m_state = isWhiteTurn() ? csWhiteCheckMate : csBlackCheckMate;
 		}
+		else
+		{
+			refresh();
+		}
+#ifndef NDEBUG
+		for( 
+			Movements::const_iterator it = movements.cbegin(), endIT = movements.cend();
+			it != endIT;
+			++it
+		)
+		{
+			std::cout << it->toString() << ' ' << it->evaluate  << ' ';
+		}
+		std::cout << std::endl;
+#endif
 	}
 	else
 	{
@@ -547,7 +562,7 @@ Movements Board::findCheckDefend(size_t *numCheckers) const
 
 int Board::evaluateMovements(Movements &movements, int maxLevel)
 {
-	doEnterFunctionEx(logLegel, "Board::evaluateMovements");
+	doEnterFunctionEx(logLevel, "Board::evaluateMovements");
 	SharedObjectPointer<Thread>	currentThread = Thread::FindCurrentThread();
 
 	--maxLevel;
@@ -563,23 +578,18 @@ int Board::evaluateMovements(Movements &movements, int maxLevel)
 		Movement &theMove = *it;
 
 #ifndef NDEBUG
-		size_t srcIndex = getIndex(theMove.src);
-		size_t destIndex = getIndex(theMove.dest);
-		if(srcIndex == 27 && maxLevel<=1)
+		if(theMove.src.index == 44 && (theMove.dest.index == 36 || theMove.dest.index == 28))
 		{
-			srcIndex++;
-			doLogValue(srcIndex);
-			doLogValue(destIndex);
-			srcIndex--;
+			doLogPosition();
 		}
 #endif
-		redoMove(theMove);
+		tmpMove(theMove);
 		refresh();
 		theMove.evaluate = evaluate();
 		if( maxLevel > 0 && (!currentThread || !currentThread->terminated) )
 		{
-			int quality;
-			Movement nextMove = findBest( maxLevel, &quality, false );
+			int dummy;
+			Movement nextMove = findBest( maxLevel, &dummy, false );
 			if( nextMove )
 			{
 				theMove.evaluate = nextMove.evaluate;
@@ -603,7 +613,7 @@ int Board::evaluateMovements(Movements &movements, int maxLevel)
 		minVal = math::min(minVal, theMove.evaluate);
 		maxVal = math::max(maxVal, theMove.evaluate);
 
-		undoMove(*it);
+		undoTmpMove(*it);
 	}
 	flipTurn();
 	return isWhiteTurn() ? maxVal : minVal;
@@ -838,7 +848,7 @@ void Board::moveTo( const PlayerPos &src, const Position &dest )
 
 	Figure *toCapture = passantMove(src, dest);
 
-	Movement &move = m_moves.createElement();
+	Movement &move = m_history.createElement();
 	move.fig = src.fig;
 	move.src = src.pos;
 	move.dest = dest;
@@ -865,7 +875,7 @@ void Board::rochade( const PlayerPos &king, const PlayerPos &rook, const Positio
 	toCapture = uncheckedMove(rook, rookDest );
 	assert(!toCapture);
 
-	Movement &move = m_moves.createElement();
+	Movement &move = m_history.createElement();
 	move.fig = king.fig;
 	move.src = king.pos;
 	move.dest = kingDest;
@@ -924,7 +934,7 @@ void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position 
 
 	pawn.fig->capture();
 
-	Movement &move = m_moves.createElement();
+	Movement &move = m_history.createElement();
 	move.fig = pawn.fig;
 	move.src = pawn.pos;
 	move.dest = dest;
@@ -940,6 +950,18 @@ void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position 
 	flipWatch();
 	refresh();
 	move.state = m_state;
+}
+
+void Board::performMove(const Movement& move)
+{
+	if( move.promotionType != gak::chess::Figure::ftNone )
+	{
+		promote(move.fig, move.promotionType, move.dest );
+	}
+	else
+	{
+		moveTo( move.fig, move.dest);
+	}
 }
 
 void Board::reset()
@@ -1030,7 +1052,7 @@ void Board::checkCheck()
 	}
 }
 
-void Board::evaluateForce( int &whiteForce, int &blackForce) const
+void Board::evaluateForce( int &whiteForce, int &blackForce ) const
 {
 	whiteForce=0;
 	blackForce=0;
@@ -1086,7 +1108,7 @@ void Board::evaluateRange(int &whiteTargets, int &blackTargets, int &whiteCaptur
 
 int Board::evaluate() const
 {
-	doEnterFunctionEx(logLegel, "Board::evaluate");
+	doEnterFunctionEx(logLevel, "Board::evaluate");
 	int whiteForce, blackForce;
 	int whiteTargets, blackTargets, whiteCaptures, blackCaptures;
 
@@ -1118,12 +1140,12 @@ int Board::evaluate() const
 	}
 
 
-	evaluateForce( whiteForce, blackForce);
+	evaluateForce( whiteForce, blackForce );
 
 	evaluateRange(whiteTargets, blackTargets, whiteCaptures, blackCaptures);
 
 	int evaluation = whiteForce + whiteTargets + whiteCaptures - blackForce - blackTargets - blackCaptures;
-	doLogValueEx(logLegel, evaluation);
+	doLogValueEx(logLevel, evaluation);
 	return evaluation;
 }
 
@@ -1308,6 +1330,41 @@ void Board::generateFromString(const STRING &string )
 	m_state = csPlaying;
 	refresh();
 	return;
+}
+
+void Board::clone( const Board &src )
+{
+	for( int i=0; i<NUM_FIELDS; ++i )
+	{
+		const Figure *srcFig = src.m_board[i];
+		if( srcFig )
+		{
+			Position pos = getPosition(i);
+			Figure::Type newType = srcFig->getType();
+			Figure::Color newColor = srcFig->m_color;
+			Figure *fig = create(newColor, newType, pos, srcFig->hasMoved());
+			m_board[i] = fig;
+			if(newType==Figure::ftKing)
+			{
+				if(isWhiteTurn(newColor))
+					m_whiteK = static_cast<King*>(fig);
+				else
+					m_blackK = static_cast<King*>(fig);;
+			}
+		}
+	}
+	m_state = src.m_state;
+	m_nextColor = src.m_nextColor;
+}
+
+SharedPointer<Board> Board::clone()
+{
+	SharedPointer<Board> result = SharedPointer<Board>::makeShared();
+
+	doLogValue(static_cast<Board*>(result));
+	result->clone (*this );
+
+	return result;
 }
 
 // --------------------------------------------------------------------- //

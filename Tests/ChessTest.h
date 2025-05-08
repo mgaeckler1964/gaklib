@@ -83,50 +83,125 @@ class ChessTest : public UnitTest
 	{
 		return "ChessTest";
 	}
-	virtual void PerformTest( void )
+	void TestEvaluate()
 	{
-		doDisableLog();
-		//TestScope scope( "PerformTest" );
+		TestScope scope( "TestEvaluate" );
+		chess::Board	chess;
+		chess.generateFromString(
+			"       K"
+			"B       "
+			"        "
+			"        "
+			"        "
+			"        "
+			"        "
+			"       k"
+			"W"
+		);
+		int val = chess.evaluate();
+		UT_ASSERT_EQUAL( val, 3 );
+
+		chess.generateFromString(
+			"       K"
+			"        "
+			"        "
+			"        "
+			"B       "
+			"        "
+			"        "
+			"       k"
+			"W"
+		);
+		val = chess.evaluate();
+		UT_ASSERT_EQUAL( val, 2 );
+
+		chess.generateFromString(
+			"       K"
+			"        "
+			"        "
+			"        "
+			"        "
+			"B       "
+			"        "
+			"       k"
+			"W"
+		);
+		val = chess.evaluate();
+		UT_ASSERT_EQUAL( val, 3 );
+
+		chess.generateFromString(
+			"       K"
+			"        "
+			"        "
+			"        "
+			"        "
+			"        "
+			"B       "
+			"       k"
+			"W"
+		);
+		val = chess.evaluate();
+		UT_ASSERT_EQUAL( val, 4 );
+	}
+	void TestClone()
+	{
+		TestScope scope( "TestClone" );
+		chess::Board	chess1;
+
+		{
+			chess::Board	chess2;
+			chess1.reset();
+			chess2.clone(chess1);
+
+			STRING str1 = chess1.generateString();
+			STRING str2 = chess2.generateString();
+
+			UT_ASSERT_EQUAL(str1, str2);
+
+			chess::Position badPos = chess1.checkBoard();
+			UT_ASSERT_EQUAL( chess::Position(), badPos );
+
+			badPos = chess2.checkBoard();
+			UT_ASSERT_EQUAL( chess::Position(), badPos );
+		}
+
+		chess::Position badPos = chess1.checkBoard();
+		UT_ASSERT_EQUAL( chess::Position(), badPos );
+	}
+	void FindKingMove()
+	{
+		TestScope scope( "FindKingMove" );
 		chess::Board	chess;
 		int quality;
 
 		// find move for king
-		{
-			chess.generateFromString(
-				"     K  "
-				"     d  "
-				"        "
-				"     k  "
-				"        "
-				"        "
-				"        "
-				"        "
-				"W"
-			);
-			chess::King *king = chess.getCurKing();
-			const chess::PotentialDestinations &targets = king->getPossible();
-			UT_ASSERT_EQUAL(targets.numTargets, 1);
-			UT_ASSERT_EQUAL(targets.hasCaptures, 1);
+		chess.generateFromString(
+			"     K  "
+			"     d  "
+			"        "
+			"     k  "
+			"        "
+			"        "
+			"        "
+			"        "
+			"W"
+		);
+		chess::King *king = chess.getCurKing();
+		const chess::PotentialDestinations &targets = king->getPossible();
+		UT_ASSERT_EQUAL(targets.numTargets, 1);
+		UT_ASSERT_EQUAL(targets.hasCaptures, true);
 
-			chess.findBest(2, &quality);
-			UT_ASSERT_EQUAL(quality, 1);
-		}
+		chess.findBest(2, &quality);
+		UT_ASSERT_EQUAL(quality, 1);
 
-		// find mate
+	}
+	void FindMate()
+	{
+		TestScope scope( "FindMate" );
+		chess::Board	chess;
+		int quality;
+		// find mate 1
 		{
-#if 0
-			chess.generateFromString(
-				"    K   "
-				"        "
-				"        "
-				"        "
-				"        "
-				"   D    "
-				"   B    "
-				"   k    "
-				"W"
-			);
-#else
 			chess.generateFromString(
 				"     K  "
 				"        "
@@ -138,11 +213,34 @@ class ChessTest : public UnitTest
 				"        "
 				"S"
 			);
-#endif
 			chess.findBest(2, &quality);
+			UT_ASSERT_EQUAL(quality, 2);
+			chess::Movement next = chess.findBest(1, &quality);
+			UT_ASSERT_EQUAL(quality, 2);
+			UT_ASSERT_EQUAL(chess.getState(), chess::csPlaying );
+			chess.performMove( next );
+			UT_ASSERT_EQUAL(chess.getState(), chess::csWhiteCheckMate );
+		}
+		// find mate 2
+		{
+			chess.generateFromString(
+				"    K   "
+				"        "
+				"        "
+				"        "
+				"        "
+				"    D   "
+				"    B   "
+				"    k   "
+				"W"
+			);
+
+			chess::Movement next = chess.findBest(3, &quality);
 			UT_ASSERT_EQUAL(quality, 1);
-			chess.findBest(1, &quality);
-			UT_ASSERT_EQUAL(quality, 1);
+			UT_ASSERT_EQUAL(next.src.col, 'e');
+			UT_ASSERT_EQUAL(next.src.row, 6);
+			UT_ASSERT_EQUAL(next.dest.col, 'e');
+			UT_ASSERT_EQUAL(next.dest.row, 5);
 		}
 		{
 			chess.generateFromString(
@@ -163,7 +261,11 @@ class ChessTest : public UnitTest
 				chess.print();
 			}
 		}
-
+	}
+	virtual void TestAGame( void )
+	{
+		TestScope scope( "TestAGame" );
+		chess::Board	chess;
 
 		const STRING start = "TSLDKLST"
 							 "BBBBBBBB"
@@ -226,7 +328,7 @@ class ChessTest : public UnitTest
 
 		chess.evaluateRange(whiteTargets, blackTargets, whiteCaptures, blackCaptures);
 		UT_ASSERT_EQUAL( 1, whiteCaptures );
-		UT_ASSERT_EQUAL( 1, blackCaptures );
+		UT_ASSERT_EQUAL( 2, blackCaptures );
 
 		// Pawn, Queen, King, Knight
 		UT_ASSERT_EQUAL( 16 + 4 + 1 + 5 + 5, whiteTargets );
@@ -342,6 +444,18 @@ class ChessTest : public UnitTest
 		// equal
 		func = chess::Position::findMoveFunc(chess::Position( 'c', 5 ), chess::Position( 'c', 5 ));
 		UT_ASSERT_EQUAL( func, chess::Position::MoveFunc(NULL) );
+	}
+
+	virtual void PerformTest( void )
+	{
+		doDisableLog();
+		//TestScope scope( "PerformTest" );
+
+		TestClone();
+		FindKingMove();
+		FindMate();
+		TestAGame();
+		TestEvaluate();
 	}
 };
 

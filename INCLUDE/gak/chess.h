@@ -48,6 +48,7 @@
 #include <gak/math.h>
 #include <gak/map.h>
 #include <gak/stopWatch.h>
+#include <gak/shared.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -96,7 +97,7 @@ static const int INIT_VALUE = BASE_VALUE + KING_VALUE;
 
 static const  int PLAYER_WINS = PROMOTED_VALUE*4;
 static const  int WHITE_WINS = PLAYER_WINS;
-static const  int BLACK_WINS = PLAYER_WINS;
+static const  int BLACK_WINS = -PLAYER_WINS;
 
 #if 1
 // for german chess. 
@@ -515,7 +516,7 @@ class Figure
 
 		return false;
 	}
-	bool isOK( const Attack &attack ) const;
+	bool isOK( const Attack &attack, unsigned maxSteps ) const;
 	const PotentialDestinations &getPossible() const
 	{
 		return m_targets;
@@ -533,10 +534,10 @@ class Figure
 	{
 		return searchAttack(m_pos, movement, ignore, stop  );
 	}
-	Attack searchAttack(const Position &ignore=Position(), const Position &stop=Position() ) const;
-	bool isAttacked(const Position &ignore, const Position &stop ) const
+	Attack searchAttack(unsigned maxStep, const Position &ignore=Position(), const Position &stop=Position() ) const;
+	bool isAttacked(const Position &ignore, const Position &stop, unsigned maxSteps=0 ) const
 	{
-		return !isOK(searchAttack(ignore,stop));
+		return !isOK(searchAttack(maxSteps, ignore,stop), maxSteps);
 	}
 
 	bool mustPromote(const Position &dest) const
@@ -554,6 +555,14 @@ class Figure
 
 class Pawn : public Figure
 {
+	int maxDistance() const
+	{
+		return m_color == White ? NUM_ROWS-getPos().row : getPos().row-1;
+	}
+	int movedRows() const
+	{
+		return m_color == White ? getPos().row-2 : (NUM_ROWS-1)-getPos().row;
+	}
 	char enPassantRow() const
 	{
 		return m_color == White ? 5 : 4;
@@ -572,7 +581,12 @@ class Pawn : public Figure
 	}
 	virtual int getValue() const
 	{
-		return PAWN_VALUE;
+		int moved = movedRows() - 3;
+		if( moved < 0 )
+		{
+			moved = 0;
+		}
+		return  PAWN_VALUE + moved;
 	}
 };
 
@@ -731,6 +745,8 @@ struct Movement
 
 typedef Array<Movement>	Movements;
 
+#if 0
+// preserve for future usage
 struct PortableMove
 {
 	char	figure;
@@ -742,6 +758,7 @@ struct PortableMove
 };
 typedef Array<PortableMove>	PortableMoves;
 typedef PairMap<STRING, PortableMoves> ChessLibrary;
+#endif
 
 class Board
 {
@@ -752,7 +769,7 @@ class Board
 	King					*m_blackK;
 	State					m_state;
 	Figure::Color			m_nextColor;
-	Movements				m_moves;
+	Movements				m_history;
 	StopWatch				m_whiteClock, m_blackClock;
 
 	public:
@@ -808,7 +825,7 @@ class Board
 
 	void clear()
 	{
-		m_moves.clear();
+		m_history.clear();
 		m_all.clear();
 		std::memset(m_board, 0, sizeof(m_board) );
 		m_whiteK = m_blackK = NULL;
@@ -821,10 +838,10 @@ class Board
 	Figure *uncheckedMove(const PlayerPos &src, const Position &dest);
 	Figure *passantMove(const PlayerPos &src, const Position &dest);
 
-	void undoMove(const Movement &move);
-	void redoMove(Movement &move);
+	void undoTmpMove(const Movement &move);
+	void tmpMove(Movement &move);
 
-	Movement findBest(int maxLevel, int *quality, bool recalcState);
+	Movement findBest(int maxLevel, int *quality, bool fromPublic);
 	static size_t findMove(const Movements &moves, const Position &src, const Position &dest );
 
 	void addPromoteMoves(Movements &moves, const Movement &moveTemplate)  const;
@@ -914,9 +931,9 @@ class Board
 		return getFigure(getIndex(pos));
 	}
 
-	const Movements &getMoves() const
+	const Movements &getHistory() const
 	{
-		return m_moves;
+		return m_history;
 	}
 
 	static size_t getIndex( char col, char row )
@@ -946,15 +963,16 @@ class Board
 
 	bool checkMoveTo( const PlayerPos &src, const Position &dest, Figure::Type newFig=Figure::ftNone ) const;
 
+	Figure *create( Figure::Color color, Figure::Type newFig, const Position &dest, bool moved );
 	void moveTo( const PlayerPos &src, const Position &dest ); 
 	void rochade( const PlayerPos &king, const PlayerPos &rook, const Position &kingDest, const Position &rookDest );
-	Figure *create( Figure::Color color, Figure::Type newFig, const Position &dest, bool moved );
 	void promote( const PlayerPos &pawn, Figure::Type newFig, const Position &dest );
 
 	Movement findBest(int maxLevel, int *quality)
 	{
 		return findBest(maxLevel, quality, true );
 	}
+	void performMove(const Movement& move);
 
 	Position checkBoard() const;
 	State getState() const
@@ -965,6 +983,9 @@ class Board
 	void print() const;
 	STRING generateString() const;
 	void generateFromString(const STRING &string );
+
+	void clone( const Board &src );
+	SharedPointer<Board> clone();
 };
 
 // --------------------------------------------------------------------- //

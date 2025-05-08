@@ -145,7 +145,7 @@ void Board::addPromoteMoves( Movements &moves, const Movement &moveTemplate ) co
 	MSVC++ cannot index this module with this member. Making it more effort to edit this file.
 	I have copied all other functions to figure.cpp and board.cpp for that reason
 */
-Figure::Attack Figure::searchAttack(const Position &ignore, const Position &stop ) const
+Figure::Attack Figure::searchAttack(unsigned maxStep, const Position &ignore, const Position &stop ) const
 {
 	static struct 
 	{
@@ -173,9 +173,9 @@ Figure::Attack Figure::searchAttack(const Position &ignore, const Position &stop
 	FOR_EACH(i,moves)
 	{
 		Attack attack = searchAttack(m_pos, moves[i].move, ignore, stop, moves[i].maxDistance );
-		if( !isOK(attack) )
+		if( !isOK(attack, maxStep) )
 		{
-		return attack;
+			return attack;
 		}
 	}
 
@@ -209,8 +209,14 @@ STRING Movement::toString() const
 				result = fig->getLetter();
 			}
 			result += src.col + formatNumber(unsigned(src.row));
+#ifndef NDEBUG
+			result += STRING('(')+formatNumber(unsigned(src.index))+')';
+#endif
 			result += captured ? 'x' : '-';
 			result += dest.col + formatNumber(unsigned(dest.row));
+#ifndef NDEBUG
+			result += STRING('(')+formatNumber(unsigned(dest.index))+')';
+#endif
 			if( promotionType )
 			{
 				result += Figure::getLetter(promotionType);
