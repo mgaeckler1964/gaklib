@@ -235,7 +235,7 @@ class ChessTest : public UnitTest
 				"W"
 			);
 
-			chess::Movement next = chess.findBest(3, &quality);
+			chess::Movement next = chess.findBest(2, &quality);
 			UT_ASSERT_EQUAL(quality, 1);
 			UT_ASSERT_EQUAL(next.src.col, 'e');
 			UT_ASSERT_EQUAL(next.src.row, 6);
@@ -260,6 +260,33 @@ class ChessTest : public UnitTest
 			{
 				chess.print();
 			}
+		}
+	}
+	void FindEscape()
+	{
+		TestScope scope( "FindEscape" );
+		chess::Board	chess;
+		int quality;
+		// find escape
+		{
+			chess.generateFromString(
+				"    K   "
+				"        "
+				"        "
+				"        "
+				"        "
+				"        "
+				"    B   "
+				"    k D "
+				"B"
+			);
+
+			chess::Movement next = chess.findBest(2, &quality);
+			UT_ASSERT_EQUAL(quality, 1);
+			UT_ASSERT_EQUAL(next.src.col, 'e');
+			UT_ASSERT_EQUAL(next.src.row, 8);
+			UT_ASSERT_EQUAL(next.dest.col, 'e');
+			UT_ASSERT_EQUAL(next.dest.row, 7);
 		}
 	}
 	virtual void TestAGame( void )
@@ -454,6 +481,7 @@ class ChessTest : public UnitTest
 		TestClone();
 		FindKingMove();
 		FindMate();
+		FindEscape();
 		TestAGame();
 		TestEvaluate();
 	}
