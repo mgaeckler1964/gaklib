@@ -179,7 +179,7 @@ enum State
 
 struct Position
 {
-	typedef Position (Position::*MoveFunc )();
+	typedef Position (Position::*MoveFunc)();
 
 	char	col;
 	char	row;
