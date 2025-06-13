@@ -217,8 +217,9 @@ extern "C"
 {
 #endif
 
-unsigned long   swaplong( unsigned long value );
-unsigned long   intlmot( unsigned long value );
+unsigned long		swaplong( unsigned long value );
+unsigned long		intlmot( unsigned long value );
+unsigned long long	uptime( void );
 
 #ifdef __cplusplus
 inline unsigned short intimot( unsigned short x )

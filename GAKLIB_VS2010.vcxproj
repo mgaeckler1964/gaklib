@@ -111,6 +111,7 @@
     <ClCompile Include="CTOOLS\tokens.c" />
     <ClCompile Include="CTOOLS\t_string.cpp" />
     <ClCompile Include="CTOOLS\unitTest.cpp" />
+    <ClCompile Include="CTOOLS\uptime.c" />
     <ClCompile Include="CTOOLS\utime.cpp" />
     <ClCompile Include="CTOOLS\waveFile.cpp" />
     <ClCompile Include="CTOOLS\wideChar.cpp" />
