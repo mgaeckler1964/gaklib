@@ -211,13 +211,8 @@ class DateTime : public Date, public Time
 	}
 	void makeNow( void )
 	{
-		time_t timer;
-
-		timer = time(NULL);
-
-		makeEntry( timer );
+		makeEntry( time(NULL) );
 	}
-
 
 	static void initTimeZone( void );
 
@@ -562,6 +557,10 @@ class DateTime : public Date, public Time
 			return tmp.Date::weekDayName();
 		}
 		return Date::weekDayName();
+	}
+	static DateTime uptime()
+	{
+		return DateTime(time(NULL) - ::uptime()/1000);
 	}
 };
 
