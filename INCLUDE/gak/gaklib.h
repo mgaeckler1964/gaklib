@@ -219,7 +219,9 @@ extern "C"
 
 unsigned long		swaplong( unsigned long value );
 unsigned long		intlmot( unsigned long value );
+#ifndef __BORLANDC__
 unsigned long long	uptime( void );
+#endif
 
 #ifdef __cplusplus
 inline unsigned short intimot( unsigned short x )

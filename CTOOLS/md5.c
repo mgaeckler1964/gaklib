@@ -288,11 +288,22 @@ void md5( unsigned char *input, int ilen, unsigned char output[16] )
 int md5_file( char *path, unsigned char output[16] )
 {
     FILE *f;
+
+	if( ( f = fopen( path, "rb" ) ) == NULL )
+	{
+		return( 1 );
+	}
+
+	return md5_file_ptr( f, output );
+}
+
+int md5_file_ptr( FILE *f, unsigned char output[16] )
+{
     size_t n;
     md5_context ctx;
     unsigned char buf[1024];
 
-	if( ( f = fopen( path, "rb" ) ) == NULL )
+	if( f == NULL )
 	{
 		return( 1 );
 	}

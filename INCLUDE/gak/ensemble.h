@@ -88,7 +88,7 @@ struct Trio : public Duo<TYPE1, TYPE2>
 {
 	TYPE3	val3;
 
-	Trio(TYPE1 val1=TYPE1(), TYPE2 val2=TYPE2(), TYPE3 val3=TYPE3() ) : Duo(val1, val2), val3(val3) {}
+	Trio(TYPE1 val1=TYPE1(), TYPE2 val2=TYPE2(), TYPE3 val3=TYPE3() ) : Duo<TYPE1, TYPE2>(val1, val2), val3(val3) {}
 };
 
 template<class TYPE1, class TYPE2, class TYPE3, class TYPE4>
@@ -96,7 +96,7 @@ struct Quartet : public Trio<TYPE1, TYPE2, TYPE3>
 {
 	TYPE4	val4;
 
-	Quartet(TYPE1 val1=TYPE1(), TYPE2 val2=TYPE2(), TYPE3 val3=TYPE3(), TYPE4 val4=TYPE4() ) : Trio(val1, val2, val3), val4(val4) {}
+	Quartet(TYPE1 val1=TYPE1(), TYPE2 val2=TYPE2(), TYPE3 val3=TYPE3(), TYPE4 val4=TYPE4() ) : Trio<TYPE1, TYPE2, TYPE3>(val1, val2, val3), val4(val4) {}
 };
 
 

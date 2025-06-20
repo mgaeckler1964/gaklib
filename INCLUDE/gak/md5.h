@@ -4,6 +4,8 @@
 #ifndef XYSSL_MD5_H
 #define XYSSL_MD5_H
 
+#include <stdio.h>
+
 /**
  * \brief          MD5 context structure
  */
@@ -65,6 +67,7 @@ void md5( unsigned char *input, int ilen, unsigned char output[16] );
  *                 or 2 if fread failed
  */
 int md5_file( char *path, unsigned char output[16] );
+int md5_file_ptr( FILE *f, unsigned char output[16] );
 
 /**
  * \brief          MD5 HMAC context setup

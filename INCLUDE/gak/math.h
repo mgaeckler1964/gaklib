@@ -279,7 +279,7 @@ template <typename NUMBER>
 struct MinMax : private Duo<NUMBER,NUMBER>
 {
 	MinMax(NUMBER first) : Duo(first, first) {}
-	MinMax() : Duo(std::numeric_limits<NUMBER>::max(), std::numeric_limits<NUMBER>::min()) {}
+	MinMax() : Duo<NUMBER,NUMBER>(std::numeric_limits<NUMBER>::max(), std::numeric_limits<NUMBER>::min()) {}
 
 	void test( NUMBER val )
 	{

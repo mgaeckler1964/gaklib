@@ -558,10 +558,12 @@ class DateTime : public Date, public Time
 		}
 		return Date::weekDayName();
 	}
+#ifndef __BORLANDC__
 	static DateTime uptime()
 	{
 		return DateTime(time(NULL) - ::uptime()/1000);
 	}
+#endif
 };
 
 // --------------------------------------------------------------------- //
