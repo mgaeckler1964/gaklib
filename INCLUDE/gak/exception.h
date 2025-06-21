@@ -423,6 +423,15 @@ class DateError : public IOerror
 	}
 };
 
+///	@brief Exception thrown if a file could not be removed
+class RemoveError : public IOerror
+{
+	public:
+	RemoveError( const STRING &fileName=NULL_STRING ) : IOerror( "Cannot remove file", fileName )
+	{
+	}
+};
+
 ///	@brief Base class for mathematic errors
 class MathError : public LibraryException
 {
