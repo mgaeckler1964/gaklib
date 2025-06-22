@@ -1,0 +1,4 @@
+This is a test document with msdos line endings CR/LF
+first
+second 
+last

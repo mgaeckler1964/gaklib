@@ -712,8 +712,8 @@ StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 			if( word.isEmpty() )
 			{
 				wordPosition = i;
-				letterCount++;
 			}
+			letterCount++;
 			word += c;
 		}
 		else if( !word.isEmpty() )

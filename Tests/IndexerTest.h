@@ -189,7 +189,7 @@ class IndexerTest : public UnitTest
 
 		writeToBinaryFile("indexer.tmp", globalIndex, 123, 1, owmOverwrite );
 		readFromBinaryFile("indexer.tmp", &globalIndex, 123, 1, false );
-		strRemove("indexer.tmp");
+		strRemoveE("indexer.tmp");
 	}
 };
 

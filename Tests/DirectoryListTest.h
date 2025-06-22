@@ -92,14 +92,14 @@ class DirectoryListTest : public UnitTest
 #if USE_LOCAL_ONLY
 	#define SEARCH_PATH "CTOOLS" DIRECTORY_DELIMITER_STRING
 #elif defined( _Windows )
-	#define SEARCH_PATH "L:\\Source\\GAKLIB\\CTOOLS\\"
+	#define SEARCH_PATH "F:\\Source\\GAKLIB\\CTOOLS\\"
 #else
 	#define SEARCH_PATH "/Source/GAKLIB/CTOOLS/"
 #endif
 		list.findFiles( SEARCH_PATH SEARCH_PATTERN );
 		
 		// the number of C++ Source files ind CTOOLS here:
-		UT_ASSERT_EQUAL( list.size(), size_t(83) );
+		UT_ASSERT_EQUAL( list.size(), size_t(89) );
 		for( 
 			DirectoryList::const_iterator it = list.cbegin(), endIT = list.cend();
 			it != endIT;

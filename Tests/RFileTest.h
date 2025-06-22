@@ -91,13 +91,10 @@ class RFileTest : public UnitTest
 	}
 	void test( const char *fName )
 	{
+		TestScope scope( fName );
 		RFILE	test;
 		STRING	tmpLine, line, secondLine;
-
-
 		test.open( fName );
-
-
 		tmpLine = test.gets(  );
 		gak::off_t	pos = test.getpos();
 

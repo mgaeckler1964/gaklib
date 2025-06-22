@@ -161,7 +161,7 @@ class AiBrainTest : public UnitTest
 		partners = cloneBrain.getPartners("Gäckler");
 		UT_ASSERT_EQUAL(partners.size(), 4UL);
 
-		strRemove(BRAINFILE);
+		strRemoveE(BRAINFILE);
 	}
 };
 

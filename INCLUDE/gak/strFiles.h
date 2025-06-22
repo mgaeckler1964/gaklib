@@ -64,6 +64,8 @@
 
 #include <gak/string.h>
 
+#include <gak/exception.h>
+
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -181,6 +183,29 @@ inline int strRename( const STRING &oldname, const STRING &newname )
 	);
 }
 #endif
+
+inline void strRemoveE( const STRING &filename )
+{
+	if( strRemove( filename ) )
+	{
+		throw RemoveError(filename);
+	}
+}
+inline void strRmdirE( const STRING &filename )
+{
+	if( strRmdir( filename ) )
+	{
+		throw RemoveError(filename);
+	}
+}
+
+inline void strRenameE( const STRING &oldname, const STRING &newname )
+{
+	if( strRename( oldname, newname ) )
+	{
+		throw RenameError(oldname, newname);
+	}
+}
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //

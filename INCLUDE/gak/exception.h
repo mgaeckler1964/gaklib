@@ -84,7 +84,7 @@ namespace gak
 class LibraryException : public std::exception
 {
 	private:
-	STRING			errorText;
+	STRING			m_errorText;
 
 	public:
 	/// error text that can be used if a NULL_STRING caused the error
@@ -94,7 +94,7 @@ class LibraryException : public std::exception
 
 	protected:
 	public:
-	LibraryException( const STRING &text ) : errorText( text )
+	LibraryException( const STRING &text ) : m_errorText( text )
 	{
 	}
 	virtual ~LibraryException() throw();
@@ -112,7 +112,7 @@ class LibraryException : public std::exception
 
 		if( !errText.isEmpty() )
 		{
-			errorText += ": " + errText;
+			m_errorText += ": " + errText;
 		}
 		return *this;
 	}
@@ -300,6 +300,15 @@ class IOerror : public LibraryException
 		if( errno )
 			addCerror();
 	}
+	IOerror( const STRING &errText, const STRING &fileName1, const STRING &fileName2 ) : LibraryException( errText )
+	{
+		if( !fileName1.isEmpty() )
+			addErrorText( fileName1 );
+		if( !fileName2.isEmpty() )
+			addErrorText( fileName2 );
+		if( errno )
+			addCerror();
+	}
 };
 
 /**
@@ -428,6 +437,15 @@ class RemoveError : public IOerror
 {
 	public:
 	RemoveError( const STRING &fileName=NULL_STRING ) : IOerror( "Cannot remove file", fileName )
+	{
+	}
+};
+
+///	@brief Exception thrown if a file could not be removed
+class RenameError : public IOerror
+{
+	public:
+	RenameError( const STRING &fileName1=NULL_STRING, const STRING &fileName2=NULL_STRING  ) : IOerror( "Cannot rename file", fileName1, fileName2 )
 	{
 	}
 };

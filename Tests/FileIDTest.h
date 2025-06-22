@@ -101,7 +101,7 @@ class FileIDTest : public UnitTest
 		FileID	destID = getFileID( dest );
 
 		UT_ASSERT_EQUAL( srcID,  destID );
-		strRemove( dest );
+		strRemoveE( dest );
 
 		if( thisFile.readOnly )
 		{
@@ -111,7 +111,7 @@ class FileIDTest : public UnitTest
 		fcopy( __FILE__, dest );
 		destID = getFileID( dest );
 		UT_ASSERT_NOT_EQUAL( srcID, destID );
-		strRemove( dest );
+		strRemoveE( dest );
 
 		bool exceptionFnd = false;
 		try

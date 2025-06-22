@@ -88,6 +88,7 @@ class FcopyTest : public UnitTest
 	}
 	void copyFileTest( const STRING &source, const STRING &targetFile, bool noSecTest )
 	{
+		TestScope	scope(source + "->" + targetFile);
 		int		errorCount = 0;
 		STRING	sourceOwner, sourceGroup;
 		STRING	targetOwner, targetGroup;
@@ -159,7 +160,7 @@ class FcopyTest : public UnitTest
 			STRING	targetFile = *it;
 			targetFile += "FcopyTest.tmp";
 			copyFileTest( __FILE__, targetFile, true );
-			copyFileTest( "TCGAKLIB.PRJ", targetFile, true );
+			copyFileTest( "LICENSE", targetFile, true );
 			copyFileTest( "GAKDLL32.DEF", targetFile, true );
 		}
 
@@ -167,10 +168,10 @@ class FcopyTest : public UnitTest
 
 		copyFileTest( __FILE__, targetFile, false );
 
-		/* this file was changed in winter time */
-		copyFileTest( "TCGAKLIB.PRJ", targetFile, false );
-
 		/* this file was changed in summer time */
+		copyFileTest( "mac.txt", targetFile, false );
+
+		/* this file was changed in winter time */
 		copyFileTest( "GAKDLL32.DEF", targetFile, false );
 
 		STRING	tmpFile = getTempPath() + DIRECTORY_DELIMITER_STRING "test.dat";

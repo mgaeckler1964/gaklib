@@ -177,10 +177,7 @@ class StreamsTest : public UnitTest
 			UT_ASSERT_EQUAL( resultArray.size(), array1Size );
 			UT_ASSERT_EQUAL( resultArray, myStrings1 );
 		}
-		if( strRemove( FILE_NAME ) )
-		{
-			throw WriteError( FILE_NAME );
-		}
+		strRemoveE( FILE_NAME );
 	}
 	void ContainerTest( void )
 	{

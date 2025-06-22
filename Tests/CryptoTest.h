@@ -204,11 +204,11 @@ class CryptoTest : public UnitTest
 		uint32 size = Crypto::getFileSize( secretFile );
 		UT_ASSERT_EQUAL( uint32(srcStat.st_size), size );
 
-		strRemove( secretFile );
-		strRemove( resultFile );
+		strRemoveE( secretFile );
+		strRemoveE( resultFile );
 
-		strRemove( cypherName + ".key_priv" );
-		strRemove( cypherName + ".key_pub" );
+		strRemoveE( cypherName + ".key_priv" );
+		strRemoveE( cypherName + ".key_pub" );
 	}
 
 	struct ArrayTEST
@@ -240,8 +240,8 @@ class CryptoTest : public UnitTest
 		uint32 size = Crypto::getFileSize( secretFile );
 		UT_ASSERT_EQUAL( size_t(srcStat.st_size), size_t(size) );
 
-		strRemove( secretFile );
-		strRemove( resultFile );
+		strRemoveE( secretFile );
+		strRemoveE( resultFile );
 
 		ArrayOfData	buffer;
 		aesEncryptString( cypher, cypher, &buffer );
@@ -293,8 +293,8 @@ class CryptoTest : public UnitTest
 		strStat( srcName, &srcStat );
 		uint32 size = Crypto::getFileSize( secretFile );
 
-		strRemove( secretFile );
-		strRemove( resultFile );
+		strRemoveE( secretFile );
+		strRemoveE( resultFile );
 
 		Array<STRING>	keys = myEncryptor.getKeyList();
 		UT_ASSERT_EQUAL( keys.size(), size_t(2) );

@@ -136,7 +136,7 @@ namespace Internal
 
 const char * LibraryException::what() const throw()
 {
-	return errorText;
+	return m_errorText;
 }
 
 // --------------------------------------------------------------------- //

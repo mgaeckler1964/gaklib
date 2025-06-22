@@ -135,9 +135,9 @@ class DirectoryTest : public UnitTest
 			result = strAccess( myFile, 06 );
 			UT_ASSERT_EQUAL( result, 0 );
 		}
-		strRemove( myFile );
+		strRemoveE( myFile );
 
-		myFile = "TCGAKLIB.PRJ";
+		myFile = "LICENSE"; // "TCGAKLIB.PRJ";
 		int result = strAccess( myFile, 06 );
 		UT_ASSERT_NOT_EQUAL( result, 0 );
 		if( result )
