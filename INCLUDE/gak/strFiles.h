@@ -4,10 +4,10 @@
 		Description:	check for UTF-8 characters in file names prior some
 						standard calls.
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2023 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -183,6 +183,21 @@ inline int strRename( const STRING &oldname, const STRING &newname )
 	);
 }
 #endif
+
+inline void strStatE( const STRING &filename, struct stat *statbuff )
+{
+	if( strStat( filename, statbuff ) )
+	{
+		throw StatReadError( filename );
+	}
+}
+inline void strUtimeE( const STRING &filename, struct utimbuf *times )
+{
+	if( strUtime( filename, times ) )
+	{
+		throw DateError( filename ).addCerror();
+	}
+}
 
 inline void strRemoveE( const STRING &filename )
 {

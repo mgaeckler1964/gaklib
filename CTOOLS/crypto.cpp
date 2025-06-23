@@ -3,10 +3,10 @@
 		Module:			crypto.cpp
 		Description:	base de- and encryption
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -257,13 +257,13 @@ void Crypto::encryptFile(
 
 	prepareEncryption();
 
-	strStat( plainFileName, &statBuff );
+	strStatE( plainFileName, &statBuff );
 
 	blockCount = statBuff.st_size / plainBlockSize +1;
 	STDfile fpPlain( plainFileName, "rb" );
 	if( fpPlain )
 	{
-		Buffer<unsigned char>	plain( malloc( (size_t)statBuff.st_size ) );
+		Buffer<unsigned char>	plain( malloc( size_t(statBuff.st_size) ) );
 		if( plain )
 		{
 			Buffer<CryptoHeader>	crypto(
@@ -276,8 +276,8 @@ void Crypto::encryptFile(
 				crypto->magic = EncryptionMagic;
 				crypto->version = EncryptionVersion;
 				crypto->headerSize = sizeof( CryptoHeader );
-				crypto->plainBlockSize = (uint16)plainBlockSize;
-				crypto->cryptoBlockSize = (uint16)cryptoBlockSize;
+				crypto->plainBlockSize = uint16(plainBlockSize);
+				crypto->cryptoBlockSize = uint16(cryptoBlockSize);
 				crypto->fileSize = statBuff.st_size;
 
 				if( fread( plain, 1, size_t(statBuff.st_size), fpPlain ) == size_t(statBuff.st_size) )
@@ -314,54 +314,46 @@ void Crypto::decryptFile(
 	const STRING &cryptoFileName, ArrayOfData *plain
 )
 {
-	struct stat 		statBuff;
-
-	size_t				size;
-
 	prepareDecryption();
 
-	int result = strStat( cryptoFileName, &statBuff );
-	if( !result )
+	struct stat statBuff;
+	strStatE( cryptoFileName, &statBuff );
+	STDfile fpCrypto( cryptoFileName, "rb" );
+	if( fpCrypto )
 	{
-		STDfile fpCrypto( cryptoFileName, "rb" );
-		if( fpCrypto )
+		Buffer<CryptoHeader>crypto( malloc( size_t(statBuff.st_size) ) );
+		if( crypto )
 		{
-			Buffer<CryptoHeader>crypto( malloc( size_t(statBuff.st_size) ) );
-			if( crypto )
+			plain->setChunkSize( size_t(statBuff.st_size) );
+			if( fread( crypto, 1, size_t(statBuff.st_size), fpCrypto ) == size_t(statBuff.st_size) )
 			{
-				plain->setChunkSize( size_t(statBuff.st_size) );
-				if( fread( crypto, 1, size_t(statBuff.st_size), fpCrypto ) == size_t(statBuff.st_size) )
+				if( crypto->magic == EncryptionMagic
+				&& 	crypto->version == EncryptionVersion
+				&&  crypto->headerSize == sizeof(CryptoHeader)
+				&&  crypto->plainBlockSize == getPlainBlockSize()
+				&&  crypto->cryptoBlockSize == getCryptoBlockSize() )
 				{
-					if( crypto->magic == EncryptionMagic
-					&& 	crypto->version == EncryptionVersion
-					&&  crypto->headerSize == sizeof(CryptoHeader)
-					&&  crypto->plainBlockSize == getPlainBlockSize()
-					&&  crypto->cryptoBlockSize == getCryptoBlockSize() )
-					{
 
-						decryptPrepBuffer(
-							reinterpret_cast<unsigned char *>(crypto+1),
-							plain,
-							statBuff.st_size-sizeof(CryptoHeader)
-						);
-						size = crypto->fileSize;
-						if( size < plain->size() )
-							plain->removeElementsAt( size, plain->size() - 1 );
-					}
-					else
-/*@*/					throw BadHeaderError( cryptoFileName );
+					decryptPrepBuffer(
+						reinterpret_cast<unsigned char *>(crypto+1),
+						plain,
+						statBuff.st_size-sizeof(CryptoHeader)
+					);
+					size_t size = crypto->fileSize;
+					if( size < plain->size() )
+						plain->removeElementsAt( size, plain->size() - 1 );
 				}
 				else
-/*@*/				throw ReadError( cryptoFileName );
+/*@*/				throw BadHeaderError( cryptoFileName );
 			}
 			else
-/*@*/			throw AllocError();
+/*@*/			throw ReadError( cryptoFileName );
 		}
 		else
-/*@*/		throw OpenReadError( cryptoFileName );
+/*@*/		throw AllocError();
 	}
 	else
-/*@*/	throw StatReadError( cryptoFileName );
+/*@*/	throw OpenReadError( cryptoFileName );
 }
 
 void Crypto::decryptFile(

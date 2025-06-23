@@ -337,17 +337,22 @@ class STRING
 		type conversion
 		-----------------------------------------------------------------------
 	*/
-	operator const char *( void ) const
+	operator const char *() const
 	{
 		return text ? text->string : "";
 	}
-	operator char * ( void ) const
+	operator char * () const
 	{
 		return text ? strdup( text->string ) : NULL;
 	}
 
+	const char *c_str() const
+	{
+		return text ? text->string : "";
+	}
+
 #ifdef __BORLANDC__
-	operator AnsiString( void ) const
+	operator AnsiString() const
 	{
 		return AnsiString( text ? text->string : "" );
 	}

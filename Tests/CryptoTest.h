@@ -200,7 +200,7 @@ class CryptoTest : public UnitTest
 		compare(srcName, resultFile);
 
 		struct stat srcStat;
-		strStat( srcName, &srcStat );
+		strStatE( srcName, &srcStat );
 		uint32 size = Crypto::getFileSize( secretFile );
 		UT_ASSERT_EQUAL( uint32(srcStat.st_size), size );
 
@@ -236,7 +236,7 @@ class CryptoTest : public UnitTest
 		compare(srcName, resultFile);
 
 		struct stat srcStat;
-		strStat( srcName, &srcStat );
+		strStatE( srcName, &srcStat );
 		uint32 size = Crypto::getFileSize( secretFile );
 		UT_ASSERT_EQUAL( size_t(srcStat.st_size), size_t(size) );
 
@@ -290,7 +290,7 @@ class CryptoTest : public UnitTest
 		compare(srcName, resultFile);
 
 		struct stat srcStat;
-		strStat( srcName, &srcStat );
+		strStatE( srcName, &srcStat );
 		uint32 size = Crypto::getFileSize( secretFile );
 
 		strRemoveE( secretFile );

@@ -3,10 +3,10 @@
 		Module:			cryptoRSA.cpp
 		Description:	RSA de- and encryption
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -374,26 +374,22 @@ void CryptoRSA::loadCypher( const STRING &iFileName, bool publicKey )
 	STRING	fileName = iFileName + (publicKey ? file_pem_pub : file_pem);
 
 	struct stat		statBuf;
-	if( !strStat( fileName, &statBuf ) )
+	strStatE( fileName, &statBuf );
+	timeStamp = statBuf.st_mtime;
+
+	STRING	pemKey;
+	pemKey.readFromFile( fileName );
+
+	if( !pemKey.isEmpty() )
 	{
-		timeStamp = statBuf.st_mtime;
-
-		STRING	pemKey;
-		pemKey.readFromFile( fileName );
-
-		if( !pemKey.isEmpty() )
-		{
-			RSA *rsa = createRSA( pemKey, publicKey );
-			if( rsa )
-				setRsa( rsa, publicKey );
-			else
-/*@*/			throw BadKeyError();
-		}
+		RSA *rsa = createRSA( pemKey, publicKey );
+		if( rsa )
+			setRsa( rsa, publicKey );
 		else
-/*@*/		throw OpenReadError( fileName );
+/*@*/		throw BadKeyError();
 	}
 	else
-/*@*/	throw StatReadError( fileName );
+/*@*/	throw OpenReadError( fileName );
 }
 
 void CryptoRSA::loadCryptedCypher(
@@ -403,23 +399,19 @@ void CryptoRSA::loadCryptedCypher(
 	STRING			fileName = iFileName + file_pem;
 	struct stat		statBuf;
 
-	if( !strStat( fileName, &statBuf ) )
-	{
-		CryptoAES		aesKey( txtCypher );
-		ArrayOfData		pemKey;
+	strStatE( fileName, &statBuf );
+	CryptoAES		aesKey( txtCypher );
+	ArrayOfData		pemKey;
 
-		timeStamp = statBuf.st_mtime;
+	timeStamp = statBuf.st_mtime;
 
-		aesKey.decryptFile( fileName, &pemKey );
+	aesKey.decryptFile( fileName, &pemKey );
 
-		RSA *rsa = createRSA( pemKey.getDataBuffer(), false );
-		if( rsa )
-			setRsa( rsa, false );
-		else
-/*@*/		throw BadKeyError();
-	}
+	RSA *rsa = createRSA( pemKey.getDataBuffer(), false );
+	if( rsa )
+		setRsa( rsa, false );
 	else
-/*@*/	throw StatReadError( fileName );
+/*@*/	throw BadKeyError();
 }
 
 
