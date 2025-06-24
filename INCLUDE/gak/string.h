@@ -886,7 +886,7 @@ class STRING
 	{
 		return text ? text->charset : STR_CS_UNKNOWN;
 	}
-	void setCharSet( STR_CHARSET charset )
+	const STRING &setCharSet( STR_CHARSET charset )
 	{
 		if( !text )
 		{
@@ -895,6 +895,7 @@ class STRING
 		}
 
 		text->charset = charset;
+		return *this;
 	}
 	STRING deCanonical( void ) const;
 	STRING convertToCharset( STR_CHARSET charset ) const;
