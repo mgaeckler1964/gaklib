@@ -205,7 +205,7 @@ void DateTime::calcTime( long tzOffset )
 long DateTime::calcTzOffset( void ) const
 {
 	long	tzOffset = -getTimezone();
-	bool	isDst = hasDst();
+	bool	isDst = hasDst(getHour());
 
 	if( isDst )
 		tzOffset += 3600;

@@ -547,9 +547,9 @@ class BasicDate
 		return since() - date.since();
 	}
 
-	bool hasDst( void ) const;
+	bool hasDst( int hour ) const;
 
-	STRING toString( void ) const;
+	STRING toString() const;
 };
 
 class Date : public BasicDate<GregorianTrait>
@@ -827,7 +827,7 @@ void BasicDate<DateTraitT>::decrement( unsigned days )
 }
 
 template<typename DateTraitT>
-bool BasicDate<DateTraitT>::hasDst( void ) const
+bool BasicDate<DateTraitT>::hasDst( int hour ) const
 {
 	if( m_month < MARCH || m_month > OCTOBER )
 	{
@@ -852,6 +852,12 @@ bool BasicDate<DateTraitT>::hasDst( void ) const
 	WeekDay wd = weekDay();
 
 	bool afterLastSunday = ( m_day-wd > 24 );
+	if( afterLastSunday && wd == SUNDAY )
+	{
+		if( m_month == MARCH ) 
+			return hour > 2;
+		return hour < 3;
+	}
 
 	return m_month == MARCH ? afterLastSunday : !afterLastSunday;
 }

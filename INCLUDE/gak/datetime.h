@@ -277,15 +277,15 @@ class DateTime : public Date, public Time
 	}
 #endif
 #ifdef _Windows
-	DateTime( const FILETIME &utcTime ) : Date( true ), Time( true )
+	explicit DateTime( const FILETIME &utcTime ) : Date( true ), Time( true )
 	{
 		initTimeZone();
 		setFileTime( utcTime );
 	}
-	DateTime( const SYSTEMTIME &sysTime ) : Date( true ), Time( true )
+	explicit DateTime( const SYSTEMTIME &sysTime, bool correct ) : Date( true ), Time( true )
 	{
 		initTimeZone();
-		setSystemTime( sysTime );
+		setSystemTime( sysTime, correct );
 	}
 	void setFileTime( const FILETIME &utcTime )
 	{
@@ -293,13 +293,15 @@ class DateTime : public Date, public Time
 
 		FileTimeToSystemTime( &utcTime, &sysTime );
 
-		setSystemTime( sysTime );
+		setSystemTime( sysTime, false );
 	}
-	void setSystemTime( const SYSTEMTIME &sysTime )
+	void setSystemTime( const SYSTEMTIME &sysTime, bool correct )
 	{
 		setDate( (unsigned char)sysTime.wDay, Month(sysTime.wMonth), sysTime.wYear );
 		setTime( (unsigned char)sysTime.wHour, (unsigned char)sysTime.wMinute, (unsigned char)sysTime.wSecond );
 		m_tzOffset = calcTzOffset();
+		if( correct )
+			calcTime(m_tzOffset);
 	}
 	void getSystemTime( SYSTEMTIME *sysTime )
 	{
@@ -513,7 +515,7 @@ class DateTime : public Date, public Time
 	}
 	STRING getLocalTime( void ) const
 	{
-		return getInetTime( -getTimezone() - (hasDst() ? -3600 : 0));
+		return getInetTime( -getTimezone() - (hasDst(getHour()) ? -3600 : 0));
 	}
 	STRING getUTCTime( void ) const
 	{
@@ -529,7 +531,7 @@ class DateTime : public Date, public Time
 	DateTime calcLocalTime( void ) const
 	{
 		DateTime tmp = *this;
-		tmp.calcTime( getTimezone()  - (hasDst() ? 3600 : 0 ) );
+		tmp.calcTime( getTimezone()  - (hasDst(getHour()) ? 3600 : 0 ) );
 
 		return tmp;
 	}
