@@ -774,8 +774,6 @@ StringIndex processPositions( const StringT &string, const StringTokens &tokens 
 		const Position  &pos = *it;
 		STRING word = string.subString( pos.m_start, pos.m_len );
 
-		Positions	&wordPositions = positions[word];
-
 		if( pos.m_flags&IS_WORD )
 		{
 			CI_STRING	simple = word.simplify();
@@ -786,17 +784,15 @@ StringIndex processPositions( const StringT &string, const StringTokens &tokens 
 			}
 			if( simple != word )
 			{
-				Positions	&wordPositions = positions[makeFuzzyIndex(simple)];
-				wordPositions.addElement(pos);
+				positions[makeFuzzyIndex(simple)].addElement(pos);
 			}
 			STRING	lower = word.lowerCaseCopy();
 			if( lower != word )
 			{
-				Positions	&wordPositions = positions[makeLowerIndex(lower)];
-				wordPositions.addElement(pos);
+				positions[makeLowerIndex(lower)].addElement(pos);
 			}
 		}
-		wordPositions.addElement(pos);
+		positions[word].addElement(pos);
 	}
 	return positions;
 }
