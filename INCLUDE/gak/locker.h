@@ -178,7 +178,7 @@ class Locker
 		@brief tries to lock this mutex
 
 		if it has been locked by another Thread, it waits for the mutex beeing freed.
-		on success the lock couznter will be incremented.
+		on success the lock counter will be incremented.
 
 		@param timeOut the max time in ms to wait for the lock beeing available
 		@return true on success
