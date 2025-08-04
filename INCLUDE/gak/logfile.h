@@ -100,17 +100,22 @@ enum LogLevel
 	llDetail, llInfo, llWarn, llError, llFatal, llNolog
 };
 
+enum ProfileMode 
+{ 
+	pm_OFF, pm_PROFILE, pm_LOGED 
+};
+
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
 class Profiler
 {
-	bool		m_active;
-	const char	*fileName;
-	int			lineNumber;
-	const char	*functionName;
-	LogLevel	level;
+	ProfileMode	m_mode;
+	const char	*m_fileName;
+	int			m_lineNumber;
+	const char	*m_functionName;
+	LogLevel	m_level;
 
 	public:
 	Profiler( LogLevel level, const char *fileName, int lineNumber, const char *functionName );
@@ -121,7 +126,8 @@ class Profiler
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-extern LogLevel g_minLevel;
+extern LogLevel g_minLogLevel;
+extern LogLevel g_minProfileLevel;
 
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
@@ -167,7 +173,7 @@ void logLine( LogLevel level, const std::string &line );
 template <typename ValueT>
 void logValue( LogLevel level, const char *fName, int lineNum, size_t callCount, const char *valName, const ValueT &val )
 {
-	if( g_minLevel > level )
+	if( g_minLogLevel > level )
 	{
 		return;
 	}
@@ -182,7 +188,7 @@ void logValue( LogLevel level, const char *fName, int lineNum, size_t callCount,
 template <>
 inline void logValue( LogLevel level, const char *fName, int lineNum, size_t callCount, const char *valName, const bool &val )
 {
-	if( g_minLevel > level )
+	if( g_minLogLevel > level )
 	{
 		return;
 	}
@@ -193,7 +199,7 @@ inline void logValue( LogLevel level, const char *fName, int lineNum, size_t cal
 #if DEBUG_LOG
 #define doLogValueEx(lvl,  val)														\
 {																					\
-	if( gakLogging::g_minLevel <= lvl )												\
+	if( gakLogging::g_minLogLevel <= lvl )												\
 	{																				\
 		static size_t callCount = 0;												\
 		gakLogging::logValue( lvl, __FILE__, __LINE__, ++callCount, #val, val );	\
@@ -211,7 +217,7 @@ inline void logValue( LogLevel level, const char *fName, int lineNum, size_t cal
 #if DEBUG_LOG
 #define doLogMessageEx(lvl,msg)															\
 {																						\
-	if( gakLogging::g_minLevel <= lvl )													\
+	if( gakLogging::g_minLogLevel <= lvl )													\
 	{																					\
 		static size_t callCount = 0;													\
 		gakLogging::logValue( lvl, __FILE__, __LINE__, ++callCount, "message", msg );	\
@@ -253,9 +259,8 @@ void logError( const char *file, int line, unsigned long dw );
 /*
 	profiling
 */
-
-bool enterFunction( LogLevel level, const char *file, int line, const char *function, bool doLogProfile );
-void exitFunction( const char *file, int line, bool doLogProfile );
+ProfileMode enterFunction( LogLevel level, const char *file, int line, const char *function );
+void exitFunction( ProfileMode mode, const char *file, int line );
 
 #if DEBUG_LOG || PROFILER
 #	define doEnterFunctionEx( lvl,x )	gakLogging::Profiler	_profiler( lvl, __FILE__, __LINE__, x )
@@ -269,11 +274,14 @@ void exitFunction( const char *file, int line, bool doLogProfile );
 	disable log levels
 */
 void enableLog( LogLevel minLevel );
+void enableProfile(LogLevel minLevel);
 void disableLog( void );
 #if DEBUG_LOG || PROFILER
+#	define doEnableProfile(lvl)	gakLogging::enableProfile(lvl)
 #	define doEnableLogEx(lvl)	gakLogging::enableLog(lvl)
 #	define doDisableLog()		gakLogging::disableLog()
 #else
+#	define doEnableProfile(lvl)	/* nothing */
 #	define doEnableLogEx(lvl)	/* nothing */
 #	define doDisableLog()		/* nothing */
 #endif
@@ -318,18 +326,18 @@ void fastLog();
 
 inline Profiler::Profiler( LogLevel level, const char *fileName, int lineNumber, const char *functionName )
 {
-	this->fileName		= fileName;
-	this->lineNumber	= lineNumber;
-	this->functionName	= functionName;
-	this->level			= level;
-	this->m_active = enterFunction( level, fileName, lineNumber, functionName, DO_LOG_PROFILE );
+	m_fileName		= fileName;
+	m_lineNumber	= lineNumber;
+	m_functionName	= functionName;
+	m_level			= level;
+	m_mode = enterFunction( level, fileName, lineNumber, functionName );
 }
 
 inline Profiler::~Profiler()
 {
-	if( m_active )
+	if( m_mode > pm_OFF )
 	{
-		exitFunction( fileName, lineNumber, DO_LOG_PROFILE );
+		exitFunction( m_mode, m_fileName, m_lineNumber );
 	}
 }
 

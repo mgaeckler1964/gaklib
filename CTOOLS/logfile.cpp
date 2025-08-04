@@ -206,7 +206,8 @@ typedef gak::PairMap<std::string, LoggingThreadPtr>	LoggingThreads;
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-LogLevel		g_minLevel			= llNolog;
+LogLevel		g_minLogLevel			= llNolog;
+LogLevel		g_minProfileLevel		= llNolog;
 
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
@@ -553,11 +554,11 @@ void LoggingThread::logLine( const LogLine &line )
 	Profiling
 ---------------------------------------------------------------------------
 */
-bool enterFunction( LogLevel level, const char *file, int line, const char *function, bool doLog )
+ProfileMode enterFunction( LogLevel level, const char *file, int line, const char *function )
 {
-	if( level < g_minLevel || s_shutdownProfile )
+	if( level < g_minProfileLevel || s_shutdownProfile )
 	{
-		return false;
+		return pm_OFF;
 	}
 
 	static bool	first = true;
@@ -606,7 +607,7 @@ bool enterFunction( LogLevel level, const char *file, int line, const char *func
 	theEntry.recursiveCall = recursiveCall;
 	logEntries.push_back(theEntry);
 
-	if( doLog )
+	if( level >= g_minLogLevel )
 	{
 		LoggingThreadPtr	&thread = getLoggingThread( fileName );
 		std::stringstream	out;
@@ -615,12 +616,14 @@ bool enterFunction( LogLevel level, const char *file, int line, const char *func
 		out.flush();
 
 		thread->pushLine( LogLine( level, out.str(), curIndent ) );
+
+		return pm_LOGED;
 	}
 
-	return true;
+	return pm_PROFILE;
 }
 
-void exitFunction( const char *file, int line, bool doLog )
+void exitFunction( ProfileMode mode, const char *file, int line )
 {
 	if( s_shutdownProfile )
 	{
@@ -640,7 +643,7 @@ void exitFunction( const char *file, int line, bool doLog )
 		clock_t				executionTimeCPU = gak::CpuTimeClock::clock()-theEntry.startTimeCPU;
 		clock_t				executionTimeReal = gak::UserTimeClock::clock()-theEntry.startTimeReal;
 
-		if( doLog )
+		if( mode >= pm_LOGED )
 		{
 			std::stringstream	out;
 			LoggingThreadPtr	&thread = getLoggingThread( fileName );
@@ -659,7 +662,7 @@ void exitFunction( const char *file, int line, bool doLog )
 		// mark entry as finished
 		logEntries.pop_back();
 	}
-	else if( doLog )
+	else if( mode >= pm_LOGED )
 	{
 		std::stringstream	out;
 		LoggingThreadPtr	&thread = getLoggingThread( fileName );
@@ -679,7 +682,7 @@ void exitFunction( const char *file, int line, bool doLog )
 
 void logFileLine( const std::string &line )
 {
-	if( llInfo < g_minLevel || s_shutdownProfile )
+	if( llInfo < g_minLogLevel || s_shutdownProfile )
 	{
 		return;
 	}
@@ -701,7 +704,7 @@ void logFileLine( const std::string &line )
 
 void logLine( LogLevel level, const std::string &line )
 {
-	if( g_minLevel > level || s_shutdownLogging )
+	if( g_minLogLevel > level || s_shutdownLogging )
 	{
 		return;
 	}
@@ -772,12 +775,19 @@ void flushLogs( void )
 */
 void disableLog( void )
 {
-	g_minLevel = llNolog;
+	g_minLogLevel = llNolog;
+	g_minProfileLevel = llNolog;
 }
 
 void enableLog( LogLevel minLevel )
 {
-	g_minLevel = minLevel;
+	g_minLogLevel = minLevel;
+	g_minProfileLevel = minLevel;
+}
+
+void enableProfile( LogLevel minLevel )
+{
+	g_minProfileLevel = minLevel;
 }
 
 void ignoreThreads( void )

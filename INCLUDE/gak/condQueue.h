@@ -130,6 +130,12 @@ class CondQueue : public LockQueue<OBJ,QueueT>
 		}
 		return true;
 	}
+	/// profiling wait
+	bool pwait( unsigned long timeOut )
+	{
+		doEnterFunctionEx(gakLogging::llInfo,"CondQueue::pwait");
+		return wait(timeOut);
+	}
 	/// decreases the lock counter and unlocks the queue if the counter is 0
 	void unlock()
 	{
