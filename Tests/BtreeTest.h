@@ -87,10 +87,12 @@ class BtreeTest : public UnitTest
 	}
 	virtual void PerformTest( void )
 	{
+		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform" );
 		Btree<int>	container;
 
 		for( size_t i=0; i<30000; i++ )
 		{
+			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::add" );
 			container += randomNumber( std::numeric_limits<int>::max() );
 //			container.addElement( int(i) );
 		}
@@ -103,6 +105,7 @@ class BtreeTest : public UnitTest
 
 			while( it != end )
 			{
+				doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while1" );
 				UT_ASSERT_LESSEQ( last, *it );
 				last = *it;
 				++it;
@@ -116,6 +119,7 @@ class BtreeTest : public UnitTest
 
 			while( it != end )
 			{
+				doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while2" );
 				UT_ASSERT_LESSEQ( last, *it );
 				last = *it;
 				++it;
@@ -129,6 +133,7 @@ class BtreeTest : public UnitTest
 
 			while( it != end )
 			{
+				doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while3" );
 				UT_ASSERT_GREATEREQ( last, *it );
 				last = *it;
 				++it;
@@ -142,6 +147,7 @@ class BtreeTest : public UnitTest
 
 			while( it != end )
 			{
+				doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while4" );
 				UT_ASSERT_GREATEREQ( last, *it );
 				last = *it;
 				++it;
@@ -149,6 +155,7 @@ class BtreeTest : public UnitTest
 		}
 		while( container.size() )
 		{
+			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while4" );
 			Btree<int>::const_reverse_iterator it = container.crbegin();
 			Btree<int>::const_reverse_iterator end = container.crend();
 			size_t	fwdCount = randomNumber( int(container.size()) );
@@ -173,6 +180,7 @@ class BtreeTest : public UnitTest
 			++it
 		)
 		{
+			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::for5" );
 			const DirectoryEntry	&listEntry = *it;
 			dirBtree.addElement( listEntry );
 			dirBtree.test();
@@ -186,6 +194,7 @@ class BtreeTest : public UnitTest
 			++it, ++i
 		)
 		{
+			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::for6" );
 			UT_ASSERT_TRUE( dirBtree.hasElement( *it ) );
 		}
 		UT_ASSERT_EQUAL( dirBtree.size(), i );
@@ -199,6 +208,7 @@ class BtreeTest : public UnitTest
 			++it, ++i
 		)
 		{
+			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::for7" );
 			UT_ASSERT_LESSEQ( lastSize, it->fileSize );
 			lastSize = it->fileSize;
 		}
@@ -206,6 +216,7 @@ class BtreeTest : public UnitTest
 
 		while( dirBtree.size() )
 		{
+			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while8" );
 			BtreeList::const_reverse_iterator it = dirBtree.crbegin();
 			BtreeList::const_reverse_iterator end = dirBtree.crend();
 			size_t	fwdCount = randomNumber( int(dirBtree.size()) );
@@ -222,6 +233,7 @@ class BtreeTest : public UnitTest
 
 		for( int i=0; i<30000; i++ )
 		{
+			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::for9" );
 			map += MyPair( i, formatNumber( randomNumber( std::numeric_limits<int>::max() ) ) );
 		}
 

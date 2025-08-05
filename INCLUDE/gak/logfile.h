@@ -3,7 +3,7 @@
 		Module:			logfile.h
 		Description:	some helper function for a logfile
 		Author:			Martin Gäckler
-		Address:		HoFmannsthalweg 14, A-4030 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
 		Copyright:		(c) 1988-2025 Martin Gäckler
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -102,7 +102,7 @@ enum LogLevel
 
 enum ProfileMode 
 { 
-	pm_OFF, pm_PROFILE, pm_LOGED 
+	pm_OFF, pm_ASYNCPROFILE, pm_PROFILE, pm_LOGED 
 };
 
 // --------------------------------------------------------------------- //
@@ -118,7 +118,7 @@ class Profiler
 	LogLevel	m_level;
 
 	public:
-	Profiler( LogLevel level, const char *fileName, int lineNumber, const char *functionName );
+	Profiler( ProfileMode pm, LogLevel level, const char *fileName, int lineNumber, const char *functionName );
 	~Profiler();
 };
 
@@ -259,11 +259,16 @@ void logError( const char *file, int line, unsigned long dw );
 /*
 	profiling
 */
+ProfileMode enterProfile( LogLevel level, const char *file, int line, const char *function );
+void exitProfile( ProfileMode mode, LogLevel level, const char *file, int line, const char *function );
+
 ProfileMode enterFunction( LogLevel level, const char *file, int line, const char *function );
 void exitFunction( ProfileMode mode, const char *file, int line );
 
-#if DEBUG_LOG || PROFILER
-#	define doEnterFunctionEx( lvl,x )	gakLogging::Profiler	_profiler( lvl, __FILE__, __LINE__, x )
+#if DEBUG_LOG
+#	define doEnterFunctionEx( lvl,x )	gakLogging::Profiler	_profiler( gakLogging::pm_PROFILE, lvl, __FILE__, __LINE__, x )
+#elif PROFILER
+#	define doEnterFunctionEx( lvl,x )	gakLogging::Profiler	_profiler( gakLogging::pm_ASYNCPROFILE, lvl, __FILE__, __LINE__, x )
 #else
 #	define doEnterFunctionEx( lvl,x )	/* nothing */
 #endif
@@ -324,20 +329,31 @@ void fastLog();
 // ----- class constructors/destructors -------------------------------- //
 // --------------------------------------------------------------------- //
 
-inline Profiler::Profiler( LogLevel level, const char *fileName, int lineNumber, const char *functionName )
+inline Profiler::Profiler( ProfileMode pm, LogLevel level, const char *fileName, int lineNumber, const char *functionName )
 {
 	m_fileName		= fileName;
 	m_lineNumber	= lineNumber;
 	m_functionName	= functionName;
 	m_level			= level;
-	m_mode = enterFunction( level, fileName, lineNumber, functionName );
+	if(pm == pm_ASYNCPROFILE)
+	{
+		m_mode = enterProfile( level, fileName, lineNumber, functionName );
+	}
+	else
+	{
+		m_mode = enterFunction( level, fileName, lineNumber, functionName );
+	}
 }
 
 inline Profiler::~Profiler()
 {
-	if( m_mode > pm_OFF )
+	if( m_mode > pm_ASYNCPROFILE )
 	{
 		exitFunction( m_mode, m_fileName, m_lineNumber );
+	}
+	else if( m_mode > pm_OFF )
+	{
+		exitProfile( m_mode, m_level, m_fileName, m_lineNumber, m_functionName );
 	}
 }
 

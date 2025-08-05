@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -112,24 +112,31 @@ static const char *s_logLevels[] =
 
 typedef std::map<const char	*, int> FunctionMap;
 
-struct ProfileLogEntry
+struct ProfileCmd
 {
 	LogLevel			logLevel;
 	const char 			*file;
 	int					line;
 	const char			*functionName;
 	gak::ThreadID		threadId;
-	int					count;
 	std::clock_t		startTimeCPU;
 	std::clock_t		startTimeReal;
+
+	bool				start;
+};
+
+struct ProfileEntry : public ProfileCmd
+{
+	int					count;
 	FunctionMap			functionMap;
 	const char			*callerFunc;
 	bool				recursiveCall;
 };
 
-typedef std::vector<ProfileLogEntry>		Summaries;
-typedef std::vector<ProfileLogEntry>		CallStack;
+typedef std::vector<ProfileEntry>			Summaries;
+typedef std::vector<ProfileEntry>			CallStack;
 typedef std::map<gak::ThreadID, CallStack>	CallStacks;
+typedef std::queue<ProfileCmd>				ProfileCmds;
 
 /*
 ---------------------------------------------------------------------------
@@ -213,9 +220,12 @@ LogLevel		g_minProfileLevel		= llNolog;
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+
 static bool	s_ignoreThread		= false;
 static bool	s_shutdownProfile	= false;
 static bool	s_shutdownLogging	= false;
+
+static ProfileCmds s_profileCmds;
 
 static bool s_flushDebug	= true;
 static bool s_asyncLog	= false;
@@ -252,11 +262,11 @@ static CallStacks &getCallStacks()
 	return *logEntries;
 }
 
-static inline CallStack &getCallStack()
+static inline CallStack &getCallStack(gak::ThreadID curThread)
 {
 	CallStacks	&logEntries = getCallStacks();
 
-	return logEntries[gak::Locker::GetCurrentThreadID()];
+	return logEntries[curThread];
 }
 
 static Summaries &getSummaryEntries()
@@ -284,7 +294,7 @@ static FILE *getCsvFp( void )
 	return fopen( tmpFile, "a" );
 }
 
-static void createSummaryEntry( const ProfileLogEntry &logEntry )
+static void createSummaryEntry( const ProfileEntry &logEntry )
 {
 	Summaries	&summaryEntries = getSummaryEntries();
 
@@ -294,7 +304,7 @@ static void createSummaryEntry( const ProfileLogEntry &logEntry )
 		++it
 	)
 	{
-		ProfileLogEntry &summary = *it;
+		ProfileEntry &summary = *it;
 		if( summary.line	 == logEntry.line
 		&&  summary.threadId == logEntry.threadId
 		&&  summary.file	 == logEntry.file
@@ -324,7 +334,7 @@ static void createSummaryEntry( const ProfileLogEntry &logEntry )
 	summaryEntries.push_back( logEntry );
 }
 
-static void exitProfile( void )
+static void writeProfilerCSV( void )
 {
 	s_shutdownProfile = true;
 
@@ -344,7 +354,7 @@ static void exitProfile( void )
 		++it
 	)
 	{
-		ProfileLogEntry		&theEntry = *it;
+		ProfileEntry		&theEntry = *it;
 		clock_t				executionTimeCPU = theEntry.startTimeCPU;
 		unsigned long		executionTimeReal = theEntry.startTimeReal;
 		fprintf(
@@ -378,6 +388,88 @@ static void exitProfile( void )
 	}
 
 	disableLog();
+}
+
+static std::size_t enterFunction2( LogLevel level, const char *file, int line, const char *function, gak::ThreadID curThread, std::clock_t cpuTime, std::clock_t userTime )
+{
+	CallStack			&logEntries = getCallStack(curThread);
+	std::size_t			curIndent = logEntries.size();
+	bool				recursiveCall = false;
+
+	// find out this is a recursive call
+	for( 
+		CallStack::iterator it = logEntries.begin(), endIT = logEntries.end();
+		it != endIT;
+		++it
+	)
+	{
+		const	ProfileCmd &logEntry = *it;
+		if( logEntry.functionName == function
+		&&  logEntry.file == file
+		&&  logEntry.line == line )
+		{
+			recursiveCall = true;
+			break;
+		}
+	}
+
+	ProfileEntry theEntry;
+	theEntry.logLevel = level;
+	theEntry.file = file;
+	theEntry.line = line;
+	theEntry.functionName = function;
+	theEntry.threadId = curThread;
+	theEntry.startTimeCPU = cpuTime;
+	theEntry.startTimeReal = userTime;
+	theEntry.callerFunc =
+		logEntries.size()
+		? logEntries.rbegin()->functionName
+		: NULL;
+	theEntry.recursiveCall = recursiveCall;
+	logEntries.push_back(theEntry);
+
+	return curIndent;
+}
+
+static void exitFunction2( gak::ThreadID curThread, std::clock_t cpuTime, std::clock_t userTime )
+{
+	CallStack			&logEntries = getCallStack(curThread);
+	std::size_t			curIndent = logEntries.size();
+
+	if( curIndent > 0 )
+	{
+		--curIndent;
+		ProfileEntry		&theEntry = logEntries[curIndent];
+		clock_t				executionTimeCPU = cpuTime-theEntry.startTimeCPU;
+		clock_t				executionTimeReal = userTime-theEntry.startTimeReal;
+
+		theEntry.startTimeCPU = executionTimeCPU;
+		theEntry.startTimeReal = executionTimeReal;
+		createSummaryEntry( theEntry );
+	}
+}
+
+
+static void performProfiler( void )
+{
+	s_shutdownProfile = true;
+	while(s_profileCmds.size() )
+	{
+		const ProfileCmd &it = s_profileCmds.front();
+		if( it.start )
+		{
+			enterFunction2(it.logLevel,it.file, it.line, it.functionName, it.threadId, it.startTimeCPU, it.startTimeReal );
+		}
+		else
+		{
+			CallStack	&logEntries = getCallStack(it.threadId);
+			exitFunction2( it.threadId, it.startTimeCPU, it.startTimeReal );
+			// mark entry as finished
+			logEntries.pop_back();
+		}
+		s_profileCmds.pop();
+	}
+	writeProfilerCSV();
 }
 
 /*
@@ -554,6 +646,58 @@ void LoggingThread::logLine( const LogLine &line )
 	Profiling
 ---------------------------------------------------------------------------
 */
+ProfileMode enterProfile( LogLevel level, const char *file, int line, const char *function )
+{
+	if( level < g_minProfileLevel || s_shutdownProfile )
+	{
+		return pm_OFF;
+	}
+
+	static bool	first = true;
+	if( first )
+	{
+		atexit( performProfiler );
+		first = false;
+	}
+
+	gak::LockGuard		lock( getLocker() );
+
+	ProfileCmd theEntry;
+	theEntry.logLevel = level;
+	theEntry.file = file;
+	theEntry.line = line;
+	theEntry.functionName = function;
+	theEntry.threadId = gak::Locker::GetCurrentThreadID();
+	theEntry.startTimeCPU = gak::CpuTimeClock::clock();
+	theEntry.startTimeReal = gak::UserTimeClock::clock();
+	theEntry.start = true;
+	s_profileCmds.push(theEntry);
+
+	return pm_ASYNCPROFILE;
+}
+
+void exitProfile( ProfileMode mode, LogLevel level, const char *file, int line, const char *function )
+{
+	if( s_shutdownProfile || mode == pm_OFF )
+	{
+		return;
+	}
+
+	gak::LockGuard		lock( getLocker() );
+
+	ProfileCmd theEntry;
+	theEntry.logLevel = level;
+	theEntry.file = file;
+	theEntry.line = line;
+	theEntry.functionName = function;
+	theEntry.threadId = gak::Locker::GetCurrentThreadID();
+	theEntry.startTimeCPU = gak::CpuTimeClock::clock();
+	theEntry.startTimeReal = gak::UserTimeClock::clock();
+	theEntry.start = false;
+	s_profileCmds.push(theEntry);
+}
+
+
 ProfileMode enterFunction( LogLevel level, const char *file, int line, const char *function )
 {
 	if( level < g_minProfileLevel || s_shutdownProfile )
@@ -564,55 +708,25 @@ ProfileMode enterFunction( LogLevel level, const char *file, int line, const cha
 	static bool	first = true;
 	if( first )
 	{
-		atexit( exitProfile );
+		atexit( writeProfilerCSV );
 		first = false;
 	}
 
 	gak::LockGuard		lock( getLocker() );
-	CallStack			&logEntries = getCallStack();
-	std::size_t			curIndent = logEntries.size();
-	gak::ThreadID		curThread = gak::Locker::GetCurrentThreadID();
-	std::string			fileName = getLogFilename( curThread );
-	bool				recursiveCall = false;
 
-	// find out this is a recursive call
-	for( 
-		CallStack::iterator it = logEntries.begin(), endIT = logEntries.end();
-		it != endIT;
-		++it
-	)
-	{
-		const	ProfileLogEntry &logEntry = *it;
-		if( logEntry.functionName == function
-		&&  logEntry.file == file
-		&&  logEntry.line == line )
-		{
-			recursiveCall = true;
-			break;
-		}
-	}
+	gak::ThreadID curThread = gak::Locker::GetCurrentThreadID();
+	std::clock_t startTimeReal = gak::UserTimeClock::clock();
+	std::size_t curIndent = enterFunction2( level, file, line, function, curThread, gak::CpuTimeClock::clock(), startTimeReal );
 
-	ProfileLogEntry theEntry;
-	theEntry.logLevel = level;
-	theEntry.file = file;
-	theEntry.line = line;
-	theEntry.functionName = function;
-	theEntry.threadId = curThread;
-	theEntry.startTimeCPU = gak::CpuTimeClock::clock();
-	theEntry.startTimeReal = gak::UserTimeClock::clock();
-	theEntry.callerFunc =
-		logEntries.size()
-		? logEntries.rbegin()->functionName
-		: NULL;
-	theEntry.recursiveCall = recursiveCall;
-	logEntries.push_back(theEntry);
 
 	if( level >= g_minLogLevel )
 	{
+		std::string		fileName = getLogFilename( curThread );
+
 		LoggingThreadPtr	&thread = getLoggingThread( fileName );
 		std::stringstream	out;
 
-		out << ">>>Enter " << function << " at " << file << ' ' << line << ":  time =" << theEntry.startTimeReal;
+		out << ">>>Enter " << function << " at " << file << ' ' << line << ":  time =" << startTimeReal;
 		out.flush();
 
 		thread->pushLine( LogLine( level, out.str(), curIndent ) );
@@ -625,26 +739,32 @@ ProfileMode enterFunction( LogLevel level, const char *file, int line, const cha
 
 void exitFunction( ProfileMode mode, const char *file, int line )
 {
-	if( s_shutdownProfile )
+	if( s_shutdownProfile || mode == pm_OFF )
 	{
 		return;
 	}
 
 	gak::LockGuard		lock( getLocker() );
-	CallStack			&logEntries = getCallStack();
-	std::size_t			curIndent = logEntries.size();
 	gak::ThreadID		curThread = gak::Locker::GetCurrentThreadID();
+	std::clock_t cpuTime = gak::CpuTimeClock::clock();
+	std::clock_t userTime = gak::UserTimeClock::clock();
+
+	exitFunction2( curThread, cpuTime, userTime );
+
+	CallStack			&logEntries = getCallStack(curThread);
+	std::size_t			curIndent = logEntries.size();
 	std::string			fileName = getLogFilename( curThread );
 
 	if( curIndent > 0 )
 	{
 		--curIndent;
-		ProfileLogEntry		&theEntry = logEntries[curIndent];
-		clock_t				executionTimeCPU = gak::CpuTimeClock::clock()-theEntry.startTimeCPU;
-		clock_t				executionTimeReal = gak::UserTimeClock::clock()-theEntry.startTimeReal;
 
 		if( mode >= pm_LOGED )
 		{
+			ProfileEntry		&theEntry = logEntries[curIndent];
+			clock_t				executionTimeCPU = cpuTime-theEntry.startTimeCPU;
+			clock_t				executionTimeReal = userTime-theEntry.startTimeReal;
+
 			std::stringstream	out;
 			LoggingThreadPtr	&thread = getLoggingThread( fileName );
 
@@ -653,11 +773,6 @@ void exitFunction( ProfileMode mode, const char *file, int line )
 
 			thread->pushLine( LogLine( theEntry.logLevel, out.str(), curIndent ) );
 		}
-
-		theEntry.startTimeCPU = executionTimeCPU;
-		theEntry.startTimeReal = executionTimeReal;
-		theEntry.count = 1;
-		createSummaryEntry( theEntry );
 
 		// mark entry as finished
 		logEntries.pop_back();
@@ -710,9 +825,9 @@ void logLine( LogLevel level, const std::string &line )
 	}
 
 	gak::LockGuard		lock( getLocker() );
-	CallStack			&logEntries = getCallStack();
-	std::size_t			curIndent = logEntries.size();
 	gak::ThreadID		curThread = gak::Locker::GetCurrentThreadID();
+	CallStack			&logEntries = getCallStack(curThread);
+	std::size_t			curIndent = logEntries.size();
 	std::string			fileName = getLogFilename( curThread );
 	LoggingThreadPtr	&thread = getLoggingThread( fileName );
 
