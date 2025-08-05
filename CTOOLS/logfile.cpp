@@ -294,7 +294,7 @@ static FILE *getCsvFp( void )
 	return fopen( tmpFile, "a" );
 }
 
-static void createSummaryEntry( const ProfileEntry &logEntry )
+static void createSummaryEntry( ProfileEntry &logEntry )
 {
 	Summaries	&summaryEntries = getSummaryEntries();
 
@@ -331,6 +331,7 @@ static void createSummaryEntry( const ProfileEntry &logEntry )
 		}
 	}
 
+	logEntry.count = 1;
 	summaryEntries.push_back( logEntry );
 }
 

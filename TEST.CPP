@@ -265,6 +265,7 @@ int main( int, const char *argv[] )
 {
 	doEnableLogEx(gakLogging::llDetail);
 	gak::F_STRING	sourcePath;
+	doEnterFunctionEx( gakLogging::llDetail, "main" );
 
 	gak::fsplit( gak::fullPath( __FILE__ ), &sourcePath );
 	if( !sourcePath.isEmpty() )
