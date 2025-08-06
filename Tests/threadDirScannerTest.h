@@ -116,9 +116,6 @@ class ParalelDirScannerTest : public UnitTest
 	}
 	virtual void PerformTest( void )
 	{
-		int argc=0;
-		char *argv[1] = {NULL};
-
 		ParalelDirScanner	myScanner("ParalelDirScannerTest", CommandLine(), 5);
 
 		myScanner("Java");

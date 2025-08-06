@@ -108,6 +108,9 @@ struct DirectoryEntry
 	uint64		fileSize;
 	DateTime	creationDate, modifiedDate, accessDate;
 	bool		directory;
+#if defined( __WINDOWS__ )
+	bool		needBackup;
+#endif
 	bool		hidden;
 	bool		readOnly;
 	FileID		fileID;
@@ -135,13 +138,18 @@ struct DirectoryEntry
 		const STRING &fName, uint64 fileSize,
 		DateTime creationDate, DateTime modifiedDate, DateTime accessDate,
 		bool directory, bool hidden, bool readOnly
+#if defined( __WINDOWS__ )
+			, bool needBackup
+#endif
 	) : fileName( fName ), creationDate(creationDate), modifiedDate(modifiedDate), accessDate(accessDate)
 	{
 		this->fileSize = fileSize;
 		this->directory = directory;
 		this->hidden = hidden;
 		this->readOnly = readOnly;
-
+#if defined( __WINDOWS__ )
+		this->needBackup = needBackup;
+#endif
 		fileID.deviceID = 0;
 		fileID.fileIndex = 0;
 		numLinks = 0;
@@ -171,6 +179,9 @@ struct DirectoryEntry
 			<< directory << ' '
 			<< hidden << ' '
 			<< readOnly << ' '
+#if defined( __WINDOWS__ )
+			<< needBackup << ' '
+#endif
 			<< fileID << ' '
 			<< numLinks << ')';
 	}
@@ -184,6 +195,9 @@ struct DirectoryEntry
 		gak::toBinaryStream( stream, directory );
 		gak::toBinaryStream( stream, hidden );
 		gak::toBinaryStream( stream, readOnly );
+#if defined( __WINDOWS__ )
+		gak::toBinaryStream( stream, needBackup );
+#endif
 		gak::toBinaryStream( stream, fileID );
 		gak::toBinaryStream( stream, numLinks );
 	}
@@ -197,6 +211,9 @@ struct DirectoryEntry
 		gak::fromBinaryStream( stream, &directory );
 		gak::fromBinaryStream( stream, &hidden );
 		gak::fromBinaryStream( stream, &readOnly );
+#if defined( __WINDOWS__ )
+		gak::fromBinaryStream( stream, &needBackup );
+#endif
 		gak::fromBinaryStream( stream, &fileID );
 		gak::fromBinaryStream( stream, &numLinks );
 	}

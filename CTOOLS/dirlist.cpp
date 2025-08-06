@@ -164,7 +164,8 @@ void DirectoryList::findFiles( const STRING &path )
 					DateTime(findDataW.ftCreationTime), DateTime(findDataW.ftLastWriteTime), DateTime(findDataW.ftLastAccessTime), 
 					findDataW.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY, 
 					findDataW.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM),
-					findDataW.dwFileAttributes & FILE_ATTRIBUTE_READONLY
+					findDataW.dwFileAttributes & FILE_ATTRIBUTE_READONLY,
+					findDataW.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE
 				)
 			);
 
