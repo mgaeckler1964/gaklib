@@ -255,6 +255,36 @@ class LockGuard
 	}
 };
 
+#if defined( _Windows )
+class Critical
+{
+	friend class CriticalScope;
+	CRITICAL_SECTION	m_cs;
+
+public:
+	Critical()
+	{
+		InitializeCriticalSection(&m_cs);
+	}
+};
+
+
+class CriticalScope
+{
+	Critical	&m_cs;
+
+public:
+	CriticalScope(Critical	&cs) : m_cs(cs)
+	{
+		EnterCriticalSection(&m_cs.m_cs);
+	}
+	~CriticalScope()
+	{
+		LeaveCriticalSection(&m_cs.m_cs);
+	}
+};
+#endif
+
 }	// namespace gak
 
 #ifdef __BORLANDC__

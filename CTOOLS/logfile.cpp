@@ -348,7 +348,7 @@ static void writeProfilerCSV( void )
 	gak::STDfile	fp( getCsvFp() );
 	assert( fp );
 
-	fprintf( fp, "%s", "file,line,function,thread,cpu time,total time,count\n" );
+	fprintf( fp, "%s", "file,line,function,thread,cpu time,total time,total/count,count\n" );
 	for( 
 		Summaries::iterator it = summaryEntries.begin(), endIT = summaryEntries.end();
 		it != endIT;
@@ -360,12 +360,13 @@ static void writeProfilerCSV( void )
 		unsigned long		executionTimeReal = theEntry.startTimeReal;
 		fprintf(
 			fp,
-			"%s,%d,\"%s\",%p,%lf,%lf,%d,",
+			"%s,%d,\"%s\",%p,%lf,%lf,%lf,%d,",
 			theEntry.file, theEntry.line,
 			theEntry.functionName,
 			(void*)theEntry.threadId,
-			(double)executionTimeCPU/(double)CLOCKS_PER_SEC,
-			(double)executionTimeReal/1000.0,
+			double(executionTimeCPU)/double(CLOCKS_PER_SEC),
+			double(executionTimeReal)/1000.0,
+			double(executionTimeReal)/theEntry.count,
 			theEntry.count
 		);
 		if( theEntry.callerFunc )
@@ -647,6 +648,10 @@ void LoggingThread::logLine( const LogLine &line )
 	Profiling
 ---------------------------------------------------------------------------
 */
+gak::Critical s_profileCritical;
+gak::Critical s_profileCmdCritical;
+gak::Critical s_logCritical;
+
 ProfileMode enterProfile( LogLevel level, const char *file, int line, const char *function )
 {
 	if( level < g_minProfileLevel || s_shutdownProfile )
@@ -661,7 +666,6 @@ ProfileMode enterProfile( LogLevel level, const char *file, int line, const char
 		first = false;
 	}
 
-	gak::LockGuard		lock( getLocker() );
 
 	ProfileCmd theEntry;
 	theEntry.logLevel = level;
@@ -672,7 +676,11 @@ ProfileMode enterProfile( LogLevel level, const char *file, int line, const char
 	theEntry.startTimeCPU = gak::CpuTimeClock::clock();
 	theEntry.startTimeReal = gak::UserTimeClock::clock();
 	theEntry.start = true;
-	s_profileCmds.push(theEntry);
+	{
+		//gak::LockGuard		lock( getLocker() );
+		gak::CriticalScope scope(s_profileCmdCritical);
+		s_profileCmds.push(theEntry);
+	}
 
 	return pm_ASYNCPROFILE;
 }
@@ -684,7 +692,6 @@ void exitProfile( ProfileMode mode, LogLevel level, const char *file, int line, 
 		return;
 	}
 
-	gak::LockGuard		lock( getLocker() );
 
 	ProfileCmd theEntry;
 	theEntry.logLevel = level;
@@ -695,7 +702,11 @@ void exitProfile( ProfileMode mode, LogLevel level, const char *file, int line, 
 	theEntry.startTimeCPU = gak::CpuTimeClock::clock();
 	theEntry.startTimeReal = gak::UserTimeClock::clock();
 	theEntry.start = false;
-	s_profileCmds.push(theEntry);
+	{
+//		gak::LockGuard		lock( getLocker() );
+		gak::CriticalScope scope(s_profileCmdCritical);
+		s_profileCmds.push(theEntry);
+	}
 }
 
 
@@ -713,7 +724,8 @@ ProfileMode enterFunction( LogLevel level, const char *file, int line, const cha
 		first = false;
 	}
 
-	gak::LockGuard		lock( getLocker() );
+	//gak::LockGuard		lock( getLocker() );
+	gak::CriticalScope scope(s_profileCritical);
 
 	gak::ThreadID curThread = gak::Locker::GetCurrentThreadID();
 	std::clock_t startTimeReal = gak::UserTimeClock::clock();
@@ -745,7 +757,8 @@ void exitFunction( ProfileMode mode, const char *file, int line )
 		return;
 	}
 
-	gak::LockGuard		lock( getLocker() );
+//	gak::LockGuard		lock( getLocker() );
+	gak::CriticalScope	scope(s_profileCritical);
 	gak::ThreadID		curThread = gak::Locker::GetCurrentThreadID();
 	std::clock_t cpuTime = gak::CpuTimeClock::clock();
 	std::clock_t userTime = gak::UserTimeClock::clock();
@@ -803,7 +816,8 @@ void logFileLine( const std::string &line )
 		return;
 	}
 
-	gak::LockGuard		lock( getLocker() );
+//	gak::LockGuard		lock( getLocker() );
+	gak::CriticalScope	scope(s_logCritical);
 	std::string			fileName = getGlobalLogFilename();
 	LoggingThreadPtr	&thread = getLoggingThread( fileName );
 	thread->pushLine( LogLine( llInfo, line, 0 ) );
@@ -825,7 +839,8 @@ void logLine( LogLevel level, const std::string &line )
 		return;
 	}
 
-	gak::LockGuard		lock( getLocker() );
+	//gak::LockGuard		lock( getLocker() );
+	gak::CriticalScope	scope(s_logCritical);
 	gak::ThreadID		curThread = gak::Locker::GetCurrentThreadID();
 	CallStack			&logEntries = getCallStack(curThread);
 	std::size_t			curIndent = logEntries.size();

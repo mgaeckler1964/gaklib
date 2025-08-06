@@ -263,9 +263,11 @@ static TemplateTest	myTemplateTest;
 
 int main( int, const char *argv[] )
 {
-	doEnableLogEx(gakLogging::llDetail);
+	//doEnableLogEx(gakLogging::llDetail);
+	doDisableLog();
+	doEnableProfile(gakLogging::llInfo); 
 	gak::F_STRING	sourcePath;
-	doEnterFunctionEx( gakLogging::llDetail, "main" );
+	doEnterFunctionEx( gakLogging::llInfo, "main" );
 
 	gak::fsplit( gak::fullPath( __FILE__ ), &sourcePath );
 	if( !sourcePath.isEmpty() )
