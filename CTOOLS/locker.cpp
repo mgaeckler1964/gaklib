@@ -125,18 +125,13 @@ bool Locker::lock( const StopWatch &sw, unsigned long timeOut )
 		m_conditional.wait( timeOut - sw.getMillis() );
 	}
 
-	if( isAvail(threadId) )
 	{
-		// lock object and if successfull increase counter
-		m_lockedBy = threadId;
-		if( !Thread::GetThreadCount() )
+		CriticalScope	scope( m_cs );
+
+		if( isAvail(threadId) )
 		{
-			m_lockCount++;
-/***/		return true;
-		}
-		Sleep( 1 );
-		if( m_lockedBy == threadId )
-		{
+			// lock object and if successfull increase counter
+			m_lockedBy = threadId;
 			m_lockCount++;
 /***/		return true;
 		}
