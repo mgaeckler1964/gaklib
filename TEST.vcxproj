@@ -141,6 +141,7 @@
     <ClInclude Include="Tests\EtaTest.h" />
     <ClInclude Include="Tests\GeoGraphTest.h" />
     <ClInclude Include="Tests\HostResolverTest.h" />
+    <ClInclude Include="Tests\LockerTest.h" />
     <ClInclude Include="Tests\LogfileTest.h" />
     <ClInclude Include="Tests\mvv.h" />
     <ClInclude Include="Tests\AlgorithmTest.h" />

@@ -126,6 +126,7 @@
 #include "Tests/IostreamTest.h"
 
 #include "Tests/LogfileTest.h"
+#include "Tests/LockerTest.h"
 
 #if !USE_LOCAL_ONLY
 #	include "Tests/SoapClientTest.h"
