@@ -80,15 +80,23 @@ namespace gak
 static const unsigned long TIMEOUT = 1000;
 struct TestThread : public Thread
 {
-	bool	m_ok;
-	Locker	&m_locker;
+	bool		m_ok;
+	bool		m_unlockAfter;
+	Locker		&m_locker;
+	StopWatch	m_sw;
 
-	TestThread(Locker &locker) : Thread(false), m_locker(locker), m_ok(false)
+	TestThread(Locker &locker, bool unlockAfter) : Thread(false), m_locker(locker), m_ok(false), m_unlockAfter(unlockAfter)
 	{}
 
 	void ExecuteThread()
 	{
+		AutoStopWatch sw(m_sw);
+
 		m_ok = m_locker.lock(TIMEOUT);
+		if( m_ok && m_unlockAfter )
+		{
+			m_locker.unlock();
+		}
 	}
 };
 
@@ -119,18 +127,55 @@ class LockerTest : public UnitTest
 		UT_ASSERT_EQUAL( locker.getLockCount(), 0 );
 
 		{
+			TestScope scope( "concurrent test with unlock" );
+
+			locker.lock();
+			TestThread	thread( locker, true );
+			thread.StartThread();
+			Sleep(TIMEOUT/2);
+			locker.unlock();
+			thread.join();
+			UT_ASSERT_TRUE( thread.m_ok );
+			UT_ASSERT_GREATER( thread.m_sw.getMillis(), clock_t(TIMEOUT)/2 );
+			UT_ASSERT_LESS( thread.m_sw.getMillis(), clock_t(TIMEOUT) );
+			UT_ASSERT_EQUAL( locker.getLockCount(), 0 );
+		}
+
+		{
+			TestScope scope( "concurrent test with timeout" );
+
 			LockGuard lg( locker );
 			UT_ASSERT_EQUAL( locker.getLockCount(), 1 );
 
-			TestThread	thread( locker );
-
+			TestThread	thread( locker, false );
 			StopWatch sw(true);
 			thread.StartThread();
 			thread.join();
-			UT_ASSERT_EQUAL( thread.m_ok, false );
+			UT_ASSERT_FALSE( thread.m_ok );
 			UT_ASSERT_GREATEREQ( sw.getMillis(), clock_t(TIMEOUT) );
 		}
 		UT_ASSERT_EQUAL( locker.getLockCount(), 0 );
+		{
+			TestScope scope( "concurrent test with already free" );
+
+			TestThread	thread( locker, false );
+			StopWatch sw(true);
+			thread.StartThread();
+			thread.join();
+			UT_ASSERT_TRUE( thread.m_ok );
+			UT_ASSERT_LESS( sw.getMillis(), clock_t(TIMEOUT) );
+		}
+		{
+			TestScope scope( "concurrent test with lock forever" );
+
+			StopWatch sw(true);
+			bool ok = locker.lock(TIMEOUT);
+			UT_ASSERT_FALSE( ok );
+			UT_ASSERT_GREATEREQ( sw.getMillis(), clock_t(TIMEOUT) );
+			UT_ASSERT_EQUAL( locker.getLockCount(), 1 );
+			locker.unlock();
+			UT_ASSERT_EQUAL( locker.getLockCount(), 1 );
+		}
 	}
 };
 

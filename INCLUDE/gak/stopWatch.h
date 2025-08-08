@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			stopWatch.h
-		Description:	
+		Description:	A stop watch for user and cpu time
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -545,10 +545,36 @@ class BasicStopWatch
 	}
 };
 
+/**
+	@brief AutoStopWatch template used to meassure execution times
+	@tparam ClockT stop watch use to meassure the execution time
+	@see CpuTimeClock, UserTimeClock
+*/
+template <typename ClockT>
+class BasicAutoStopWatch
+{
+	BasicStopWatch<ClockT> &m_sw;
+public:
+
+	BasicAutoStopWatch(BasicStopWatch<ClockT> &sw) : m_sw(sw) 
+	{
+		sw.start();
+	}
+	~BasicAutoStopWatch() 
+	{
+		m_sw.stop();
+	}
+};
+
 /// StopWatch uses a user time clock to meassure the execution time. @see BasicStopWatch
 typedef BasicStopWatch<UserTimeClock>	StopWatch;
 /// CpuStopWatch uses a cpu time clock to meassure the execution time. @see BasicStopWatch
 typedef BasicStopWatch<CpuTimeClock>	CpuStopWatch;
+
+/// AutoStopWatch uses a user time clock to meassure the execution time. @see BasicAutoStopWatch
+typedef BasicAutoStopWatch<UserTimeClock>	AutoStopWatch;
+/// CpuAutoStopWatch uses a cpu time clock to meassure the execution time. @see BasicAutoStopWatch
+typedef BasicAutoStopWatch<CpuTimeClock>	CpuAutoStopWatch;
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
