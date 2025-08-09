@@ -108,6 +108,7 @@ class LockerTest : public UnitTest
 	}
 	virtual void PerformTest( void )
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "LockerTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
 		Locker	locker;

@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			ConditionalTest.h
-		Description:	
+		Description:	Test conditionals
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -90,7 +90,7 @@ class ControllerThread : public Thread
 {
 	virtual void ExecuteThread()
 	{
-std::cout << __FILE__ << __LINE__ << Locker::GetCurrentThreadID() << std::endl;
+		doEnterFunctionEx( gakLogging::llInfo, "ControllerThread::ExecuteThread" );
 		theConditional.notify();
 		notifyCount = 1;
 		Sleep( firstSleep * 1000 );
@@ -104,12 +104,13 @@ std::cout << __FILE__ << __LINE__ << Locker::GetCurrentThreadID() << std::endl;
 
 class WorkerThread : public Thread
 {
-	virtual const char *GetClassName( void ) const
+	const char *GetClassName( void ) const
 	{
 		return "ConditionalTest";
 	}
 	virtual void ExecuteThread()
 	{
+		doEnterFunctionEx( gakLogging::llInfo, "WorkerThread::ExecuteThread" );
 		Sleep( 1000 );
 		clock_t	start = clock();
 		theConditional.wait();
@@ -140,6 +141,9 @@ class ConditionalTest : public UnitTest
 	}
 	virtual void PerformTest( void )
 	{
+		doEnterFunctionEx( gakLogging::llInfo, "ConditionalTest::PerformTest" );
+		TestScope scope( "PerformTest" );
+
 		SharedObjectPointer<ControllerThread>	controller = new ControllerThread();
 		SharedObjectPointer<WorkerThread>		worker = new WorkerThread();
 

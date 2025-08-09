@@ -119,6 +119,7 @@ class LogfileTest : public UnitTest
 	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "LogfileTest::PerformTest");
+		TestScope scope( "PerformTest" );
 
 		doLogPosition();
 		doLogPositionEx(gakLogging::llInfo);
