@@ -29,7 +29,6 @@
 		SUCH DAMAGE.
 */
 
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -79,7 +78,7 @@ namespace gak
 
 class BitFieldTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "BitFieldTest";
 	}
@@ -89,7 +88,7 @@ class BitFieldTest : public UnitTest
 		TST_BIT5, TST_BIT6, TST_BIT7, TST_BIT8,
 	} TST_BITS;
 
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "BitFieldTest::PerformTest");
 		TestScope scope( "PerformTest" );

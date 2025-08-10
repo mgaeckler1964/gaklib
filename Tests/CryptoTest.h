@@ -3,10 +3,10 @@
 		Module:			CryptoTest.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		HoFmannsthalweg 14, A-4030 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2024 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -28,7 +28,6 @@
 		OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 		SUCH DAMAGE.
 */
-
 
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
@@ -85,12 +84,15 @@ namespace gak
 
 class CryptoTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "CryptoTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "CryptoTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
 		CryptoSharedTest();
 		AesTest();
 		RsaTest();
@@ -108,11 +110,26 @@ class CryptoTest : public UnitTest
 
 	void compare( const STRING &srcName, const STRING &resultFile )
 	{
-		compareFiles<MD5Hash>(srcName, resultFile);
-		compareFiles<SHA224Hash>(srcName, resultFile);
-		compareFiles<SHA256Hash>(srcName, resultFile);
-		compareFiles<SHA384Hash>(srcName, resultFile);
-		compareFiles<SHA512Hash>(srcName, resultFile);
+		{
+			TestScope scope( "MD5Hash" );
+			compareFiles<MD5Hash>(srcName, resultFile);
+		}
+		{
+			TestScope scope( "SHA224Hash" );
+			compareFiles<SHA224Hash>(srcName, resultFile);
+		}
+		{
+			TestScope scope( "SHA256Hash" );
+			compareFiles<SHA256Hash>(srcName, resultFile);
+		}
+		{
+			TestScope scope( "SHA384Hash" );
+			compareFiles<SHA384Hash>(srcName, resultFile);
+		}
+		{
+			TestScope scope( "SHA512Hash" );
+			compareFiles<SHA512Hash>(srcName, resultFile);
+		}
 	}
 	void HashTest()
 	{

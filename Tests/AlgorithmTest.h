@@ -29,7 +29,6 @@
 		SUCH DAMAGE.
 */
 
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -104,11 +103,11 @@ class AlgorithmTest : public UnitTest
 			return double(sum)/double(cnt);
 		}
 	};
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "AlgorithmTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "AlgorithmTest::PerformTest");
 		TestScope scope( "PerformTest" );

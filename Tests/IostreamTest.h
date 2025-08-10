@@ -3,10 +3,10 @@
 		Module:			IostreamTest.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		HoFmannsthalweg 14, A-4030 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2024 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -28,7 +28,6 @@
 		OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 		SUCH DAMAGE.
 */
-
 
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
@@ -83,7 +82,7 @@ namespace gak
 
 class IOstreamTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "IOstreamTest";
 	}
@@ -138,8 +137,9 @@ class IOstreamTest : public UnitTest
 		strRemoveE( fileName );
 	}
 
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "IOstreamTest::PerformTest");
 		{
 			TestScope("TreeMap<int, STRING>");
 			TreeMap<int, STRING>	map;

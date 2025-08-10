@@ -29,7 +29,6 @@
 		SUCH DAMAGE.
 */
 
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -79,12 +78,15 @@ namespace gak
 
 class DirectoryTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "DirectoryTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "DirectoryTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
 		F_STRING	tmp = getTempPath();
 		std::cout << tmp << '\n';
 

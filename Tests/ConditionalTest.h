@@ -29,7 +29,6 @@
 		SUCH DAMAGE.
 */
 
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -104,7 +103,7 @@ class ControllerThread : public Thread
 
 class WorkerThread : public Thread
 {
-	const char *GetClassName( void ) const
+	const char *GetClassName() const
 	{
 		return "ConditionalTest";
 	}
@@ -135,11 +134,11 @@ class WorkerThread : public Thread
 
 class ConditionalTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "ConditionalTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
 		doEnterFunctionEx( gakLogging::llInfo, "ConditionalTest::PerformTest" );
 		TestScope scope( "PerformTest" );

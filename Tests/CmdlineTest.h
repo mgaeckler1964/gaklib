@@ -29,7 +29,6 @@
 		SUCH DAMAGE.
 */
 
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -81,11 +80,11 @@ namespace gak
 
 class CmdlineTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "CmdlineTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "CmdlineTest::PerformTest");
 		TestScope scope( "PerformTest" );

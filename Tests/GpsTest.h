@@ -3,10 +3,10 @@
 		Module:			GpsTest.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		HoFmannsthalweg 14, A-4030 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2024 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -28,7 +28,6 @@
 		OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 		SUCH DAMAGE.
 */
-
 
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
@@ -81,18 +80,23 @@ namespace math
 
 class GpsTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "GpsTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "GpsTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
 		PositionTest();
 		RectangleTest();
 		TileTest();
 	}
-	void PositionTest( void )
+	void PositionTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "GpsTest::PositionTest");
+
 		GpsPosition<double>	start;
 
 		start.latitude = ConvertDegree( 48, 46.686 );
@@ -152,6 +156,8 @@ class GpsTest : public UnitTest
 	}
 	void RectangleTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "GpsTest::RectangleTest");
+
 		GeoPosition<double>	left( 10, 2 );
 		GeoPosition<double>	right( 11, 22 );
 		GeoPosition<double>	sum = left + right;
@@ -182,20 +188,39 @@ class GpsTest : public UnitTest
 	}
 	void TileTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "GpsTest::TileTest");
+
 		tileid_t tileId = GeoPosition<double>::getTileID(-179.9, -89.9);
 		UT_ASSERT_EQUAL( tileId, tileid_t(0) );
 
-		TileTest(0, 0);					// atlantic ocean
-		TileTest(-180, 0);				// pacific ocean
-		TileTest(-180, -90);			// south pole
-
-		TileTest(179.99, 90);			// north pole
-
-		TileTest(14.33657, 48.24250);	// where I'm living
-		TileTest(11.56187, 48.13097);	// where I was born
+		{
+			TestScope scope( "atlantic ocean" );
+			TileTest(0, 0);					// atlantic ocean
+		}
+		{
+			TestScope scope( "pacific ocean" );
+			TileTest(-180, 0);				// pacific ocean
+		}
+		{
+			TestScope scope( "south pole" );
+			TileTest(-180, -90);			// south pole
+		}
+		{
+			TestScope scope( "north pole" );
+			TileTest(179.99, 90);			// north pole
+		}
+		{
+			TestScope scope( "where I'm living" );
+			TileTest(14.33657, 48.24250);	// where I'm living
+		}
+		{
+			TestScope scope( "where I was born" );
+			TileTest(11.56187, 48.13097);	// where I was born
+		}
 	}
 	void TileTest( double longitude, double latitude )
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "GpsTest::TileTest( double longitude, double latitude )");
 		tileid_t tileId = GeoPosition<double>::getTileID(longitude, latitude);
 		GeoPosition<double> lowerLeft;
 		GeoPosition<double> upperRight;

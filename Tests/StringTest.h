@@ -29,7 +29,6 @@
 		SUCH DAMAGE.
 */
 
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -80,12 +79,15 @@ namespace gak
 
 class StringTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "StringTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "StringTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
 		UT_ASSERT_TRUE( checkData() );
 
 		ConstructorTest();
@@ -381,7 +383,7 @@ class StringTest : public UnitTest
 			UT_ASSERT_EXCEPTION( text.getValueE<float>(), ExponentUnderflowError );
 		}
 	}
-	void SizeTests( void )
+	void SizeTests()
 	{
 		STRING	test;
 		UT_ASSERT_EQUAL( size_t(0), test.strlen() );
@@ -390,7 +392,7 @@ class StringTest : public UnitTest
 		test = "1234567890";
 		UT_ASSERT_EQUAL( size_t(10), test.strlen() );
 	}
-	void ConstructorTest( void )
+	void ConstructorTest()
 	{
 		{
 			STRING	defaultString;
@@ -493,7 +495,7 @@ class StringTest : public UnitTest
 			UT_ASSERT_EQUAL( size_t(1), test1.getUsageCount() );
 		}
 	}
-	void ModifyingTests( void )
+	void ModifyingTests()
 	{
 		{
 			const char *testText1 = "012345ABC6789";
@@ -736,7 +738,7 @@ class StringTest : public UnitTest
 			UT_ASSERT_TRUE( result.isEmpty() );
 		}
 	}
-	void OtherTests( void )
+	void OtherTests()
 	{
 		{
 			STRING		myTest = "Hello World";

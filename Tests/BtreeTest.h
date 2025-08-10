@@ -29,7 +29,6 @@
 		SUCH DAMAGE.
 */
 
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -81,13 +80,15 @@ namespace gak
 
 class BtreeTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "BtreeTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
 		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform" );
+		TestScope scope( "PerformTest" );
+
 		Btree<int>	container;
 
 		for( size_t i=0; i<30000; i++ )

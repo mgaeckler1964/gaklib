@@ -29,7 +29,6 @@
 		SUCH DAMAGE.
 */
 
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -82,7 +81,7 @@ namespace gak
 
 class FcopyTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "FcopyTest";
 	}
@@ -146,8 +145,11 @@ class FcopyTest : public UnitTest
 
 		// remove( targetFile );
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "FcopyTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
 		ArrayOfStrings	usbDrives;
 
 		getUSBdrives( &usbDrives );

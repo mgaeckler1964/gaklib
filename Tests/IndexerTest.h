@@ -3,7 +3,7 @@
 		Module:			IndexerTest.h
 		Description:	unit test for indexer
 		Author:			Martin Gäckler
-		Address:		HoFmannsthalweg 14, A-4030 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
 		Copyright:		(c) 1988-2025 Martin Gäckler
@@ -28,7 +28,6 @@
 		OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 		SUCH DAMAGE.
 */
-
 
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
@@ -79,12 +78,15 @@ namespace gak
 
 class IndexerTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "IndexerTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "IndexerTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
 		const char		*searchWord1 = "the";
 		const char		*searchWord2 = "of";
 		const char		*searchWord3 = "brown";

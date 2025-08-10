@@ -29,7 +29,6 @@
 		SUCH DAMAGE.
 */
 
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -102,11 +101,11 @@ struct TestThread : public Thread
 
 class LockerTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "LockerTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "LockerTest::PerformTest");
 		TestScope scope( "PerformTest" );
