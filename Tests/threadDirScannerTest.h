@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -110,12 +110,15 @@ struct ProcessorType<STRING>
 
 class ParalelDirScannerTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "ParalelDirScannerTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "ParalelDirScannerTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
 		ParalelDirScanner	myScanner("ParalelDirScannerTest", CommandLine(), 5);
 
 		myScanner("Java");

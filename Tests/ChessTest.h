@@ -79,12 +79,13 @@ namespace gak
 
 class ChessTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "ChessTest";
 	}
 	void TestEvaluate()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "ChessTest::TestEvaluate");
 		TestScope scope( "TestEvaluate" );
 		chess::Board	chess;
 		chess.generateFromString(
@@ -145,6 +146,7 @@ class ChessTest : public UnitTest
 	}
 	void TestClone()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "ChessTest::TestClone");
 		TestScope scope( "TestClone" );
 		chess::Board	chess1;
 
@@ -170,6 +172,7 @@ class ChessTest : public UnitTest
 	}
 	void FindKingMove()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "ChessTest::FindKingMove");
 		TestScope scope( "FindKingMove" );
 		chess::Board	chess;
 		int quality;
@@ -197,6 +200,7 @@ class ChessTest : public UnitTest
 	}
 	void FindMate()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "ChessTest::FindMate");
 		TestScope scope( "FindMate" );
 		chess::Board	chess;
 		int quality;
@@ -264,6 +268,7 @@ class ChessTest : public UnitTest
 	}
 	void FindEscape()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "ChessTest::FindEscape");
 		TestScope scope( "FindEscape" );
 		chess::Board	chess;
 		int quality;
@@ -289,8 +294,9 @@ class ChessTest : public UnitTest
 			UT_ASSERT_EQUAL(next.dest.row, 7);
 		}
 	}
-	virtual void TestAGame( void )
+	virtual void TestAGame()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "ChessTest::TestAGame");
 		TestScope scope( "TestAGame" );
 		chess::Board	chess;
 
@@ -473,10 +479,10 @@ class ChessTest : public UnitTest
 		UT_ASSERT_EQUAL( func, chess::Position::MoveFunc(NULL) );
 	}
 
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
-		doDisableLog();
-		//TestScope scope( "PerformTest" );
+		doEnterFunctionEx(gakLogging::llInfo, "ChessTest::PerformTest");
+		TestScope scope( "PerformTest" );
 
 		TestClone();
 		FindKingMove();

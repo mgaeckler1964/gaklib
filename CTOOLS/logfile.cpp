@@ -389,6 +389,7 @@ static void writeProfilerCSV( void )
 		fputc( '\n', fp );
 	}
 
+	summaryEntries.clear();
 	disableLog();
 }
 

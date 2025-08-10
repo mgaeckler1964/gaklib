@@ -87,7 +87,11 @@ class StopWatchTest : public UnitTest
 		TestScope scope( "PerformTest" );
 		{
 			const int		sleepTime = 900;
+#ifdef NDEBUG
 			const int		allowdOffset = 6;
+#else
+			const int		allowdOffset = 16;
+#endif
 			const clock_t	minTime = sleepTime - allowdOffset;
 			const clock_t	maxTime = sleepTime + allowdOffset;
 
