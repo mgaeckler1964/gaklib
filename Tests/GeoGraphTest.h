@@ -3,10 +3,10 @@
 		Module:			GeoGraphTest.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -83,14 +83,16 @@ class GeoGraphTest : public UnitTest
 {
 	MvvGraph	theMVV;
 
-
 	public:
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "GeoGraphTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "GeoGraphTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
 		math::Rectangle< math::GeoPosition<double> > bbox = theMVV.getBoundingBox();
 		UT_ASSERT_EQUAL( theMVV.minLon, bbox.topLeft.longitude );
 		UT_ASSERT_EQUAL( theMVV.maxLat, bbox.topLeft.latitude );

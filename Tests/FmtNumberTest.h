@@ -3,10 +3,10 @@
 		Module:			FmtNumberTest.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -79,12 +79,15 @@ namespace gak
 
 class FmtNumberTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "FmtNumberTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "FmtNumberTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
 		UT_ASSERT_EQUAL( STRING("999.999990000000025"), formatNumber( 999.999990000000025 ) );
 		UT_ASSERT_EQUAL( STRING("99.999999000000003"), formatNumber( 99.999999000000003 ) );
 		UT_ASSERT_EQUAL( STRING("9.999999900000001"), formatNumber( 9.999999900000001 ) );
@@ -142,8 +145,6 @@ class FmtNumberTest : public UnitTest
 	}
 };
 
-
-
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -153,7 +154,6 @@ class FmtNumberTest : public UnitTest
 // --------------------------------------------------------------------- //
 
 static FmtNumberTest myFmtNumberTest;
-
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //

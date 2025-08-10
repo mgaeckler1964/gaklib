@@ -79,13 +79,15 @@ namespace gak
 
 class PriorityQueueTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "PriorityQueueTest";
 	}
 
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "PriorityQueueTest::PerformTest");
+		TestScope scope( "PerformTest" );
 		{
 			TestScope scope("PriorityQueue");
 			simpleTest<PriorityQueue<Priority> >();
