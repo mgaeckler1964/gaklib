@@ -77,11 +77,11 @@ namespace gak
 
 class StopWatchTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "StopWatchTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "StopWatchTest::PerformTest");
 		TestScope scope( "PerformTest" );

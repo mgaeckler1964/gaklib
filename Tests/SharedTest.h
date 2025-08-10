@@ -3,10 +3,10 @@
 		Module:			SharedTest.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -79,17 +79,21 @@ namespace gak
 
 class SharedTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "SharedTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "SharedTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
 		SharedObjectPointerTest();
 		SharedPointerTest();
 	}
-	void SharedObjectPointerTest( void )
+	void SharedObjectPointerTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "SharedTest::SharedObjectPointerTest");
 		{
 			SharedObjectPointer<MySharedObject>	first = new MySharedObject( 666 );
 			UT_ASSERT_EQUAL( 1, MySharedObject::s_objectCount );
@@ -126,8 +130,9 @@ class SharedTest : public UnitTest
 		}
 		UT_ASSERT_EQUAL( 0, MySharedObject::s_objectCount );
 	}
-	void SharedPointerTest( void )
+	void SharedPointerTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "SharedTest::SharedPointerTest");
 		{
 			SharedPointer<MyObject>	first = SharedPointer<MyObject>::makeShared( MyObject( 666 ) );
 			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
