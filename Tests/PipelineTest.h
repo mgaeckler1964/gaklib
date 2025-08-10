@@ -3,10 +3,10 @@
 		Module:			PipelineTest.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -81,12 +81,11 @@ const char pipeTestText[] = "the quick brown fox jumps over the lazy dog";
 
 class PipelineTest : public UnitTest
 {
-
 	class Producer : public ProducerThread
 	{
-		const char *GetClassName( void ) const
+		const char *GetClassName() const
 		{
-			return "PipelineTest";
+			return "PipelineTest::Producer";
 		}
 		public:
 		Producer( oRingStream &cout ) : ProducerThread( cout )
@@ -94,6 +93,7 @@ class PipelineTest : public UnitTest
 		}
 		virtual void ExecuteThread( oRingStream &cout )
 		{
+			doEnterFunctionEx(gakLogging::llInfo, "Producer::ExecuteThread");
 			Sleep( 5000 );
 			for( const char *cp = pipeTestText; *cp; ++cp )
 			{
@@ -105,9 +105,9 @@ class PipelineTest : public UnitTest
 	};
 	class Filter : public FilterThread
 	{
-		const char *GetClassName( void ) const
+		const char *GetClassName() const
 		{
-			return "PipelineTest";
+			return "PipelineTest::Filter";
 		}
 		public:
 		Filter( iRingStream &cin, oRingStream &cout ) : FilterThread( cin, cout )
@@ -115,6 +115,7 @@ class PipelineTest : public UnitTest
 		}
 		virtual void ExecuteThread( iRingStream &cin, oRingStream &cout )
 		{
+			doEnterFunctionEx(gakLogging::llInfo, "Filter::ExecuteThread");
 			cin.unsetf( std::ios_base::skipws );
 			size_t	numData = 0;
 			const char *cp = pipeTestText;
@@ -139,9 +140,9 @@ class PipelineTest : public UnitTest
 
 	class Consumer : public ConsumerThread
 	{
-		const char *GetClassName( void ) const
+		const char *GetClassName() const
 		{
-			return "PipelineTest";
+			return "PipelineTest::Consumer";
 		}
 		public:
 		Consumer( iRingStream &cin ) : ConsumerThread( cin )
@@ -149,6 +150,7 @@ class PipelineTest : public UnitTest
 		}
 		virtual void ExecuteThread( iRingStream &cin )
 		{
+			doEnterFunctionEx(gakLogging::llInfo, "Consumer::ExecuteThread");
 			cin.unsetf( std::ios_base::skipws );
 			size_t	numData = 0;
 			const char *cp = pipeTestText;
@@ -170,12 +172,15 @@ class PipelineTest : public UnitTest
 		}
 	};
 
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "PipelineTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "PipelineTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
 		Pipe							buffer1(5);
 		Pipe							buffer2(5);
 		SharedObjectPointer<Producer>	producer = new Producer( buffer1.getOutStream() );

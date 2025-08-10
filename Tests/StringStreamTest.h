@@ -3,10 +3,10 @@
 		Module:			StringStreamTest.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -81,12 +81,14 @@ namespace gak
 
 class StrStreamTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	virtual const char *GetClassName() const
 	{
 		return "StrStreamTest";
 	}
-	virtual void PerformTest( void )
+	virtual void PerformTest()
 	{
+		doEnterFunctionEx(gakLogging::llInfo, "StrStreamTest::PerformTest");
+		TestScope scope( "PerformTest" );
 		{
 			STRING			theResult;
 			oSTRINGstream	output( theResult );
@@ -151,16 +153,18 @@ class StrStreamTest : public UnitTest
 			}
 #endif
 		}
-		test<std::vector<char>,		oVectorStream,	iVectorStream>	();
-		test<std::vector<wchar_t>,	woVectorStream,	wiVectorStream>	();
-		test<Array<char>,			oArrayStream,	iArrayStream>	();
-		test<Array<wchar_t>,		woArrayStream,	wiArrayStream>	();
-		test<STRING,				oSTRINGstream,	iSTRINGstream>	();
-		test<uSTRING,				woSTRINGstream,	wiSTRINGstream>	();
+		test<std::vector<char>,		oVectorStream,	iVectorStream>	("<std::vector<char>, oVectorStream, iVectorStream>");
+		test<std::vector<wchar_t>,	woVectorStream,	wiVectorStream>	("<std::vector<wchar_t>, woVectorStream, wiVectorStream>");
+		test<Array<char>,			oArrayStream,	iArrayStream>	("<Array<char>, oArrayStream, iArrayStream>");
+		test<Array<wchar_t>,		woArrayStream,	wiArrayStream>	("<Array<wchar_t>, woArrayStream, wiArrayStream>");
+		test<STRING,				oSTRINGstream,	iSTRINGstream>	("<STRING, oSTRINGstream, iSTRINGstream>");
+		test<uSTRING,				woSTRINGstream,	wiSTRINGstream>	("<uSTRING, woSTRINGstream, wiSTRINGstream>");
 	}
 	template <class ContainerT, class oStreamT, class iStreamT>
-	void test( void ) const
+	void test( const char *iScope ) const
 	{
+		TestScope scope( iScope );
+
 		int			myTmp;
 		ContainerT	buffer;
 		oStreamT	output( buffer );
