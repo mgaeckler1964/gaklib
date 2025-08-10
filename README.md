@@ -1,12 +1,12 @@
-GAKLIB (c) 1988 - 2024 by Martin Gäckler
+GAKLIB (c) 1988 - 2025 by Martin Gäckler
 ========================================
 
 Funktionsbibliothek mit vielen nützlichen Funktionen.
 
 Bitte beachte, die Bibliothek wird seit 1988 entwickelt. Angefangen hat es auf 
 einen Atari ST mit Turbo C. Viele nützliche Funktionen werden in der 
-Zwischenzeit schon von der Standardbibliothek abgedeckt. Das Vorhandenseit 
-manchen Funktionen ist aber aus historischen Gründen noch geboten.
+Zwischenzeit schon von der Standardbibliothek abgedeckt. Das Vorhandensein 
+von manchen Funktionen ist aber aus historischen Gründen noch geboten.
 
 Die Bibliothek wird mit folgenen Umgebungen übersetzt:
 
