@@ -81,29 +81,37 @@ namespace gak
 static Locker	g_locker;
 static size_t	g_count = 0;
 
+static ArrayOfStrings	g_filesFound;
+
 template <>
 struct ProcessorType<STRING>
 {
 	typedef STRING object_type;
 
-	void increment()
+	bool increment( const STRING &file )
 	{
 		LockGuard guard( g_locker );
 
 		if( guard )
 		{
 			g_count++;
+			g_filesFound.push_back( file );
+			return true;
 		}
 		else
 		{
 			doLogMessageEx( gakLogging::llError, "Cannot lock" );
+			return false;
 		}
 	}
 	void process( const STRING &fileName )
 	{
 		doEnterFunctionEx(gakLogging::llDetail,"ProcessorType<IndexSourcePtr>::process");
 		doLogValueEx( gakLogging::llDetail, fileName );
-		increment();
+		if( !increment(fileName) )
+		{
+			std::cout << "Failed " <<  fileName << std::endl;
+		}
 	}
 };
 
@@ -123,7 +131,13 @@ class ParalelDirScannerTest : public UnitTest
 
 		myScanner("Java");
 
+		// We expect to find these 4 files in this sort order (it is sorted by name):
 		UT_ASSERT_EQUAL(g_count,4);
+		UT_ASSERT_EQUAL(g_filesFound.size(),4);
+		UT_ASSERT_EQUAL(g_filesFound[0],"Java\\com\\gaklib\\Lock.java");
+		UT_ASSERT_EQUAL(g_filesFound[1],"Java\\com\\gaklib\\MessageBox.java");
+		UT_ASSERT_EQUAL(g_filesFound[2],"Java\\gaklib.jpr");
+		UT_ASSERT_EQUAL(g_filesFound[3],"Java\\gaklib.jpr.local");
 	}
 };
 
