@@ -190,6 +190,7 @@
     <ClInclude Include="Tests\SleeperTest.h" />
     <ClInclude Include="Tests\SoapClientTest.h" />
     <ClInclude Include="Tests\StopWatchTest.h" />
+    <ClInclude Include="Tests\strcmpiTest.h" />
     <ClInclude Include="Tests\StreamsTest.h" />
     <ClInclude Include="Tests\StringStreamTest.h" />
     <ClInclude Include="Tests\StringTest.h" />

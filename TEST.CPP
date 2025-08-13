@@ -58,6 +58,8 @@
 #include <gak/unitTest.h>
 #include <gak/directory.h>
 
+#include "Tests/strcmpiTest.h"
+
 #include "Tests/ChessTest.h"
 #include "Tests/RandomTest.h"
 #include "Tests/EnsembleTest.h"
