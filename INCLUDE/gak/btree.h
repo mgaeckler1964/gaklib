@@ -70,6 +70,10 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+#ifdef __BORLANDC__
+#define nullptr NULL
+#endif
+
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -124,22 +128,52 @@ class Btree : public Container
 		{
 			return isPrevBalanced( nextCount, prevCount );
 		}
-		size_t testCount( size_t level )
+		bool testCount()
 		{
+			size_t	prevCount = m_prev ? m_prev->m_count : 0;
+			size_t	nextCount = m_next ? m_next->m_count : 0;
+
+			bool result = ( prevCount + nextCount + 1 == m_count );
+			assert(result);
+			return result;
+		}
+		bool testEdges()
+		{
+			bool result = testCount();
+			if( m_prev )
+				result = result && m_prev->testCount();
+
+			if( m_next )
+				result = result && m_next->testCount();
+
+			return result;
+		}
+		bool testCount( size_t level )
+		{
+			bool result = true; 
 			level++;
-			size_t	prevCount = m_prev ? m_prev->testCount( level ) : 0;
-			size_t	nextCount = m_next ? m_next->testCount( level ) : 0;
 
-			assert( prevCount + nextCount + 1 == m_count );
+			size_t	prevCount = 0;
+			size_t	nextCount = 0;
+			if(m_prev)
+			{
+				prevCount = m_prev->m_count;
+				result = result && m_prev->testCount( level );
+			}
+			if(m_next)
+			{
+				nextCount = m_next->m_count;
+				result = result && m_next->testCount( level );
+			}
 
-			return m_count;
+			result = result && (prevCount + nextCount + 1 == m_count);
+			assert( result );
+
+			return result;
 		}
 		bool testBalance( size_t level )
 		{
 			level++;
-			size_t	prevCount = m_prev ? m_prev->m_count : 0;
-			size_t	nextCount = m_next ? m_next->m_count : 0;
-
 			if( m_prev && !m_prev->testBalance( level ) )
 			{
 				return false;
@@ -149,10 +183,15 @@ class Btree : public Container
 				return false;
 			}
 
-			assert( isPrevBalanced( prevCount, nextCount ) );
-			assert( isNextBalanced( nextCount, prevCount ) );
+			size_t	prevCount = m_prev ? m_prev->m_count : 0;
+			size_t	nextCount = m_next ? m_next->m_count : 0;
 
-			return true;
+			bool result = isPrevBalanced( prevCount, nextCount );
+			assert( result );
+			result = result && isNextBalanced( nextCount, prevCount );
+			assert( result );
+
+			return result;
 		}
 		size_t testDepth( size_t level )
 		{
@@ -174,19 +213,24 @@ class Btree : public Container
 		}
 		bool testPointer( size_t level )
 		{
+			bool result = true;
 			level++;
 			if( m_prev )
 			{
-				assert( m_prev->m_parent == this );
-				assert( m_prev->testPointer( level ) );
+				result = result && ( m_prev->m_parent == this );
+				assert( result );
+				result = result && ( m_prev->testPointer( level ) );
+				assert( result );
 			}
 			if( m_next )
 			{
-				assert( m_next->m_parent == this );
-				assert( m_next->testPointer( level ) );
+				result = result && ( m_next->m_parent == this );
+				assert( result );
+				result = result && ( m_next->testPointer( level ) );
+				assert( result );
 			}
 
-			return true;
+			return result;
 		}
 		Node()
 		{
@@ -216,13 +260,13 @@ class Btree : public Container
 		Node *getPrev() const;
 
 		template <class FunctionT>
-		void checkBalance( Node **root, const FunctionT &compare  );
+		static void checkBalance( Node **rootPtr, const FunctionT &compare  );
 
 		template <class FunctionT>
 		void addNode2Child( Node *newNode, Node **root, const FunctionT &compare );
 
 		template <class FunctionT>
-		void addNode( Node *newNode, Node **root, const FunctionT &compare );
+		static void addNode( Node *newNode, Node **rootPtr, const FunctionT &compare );
 
 		template <class FunctionT>
 		Node *unlinkSelf( const FunctionT &compare );
@@ -231,24 +275,48 @@ class Btree : public Container
 		void unlinkChild( Node *node, const FunctionT &compare );
 
 		template <class KEY, class FunctionT>
-		Node *findNode( const KEY &key, const FunctionT &compare  ) const
+		Node *findNode( const KEY &key, const FunctionT &compare, int *oCompareResult=nullptr ) const
 		{
 			int compareResult = compare( this->m_data, key );
 			if( compareResult > 0 )			// i'm greater
 			{
-				return m_prev ? m_prev->findNode( key, compare ) : NULL;
+				if( m_prev )
+				{
+					return m_prev->findNode( key, compare, oCompareResult );
+				}
+				else if(oCompareResult)
+				{
+					*oCompareResult = compareResult;
+					return const_cast<Node *>(this);
+				}
+				return NULL;
 			}
 			else if( compareResult < 0 )	// i'm smaller
 			{
-				return m_next ? m_next->findNode( key, compare ) : NULL;
+				if( m_next )
+				{
+					return m_next->findNode( key, compare, oCompareResult );
+				}
+				else if(oCompareResult)
+				{
+					*oCompareResult = compareResult;
+					return const_cast<Node *>(this);
+				}
+				return NULL;
 			}
 			else
 			{
+				if(oCompareResult)
+				{
+					*oCompareResult = compareResult;
+				}
 				return const_cast<Node *>(this);
 			}
 		}
 		template <class KEY, class FunctionT>
 		Node *findMinNode( const KEY &key, const FunctionT &compare  ) const;
+
+		/// TODO Find a usecase
 		template <class KEY, class FunctionT>
 		Node *findMaxNode( const KEY &key, const FunctionT &compare  ) const;
 	};
@@ -363,21 +431,7 @@ class Btree : public Container
 		@param [in] data the new item
 		@return the new copied item
 	*/
-	OBJ &addElement( const OBJ &data )
-	{
-		Node	*newNode = new Node( data );
-		if( m_root )
-		{
-			m_root->addNode( newNode, &m_root, m_comparator );
-		}
-		else
-		{
-			m_root = newNode;
-		}
-		incNumElements();
-
-		return newNode->m_data;
-	}
+	OBJ &addElement( const OBJ &data );
 
 	/**
 		@brief adds a new element to the buffer
@@ -463,9 +517,9 @@ class Btree : public Container
 	/// @name Searching
 	///@{
 	private:
-	Node *findNode( const OBJ &data ) const
+	Node *findNode( const OBJ &data, int *oCompareResult=nullptr ) const
 	{
-		return m_root ? m_root->findNode( data, m_comparator ) : NULL;
+		return m_root ? m_root->findNode( data, m_comparator, oCompareResult ) : NULL;
 	}
 	Node *findMinNode( const OBJ &data ) const
 	{
@@ -476,7 +530,7 @@ class Btree : public Container
 	/// return true if a given value is available
 	bool hasElement( const OBJ &data ) const
 	{
-		return findNode( data ) != NULL;
+		return findNode( data, nullptr ) != NULL;
 	}
 	/**
 		@brief searches for a value
@@ -840,20 +894,34 @@ class Btree : public Container
 	///@}
 
 	/// used for internal testing
-	size_t test( bool noBalance = false )
+	bool test( size_t *oDepth, bool withBalance=true )
 	{
-		assert( (m_root ? m_root->testCount( 0 ) : 0) == size() );
-
-		if( FACTOR && OFFSET && !noBalance && m_root )
+		bool result = true;
+		
+		if( m_root )
 		{
-			assert( m_root->testBalance( 0 ) );
+			result = m_root->testCount( 0 ) ;
+			assert( result );
+
+			result = result && (m_root->m_count == size());
+			assert( result );
 		}
 
-		assert( m_root ? m_root->testPointer( 0 ) : true );
-		size_t depth = m_root ? m_root->testDepth( 0 ) : 0;
-		assert( depth < 10000 );
+		if( FACTOR && OFFSET && m_root && withBalance )
+		{
+			result = result && m_root->testBalance( 0 );
+			assert( result );
+		}
 
-		return depth;
+		result = result && ( m_root ? m_root->testPointer( 0 ) : true );
+		assert( result );
+
+		size_t depth = m_root ? m_root->testDepth( 0 ) : 0;
+		result = result && ( depth < 10000 );
+		*oDepth = depth;
+		assert( result );
+
+		return result;
 	}
 };
 
@@ -992,13 +1060,13 @@ typename Btree<OBJ,Comparator, FACTOR, OFFSET>::Node *Btree<OBJ,Comparator, FACT
 		if( m_prev->m_count < m_next->m_count )
 		{
 			m_prev->m_parent = NULL;
-			m_next->addNode( m_prev, &m_next, compare );
+			addNode( m_prev, &m_next, compare );
 			newRoot = m_next;
 		}
 		else
 		{
 			m_next->m_parent = NULL;
-			m_prev->addNode( m_next, &m_prev, compare );
+			addNode( m_next, &m_prev, compare );
 			newRoot = m_prev;
 		}
 		newRoot->m_parent = NULL;
@@ -1060,55 +1128,60 @@ template <class OBJ, class Comparator, int FACTOR, int OFFSET>
 	template <class FunctionT>
 void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::checkBalance( Node **root, const FunctionT &compare  )
 {
-	size_t prevCount = m_prev ? m_prev->m_count : 0;
-	size_t nextCount = m_next ? m_next->m_count : 0;
-	assert( !m_parent || &m_parent->m_prev == root || &m_parent->m_next == root );
+	assert( root );
+	assert( *root );
+	Node * const thisRoot = *root;
 
-	if( !isPrevBalanced( prevCount, nextCount ) )
+	size_t prevCount = thisRoot->m_prev ? thisRoot->m_prev->m_count : 0;
+	size_t nextCount = thisRoot->m_next ? thisRoot->m_next->m_count : 0;
+	assert( !thisRoot->m_parent || &thisRoot->m_parent->m_prev == root || &thisRoot->m_parent->m_next == root );
+	assert( thisRoot->testEdges() );
+
+	if( !thisRoot->isPrevBalanced( prevCount, nextCount ) )
 	{
 		// add previous tree to next tree
-		if( m_prev )
+		if( thisRoot->m_prev )
 		{
-			m_prev->m_parent = NULL;
-			m_next->addNode( m_prev, &m_next, compare  );
-			assert( m_next->m_count == m_count-1 );
-			m_prev = NULL;
+			thisRoot->m_prev->m_parent = NULL;
+			addNode( thisRoot->m_prev, &thisRoot->m_next, compare  );
+			assert( thisRoot->m_next->m_count == thisRoot->m_count-1 );
+			thisRoot->m_prev = NULL;
 		}
 
 		// move next to root
-		*root = m_next;
-		m_next->m_parent = m_parent;
+		*root = thisRoot->m_next;
+		thisRoot->m_next->m_parent = thisRoot->m_parent;
 
 		// remove me from tree
-		m_next = NULL;
-		m_parent = NULL;
-		m_count = 1;
+		thisRoot->m_next = NULL;
+		thisRoot->m_parent = NULL;
+		thisRoot->m_count = 1;
 
 		// add myself to the new root
-		(*root)->addNode( this, root, compare  );
+		addNode( thisRoot, root, compare  );
 	}
-	else if( !isNextBalanced( nextCount, prevCount ) )
+	else if( !thisRoot->isNextBalanced( nextCount, prevCount ) )
 	{
 		// add next tree to previous tree
-		if( m_next )
+		if( thisRoot->m_next )
 		{
-			m_next->m_parent = NULL;
-			m_prev->addNode( m_next, &m_prev, compare );
-			assert( m_prev->m_count == m_count-1 );
-			m_next = NULL;
+			thisRoot->m_next->m_parent = NULL;
+			addNode( thisRoot->m_next, &thisRoot->m_prev, compare );
+			assert( thisRoot->m_prev->m_count == thisRoot->m_count-1 );
+			thisRoot->m_next = NULL;
 		}
 
 		// move prev to root
-		*root = m_prev;
-		m_prev->m_parent = m_parent;
+		*root = thisRoot->m_prev;
+		thisRoot->m_prev->m_parent = thisRoot->m_parent;
 
 		// remove me from tree
-		m_prev = NULL;
-		m_parent = NULL;
-		m_count = 1;
+		thisRoot->m_prev = NULL;
+		thisRoot->m_parent = NULL;
+		thisRoot->m_count = 1;
 
 		// add myself to the new root
-		(*root)->addNode( this, root, compare  );
+		addNode( thisRoot, root, compare  );
 	}
 
 	// assert( testCount( 0 ) );
@@ -1123,7 +1196,7 @@ void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::addNode2Child( Node *newNode, 
 	if( *root )
 	{
 		//assert( (*root)->testCount( 0 ) );
-		(*root)->addNode( newNode, root, compare );
+		addNode( newNode, root, compare );
 		//assert( (*root)->testCount( 0 ) );
 
 	}
@@ -1224,34 +1297,37 @@ typename Btree<OBJ,Comparator, FACTOR, OFFSET>::Node *Btree<OBJ,Comparator, FACT
 
 template <class OBJ, class Comparator, int FACTOR, int OFFSET>
 	template <class FunctionT>
-void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::addNode( Node *newNode, Node **root, const FunctionT &compare )
+void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::addNode( Node *newNode, Node **rootPtr, const FunctionT &compare )
 {
 	assert( newNode );
 	assert( !newNode->m_parent );
 	//assert( newNode->testCount( 0 ) );
+	assert( rootPtr );
+	assert( *rootPtr );
+	Node * const thisRoot = *rootPtr;
 
-	m_count += newNode->m_count;
+	thisRoot->m_count += newNode->m_count;
 
-	int compareResult = compare( newNode->m_data, m_data );
+	int compareResult = compare( newNode->m_data, thisRoot->m_data );
 	if( compareResult < 0 )
 	{
-		addNode2Child( newNode, &m_prev, compare  );
+		thisRoot->addNode2Child( newNode, &thisRoot->m_prev, compare  );
 	}
 	else if( compareResult > 0 )
 	{
-		addNode2Child( newNode, &m_next, compare  );
+		thisRoot->addNode2Child( newNode, &thisRoot->m_next, compare  );
 	}
 	else
 	{
-		size_t prevCount = m_prev ? m_prev->m_count : 0;
-		size_t nextCount = m_next ? m_next->m_count : 0;
+		size_t prevCount = thisRoot->m_prev ? thisRoot->m_prev->m_count : 0;
+		size_t nextCount = thisRoot->m_next ? thisRoot->m_next->m_count : 0;
 		if( nextCount < prevCount )
 		{
-			addNode2Child( newNode, &m_next, compare  );
+			thisRoot->addNode2Child( newNode, &thisRoot->m_next, compare  );
 		}
 		else
 		{
-			addNode2Child( newNode, &m_prev, compare  );
+			thisRoot->addNode2Child( newNode, &thisRoot->m_prev, compare  );
 		}
 	}
 
@@ -1259,7 +1335,7 @@ void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::addNode( Node *newNode, Node *
 #	pragma warn -8008
 #endif
 	if( FACTOR && OFFSET )
-		checkBalance( root, compare  );
+		checkBalance( rootPtr, compare  );
 #if defined( __BORLANDC__ )
 #	pragma warn .8008
 #endif
@@ -1269,10 +1345,65 @@ void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::addNode( Node *newNode, Node *
 template <class OBJ, class Comparator, int FACTOR, int OFFSET>
 void Btree<OBJ,Comparator, FACTOR, OFFSET>::removeElement( const OBJ &data )
 {
-	Node *node = findNode( data );
+	Node *node = findNode( data, nullptr );
 	if( node )
 	{
 		removeElement( node );
+	}
+}
+
+
+template <class OBJ, class Comparator, int FACTOR, int OFFSET>
+OBJ &Btree<OBJ,Comparator, FACTOR, OFFSET>::addElement( const OBJ &data )
+{
+	if( m_root )
+	{
+		int compareResult;
+		Node *existing = m_root->findNode(data, m_comparator, &compareResult );
+		if( compareResult )
+		{
+			assert( existing->testCount() );
+			Node *newNode = new Node( data );
+			if( compareResult < 0 )
+			{
+				existing->m_next = newNode;
+			}
+			else // if( compareResult > 0 )
+			{
+				existing->m_prev = newNode;
+			}
+			newNode->m_parent = existing;
+			do
+			{
+				existing->m_count++;
+
+				if(existing->m_prev)
+				{
+					Node::checkBalance(&existing->m_prev, m_comparator );
+				}
+				if( existing->m_next )
+				{
+					Node::checkBalance(&existing->m_next, m_comparator );
+				}
+
+				assert( existing->testCount() );
+				existing = existing->m_parent;
+			}
+			while( existing );
+			incNumElements();
+			Node::checkBalance(&m_root, m_comparator );
+			return newNode->m_data;
+		}
+		else
+		{
+			return existing->m_data;
+		}
+	}
+	else
+	{
+		m_root = new Node( data );
+		incNumElements();
+		return m_root->m_data;
 	}
 }
 
@@ -1354,7 +1485,7 @@ void Btree<OBJ, Comparator, FACTOR, OFFSET>::resort( void )
 			current->m_parent->unlinkChild( current, m_comparator );
 		}
 
-		newRoot->addNode( current, &newRoot, m_comparator );
+		Node::addNode( current, &newRoot, m_comparator );
 		current = next;
 	}
 

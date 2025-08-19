@@ -35,7 +35,7 @@
     <IDLCFLAGS value="-IBORLAND -ICTOOLS -I$(BCB)\include -I$(BCB)\include\vcl -I$(BCB)\ocx 
       -IVCLcomp -Iinclude -Ic:\openssl\include\. 
       -I&quot;C:\Program Files (x86)\OpenSSL\include\.&quot; -src_suffix cpp -D_DEBUG -boa"/>
-    <CFLAG1 value="-Od -w -Vx -Ve -Tkh30000 -X- -r- -a8 -6 -b- -d -k -y -v -vi- -tWC -tWM -c"/>
+    <CFLAG1 value="-Od -Q -w -Vx -Ve -Tkh30000 -X- -r- -a8 -6 -b- -d -k -y -v -vi- -tWC -tWM -c"/>
     <PFLAGS value="-N2..\..\object\gaklib\test\bcb -N0..\..\object\gaklib\test\bcb -$Y+ -$W 
       -$O- -$I- -$C- -v -M -JPHNE"/>
     <RFLAGS value=""/>
@@ -123,7 +123,7 @@ RemotePath=
 RemoteDebug=0
 
 [Compiler]
-ShowInfoMsgs=0
+ShowInfoMsgs=1
 LinkDebugVcl=1
 LinkCGLIB=0
 

@@ -154,7 +154,8 @@ class DirectoryListTest : public UnitTest
 			UT_ASSERT_LESSEQ( lastSize, it->fileSize );
 			lastSize = it->fileSize;
 		}
-		UT_ASSERT_TRUE( list.test() );
+		size_t test;
+		UT_ASSERT_TRUE( list.test(&test) );
 		UT_ASSERT_EQUAL( list.size(), i );
 
 		std::cout << "Testing Array" << std::endl;

@@ -98,8 +98,9 @@ class PerformanceTest : public UnitTest
 		}
 		clock_t endTime = clock() - startTime;
 		std::cout << "Btree " << numData << ',' << endTime << std::endl;
-		std::cout << "Depth: " << myBtree.test() << std::endl;
-
+		size_t depth;
+		myBtree.test(&depth);
+		std::cout << "Depth: " << depth << std::endl;
 		myArray.setCapacity( numData, true );
 		startTime = clock();
 		for( size_t i=0; i<numData; i++ )

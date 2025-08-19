@@ -86,20 +86,20 @@ namespace gak
 	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem " != NULL", "NULL", bool(testItem != NULL) )
 
 #define UT_ASSERT_RANGE( min, val, max )		\
-	assertRange( GetClassName(), __FILE__, __LINE__, #min "<=" #val "<=" #max, min, val, max )
+	gak::assertRange( GetClassName(), __FILE__, __LINE__, #min "<=" #val "<=" #max, min, val, max )
 
 #define UT_ASSERT_EQUAL( i1, i2 )		\
-	assertEqual( GetClassName(), __FILE__, __LINE__, #i1 "==" #i2, i1, i2 )
+	gak::assertEqual( GetClassName(), __FILE__, __LINE__, #i1 "==" #i2, i1, i2 )
 #define UT_ASSERT_NOT_EQUAL( i1, i2 )		\
-	assertNotEqual( GetClassName(), __FILE__, __LINE__, #i1 "!=" #i2, i1, i2 )
+	gak::assertNotEqual( GetClassName(), __FILE__, __LINE__, #i1 "!=" #i2, i1, i2 )
 #define UT_ASSERT_LESS( i1, i2 )		\
-	assertLess( GetClassName(), __FILE__, __LINE__, #i1 "<" #i2, i1, i2 )
+	gak::assertLess( GetClassName(), __FILE__, __LINE__, #i1 "<" #i2, i1, i2 )
 #define UT_ASSERT_LESSEQ( i1, i2 )		\
-	assertLessEqual( GetClassName(), __FILE__, __LINE__, #i1 "<=" #i2, i1, i2 )
+	gak::assertLessEqual( GetClassName(), __FILE__, __LINE__, #i1 "<=" #i2, i1, i2 )
 #define UT_ASSERT_GREATER( i1, i2 )		\
-	assertGreater( GetClassName(), __FILE__, __LINE__, #i1 ">" #i2, i1, i2 )
+	gak::assertGreater( GetClassName(), __FILE__, __LINE__, #i1 ">" #i2, i1, i2 )
 #define UT_ASSERT_GREATEREQ( i1, i2 )		\
-	assertGreaterEqual( GetClassName(), __FILE__, __LINE__, #i1 ">=" #i2, i1, i2 )
+	gak::assertGreaterEqual( GetClassName(), __FILE__, __LINE__, #i1 ">=" #i2, i1, i2 )
 
 #define UT_ASSERT_EXCEPTION( expr, Except )	\
 { \

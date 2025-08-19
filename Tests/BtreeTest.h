@@ -84,23 +84,40 @@ class BtreeTest : public UnitTest
 	{
 		return "BtreeTest";
 	}
-	virtual void PerformTest()
+
+	template <int FACTOR, int OFFSET>
+	void ContainerTest()
 	{
-		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform" );
-		TestScope scope( "PerformTest" );
-
-		Btree<int>	container;
-
-		for( size_t i=0; i<30000; i++ )
+		typedef Btree<int,FixedComparator<int>, FACTOR, OFFSET>	MyBtree;
+		MyBtree container;
+		const size_t innerLoopCount = 1;
+		const size_t outerLoopCount = 1;
+		const size_t numItems = 16000;
+		const bool orderedAdd = true;
+		size_t depth;
+		for( size_t l1=0; l1<outerLoopCount; ++l1 )
 		{
-			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::add" );
-			container += randomNumber( std::numeric_limits<int>::max() );
-//			container.addElement( int(i) );
+			for( size_t i=0; i<numItems; i++ )
+			{
+				for( size_t l2=0; l2<innerLoopCount; ++l2 )
+				{
+					doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::add" );
+					if( orderedAdd )
+					{
+						container.addElement( int(i) );
+					}
+					else
+					{
+						container += randomNumber( std::numeric_limits<int>::max() );
+					}
+					//container.test(true);
+				}
+			}
 		}
-
+		UT_ASSERT_TRUE( container.test(&depth) );
 		{
-			Btree<int>::iterator it = container.begin();
-			Btree<int>::iterator end = container.end();
+			MyBtree::iterator it = container.begin();
+			MyBtree::iterator end = container.end();
 			int	last = *it;
 			++it;
 
@@ -113,8 +130,8 @@ class BtreeTest : public UnitTest
 			} 
 		}
 		{
-			Btree<int>::const_iterator it = container.cbegin();
-			Btree<int>::const_iterator end = container.cend();
+			MyBtree::const_iterator it = container.cbegin();
+			MyBtree::const_iterator end = container.cend();
 			int	last = *it;
 			++it;
 
@@ -127,8 +144,8 @@ class BtreeTest : public UnitTest
 			} 
 		}
 		{
-			Btree<int>::reverse_iterator it = container.rbegin();
-			Btree<int>::reverse_iterator end = container.rend();
+			MyBtree::reverse_iterator it = container.rbegin();
+			MyBtree::reverse_iterator end = container.rend();
 			int last = *it;
 			++it;
 
@@ -141,8 +158,8 @@ class BtreeTest : public UnitTest
 			} 
 		}
 		{
-			Btree<int>::const_reverse_iterator it = container.crbegin();
-			Btree<int>::const_reverse_iterator end = container.crend();
+			MyBtree::const_reverse_iterator it = container.crbegin();
+			MyBtree::const_reverse_iterator end = container.crend();
 			int last = *it;
 			++it;
 
@@ -154,11 +171,12 @@ class BtreeTest : public UnitTest
 				++it;
 			} 
 		}
+		UT_ASSERT_TRUE( container.test(&depth) );
 		while( container.size() )
 		{
 			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while4" );
-			Btree<int>::const_reverse_iterator it = container.crbegin();
-			Btree<int>::const_reverse_iterator end = container.crend();
+			MyBtree::const_reverse_iterator it = container.crbegin();
+			MyBtree::const_reverse_iterator end = container.crend();
 			size_t	fwdCount = randomNumber( int(container.size()) );
 
 			for( size_t idx = 0; idx < fwdCount && it != end; ++it, ++idx ) 
@@ -166,7 +184,27 @@ class BtreeTest : public UnitTest
 			if( it != end )
 				container.removeElement( *it );
 			if( !(container.size() % 1000 ) )
-				std::cout << "Depth: " << container.test(true) << std::endl;
+			{
+				UT_ASSERT_TRUE( container.test(&depth, false) );
+				std::cout << "Depth: " << depth << std::endl;
+			}
+		}
+	}
+
+	virtual void PerformTest()
+	{
+		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform" );
+
+		TestScope scope( "PerformTest" );
+
+		{
+			TestScope scope( "<10,5>" );
+			ContainerTest<10,5>();
+		}
+
+		{
+			TestScope scope( "<2,5>" );
+			ContainerTest<2,5>();
 		}
 
 		typedef Btree<DirectoryEntry, DynamicComparator<DirectoryEntry> >	BtreeList;
@@ -184,7 +222,8 @@ class BtreeTest : public UnitTest
 			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::for5" );
 			const DirectoryEntry	&listEntry = *it;
 			dirBtree.addElement( listEntry );
-			dirBtree.test();
+			size_t depth;
+			UT_ASSERT_TRUE( dirBtree.test(&depth) );
 		}
 
 		UT_ASSERT_EQUAL( dirBtree.size(), dirList.size() );
@@ -226,7 +265,8 @@ class BtreeTest : public UnitTest
 				;
 			if( it != end )
 				dirBtree.removeElement( *it );
-			dirBtree.test( true );
+			size_t depth;
+			UT_ASSERT_TRUE( dirBtree.test( &depth, false ) );
 		}
 
 		TreeMap<int,STRING>						map;

@@ -154,7 +154,7 @@ class STDfile
 template <class TYPE>
 class Buffer
 {
-	TYPE	*buff;
+	TYPE	*m_buff;
 
 	// do not copy
 	Buffer( const Buffer &src );
@@ -170,28 +170,39 @@ class Buffer
 	*/
 	Buffer( void *buff )
 	{
-		this->buff = static_cast<TYPE*>(buff);
+		m_buff = static_cast<TYPE*>(buff);
+	}
+	/**
+		@brief Constructs a pointer object from an allocated memory.
+
+		The buffer wull be allocated with std::malloc
+
+		@param [in] size the size of the memory buffer to allocate
+	*/
+	Buffer( size_t size )
+	{
+		m_buff = static_cast<TYPE*>(::malloc(size));
 	}
 	/// Destructor, frees the memory block
 	~Buffer()
 	{
-		if( buff )
-			::free( buff );
+		if( m_buff )
+			::free( m_buff );
 	}
 	/// Returns true if pointer is valid
 	operator bool ( void )
 	{
-		return buff != NULL;
+		return m_buff != NULL;
 	}
 	/// Returns a pointer to TYPE
 	operator TYPE * ( void )
 	{
-		return buff;
+		return m_buff;
 	}
 	/// Returns a pointer to TYPE
 	TYPE *operator -> ( void )
 	{
-		return buff;
+		return m_buff;
 	}
 	/**
 		@brief Returns a pointer to an index element
@@ -199,7 +210,7 @@ class Buffer
 	*/
 	TYPE *operator + ( int offset )
 	{
-		return buff + offset;
+		return m_buff + offset;
 	}
 	/**
 		@brief Returns a const pointer to an index element
@@ -207,21 +218,30 @@ class Buffer
 	*/
 	const TYPE *operator + ( int offset ) const
 	{
-		return buff + offset;
+		return m_buff + offset;
 	}
 	/// Frees the memory block
 	void free( void )
 	{
-		if( buff )
+		if( m_buff )
 		{
-			::free( buff );
+			::free( m_buff );
 			buff = NULL;
 		}
 	}
 	/// resizes the buffer
 	void resize(size_t newSize)
 	{
-		buff = static_cast<TYPE*>(realloc(buff, newSize));
+		m_buff = static_cast<TYPE*>(realloc(m_buff, newSize));
+	}
+
+	/// returns the pointer and clear the pointer
+	TYPE *prepareMove()
+	{
+		TYPE *buff = m_buff;
+		m_buff = nullptr;
+
+		return buff;
 	}
 };
 
