@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -78,9 +78,23 @@ namespace gak
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+#define ParentAssert( node ) \
+{ \
+	assert( node->m_next == nullptr || node->m_next != node->m_prev );	\
+	assert( node->m_next == nullptr || node->m_next != node->m_parent );	\
+	assert( node->m_parent == nullptr || node->m_prev != node->m_parent );	\
+	assert( (node->m_next ? node->m_next->m_parent : node) == node );	\
+	assert( (node->m_prev ? node->m_prev->m_parent : node) == node );	\
+}
+
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+enum BalanceType
+{
+	btBalanced, btPrevTooSmall, btNextTooSmall
+};
 
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
@@ -98,6 +112,8 @@ namespace gak
 template <class OBJ, class Comparator=FixedComparator<OBJ>, int FACTOR=10, int OFFSET=5>
 class Btree : public Container
 {
+	friend class BtreeTest;
+
 	public:
 	typedef Btree<OBJ, Comparator, FACTOR, OFFSET> SelfT;
 
@@ -171,6 +187,34 @@ class Btree : public Container
 
 			return result;
 		}
+		BalanceType isBalanced()
+		{
+			size_t		prevCount = 0;
+			size_t		nextCount = 0;
+
+			if( m_prev )
+			{
+				BalanceType bt = m_prev->isBalanced();
+				if( bt != btBalanced )
+/*@*/				return bt;
+				prevCount = m_prev->m_count;
+			}
+
+			if( m_next )
+			{
+				BalanceType bt = m_next->isBalanced();
+				if( bt != btBalanced )
+/*@*/				return bt;
+				nextCount = m_next->m_count;
+			}
+
+			if( !isPrevBalanced( prevCount, nextCount ) )
+/*@*/			return btPrevTooSmall;
+			else if(!isNextBalanced( nextCount, prevCount ))
+/*@*/			return btNextTooSmall;
+			return btBalanced;
+
+		}
 		bool testBalance( size_t level )
 		{
 			level++;
@@ -232,6 +276,23 @@ class Btree : public Container
 
 			return result;
 		}
+		void print( const STRING &indent )
+		{
+			std::cout << indent << "====================\n"
+					<< indent << "->" << formatBinary<void*>(this,16) << '\n'
+					<< indent << "^^" << formatBinary<void*>(m_parent,16) << '\n'
+					<< indent << m_data << '\n'
+					<< indent << '$' << m_count << '\n';
+			STRING newIndent = indent+"  ";
+			std::cout << indent << "<<" << formatBinary<void*>(m_prev,16) << '\n';
+			if( m_prev && newIndent.strlen() <= 8 )
+				m_prev->print( newIndent );
+			std::cout << indent << ">>" << formatBinary<void*>(m_next,16) << '\n';
+			if( m_next && newIndent.strlen() <= 8 )
+				m_next->print( newIndent );
+			std::cout << indent << "====================" << std::endl;
+		}
+
 		Node()
 		{
 			m_count = 1;
@@ -260,7 +321,13 @@ class Btree : public Container
 		Node *getPrev() const;
 
 		template <class FunctionT>
-		static void checkBalance( Node **rootPtr, const FunctionT &compare  );
+		static BalanceType checkBalance( Node **rootPtr, const FunctionT &compare  );
+
+		template <class FunctionT>
+		static void checkBalanceLooped( Node **rootPtr, const FunctionT &compare  );
+
+		template <class FunctionT>
+		void checkBalanceTree( const FunctionT &compare  );
 
 		template <class FunctionT>
 		void addNode2Child( Node *newNode, Node **root, const FunctionT &compare );
@@ -275,44 +342,8 @@ class Btree : public Container
 		void unlinkChild( Node *node, const FunctionT &compare );
 
 		template <class KEY, class FunctionT>
-		Node *findNode( const KEY &key, const FunctionT &compare, int *oCompareResult=nullptr ) const
-		{
-			int compareResult = compare( this->m_data, key );
-			if( compareResult > 0 )			// i'm greater
-			{
-				if( m_prev )
-				{
-					return m_prev->findNode( key, compare, oCompareResult );
-				}
-				else if(oCompareResult)
-				{
-					*oCompareResult = compareResult;
-					return const_cast<Node *>(this);
-				}
-				return NULL;
-			}
-			else if( compareResult < 0 )	// i'm smaller
-			{
-				if( m_next )
-				{
-					return m_next->findNode( key, compare, oCompareResult );
-				}
-				else if(oCompareResult)
-				{
-					*oCompareResult = compareResult;
-					return const_cast<Node *>(this);
-				}
-				return NULL;
-			}
-			else
-			{
-				if(oCompareResult)
-				{
-					*oCompareResult = compareResult;
-				}
-				return const_cast<Node *>(this);
-			}
-		}
+		Node *findNode( const KEY &key, const FunctionT &compare, int *oCompareResult=nullptr ) const;
+
 		template <class KEY, class FunctionT>
 		Node *findMinNode( const KEY &key, const FunctionT &compare  ) const;
 
@@ -894,6 +925,30 @@ class Btree : public Container
 	///@}
 
 	/// used for internal testing
+	private:
+	void setRoot( Node *newRoot )
+	{
+		if( m_root )
+		{
+			delete m_root;
+			m_root = 0;
+			setNumElements(0);
+		}
+		if( newRoot )
+		{
+			m_root = newRoot;
+			setNumElements(newRoot->m_count);
+		}
+	}
+	public:
+	void print(const STRING &indent)
+	{
+		if( m_root )
+		{
+			m_root->print(indent);
+		}
+	}
+
 	bool test( size_t *oDepth, bool withBalance=true )
 	{
 		bool result = true;
@@ -922,6 +977,23 @@ class Btree : public Container
 		assert( result );
 
 		return result;
+	}
+
+	BalanceType isBalanced()
+	{
+		if( m_root )
+		{
+			return m_root->isBalanced();
+		}
+		return btBalanced;
+	}
+	void rebalance()
+	{
+		if( m_root )
+		{
+			m_root->checkBalanceTree(m_comparator);
+			Node::checkBalanceLooped(&m_root, m_comparator );
+		}
 	}
 };
 
@@ -1126,11 +1198,12 @@ void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::unlinkChild( Node *node, const
 
 template <class OBJ, class Comparator, int FACTOR, int OFFSET>
 	template <class FunctionT>
-void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::checkBalance( Node **root, const FunctionT &compare  )
+BalanceType Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::checkBalance( Node **root, const FunctionT &compare  )
 {
 	assert( root );
 	assert( *root );
 	Node * const thisRoot = *root;
+	BalanceType bt = btBalanced;
 
 	size_t prevCount = thisRoot->m_prev ? thisRoot->m_prev->m_count : 0;
 	size_t nextCount = thisRoot->m_next ? thisRoot->m_next->m_count : 0;
@@ -1159,6 +1232,7 @@ void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::checkBalance( Node **root, con
 
 		// add myself to the new root
 		addNode( thisRoot, root, compare  );
+		bt = btPrevTooSmall;
 	}
 	else if( !thisRoot->isNextBalanced( nextCount, prevCount ) )
 	{
@@ -1182,10 +1256,42 @@ void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::checkBalance( Node **root, con
 
 		// add myself to the new root
 		addNode( thisRoot, root, compare  );
+		bt = btNextTooSmall;
 	}
-
+	return bt;
 	// assert( testCount( 0 ) );
 }
+
+template <class OBJ, class Comparator, int FACTOR, int OFFSET>
+	template <class FunctionT>
+void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::checkBalanceLooped( Node **rootPtr, const FunctionT &compare  )
+{
+	BalanceType bt = checkBalance( rootPtr, compare  );
+	if( bt != btBalanced )
+	{
+		do
+		{
+		} while( checkBalance( rootPtr, compare  ) == bt );
+	}
+}
+
+
+template <class OBJ, class Comparator, int FACTOR, int OFFSET>
+	template <class FunctionT>
+void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::checkBalanceTree( const FunctionT &compare  )
+{
+	if( m_prev )
+	{
+		m_prev->checkBalanceTree(compare);
+		checkBalanceLooped(&m_prev,compare);
+	}
+	if( m_next )
+	{
+		m_next->checkBalanceTree(compare);
+		checkBalanceLooped(&m_next,compare);
+	}
+}
+
 
 template <class OBJ, class Comparator, int FACTOR, int OFFSET>
 	template <class FunctionT>
@@ -1204,6 +1310,49 @@ void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::addNode2Child( Node *newNode, 
 	{
 		*root = newNode;
 		newNode->m_parent = this;
+	}
+}
+
+template <class OBJ, class Comparator, int FACTOR, int OFFSET>
+	template <class KEY, class FunctionT>
+typename Btree<OBJ,Comparator, FACTOR, OFFSET>::Node *Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::findNode( 
+	const KEY &key, const FunctionT &compare, int *oCompareResult 
+) const
+{
+	int compareResult = compare( this->m_data, key );
+	if( compareResult > 0 )			// i'm greater
+	{
+		if( m_prev )
+		{
+			return m_prev->findNode( key, compare, oCompareResult );
+		}
+		else if(oCompareResult)
+		{
+			*oCompareResult = compareResult;
+			return const_cast<Node *>(this);
+		}
+		return NULL;
+	}
+	else if( compareResult < 0 )	// i'm smaller
+	{
+		if( m_next )
+		{
+			return m_next->findNode( key, compare, oCompareResult );
+		}
+		else if(oCompareResult)
+		{
+			*oCompareResult = compareResult;
+			return const_cast<Node *>(this);
+		}
+		return NULL;
+	}
+	else
+	{
+		if(oCompareResult)
+		{
+			*oCompareResult = compareResult;
+		}
+		return const_cast<Node *>(this);
 	}
 }
 

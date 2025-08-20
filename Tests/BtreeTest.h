@@ -74,6 +74,48 @@ namespace gak
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+struct NodeTemplate
+{
+	size_t		m_count;
+	int			m_parent, m_prev, m_next;
+	int			m_data;
+};
+
+NodeTemplate	template1[] =
+{
+//  { c, pa, pr, ne, da },
+	{ 5, -1, -1,  1, 1 },
+	{ 4,  0, -1,  2, 2 },
+	{ 3,  1, -1,  3, 3 },
+	{ 2,  2, -1,  4, 4 },
+	{ 1,  3, -1, -1, 5 },
+};
+
+NodeTemplate	template2[] =
+{
+//  { c, pa, pr, ne, da },
+	{ 10, -1,  6,  1, 100 },			// 0
+	{  8,  0, -1,  2, 200 },			// 1
+	{  7,  1,  5,  3, 330 },			// 2
+	{  5,  2, -1,  4, 400 },			// 3
+	{  4,  3, -1,  7, 500 },			// 4
+	{  1,  2, -1, -1, 250 },			// 5
+	{  1,  0, -1, -1,  50 },			// 6
+	{  3,  4, -1,  8, 600 },			// 7
+	{  2,  7, -1,  9, 700 },			// 8
+	{  1,  8, -1, -1, 710 },			// 9
+};
+
+NodeTemplate	simpleTemp[] =
+{
+//  { c, pa, pr, ne, da },
+	{ 5, -1,  1,  2, 1  },
+	{ 1,  0, -1, -1, 0  },
+	{ 3,  0,  4,  3, 3  },
+	{ 1,  2, -1, -1, 4  },
+	{ 1,  2, -1, -1, 2  },
+};
+
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -85,6 +127,59 @@ class BtreeTest : public UnitTest
 		return "BtreeTest";
 	}
 
+	typedef Btree<int>::Node Node;
+	Node *prepareNodes(NodeTemplate *tmpl, size_t numTempl, Array<Node*> &testNodes )
+	{
+		for( size_t i=0; i<numTempl; ++i )
+		{
+			Node *newNode = new Node(int(tmpl[i].m_data));
+			testNodes.addElement( newNode );
+		}
+		Node *root=nullptr;
+		for( size_t i=0; i<numTempl; ++i )
+		{
+			Node *testNode = testNodes[i];
+			int val = tmpl[i].m_parent;
+			testNode->m_parent = (val>=0) ? testNodes[val] : nullptr;
+			if( val < 0 )
+				root = testNode;
+
+			val = tmpl[i].m_next;
+			testNode->m_next = (val>= 0) ? testNodes[val] : nullptr;
+
+			val = tmpl[i].m_prev;
+			testNode->m_prev = (val>= 0) ? testNodes[val] : nullptr;
+
+			testNode->m_count = tmpl[i].m_count;
+		}
+
+		return root;
+	}
+
+	void simpleTest()
+	{
+		Btree<int> container;
+		Array<Node*> testNodes;
+
+		Node *oldRoot = prepareNodes( template2, arraySize(template2), testNodes );
+		container.setRoot(oldRoot);
+
+//		std::auto_ptr<Node> root(oldRoot);
+		size_t	depth1, depth2;
+		UT_ASSERT_TRUE( container.test(&depth1, false) );
+		UT_ASSERT_NOT_EQUAL(container.isBalanced(), btBalanced );
+		container.rebalance();
+		UT_ASSERT_EQUAL(container.isBalanced(), btBalanced );
+		UT_ASSERT_TRUE( container.test(&depth2, true) );
+		UT_ASSERT_GREATER(depth1, depth2 );
+
+//		root->testPointer(true);
+//		root.reset( root.release()->rebalance(0) );
+//		assert( root->m_parent == nullptr );
+//		root->testPointer(true);
+//		oldRoot->testPointer(true);
+	}
+
 	template <int FACTOR, int OFFSET>
 	void ContainerTest()
 	{
@@ -92,7 +187,11 @@ class BtreeTest : public UnitTest
 		MyBtree container;
 		const size_t innerLoopCount = 1;
 		const size_t outerLoopCount = 1;
-		const size_t numItems = 16000;
+#ifdef NDEBUG
+		const size_t numItems = 32000;
+#else
+		const size_t numItems = 4000;
+#endif
 		const bool orderedAdd = true;
 		size_t depth;
 		for( size_t l1=0; l1<outerLoopCount; ++l1 )
@@ -196,6 +295,7 @@ class BtreeTest : public UnitTest
 		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform" );
 
 		TestScope scope( "PerformTest" );
+		simpleTest();
 
 		{
 			TestScope scope( "<10,5>" );
