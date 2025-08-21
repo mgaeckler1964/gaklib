@@ -156,23 +156,44 @@ class BtreeTest : public UnitTest
 		return root;
 	}
 
-	void simpleTest()
+
+	template <typename ContainerT>
+	void rebalanceTest(ContainerT &container, bool expectBadInput)
 	{
-		Btree<int> container;
-		Array<Node*> testNodes;
-
-		Node *oldRoot = prepareNodes( template2, arraySize(template2), testNodes );
-		container.setRoot(oldRoot);
-
-//		std::auto_ptr<Node> root(oldRoot);
 		size_t	depth1, depth2;
 		UT_ASSERT_TRUE( container.test(&depth1, false) );
-		UT_ASSERT_NOT_EQUAL(container.isBalanced(), btBalanced );
+
+		if( expectBadInput )
+		{
+			UT_ASSERT_NOT_EQUAL(container.isBalanced(), btBalanced );
+		}
 		container.rebalance();
 		UT_ASSERT_EQUAL(container.isBalanced(), btBalanced );
 		UT_ASSERT_TRUE( container.test(&depth2, true) );
-		UT_ASSERT_GREATER(depth1, depth2 );
 
+		if( expectBadInput )
+		{
+			UT_ASSERT_GREATER(depth1, depth2 );
+		}
+		else
+		{
+			UT_ASSERT_GREATEREQ(depth1, depth2 );
+		}
+	}
+
+	void simpleTest()
+	{
+		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::simpleTest" );
+		TestScope scope( "simpleTest" );
+
+		Btree<int> container;
+		Array<Node*> testNodes;
+
+		Node *root = prepareNodes( template2, arraySize(template2), testNodes );
+		container.setRoot(root);
+		rebalanceTest(container, true);
+
+//		std::auto_ptr<Node> root(oldRoot);
 //		root->testPointer(true);
 //		root.reset( root.release()->rebalance(0) );
 //		assert( root->m_parent == nullptr );
@@ -180,43 +201,13 @@ class BtreeTest : public UnitTest
 //		oldRoot->testPointer(true);
 	}
 
-	template <int FACTOR, int OFFSET>
-	void ContainerTest()
+	template <typename ContainerT>
+	void loopTest(ContainerT &container)
 	{
-		typedef Btree<int,FixedComparator<int>, FACTOR, OFFSET>	MyBtree;
-		MyBtree container;
-		const size_t innerLoopCount = 1;
-		const size_t outerLoopCount = 1;
-#ifdef NDEBUG
-		const size_t numItems = 32000;
-#else
-		const size_t numItems = 4000;
-#endif
-		const bool orderedAdd = true;
-		size_t depth;
-		for( size_t l1=0; l1<outerLoopCount; ++l1 )
+		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::loopTest" );
 		{
-			for( size_t i=0; i<numItems; i++ )
-			{
-				for( size_t l2=0; l2<innerLoopCount; ++l2 )
-				{
-					doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::add" );
-					if( orderedAdd )
-					{
-						container.addElement( int(i) );
-					}
-					else
-					{
-						container += randomNumber( std::numeric_limits<int>::max() );
-					}
-					//container.test(true);
-				}
-			}
-		}
-		UT_ASSERT_TRUE( container.test(&depth) );
-		{
-			MyBtree::iterator it = container.begin();
-			MyBtree::iterator end = container.end();
+			ContainerT::iterator it = container.begin();
+			ContainerT::iterator end = container.end();
 			int	last = *it;
 			++it;
 
@@ -229,8 +220,8 @@ class BtreeTest : public UnitTest
 			} 
 		}
 		{
-			MyBtree::const_iterator it = container.cbegin();
-			MyBtree::const_iterator end = container.cend();
+			ContainerT::const_iterator it = container.cbegin();
+			ContainerT::const_iterator end = container.cend();
 			int	last = *it;
 			++it;
 
@@ -243,8 +234,8 @@ class BtreeTest : public UnitTest
 			} 
 		}
 		{
-			MyBtree::reverse_iterator it = container.rbegin();
-			MyBtree::reverse_iterator end = container.rend();
+			ContainerT::reverse_iterator it = container.rbegin();
+			ContainerT::reverse_iterator end = container.rend();
 			int last = *it;
 			++it;
 
@@ -257,8 +248,8 @@ class BtreeTest : public UnitTest
 			} 
 		}
 		{
-			MyBtree::const_reverse_iterator it = container.crbegin();
-			MyBtree::const_reverse_iterator end = container.crend();
+			ContainerT::const_reverse_iterator it = container.crbegin();
+			ContainerT::const_reverse_iterator end = container.crend();
 			int last = *it;
 			++it;
 
@@ -270,41 +261,85 @@ class BtreeTest : public UnitTest
 				++it;
 			} 
 		}
-		UT_ASSERT_TRUE( container.test(&depth) );
-		while( container.size() )
-		{
-			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while4" );
-			MyBtree::const_reverse_iterator it = container.crbegin();
-			MyBtree::const_reverse_iterator end = container.crend();
-			size_t	fwdCount = randomNumber( int(container.size()) );
+	}
 
-			for( size_t idx = 0; idx < fwdCount && it != end; ++it, ++idx ) 
-				;
-			if( it != end )
-				container.removeElement( *it );
-			if( !(container.size() % 1000 ) )
+	template <int FACTOR, int OFFSET>
+	void ContainerTest(const size_t numItems, const bool orderedAdd, const bool doLoopTest)
+	{
+		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::ContainerTest" );
+		typedef Btree<int,FixedComparator<int>, FACTOR, OFFSET>	MyBtree;
+		MyBtree container;
+
+		size_t depth;
+
+		for( size_t i=0; i<numItems; i++ )
+		{
+			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::add" );
+			if( orderedAdd )
 			{
-				UT_ASSERT_TRUE( container.test(&depth, false) );
-				std::cout << "Depth: " << depth << std::endl;
+				container.addElement( int(i) );
+			}
+			else
+			{
+				container += randomNumber( std::numeric_limits<int>::max() );
+			}
+			//container.test(true);
+		}
+		UT_ASSERT_TRUE( container.test(&depth) );
+
+		if( doLoopTest )
+		{
+			loopTest(container);
+		}
+
+		rebalanceTest(container, !doLoopTest);
+
+		if( doLoopTest )
+		{
+			while( container.size() )
+			{
+				doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while4" );
+				MyBtree::const_reverse_iterator it = container.crbegin();
+				MyBtree::const_reverse_iterator end = container.crend();
+				size_t	fwdCount = randomNumber( int(container.size()) );
+
+				for( size_t idx = 0; idx < fwdCount && it != end; ++it, ++idx ) 
+					;
+				if( it != end )
+					container.removeElement( *it );
 			}
 		}
 	}
 
 	virtual void PerformTest()
 	{
-		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform" );
+		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::PerformTest" );
 
 		TestScope scope( "PerformTest" );
 		simpleTest();
 
+#ifdef NDEBUG
+		const size_t numItems = 32000;
+#else
+		const size_t numItems = 4000;
+#endif
+		const bool orderedAdd = false;
+
 		{
+			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::PerformTest::<10,5>" );
 			TestScope scope( "<10,5>" );
-			ContainerTest<10,5>();
+			ContainerTest<10,5>(numItems,orderedAdd, true);
 		}
 
 		{
+			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::PerformTest::<2,5>" );
 			TestScope scope( "<2,5>" );
-			ContainerTest<2,5>();
+			ContainerTest<2,5>(numItems,orderedAdd,true);
+		}
+
+		{
+//			TestScope scope( "<10,5> no loop" );
+//			ContainerTest<2,5>(64000,true,false);
 		}
 
 		typedef Btree<DirectoryEntry, DynamicComparator<DirectoryEntry> >	BtreeList;

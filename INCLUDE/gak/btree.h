@@ -960,6 +960,9 @@ class Btree : public Container
 
 			result = result && (m_root->m_count == size());
 			assert( result );
+
+			result = result && m_root->testPointer( 0 );
+			assert( result );
 		}
 
 		if( FACTOR && OFFSET && m_root && withBalance )
@@ -968,8 +971,6 @@ class Btree : public Container
 			assert( result );
 		}
 
-		result = result && ( m_root ? m_root->testPointer( 0 ) : true );
-		assert( result );
 
 		size_t depth = m_root ? m_root->testDepth( 0 ) : 0;
 		result = result && ( depth < 10000 );
