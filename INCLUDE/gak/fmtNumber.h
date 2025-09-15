@@ -41,6 +41,8 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+#include <limits>
+
 #include <gak/types.h>
 #include <gak/string.h>
 #include <gak/stack.h>
@@ -264,18 +266,35 @@ namespace internal
 }
 /// @endcond
 
-template <class UNSIGNED>
+template <class NUMBER_T>
 STRING formatBinary(
-	UNSIGNED value, size_t radix,
+	NUMBER_T value, size_t radix,
 	unsigned fieldLength=0, char filler='0'
 )
 {
 	Stack<char>	tmp;
 	STRING		result;
 
+	if( std::numeric_limits<NUMBER_T>::is_signed && value < 0 )
+	{
+		result = "-";
+		fieldLength--;
+	}
 	do
 	{
-		unsigned char digit = (unsigned char)(value%radix);
+		unsigned char digit;
+
+		if( value < 0 )
+		{
+			digit = (unsigned char)(-value%radix);
+			value = -NUMBER_T(-value / radix);
+		}
+		else
+		{
+			digit = (unsigned char)(value%radix);
+			value = NUMBER_T(value / radix);
+		}
+
 		if( digit < 10 )
 			digit += '0';
 		else if( digit < 36 )
@@ -286,7 +305,6 @@ STRING formatBinary(
 			digit = '?';
 
 		tmp.push( digit );
-		value = UNSIGNED(value / radix);
 	} while( value );
 
 	for( int i=int(fieldLength-tmp.size()); i>0; i-- )

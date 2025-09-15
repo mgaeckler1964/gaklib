@@ -83,6 +83,19 @@ class FmtNumberTest : public UnitTest
 	{
 		return "FmtNumberTest";
 	}
+	void binaryTest(long value1)
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "FmtNumberTest::binaryTest");
+		
+		long value2 = formatBinary( value1, 16, 16 ).getValueN<long>(16);
+		UT_ASSERT_EQUAL( value1, value2 );
+
+		if( value1 > std::numeric_limits<long>::min() )
+		{	// formatNumber cannot handle the min value
+			value2 = formatNumber( value1, 16 ).getValueN<long>(10);
+			UT_ASSERT_EQUAL( value1, value2 );
+		}
+	}
 	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "FmtNumberTest::PerformTest");
@@ -142,6 +155,31 @@ class FmtNumberTest : public UnitTest
 
 		UT_ASSERT_EQUAL( STRING("    9 999.9900"), formatFloat( 9999.99, 14, 4, ' ' ) );
 		UT_ASSERT_EQUAL( STRING("   -9 999.9900"), formatFloat( -9999.99, 14, 4, ' ' ) );
+
+		{
+			TestScope scope("min");
+			binaryTest(std::numeric_limits<long>::min());
+		}
+		{
+			TestScope scope("min+1");
+			binaryTest(std::numeric_limits<long>::min()+1);
+		}
+		{
+			TestScope scope("-1");
+			binaryTest(-1);
+		}
+		{
+			TestScope scope("0");
+			binaryTest(0);
+		}
+		{
+			TestScope scope("max-1");
+			binaryTest(std::numeric_limits<long>::max()-1);
+		}
+		{
+			TestScope scope("max");
+			binaryTest(std::numeric_limits<long>::max());
+		}
 	}
 };
 
