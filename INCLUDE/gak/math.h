@@ -100,7 +100,13 @@ inline T medium( T a, T b )
 template<typename T>
 inline T abs( T a )
 {
+#if defined _MSC_VER
+	#	pragma warning ( disable: 4146 )
+#endif
 	return a < 0 ? -a : a;
+#if defined _MSC_VER
+	#	pragma warning ( default: 4146 )
+#endif
 }
 
 template<typename T>

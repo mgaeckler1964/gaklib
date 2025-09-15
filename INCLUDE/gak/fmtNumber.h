@@ -171,8 +171,6 @@ namespace internal
 	#	pragma warn -8027
 	#	pragma warn -8041
 	#	pragma warn -8066
-	#elif defined _MSC_VER
-	//#	pragma warning ( suppress: 4146 )
 	#endif
 
 		if( value >= 0 )
@@ -284,14 +282,20 @@ STRING formatBinary(
 	{
 		unsigned char digit;
 
-		if( value < 0 )
+		if( std::numeric_limits<NUMBER_T>::is_signed && value < 0 )
 		{
-			digit = (unsigned char)(-value%radix);
+#if defined _MSC_VER
+	#	pragma warning ( disable: 4146 )
+#endif
+			digit = static_cast<unsigned char>(-value%radix);
 			value = -NUMBER_T(-value / radix);
+#if defined _MSC_VER
+	#	pragma warning ( default: 4146 )
+#endif
 		}
 		else
 		{
-			digit = (unsigned char)(value%radix);
+			digit = static_cast<unsigned char>(value%radix);
 			value = NUMBER_T(value / radix);
 		}
 
