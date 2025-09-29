@@ -1,6 +1,6 @@
 /*
 		Project:		GAKLIB
-		Module:			ensemble-h
+		Module:			ensemble.h
 		Description:	different aggregation types
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
