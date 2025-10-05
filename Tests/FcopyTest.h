@@ -171,7 +171,7 @@ class FcopyTest : public UnitTest
 		copyFileTest( __FILE__, targetFile, false );
 
 		/* this file was changed in summer time */
-		copyFileTest( "mac.txt", targetFile, false );
+		copyFileTest( "test_data" DIRECTORY_DELIMITER_STRING "mac.txt", targetFile, false );
 
 		/* this file was changed in winter time */
 		copyFileTest( "GAKDLL32.DEF", targetFile, false );

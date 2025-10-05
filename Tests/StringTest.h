@@ -97,6 +97,8 @@ class StringTest : public UnitTest
 		ComparingTests();
 		CiComparingTests();
 		OtherTests();
+
+		FileTests();
 	}
 	void ComparingTests()
 	{
@@ -830,6 +832,14 @@ class StringTest : public UnitTest
 			UT_ASSERT_EQUAL( test, STRING("bbbbbdddddaccccc") );
 		}
 	}
+
+	void FileTests()
+	{
+		STRING myUtf8;
+		myUtf8.readFromFile( "test_data" DIRECTORY_DELIMITER_STRING "utf8bom.txt" );
+		UT_ASSERT_EQUAL( myUtf8.getCharSet(), STR_UTF8 );
+	}
+
 };
 
 // --------------------------------------------------------------------- //

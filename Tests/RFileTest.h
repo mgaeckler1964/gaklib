@@ -85,9 +85,9 @@ class RFileTest : public UnitTest
 	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "RFileTest::PerformTest");
-		test( "msdos.txt" );
-		test( "unix.txt" );
-		test( "mac.txt" );
+		test( "test_data" DIRECTORY_DELIMITER_STRING "msdos.txt" );
+		test( "test_data" DIRECTORY_DELIMITER_STRING "unix.txt" );
+		test( "test_data" DIRECTORY_DELIMITER_STRING "mac.txt" );
 	}
 	void test( const char *fName )
 	{

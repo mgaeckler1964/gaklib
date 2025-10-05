@@ -48,6 +48,8 @@
 namespace gak
 {
 
+static const char UTF8_BOM[3] = {0xEFu, 0xBBu, 0xBFu};
+
 /* --------------------------------------------------------------------- */
 /* ----- entry points -------------------------------------------------- */
 /* --------------------------------------------------------------------- */
@@ -98,6 +100,7 @@ STR *readFromFile( const char *fileName )
 	STR 			*str = NULL;
 	long			pos;
 	unsigned short	uniCodeIndicator;
+	bool			utf8IndicatorFnd = false;
 
 	FILE *fp = fopen( fileName, "rb" );
 	if( fp )
@@ -107,40 +110,63 @@ STR *readFromFile( const char *fileName )
 		pos = ftell( fp );
 		fseek( fp, 0, SEEK_SET );
 
-		str = resizeStr( NULL, (size_t)pos+2, cTrue );
-		fread( str->string, (size_t)pos, 1, fp );
-		str->string[pos]=0;
-		str->string[pos+1]=0;		// maybe an unicode file
-		str->actSize = (size_t)pos;
+		str = resizeStr( NULL, size_t(pos+2), cTrue );
+		unsigned char *bufferPos = (unsigned char *)str->string;
+		str->actSize = size_t(pos);
+		if( pos >= 3 )
+		{
+			fread( bufferPos, 3, 1, fp );
+			pos -= 3;
+			if( !memcmp( bufferPos, UTF8_BOM, sizeof(UTF8_BOM) ) )
+			{
+				utf8IndicatorFnd = true;
+				str->actSize -= 3;
+			}
+			else
+			{
+				bufferPos += 3;
+			}
+		}
+		fread( bufferPos, size_t(pos), 1, fp );
+		bufferPos[pos]=0;
+		bufferPos[pos+1]=0;		// maybe an unicode file
 
 		fclose( fp );
 		
-		uniCodeIndicator = *((short*)str->string);
-		if( uniCodeIndicator == 0xFFFE || uniCodeIndicator == 0xFEFF )	// unicode
+		if( utf8IndicatorFnd )
 		{
-			wchar_t	*uniCodeString = (wchar_t *)str->string;
-			wchar_t	uniCodeChar;
-			char	ansiChar;
-
-			pos = 0;
-			while( (uniCodeChar = *++uniCodeString) != 0 )
+			str->charset = STR_UTF8;
+		}
+		else
+		{
+			uniCodeIndicator = *((short*)str->string);
+			if( uniCodeIndicator == 0xFFFE || uniCodeIndicator == 0xFEFF )	// unicode
 			{
-				if( uniCodeIndicator == 0xFFFE )
-					uniCodeChar = intimot(uniCodeChar);
+				wchar_t	*uniCodeString = (wchar_t *)str->string;
+				wchar_t	uniCodeChar;
+				char	ansiChar;
 
-				ansiChar = convertWChar( uniCodeChar );
-				if( ansiChar )
-					str->string[pos++] = ansiChar;
+				pos = 0;
+				while( (uniCodeChar = *++uniCodeString) != 0 )
+				{
+					if( uniCodeIndicator == 0xFFFE )
+						uniCodeChar = intimot(uniCodeChar);
+
+					ansiChar = convertWChar( uniCodeChar );
+					if( ansiChar )
+						str->string[pos++] = ansiChar;
+				}
+				str->string[pos] = 0;
+				str->actSize = size_t(pos);
+				str->charset = STR_UNICODE;
 			}
-			str->string[pos] = 0;
-			str->actSize = (size_t)pos;
 		}
 	}
 
 	return str;
 }
 
-bool writeToFile( const STR *str, const char *fileName )
+bool writeToFile( const STR *str, const char *fileName, bool withBOM )
 {
 	size_t	numWritten;
 	bool	errorFlag = true;
@@ -150,6 +176,10 @@ bool writeToFile( const STR *str, const char *fileName )
 	{
 		if( str && str->actSize )
 		{
+			if( str->charset == STR_UTF8 && withBOM )
+			{
+				fwrite( UTF8_BOM, sizeof(UTF8_BOM), 1, fp  );
+			}
 			numWritten = fwrite( str->string, 1, str->actSize, fp );
 			if( numWritten == str->actSize )
 			{

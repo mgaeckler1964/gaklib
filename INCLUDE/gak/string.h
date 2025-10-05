@@ -187,7 +187,7 @@ namespace gak
 STR *freadSTR( FILE *fp );
 STR *readNfromFile( FILE *fp, size_t n );
 STR *readFromFile( const char *fileName );
-bool writeToFile( const STR *str, const char *fileName );
+bool writeToFile( const STR *str, const char *fileName, bool withBOM );
 
 class DynamicVar;
 
@@ -208,7 +208,7 @@ class STRING
 	void setText( const DynamicVar &source );
 	void setText( char first, std::size_t count );
 
-	void makePrivate( void )
+	void makePrivate()
 	{
 		if( text && text->usageCount > 1 )
 		{
@@ -220,7 +220,7 @@ class STRING
 			}
 		}
 	}
-	void release( void )
+	void release()
 	{
 		if( text )
 		{
@@ -233,7 +233,7 @@ class STRING
 	}
 
 	protected:
-	STR	*getText( void ) const
+	STR	*getText() const
 	{
 		return text;
 	}
@@ -327,7 +327,7 @@ class STRING
 		}
 		return NULL;
 	}
-	size_t strlen( void ) const
+	size_t strlen() const
 	{
 		return text ? text->actSize : 0;
 	}
@@ -372,15 +372,15 @@ class STRING
 		-----------------------------------------------------------------------
 	*/
 	public:
-	bool isNullPtr( void ) const
+	bool isNullPtr() const
 	{
 		return text == NULL;
 	}
-	bool isEmpty( void ) const
+	bool isEmpty() const
 	{
 		return text == NULL || text->actSize == 0;
 	}
-	bool operator ! ( void ) const
+	bool operator ! () const
 	{
 		return isEmpty();
 	}
@@ -582,11 +582,11 @@ class STRING
 
 		return cp;
 	}
-	char lastChar( void ) const
+	char lastChar() const
 	{
 		return text && text->actSize ? text->string[text->actSize-1] : char(0);
 	}
-	RLINE_ENDS getLineEnds( void ) const
+	RLINE_ENDS getLineEnds() const
 	{
 		return ::getLineEnds( text );
 	}
@@ -594,21 +594,21 @@ class STRING
 	{
 		return text && offset <= text->actSize  ? text->string+offset : "";
 	}
-	STRING cString( void ) const;
-	STRING csvString( void ) const;
+	STRING cString() const;
+	STRING csvString() const;
 
-	size_t getUsageCount( void ) const
+	size_t getUsageCount() const
 	{
 		return text ? text->usageCount : 0UL;
 	}
 
-	STRING uperCaseCopy( void ) const
+	STRING uperCaseCopy() const
 	{
 		STRING copy = *this;
 
 		return copy.upperCase();
 	}
-	STRING lowerCaseCopy( void ) const
+	STRING lowerCaseCopy() const
 	{
 		STRING copy = *this;
 
@@ -641,7 +641,7 @@ class STRING
 	const char &operator [] ( size_t index ) const;
 	STRING &operator += ( size_t offset );
 
-	STRING &stripBlanks( void )
+	STRING &stripBlanks()
 	{
 		makePrivate();
 
@@ -732,7 +732,7 @@ class STRING
 		return *this;
 	}
 
-	STRING &upperCase( void )
+	STRING &upperCase()
 	{
 		makePrivate();
 
@@ -744,7 +744,7 @@ class STRING
 
 		return *this;
 	}
-	STRING &lowerCase( void )
+	STRING &lowerCase()
 	{
 		makePrivate();
 
@@ -832,9 +832,9 @@ class STRING
 		setText( newText );
 	}
 
-	bool writeToFile( const char *fileName ) const
+	bool writeToFile( const char *fileName, bool withBOM ) const
 	{
-		return gak::writeToFile( text, fileName );
+		return gak::writeToFile( text, fileName, withBOM );
 	}
 
 	void toFmtStream( std::ostream &theStream ) const
@@ -855,7 +855,7 @@ class STRING
 		-----------------------------------------------------------------------
 	*/
 	private:
-	void convertToOEM( void )
+	void convertToOEM()
 	{
 #ifdef _Windows
 		makePrivate();
@@ -868,7 +868,7 @@ class STRING
 		}
 #endif
 	}
-	void convertToAnsi( void )
+	void convertToAnsi()
 	{
 #ifdef _Windows
 		makePrivate();
@@ -882,7 +882,7 @@ class STRING
 #endif
 	}
 	public:
-	STR_CHARSET getCharSet( void ) const
+	STR_CHARSET getCharSet() const
 	{
 		return text ? text->charset : STR_CS_UNKNOWN;
 	}
@@ -897,9 +897,9 @@ class STRING
 		text->charset = charset;
 		return *this;
 	}
-	STRING deCanonical( void ) const;
+	STRING deCanonical() const;
 	STRING convertToCharset( STR_CHARSET charset ) const;
-	STRING convertToTerminal( void ) const
+	STRING convertToTerminal() const
 	{
 #if defined( __GNUC__ )
 		return convertToCharset( STR_UTF8 );
@@ -913,9 +913,9 @@ class STRING
 	/*
 		these functions are found in wideString.cpp
 	*/
-	STRING encodeUTF8( void ) const;
-	STRING decodeUTF8( void ) const;
-	STR_CHARSET	testCharSet( void ) const;
+	STRING encodeUTF8() const;
+	STRING decodeUTF8() const;
+	STR_CHARSET	testCharSet() const;
 
 	/*
 		-----------------------------------------------------------------------
@@ -933,7 +933,7 @@ class STRING
 	{
 		return text ? text->string+text->actSize : NULL;
 	}
-	std::size_t size( void ) const
+	std::size_t size() const
 	{
 		return strlen();
 	}

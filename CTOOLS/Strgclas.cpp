@@ -622,11 +622,10 @@ void STRING::readLine( std::istream &theStream )
 void STRING::readFromFile( const char *fileName )
 {
 	STR *newText = gak::readFromFile( fileName );
-	if( newText )
-		newText->usageCount = 0;
-	setText( newText );
 	if( !newText )
 		throw OpenReadError( fileName );
+	newText->usageCount = 0;
+	setText( newText );
 }
 
 STRING STRING::simplify() const
