@@ -187,7 +187,7 @@ namespace gak
 STR *freadSTR( FILE *fp );
 STR *readNfromFile( FILE *fp, size_t n );
 STR *readFromFile( const char *fileName );
-bool writeToFile( const STR *str, const char *fileName, bool withBOM );
+bool writeToFile( const STR *str, const char *fileName, bool withBOM=false );
 
 class DynamicVar;
 
@@ -832,7 +832,7 @@ class STRING
 		setText( newText );
 	}
 
-	bool writeToFile( const char *fileName, bool withBOM ) const
+	bool writeToFile( const char *fileName, bool withBOM=false ) const
 	{
 		return gak::writeToFile( text, fileName, withBOM );
 	}
