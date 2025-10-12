@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			stdlib.h
-		Description:	
+		Description:	Wrapper for old c functions
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -83,7 +83,7 @@ namespace gak
 /// simple C++ wrapper for std::FILE *
 class STDfile
 {
-	FILE	*fp;
+	FILE	*m_fp;
 
 	STDfile( const STDfile &src );
 	const STDfile & operator = ( const STDfile &src );
@@ -97,7 +97,7 @@ class STDfile
 	*/
 	STDfile( const STRING &fileName, const STRING &mode )
 	{
-		this->fp = strFopen( fileName, mode );
+		m_fp = strFopen( fileName, mode );
 	}
 	/**
 		@brief Assigns an open FILE handle
@@ -105,7 +105,7 @@ class STDfile
 	*/
 	STDfile( FILE *fp )
 	{
-		this->fp = fp;
+		m_fp = fp;
 	}
 	/**
 		@brief Assigns an open FILE handle
@@ -115,34 +115,34 @@ class STDfile
 	const STDfile &operator = ( FILE *fp )
 	{
 		close();
-		this->fp = fp;
+		m_fp = fp;
 
 		return *this;
 	}
 	/// Destrurctor, closes the file
 	~STDfile()
 	{
-		if( fp )
-			fclose( fp );
+		if( m_fp )
+			std::fclose( m_fp );
 	}
 	/// Returns the FILE handle
-	operator FILE * ( void )
+	operator FILE * ()
 	{
-		return fp;
+		return m_fp;
 	}
 	/// Returns the FILE handle
-	FILE *operator -> ( void )
+	FILE *operator -> ()
 	{
-		return fp;
+		return m_fp;
 	}
 
 	/// Closes the file
-	void close( void )
+	void close()
 	{
-		if( fp )
+		if( m_fp )
 		{
-			fclose( fp );
-			fp = NULL;
+			fclose( m_fp );
+			m_fp = NULL;
 		}
 	}
 };
@@ -190,19 +190,27 @@ class Buffer
 			::free( m_buff );
 	}
 	/// Returns true if pointer is valid
-	operator bool ( void )
+	operator bool ()
 	{
 		return m_buff != NULL;
 	}
 	/// Returns a pointer to TYPE
-	operator TYPE * ( void )
+	operator TYPE * ()
 	{
 		return m_buff;
 	}
 	/// Returns a pointer to TYPE
-	TYPE *operator -> ( void )
+	TYPE *operator -> ()
 	{
 		return m_buff;
+	}
+	/// Updates the pointer
+	Buffer<TYPE> &operator = (void *buff )
+	{
+		if( m_buff )
+			::free( m_buff );
+		m_buff = static_cast<TYPE*>(buff);
+		return *this;
 	}
 	/**
 		@brief Returns a pointer to an index element
@@ -221,7 +229,7 @@ class Buffer
 		return m_buff + offset;
 	}
 	/// Frees the memory block
-	void free( void )
+	void free()
 	{
 		if( m_buff )
 		{
