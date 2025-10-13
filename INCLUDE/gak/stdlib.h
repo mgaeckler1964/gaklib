@@ -199,6 +199,13 @@ class Buffer
 	{
 		return m_buff;
 	}
+#ifndef __BORLANDC__
+	/// Returns a const pointer to TYPE
+	operator const TYPE * () const
+	{
+		return m_buff;
+	}
+#endif
 	/// Returns a pointer to TYPE
 	TYPE *operator -> ()
 	{
