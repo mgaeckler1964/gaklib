@@ -69,6 +69,8 @@
 
 namespace gak
 {
+namespace ai
+{
 
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
@@ -130,22 +132,27 @@ struct Position
 	}
 };
 
+}	// namespace ai
+
 template <>
-struct is_binary<Position> : public internal::integral_constant<true>
+struct is_binary<ai::Position> : public internal::integral_constant<true>
 {
 };
 
 template <>
-inline void toBinaryStream( std::ostream &stream, const Position &value )
+inline void toBinaryStream( std::ostream &stream, const ai::Position &value )
 {
 	binaryToBinaryStream( stream, value );
 }
 
 template <>
-inline void fromBinaryStream( std::istream &stream, Position *value )
+inline void fromBinaryStream( std::istream &stream, ai::Position *value )
 {
 	binaryFromBinaryStream( stream, value );
 }
+
+namespace ai
+{
 
 typedef Set<Position, FixedComparator<Position>, PODallocator<Position> >
 									Positions;
@@ -803,6 +810,7 @@ StringIndex indexString( const StringT &string, const StringsT &stopWords )
 	return processPositions( string, tokenString( string, stopWords ) );
 }
 
+}	// namespace ai
 }	// namespace gak
 
 #ifdef __BORLANDC__

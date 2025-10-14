@@ -72,6 +72,12 @@ namespace gak
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+using ai::StringIndex;
+using ai::indexString;
+using ai::Index;
+using ai::StatistikData;
+using ai::Position;
+
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -98,7 +104,7 @@ class IndexerTest : public UnitTest
 		stopWords.addElement( stopWord );
 		const STRING	testText1 = "the quick brown fox jumps over the lazy dog äöüß+ÄÖÜß=äöüßÄÖÜß";
 		const STRING	testText2 = "the best of the world of all brown universes namespace::className";
-		StringIndex		positions = indexString( testText1, stopWords );
+		StringIndex	positions = indexString( testText1, stopWords );
 
 		UT_ASSERT_EQUAL( std::size_t(19), positions.size() );
 		UT_ASSERT_EQUAL( std::size_t(2), positions[searchWord1].size());

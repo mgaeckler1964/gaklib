@@ -59,6 +59,8 @@
 
 namespace gak
 {
+namespace ai
+{
 
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
@@ -347,6 +349,7 @@ void AiBrain::learnFromTokens( const STRING &source, const StringTokens &tokens,
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+} // namespace ai
 } // namespace gak
 
 #ifdef __BORLANDC__
