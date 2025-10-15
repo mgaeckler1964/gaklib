@@ -139,6 +139,16 @@ class MathTest : public UnitTest
 		UT_ASSERT_EQUAL( 3, minMax.getMin() );
 		UT_ASSERT_EQUAL( 10, minMax.getMax() );
 
+		math::Mean<double>	mean;
+		mean.add( 8.0 );
+		UT_ASSERT_EQUAL( 8.0, mean.getMean() );
+		mean.add( 8.0 );
+		UT_ASSERT_EQUAL( 8.0, mean.getMean() );
+		mean.add( 0.0 );
+		mean.add( 0.0 );
+		UT_ASSERT_EQUAL( 4.0, mean.getMean() );
+		UT_ASSERT_EQUAL( 4, mean.getCount() );
+
 	}
 };
 

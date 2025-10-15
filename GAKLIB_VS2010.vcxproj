@@ -191,6 +191,7 @@
     <ClInclude Include="INCLUDE\gak\locker.h" />
     <ClInclude Include="INCLUDE\gak\lockQueue.h" />
     <ClInclude Include="INCLUDE\gak\logfile.h" />
+    <ClInclude Include="INCLUDE\gak\MachineLearning.h" />
     <ClInclude Include="INCLUDE\gak\mailParser.h" />
     <ClInclude Include="INCLUDE\gak\map.h" />
     <ClInclude Include="INCLUDE\gak\math.h" />

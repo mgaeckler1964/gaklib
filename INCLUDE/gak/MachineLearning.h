@@ -1,7 +1,7 @@
 /*
-		Project:		GAKLIB
-		Module:			math.h
-		Description:	
+		Project:		gaklib
+		Module:			MachineLearning.h
+		Description:	Machine Learning for C++
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -29,9 +29,6 @@
 		SUCH DAMAGE.
 */
 
-#ifndef GAK_MATH_H
-#define GAK_MATH_H
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -40,12 +37,9 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <math.h>		// otherwise i will loose isnan on Mac
-#include <iostream>
-#include <limits>
-
-#include <gak/fixedArray.h>
+#include <gak/map.h>
 #include <gak/ensemble.h>
+#include <gak/math.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -64,268 +58,101 @@
 
 namespace gak
 {
-namespace math
+namespace ai
 {
+
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-const std::size_t	numPrimeFactors = 65;		// enough for 64 bit systems
 
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-#undef max
-#undef min
-
-template <class T>	
-inline T max(T x, T y)
-{
-	return (x > y) ? x : y;
-};
-
-template <class T>	
-inline T min(T x, T y)
-{
-	return (x < y) ? x : y;
-};
-
-template<typename T>
-inline T medium( T a, T b )
-{
-	return (a+b)/2;
-}
-	 
-template<typename T>
-inline T abs( T a )
-{
-#if defined _MSC_VER
-	#	pragma warning ( disable: 4146 )
-#endif
-	return a < 0 ? -a : a;
-#if defined _MSC_VER
-	#	pragma warning ( default: 4146 )
-#endif
-}
-
-template<typename T>
-inline T sign( T a )
-{
-	return a < 0 ? -1 : (a == 0 ? 0 : +1);
-}
-
-template<typename ValueT>
-inline int getExponent( ValueT value )
-{
-	ValueT	numDigits = value ? log10( abs( value ) ) : 0;
-
-	return int( floor(numDigits) );
-}
-
-template<typename ValueT>
-inline ValueT normalize( ValueT value, int *exponent )
-{
-	int			localExponent = getExponent( value );
-	ValueT		factor = pow( 10., -localExponent );
-
-	*exponent = localExponent;
-	return value * factor;
-}
-
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-typedef FixedArray<unsigned long, numPrimeFactors>	PrimeFactorBuffer;
 
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-struct MixedFraction;
-struct Fraction
+template <class InputT, class VariableT, class OutputT>
+class MLprocessor
 {
-	long			numerator;
-	unsigned long	denominator;
-
-	explicit Fraction( long newNumerator, unsigned long newDenominator=1 )
-		: numerator(newNumerator), denominator(newDenominator)
+	public:
+	VariableT getFirstValue()
 	{
+		return VariableT();
 	}
-	Fraction( const MixedFraction &src )
+	VariableT getNextValue()
 	{
-		readMixedFraction( src );
+		return VariableT();
 	}
-	const Fraction &operator = ( const MixedFraction &src )
+	VariableT getLastValue()
 	{
-		readMixedFraction( src );
-		return *this;
+		return VariableT();
 	}
-
-
-	Fraction &reduce();
-	Fraction reduceCopy() const
+	double evaluate(const OutputT &expected, const OutputT &actual )
 	{
-		Fraction	result = *this;
-
-		return result.reduce();
+		return 0;
 	}
-
-	Fraction &reziprok()
+	OutputT process(const InputT &input, const VariableT &var )
 	{
-		long tmp = numerator;
-		numerator = denominator;
-		denominator = abs( tmp );
-		if( tmp < 0 )
-			numerator *= -1;
-
-		return *this;
-	}
-
-	Fraction reziprokCopy() const
-	{
-		Fraction tmp = *this;
-
-		return tmp.reziprok();
-	}
-
-	operator double ( void ) const
-	{
-		return double(numerator) / double(denominator);
-	}
-
-	bool operator == ( const Fraction &right ) const
-	{
-		return numerator == right.numerator && denominator == right.denominator;
-	}
-
-	private:
-	void readMixedFraction( const MixedFraction &src );
-};
-
-struct MixedFraction
-{
-	long		integer;
-	Fraction	fraction;
-
-	MixedFraction( long newInteger, long newNumerator, unsigned long newDenominator )
-		: integer(newInteger), fraction(newNumerator, newDenominator)
-	{
-	}
-	MixedFraction( long newNumerator, unsigned long newDenominator )
-		: integer(0), fraction(newNumerator, newDenominator)
-	{
-	}
-	MixedFraction( long newInteger )
-		: integer(newInteger), fraction(0)
-	{
-	}
-	MixedFraction( const Fraction &src )
-		: integer(src.numerator/long(src.denominator)), fraction(src.numerator%long(src.denominator), src.denominator)
-	{
-	}
-	const MixedFraction &operator = ( const Fraction &src )
-	{
-		readFraction( src );
-		return *this;
-	}
-
-
-	MixedFraction &reduce()
-	{
-		Fraction	tmpFraction = static_cast<Fraction>(*this);
-
-		*this = tmpFraction.reduce();
-
-		return *this;
-	}
-	MixedFraction reduceCopy() const
-	{
-		MixedFraction	result = *this;
-		result.reduce();
-		return result;
-	}
-
-	MixedFraction &reziprok()
-	{
-		Fraction	tmpFraction = static_cast<Fraction>(*this);
-
-		*this = tmpFraction.reziprok();
-
-		return *this;
-	}
-	MixedFraction reziprokCopy() const
-	{
-		MixedFraction	result = *this;
-		result.reziprok();
-		return result;
-	}
-
-	operator double ( void ) const
-	{
-		return double(integer) + double(fraction);
-	}
-
-	bool operator == ( const MixedFraction &right ) const
-	{
-		return integer == right.integer && fraction == right.fraction;
-	}
-
-	private:
-	void readFraction( const Fraction &src )
-	{
-		integer = src.numerator/long(src.denominator);
-		fraction.numerator = src.numerator%long(src.denominator);
-		fraction.denominator = src.denominator;
+		return OutputT();
 	}
 };
 
-template <typename NUMBER>
-struct MinMax : private Duo<NUMBER,NUMBER>
+template <class InputT, class VariableT, class OutputT, class ProcessorT=MLprocessor<InputT, VariableT, OutputT> >
+class MachineLearning
 {
-	MinMax(NUMBER first) : Duo(first, first) {}
-	MinMax() : Duo<NUMBER,NUMBER>(std::numeric_limits<NUMBER>::max(), std::numeric_limits<NUMBER>::min()) {}
+	typedef PairMap<VariableT, math::Mean<double> >		EvalStorageT;
 
-	void test( NUMBER val )
+	ProcessorT		m_processor;
+	EvalStorageT	m_evals;
+
+	public:
+	void learnLesson( const InputT &input, const OutputT &expected )
 	{
-		if( val < val1 )
+		VariableT var = m_processor.getFirstValue();
+		VariableT last = m_processor.getLastValue();
+		do
 		{
-			val1 = val;
-		}
-		if( val	> val2 )
+			OutputT actual = m_processor.process(input, var);
+			double eval = m_processor.evaluate( expected, actual );
+			m_evals[var].add( eval );
+			var = m_processor.getNextValue();
+		} while( var < last );
+	}
+	VariableT getBest( std::size_t *lessonsCount=nullptr, std::size_t *variableCount=nullptr )
+	{
+		double		bestMean;
+		VariableT	bestVariable;
+		bool		first=true;
+		if( variableCount )
+			*variableCount = 0;
+		for( 
+			EvalStorageT::const_iterator it = m_evals.cbegin(), endIT = m_evals.cend();
+			it != endIT;
+			++it
+		)
 		{
-			val2 = val;
+			double curMean = it->getValue().getMean();
+			if( first || curMean > bestMean )
+			{
+				bestMean = curMean;
+				bestVariable = it->getKey();
+				first = false;
+				if( lessonsCount )
+					*lessonsCount = it->getValue().getCount();
+			}
+		if( variableCount )
+			(*variableCount)++;
 		}
-	}
-
-	NUMBER getMin() const
-	{
-		return val1;
-	}
-	NUMBER getMax() const
-	{
-		return val2;
+		return bestVariable;
 	}
 };
 
-template <typename NUMBER>
-struct Mean : private Duo<NUMBER, std::size_t>
-{
-	void add( NUMBER val )
-	{
-		val1 += val;
-		++val2;
-	}
-	NUMBER getMean() const
-	{
-		return val1 / val2;
-	}
-	std::size_t getCount() const
-	{
-		return val2;
-	}
-};
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -342,22 +169,6 @@ struct Mean : private Duo<NUMBER, std::size_t>
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-bool isPrime( unsigned long n );
-unsigned long getNextPrime( unsigned long n );
-PrimeFactorBuffer getPrimeFactors( unsigned long n );
-unsigned long kgV( unsigned long n1, unsigned long n2 );
-unsigned long ggT( unsigned long n1, unsigned long n2 );
-
-Fraction operator + ( const Fraction &n1, const Fraction &n2 );
-Fraction operator - ( const Fraction &n1, const Fraction &n2 );
-Fraction operator * ( const Fraction &n1, const Fraction &n2 );
-Fraction operator / ( const Fraction &n1, const Fraction &n2 );
-
-MixedFraction operator + ( const MixedFraction &n1, const MixedFraction &n2 );
-MixedFraction operator - ( const MixedFraction &n1, const MixedFraction &n2 );
-MixedFraction operator * ( const MixedFraction &n1, const MixedFraction &n2 );
-MixedFraction operator / ( const MixedFraction &n1, const MixedFraction &n2 );
-
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -365,12 +176,6 @@ MixedFraction operator / ( const MixedFraction &n1, const MixedFraction &n2 );
 // --------------------------------------------------------------------- //
 // ----- class inlines ------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-inline void Fraction::readMixedFraction( const MixedFraction &src )
-{
-	numerator = src.integer * src.fraction.denominator + src.fraction.numerator;
-	denominator = src.fraction.denominator;
-}
 
 // --------------------------------------------------------------------- //
 // ----- class constructors/destructors -------------------------------- //
@@ -399,22 +204,7 @@ inline void Fraction::readMixedFraction( const MixedFraction &src )
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-inline std::ostream &operator << ( std::ostream &out, const Fraction &x )
-{
-	out << x.numerator << '/' << x.denominator;
-
-	return out;
-}
-
-inline std::ostream &operator << ( std::ostream &out, const MixedFraction &x )
-{
-	out << x.integer << ' ' << x.fraction;
-
-	return out;
-}
-
-}	// namespace math
+}	// namespace ai
 }	// namespace gak
 
 #ifdef __BORLANDC__
@@ -423,5 +213,3 @@ inline std::ostream &operator << ( std::ostream &out, const MixedFraction &x )
 #	pragma option -a.
 #	pragma option -p.
 #endif
-
-#endif	// GAK_MATH_H

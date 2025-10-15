@@ -81,6 +81,23 @@ struct Duo
 	TYPE2	val2;
 
 	Duo(TYPE1 val1=TYPE1(), TYPE2 val2=TYPE2() ) : val1(val1), val2(val2) {}
+
+	int compare ( const Duo &right ) const
+	{
+		TYPE1	diff = val1 - right.val1;
+		if( !diff )
+			diff = val2 - right.val2;
+
+		if( diff < 0 )
+		{
+			return -1;
+		}
+		if( diff > 0 )
+		{
+			return 1;
+		}
+		return 0;
+	}
 };
 
 template<class TYPE1, class TYPE2, class TYPE3>
@@ -98,7 +115,6 @@ struct Quartet : public Trio<TYPE1, TYPE2, TYPE3>
 
 	Quartet(TYPE1 val1=TYPE1(), TYPE2 val2=TYPE2(), TYPE3 val3=TYPE3(), TYPE4 val4=TYPE4() ) : Trio<TYPE1, TYPE2, TYPE3>(val1, val2, val3), val4(val4) {}
 };
-
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //

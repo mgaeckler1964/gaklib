@@ -80,6 +80,8 @@
 #include "Tests/GeometryTest.h"
 #include "Tests/IndexerTest.h"
 #include "Tests/aiBrainTest.h"
+#include "Tests/MachineLearningTest.h"
+
 #include "Tests/QuantitiesTest.h"
 #include "Tests/FmtNumberTest.h"
 #include "Tests/MathTest.h"
