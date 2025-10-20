@@ -211,6 +211,11 @@ class Buffer
 	{
 		return m_buff;
 	}
+	/// Returns a const pointer to TYPE
+	const TYPE *operator -> () const
+	{
+		return m_buff;
+	}
 	/// Updates the pointer
 	Buffer<TYPE> &operator = (void *buff )
 	{
@@ -241,7 +246,7 @@ class Buffer
 		if( m_buff )
 		{
 			::free( m_buff );
-			buff = NULL;
+			m_buff = nullptr;
 		}
 	}
 	/// resizes the buffer
