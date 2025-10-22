@@ -97,13 +97,13 @@ class IndexerTest : public UnitTest
 		const char		*searchWord2 = "of";
 		const char		*searchWord3 = "brown";
 		const char		*searchWord4 = "namespace";
-		const char		*searchWord5 = "className";
+		const char		*searchWord5 = "class_name";
 		const char		*stopWord = "BROWN";
 
 		SortedArray<CI_STRING>	stopWords;
 		stopWords.addElement( stopWord );
 		const STRING	testText1 = "the quick brown fox jumps over the lazy dog äöüß+ÄÖÜß=äöüßÄÖÜß";
-		const STRING	testText2 = "the best of the world of all brown universes namespace::className";
+		const STRING	testText2 = "the best of the world of all brown universes namespace::class_name";
 		StringIndex	positions = indexString( testText1, stopWords );
 
 		UT_ASSERT_EQUAL( std::size_t(19), positions.size() );
@@ -180,7 +180,7 @@ class IndexerTest : public UnitTest
 		UT_ASSERT_EQUAL( std::size_t(2), sources.size() );
 
 		StatistikData	stats = globalIndex.getStatistik();
-		UT_ASSERT_EQUAL( std::size_t(32), stats.size() );
+		UT_ASSERT_EQUAL( std::size_t(34), stats.size() );
 
 		globalIndex.mergeIndexPositions( "Gäckler", indexString( STRING("Gäckler"), stopWords ) );
 		sources = globalIndex.findWords( "gakler", true, true, true );

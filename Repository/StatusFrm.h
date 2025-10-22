@@ -3,10 +3,10 @@
 		Module:			StatusFrm.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -65,10 +65,10 @@ __published:	// IDE-managed Components
 	void __fastcall FormShow(TObject *Sender);
 private:	// User declarations
 
-	gak::SharedObjectPointer<StatusThread>	theThread;
-	gak::Stack<gak::STRING>					stack;
-	bool									confirm;
-	bool									hidden;
+	gak::SharedObjectPointer<StatusThread>	m_theThread;
+	gak::Stack<gak::STRING>					m_stack;
+	bool									m_confirm;
+	bool									m_hidden;
 
 public:		// User declarations
 	bool setStatus( const gak::STRING &verb, const gak::STRING &status );
@@ -84,10 +84,10 @@ public:		// User declarations
 		bool confirm=true, bool hidden=false
 	)
 	{
-		stack.clear();
-		this->theThread = theThread;
-		this->confirm = confirm;
-		this->hidden = hidden;
+		m_stack.clear();
+		m_theThread = theThread;
+		m_confirm = confirm;
+		m_hidden = hidden;
 	}
 
 	void stopThread( void );
@@ -100,7 +100,7 @@ extern PACKAGE TStatusForm *StatusForm;
 class StatusThread : public gak::Thread
 {
 	public:
-	bool threadFinished;
+	bool m_threadFinished;
 
 	private:
 	virtual void perform( void ) = 0;
@@ -124,7 +124,7 @@ class StatusThread : public gak::Thread
 	}
 	StatusThread()
 	{
-		threadFinished = false;
+		m_threadFinished = false;
 	}
 
 };
@@ -134,16 +134,16 @@ class StatusThread : public gak::Thread
 inline bool TStatusForm::isTerminated( void )
 {
 	doEnterFunctionEx(gakLogging::llDetail, "TStatusForm::isTerminated");
-	return theThread ? theThread->terminated : false;
+	return m_theThread ? m_theThread->terminated : false;
 }
 //---------------------------------------------------------------------------
 inline void TStatusForm::stopThread( void )
 {
 	doEnterFunction("TStatusForm::stopThread");
 
-	if( theThread )
+	if( m_theThread )
 	{
-		theThread->StopThread();
+		m_theThread->StopThread();
 	}
 }
 //---------------------------------------------------------------------------

@@ -3,10 +3,10 @@
 		Module:			StatusFrm.cpp
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -50,7 +50,7 @@ TStatusForm *StatusForm;
 __fastcall TStatusForm::TStatusForm(TComponent* Owner)
 	: TForm(Owner)
 {
-	theThread = NULL;
+	m_theThread = NULL;
 }
 __fastcall TStatusForm::~TStatusForm()
 {
@@ -72,7 +72,7 @@ bool TStatusForm::setStatus( const STRING &verb, const STRING &status )
 
 			StatusLabel->Caption = (const char *)newCaption;
 
-			if( !theThread )
+			if( !m_theThread )
 				idleLoop();
 
 		}
@@ -82,7 +82,7 @@ bool TStatusForm::setStatus( const STRING &verb, const STRING &status )
 			doLogPosition();
 		}
 	}
-	return theThread ? theThread->terminated : false;
+	return m_theThread ? m_theThread->terminated : false;
 }
 //---------------------------------------------------------------------------
 bool TStatusForm::pushStatus( const STRING &verb, const STRING &status )
@@ -93,7 +93,7 @@ bool TStatusForm::pushStatus( const STRING &verb, const STRING &status )
 		{
 			STRING	oldCaption = StatusLabel->Caption.c_str();
 			if( !oldCaption.isEmpty() )
-				stack.push( oldCaption );
+				m_stack.push( oldCaption );
 			setStatus( verb, status );
 		}
 		catch( ... )
@@ -102,14 +102,14 @@ bool TStatusForm::pushStatus( const STRING &verb, const STRING &status )
 		}
 	}
 
-	return theThread ? (*theThread).terminated : false;
+	return m_theThread ? m_theThread->terminated : false;
 }
 //---------------------------------------------------------------------------
 bool TStatusForm::restore( void )
 {
-	if( stack.size() )
+	if( m_stack.size() )
 	{
-		STRING newCaption = stack.pop();
+		STRING newCaption = m_stack.pop();
 		if( !newCaption.isEmpty() )
 		{
 			try
@@ -124,14 +124,14 @@ bool TStatusForm::restore( void )
 		}
 	}
 
-	return theThread ? theThread->terminated : false;
+	return m_theThread ? m_theThread->terminated : false;
 }
 //---------------------------------------------------------------------------
 void __fastcall TStatusForm::FormCloseQuery(TObject *,
 	  bool &CanClose)
 {
 	Thread::CheckThreadCount();
-	CanClose = !theThread || !theThread->isRunning || theThread->threadFinished;
+	CanClose = !m_theThread || !m_theThread->isRunning || m_theThread->m_threadFinished;
 }
 //---------------------------------------------------------------------------
 void StatusThread::ExecuteThread( void )
@@ -141,7 +141,7 @@ void StatusThread::ExecuteThread( void )
 	{
 		perform();
 		StatusForm->setStatus( "Finish", "" );
-		threadFinished = true;
+		m_threadFinished = true;
 		StatusForm->Close();
 	}
 	catch( Exception &e )
@@ -163,27 +163,27 @@ void StatusThread::ExecuteThread( void )
 void __fastcall TStatusForm::FormClose(TObject *,
 	  TCloseAction &)
 {
-	stack.clear();
+	m_stack.clear();
 
 	// remove unused thread objects
 	Thread::CheckThreadCount();
-	theThread = NULL;
+	m_theThread = NULL;
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TStatusForm::BitBtnStopClick(TObject *)
 {
-	if( !theThread || !theThread->isRunning || theThread->threadFinished )
+	if( !m_theThread || !m_theThread->isRunning || m_theThread->m_threadFinished )
 		Close();
-	else if( confirm )
+	else if( m_confirm )
 	{
 		STRING	confirmMsg = "Stop ";
-		confirmMsg += (*theThread).getTitle();
+		confirmMsg += m_theThread->getTitle();
 		if( Application->MessageBox( confirmMsg, "Stop", MB_YESNO|MB_ICONSTOP ) == IDYES )
-			theThread->StopThread();
+			m_theThread->StopThread();
 	}
 	else
-		theThread->StopThread();
+		m_theThread->StopThread();
 }
 //---------------------------------------------------------------------------
 
@@ -192,7 +192,7 @@ void __fastcall TStatusForm::CheckThread(TObject *Sender)
 	bool	CanClose;
 
 	if( !Thread::CheckThreadCount() )
-		theThread = NULL;
+		m_theThread = NULL;
 
 	FormCloseQuery( Sender, CanClose );
 	if( CanClose )
@@ -205,7 +205,7 @@ void __fastcall TStatusForm::CheckThread(TObject *Sender)
 
 void __fastcall TStatusForm::FormShow(TObject *Sender)
 {
-	if( theThread )
+	if( m_theThread )
 	{
 		CheckThread( Sender );
 		BitBtnStop->Enabled = true;
@@ -218,7 +218,7 @@ void __fastcall TStatusForm::FormShow(TObject *Sender)
 void __fastcall TStatusForm::Dispatch(void *Message)
 {
 	TForm::Dispatch(Message);
-	if( hidden && ((PMessage)Message)->Msg == WM_SIZE )
+	if( m_hidden && ((PMessage)Message)->Msg == WM_SIZE )
 	{
 		TWindowState ws = WindowState;
 
@@ -233,13 +233,13 @@ void __fastcall TStatusForm::Dispatch(void *Message)
 bool TStatusForm::waitForUserSleep( unsigned long timeOut )
 {
 	bool result = false;
-	if( theThread )
+	if( m_theThread )
 	{
 		unsigned long lastInput = gak::Thread::GetLastInputTime();
 		while( lastInput < timeOut && !result)
 		{
 			IdleLabel->Caption = gak::STRING("Wait for system idle ") + gak::formatNumber((timeOut - lastInput + 500)/1000) + 's';
-			result = theThread->waitForUserSleep( 1000 );
+			result = m_theThread->waitForUserSleep( 1000 );
 			lastInput = gak::Thread::GetLastInputTime();
 		}
 		IdleLabel->Caption = "";

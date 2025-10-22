@@ -78,6 +78,7 @@ namespace ai
 
 static const uint16 IS_WORD	= 0x01;
 static const uint16 IS_TEXT	= 0x02;
+static const uint16 IS_IDENT= 0x04;
 
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
@@ -698,19 +699,29 @@ inline std::ostream &operator << ( std::ostream &out, const StatistikEntry &entr
 	return out;
 }
 
+template<typename StringT>
+bool isIdentifierChar( const StringT &identifier, char c )
+{
+	if( isLetter( c ) 
+	|| c == '_' 
+	|| (isDigit( c ) && identifier.size()) )
+		return true;
+	return false;
+}
+
 template<typename StringT, typename StringsT>
 StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 {
 	StringTokens						positions;
 	char								c;
 	size_t								letterCount = 0;
-	STRING								lastWord, word, text;
-	std::size_t							i, wordPosition, textPosition;
+	STRING								word, lastWord, identifier, lastIdentifier, text;
+	std::size_t							i, wordPosition, identifierPosition, textPosition;
 	typename StringT::const_iterator	it;
 
 	for(
 		it = string.cbegin(), i=0;
-		(c=*it) != 0 || word.strlen() || text.strlen();
+		(c=*it) != 0 || word.size() || text.size();
 		++i, ++it
 	)
 	{
@@ -725,7 +736,7 @@ StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 		}
 		else if( !word.isEmpty() )
 		{
-			size_t len = word.strlen();
+			size_t len = word.size();
 			if( len>1							// not a single charater			
 			&& !stopWords.hasElement( word ))	// not in stopWords
 			{
@@ -733,6 +744,28 @@ StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 			}
 			lastWord = word;
 			word = NULL_STRING;
+		}
+
+		if( isIdentifierChar( identifier, c ) )
+		{
+			if( identifier.isEmpty() )
+			{
+				identifierPosition = i;
+			}
+			identifier += c;
+		}
+		else if( !identifier.isEmpty() )
+		{
+			size_t len=identifier.strlen();
+			if( len>1								// not a single charater			
+			&& identifier != lastWord				// new identifier
+			&& !stopWords.hasElement( identifier )	// not in stopWords
+			&& letterCount > 0 )					// at least one letter
+			{
+				positions.addElement(Position(identifierPosition, len, IS_IDENT));
+			}
+			lastIdentifier = identifier;
+			identifier = NULL_STRING;
 		}
 
 		if( !isControlOrSpace( c ) )
@@ -748,6 +781,7 @@ StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 			size_t len=text.strlen();
 			if( len>1							// not a single charater			
 			&& text != lastWord					// new text
+			&& text != lastIdentifier			// new text
 			&& !stopWords.hasElement( text )	// not in stopWords
 			&& letterCount > 0					// at least one letter
 			&& (len<5 || letterCount>len/2))	// less than 5 characters or more letters than other characters
@@ -781,7 +815,7 @@ StringIndex processPositions( const StringT &string, const StringTokens &tokens 
 		const Position  &pos = *it;
 		STRING word = string.subString( pos.m_start, pos.m_len );
 
-		if( pos.m_flags&IS_WORD )
+		if( pos.m_flags&(IS_WORD|IS_IDENT) )
 		{
 			CI_STRING	simple = word.simplify();
 			if( simple.strlen() < 2 )
