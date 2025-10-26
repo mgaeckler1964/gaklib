@@ -76,7 +76,7 @@ static const uint16 BRAINVERSION = 1;
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-using ai::AiBrain;
+using ai::Brain;
 using ai::StringTokens;
 using ai::tokenString;
 
@@ -95,7 +95,7 @@ class AiBrainTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "AiBrainTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
-		AiBrain		theBrain;
+		Brain		theBrain;
 		STRING		word1 = "Martin",
 					word2 = "Gäckler",
 					word3 = "Linz",
@@ -137,7 +137,7 @@ class AiBrainTest : public UnitTest
 
 		writeToBinaryFile(BRAINFILE, theBrain, BRAINMAGIC, BRAINVERSION, owmOverwrite);
 
-		AiBrain		cloneBrain;
+		Brain		cloneBrain;
 		UT_ASSERT_EQUAL(cloneBrain.size(), 0UL);
 		readFromBinaryFile(BRAINFILE, &cloneBrain, BRAINMAGIC, BRAINVERSION, false);
 		UT_ASSERT_EQUAL(cloneBrain.size(), 1UL);

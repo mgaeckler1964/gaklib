@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -81,7 +81,7 @@ namespace ai
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-struct AiNode
+struct Node
 {
 	Array<STRING>	words;
 	size_t			count;
@@ -98,14 +98,14 @@ struct AiNode
 	}
 };
 
-struct AiIndex
+struct BrainIndexEntry
 {
 	STRING			word;
 	Set<size_t>		positions;
 
-	AiIndex() {}
-	AiIndex(const STRING &word) : word(word) {}
-	int compare( const AiIndex &e2 ) const
+	BrainIndexEntry() {}
+	BrainIndexEntry(const STRING &word) : word(word) {}
+	int compare( const BrainIndexEntry &e2 ) const
 	{
 		return gak::compare( word, e2.word );
 	}
@@ -121,10 +121,30 @@ struct AiIndex
 	}
 };
 
-class AiBrain
+struct CountIdxEntry
 {
-	Array<AiNode>	m_knowledge;
-	Btree<AiIndex>	m_index;
+	const Node *node;
+
+	CountIdxEntry(const Node *node) : node(node) {}
+
+	int compare( const CountIdxEntry &e2 ) const
+	{
+		int result = gak::compare( node->count, e2.node->count );
+		if( !result )
+		{
+			result = gak::compare( node->words.size(), e2.node->words.size() );
+		}
+		return result;
+	}
+};
+
+typedef Btree<CountIdxEntry>	BrainCountIdx;
+typedef Btree<BrainIndexEntry>	BrainIndex;
+
+class Brain
+{
+	Array<Node>		m_knowledge;
+	BrainIndex		m_index;
 
 	void createWordIndex(const STRING &w, size_t newPosition);
 	void createPair(const STRING &w1, const STRING &w2, size_t count);
@@ -156,6 +176,8 @@ class AiBrain
 		m_knowledge.clear();
 		m_index.clear();
 	}
+
+	void getCounterArray(BrainCountIdx *idx) const;
 };
 
 // --------------------------------------------------------------------- //

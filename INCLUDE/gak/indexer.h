@@ -96,6 +96,11 @@ inline STRING makeLowerIndex( const STRING &lowerWord )
 {
 	return lowerWord + ' ';
 }
+
+inline bool isSpecialIndex( const STRING &index )
+{
+	return index.size() > 1 && (index[0U] == ' ' || index[index.size()-1] == ' ');
+}
 #ifdef __BORLANDC__
 #	pragma warn +inl
 #endif
@@ -186,7 +191,7 @@ struct StatistikEntry
 	}
 };
 
-typedef Array<StatistikEntry>	StatistikData;
+typedef Btree<StatistikEntry>	StatistikData;
 
 template<typename SourceT>
 class Index
@@ -612,7 +617,6 @@ StatistikData Index<SourceT>::getStatistik() const
 		}
 		result.addElement( StatistikEntry( count, word ) );
 	}
-	result.sort(FixedComparator<StatistikEntry>());
 	return result;
 }
 

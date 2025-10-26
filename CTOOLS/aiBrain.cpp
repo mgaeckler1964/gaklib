@@ -153,26 +153,26 @@ static WordUsageCounter checkWordUsage( const StringIndex &index )
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-void AiBrain::createWordIndex(const STRING &w, size_t newPosition)
+void Brain::createWordIndex(const STRING &w, size_t newPosition)
 {
-	AiIndex *wi = const_cast<AiIndex *>(m_index.findElement(AiIndex(w)));
+	BrainIndexEntry *wi = const_cast<BrainIndexEntry *>(m_index.findElement(BrainIndexEntry(w)));
 	if( wi )
 	{
 		wi->positions.addElement(newPosition);
 	}
 	else
 	{
-		AiIndex wi(w);
+		BrainIndexEntry wi(w);
 		wi.positions.addElement(newPosition);
 		m_index.addElement(wi);
 	}
 
 }
 
-void AiBrain::createPair(const STRING &w1, const STRING &w2, size_t count)
+void Brain::createPair(const STRING &w1, const STRING &w2, size_t count)
 {
 	size_t	newPosition = m_knowledge.size();
-	AiNode &newNode = m_knowledge.createElement();
+	Node &newNode = m_knowledge.createElement();
 	newNode.words.addElement(w1);
 	newNode.words.addElement(w2);
 	newNode.count = count;
@@ -193,7 +193,7 @@ void AiBrain::createPair(const STRING &w1, const STRING &w2, size_t count)
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-size_t AiBrain::getPairCount(const STRING &w1, const STRING &w2) const
+size_t Brain::getPairCount(const STRING &w1, const STRING &w2) const
 {
 	if( w1 == w2 )
 	{
@@ -210,16 +210,16 @@ size_t AiBrain::getPairCount(const STRING &w1, const STRING &w2) const
 	}
 }
 
-size_t AiBrain::findPair(const STRING &w1, const STRING &w2) const
+size_t Brain::findPair(const STRING &w1, const STRING &w2) const
 {
 	if( w1 == w2 )
 	{
 		return m_index.no_index;
 	}
-	const AiIndex *wi1 = m_index.findElement(AiIndex(w1));
+	const BrainIndexEntry *wi1 = m_index.findElement(BrainIndexEntry(w1));
 	if( wi1 )
 	{
-		const AiIndex *wi2 = m_index.findElement(AiIndex(w2));
+		const BrainIndexEntry *wi2 = m_index.findElement(BrainIndexEntry(w2));
 		if( wi2 )
 		{
 			Set<size_t> is = intersect(wi1->positions, wi2->positions);
@@ -229,7 +229,7 @@ size_t AiBrain::findPair(const STRING &w1, const STRING &w2) const
 				++it
 			)
 			{
-				const AiNode &node = m_knowledge[*it];
+				const Node &node = m_knowledge[*it];
 				if( node.words.size() == 2 )
 				{
 					return *it;
@@ -241,11 +241,11 @@ size_t AiBrain::findPair(const STRING &w1, const STRING &w2) const
 	return m_index.no_index;
 }
 
-Set<STRING> AiBrain::getPartners( const STRING &word ) const
+Set<STRING> Brain::getPartners( const STRING &word ) const
 {
 	Set<STRING>	result;
 
-	const AiIndex *wi = m_index.findElement(AiIndex(word));
+	const BrainIndexEntry *wi = m_index.findElement(BrainIndexEntry(word));
 	if( wi )
 	{
 		for(
@@ -254,7 +254,7 @@ Set<STRING> AiBrain::getPartners( const STRING &word ) const
 			++it
 		)
 		{
-			const AiNode &node = m_knowledge[*it];
+			const Node &node = m_knowledge[*it];
 			if( node.words.size() == 2 )
 			{
 				if( node.words[0] != word )
@@ -271,7 +271,7 @@ Set<STRING> AiBrain::getPartners( const STRING &word ) const
 	return result;
 }
 
-void AiBrain::addPair(const STRING &w1, const STRING &w2, size_t count)
+void Brain::addPair(const STRING &w1, const STRING &w2, size_t count)
 {
 	if( w1 == w2 )
 	{
@@ -280,7 +280,7 @@ void AiBrain::addPair(const STRING &w1, const STRING &w2, size_t count)
 	size_t	existing = findPair(w1,w2);
 	if( existing != m_knowledge.no_index )
 	{
-		AiNode &node = m_knowledge[existing];
+		Node &node = m_knowledge[existing];
 		node.count += count;
 	}
 	else
@@ -289,7 +289,7 @@ void AiBrain::addPair(const STRING &w1, const STRING &w2, size_t count)
 	}
 }
 
-void AiBrain::learnFromIndex( const StringIndex &source, size_t numWords )
+void Brain::learnFromIndex( const StringIndex &source, size_t numWords )
 {
 	if( source.size() < 2 )
 	{
@@ -317,7 +317,7 @@ void AiBrain::learnFromIndex( const StringIndex &source, size_t numWords )
 	}
 }
 
-void AiBrain::learnFromTokens( const STRING &source, const StringTokens &tokens, size_t numWords )
+void Brain::learnFromTokens( const STRING &source, const StringTokens &tokens, size_t numWords )
 {
 	if( tokens.size() < 2 )
 	{
@@ -343,6 +343,20 @@ void AiBrain::learnFromTokens( const STRING &source, const StringTokens &tokens,
 			}
 		}
 	}
+}
+
+void Brain::getCounterArray(BrainCountIdx *idx) const
+{
+	idx->clear();
+	for(
+		Array<Node>::const_iterator it = m_knowledge.cbegin(), endIT = m_knowledge.cend();
+		it != endIT;
+		++it
+	)
+	{
+		idx->addElement( it );
+	}
+
 }
 
 // --------------------------------------------------------------------- //
