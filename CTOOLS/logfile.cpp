@@ -64,6 +64,7 @@
 
 #include <gak/thread.h>
 #include <gak/map.h>
+#include <gak/fmtNumber.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -136,7 +137,8 @@ struct ProfileEntry : public ProfileCmd
 typedef std::vector<ProfileEntry>			Summaries;
 typedef std::vector<ProfileEntry>			CallStack;
 typedef std::map<gak::ThreadID, CallStack>	CallStacks;
-typedef std::queue<ProfileCmd>				ProfileCmds;
+typedef std::vector<ProfileCmd>				ProfileVektor;
+typedef std::queue<ProfileCmd>				ProfileQueue;
 
 /*
 ---------------------------------------------------------------------------
@@ -213,8 +215,10 @@ typedef gak::PairMap<std::string, LoggingThreadPtr>	LoggingThreads;
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-LogLevel		g_minLogLevel			= llNolog;
-LogLevel		g_minProfileLevel		= llNolog;
+extern LogLevel		g_minLogLevel			= llNolog;
+extern LogLevel		g_minProfileLevel		= llNolog;
+extern void			(*g_showProgress)( char flag, size_t idx, size_t max ) = nullptr;
+
 
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
@@ -225,10 +229,14 @@ static bool	s_ignoreThread		= false;
 static bool	s_shutdownProfile	= false;
 static bool	s_shutdownLogging	= false;
 
-static ProfileCmds s_profileCmds;
+static ProfileQueue s_profileQueue;
 
 static bool s_flushDebug	= true;
 static bool s_asyncLog	= false;
+
+static gak::Critical s_profileCritical;
+static gak::Critical s_profileQueueCritical;
+static gak::Critical s_logCritical;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -276,6 +284,13 @@ static Summaries &getSummaryEntries()
 	return *summaryEntries;
 }
 
+static ProfileVektor &getProfileVektor()
+{
+	static ProfileVektor *profileVektor = new ProfileVektor();
+
+	return *profileVektor;
+}
+
 static FILE *getCsvFp( void )
 {
 	char		tmpFile[10240];
@@ -296,6 +311,7 @@ static FILE *getCsvFp( void )
 
 static void createSummaryEntry( ProfileEntry &logEntry )
 {
+	getProfileVektor().push_back(logEntry);
 	Summaries	&summaryEntries = getSummaryEntries();
 
 	for( 
@@ -345,6 +361,7 @@ static void writeProfilerCSV( void )
 /*@*/	return;
 	}
 
+	/// TODO use C++ I/O instead of C I/O
 	gak::STDfile	fp( getCsvFp() );
 	assert( fp );
 
@@ -390,6 +407,30 @@ static void writeProfilerCSV( void )
 	}
 
 	summaryEntries.clear();
+
+	ProfileVektor profileVctr = getProfileVektor();
+
+	if( profileVctr.size() )
+	{
+		fprintf( fp, "%s", "file,line,function,thread,cpu time,real time\n" );
+		for(
+			ProfileVektor::const_iterator it = profileVctr.begin(), endIT = profileVctr.end();
+			it != endIT;
+			++it
+		)
+		{
+			fprintf( fp, "%s,%d,\"%s\",%p,%lf,%lf\n", 
+				it->file,
+				it->line,
+				it->functionName,
+				(void*)it->threadId,
+				double(it->startTimeCPU)/double(CLOCKS_PER_SEC),
+				double(it->startTimeReal)/1000.0
+			);
+		}
+		profileVctr.clear();
+	}
+
 	disableLog();
 }
 
@@ -456,9 +497,9 @@ static void exitFunction2( gak::ThreadID curThread, std::clock_t cpuTime, std::c
 static void performProfiler( void )
 {
 	s_shutdownProfile = true;
-	while(s_profileCmds.size() )
+	while(s_profileQueue.size() )
 	{
-		const ProfileCmd &it = s_profileCmds.front();
+		const ProfileCmd &it = s_profileQueue.front();
 		if( it.start )
 		{
 			enterFunction2(it.logLevel,it.file, it.line, it.functionName, it.threadId, it.startTimeCPU, it.startTimeReal );
@@ -470,7 +511,7 @@ static void performProfiler( void )
 			// mark entry as finished
 			logEntries.pop_back();
 		}
-		s_profileCmds.pop();
+		s_profileQueue.pop();
 	}
 	writeProfilerCSV();
 }
@@ -649,9 +690,6 @@ void LoggingThread::logLine( const LogLine &line )
 	Profiling
 ---------------------------------------------------------------------------
 */
-gak::Critical s_profileCritical;
-gak::Critical s_profileCmdCritical;
-gak::Critical s_logCritical;
 
 ProfileMode enterProfile( LogLevel level, const char *file, int line, const char *function )
 {
@@ -679,8 +717,8 @@ ProfileMode enterProfile( LogLevel level, const char *file, int line, const char
 	theEntry.start = true;
 	{
 		//gak::LockGuard		lock( getLocker() );
-		gak::CriticalScope scope(s_profileCmdCritical);
-		s_profileCmds.push(theEntry);
+		gak::CriticalScope scope(s_profileQueueCritical);
+		s_profileQueue.push(theEntry);
 	}
 
 	return pm_ASYNCPROFILE;
@@ -704,9 +742,8 @@ void exitProfile( ProfileMode mode, LogLevel level, const char *file, int line, 
 	theEntry.startTimeReal = gak::UserTimeClock::clock();
 	theEntry.start = false;
 	{
-//		gak::LockGuard		lock( getLocker() );
-		gak::CriticalScope scope(s_profileCmdCritical);
-		s_profileCmds.push(theEntry);
+		gak::CriticalScope scope(s_profileQueueCritical);
+		s_profileQueue.push(theEntry);
 	}
 }
 
@@ -942,6 +979,41 @@ void fastLog()
 {
 	s_flushDebug	= false;
 	s_asyncLog	= true;
+}
+
+/*
+	show progress
+*/
+void showProgress( char flag, size_t idx, size_t max )
+{
+	static gak::Locker						s_consoleLocker;
+	static gak::StopWatch					s_watch(true);
+	static gak::PairMap<char,gak::STRING>	s_fields;
+	static char							s_last = 0;
+
+	if( flag != s_last || s_watch.getMillis() > 1000 )
+	{
+		if( max )
+			s_fields[flag] = gak::formatNumber(idx) + '/' + gak::formatNumber(max) + '(' + flag + ')';
+		else
+			s_fields[flag] = gak::formatNumber(idx) + '(' + flag + ')';
+
+		gak::LockGuard guard( s_consoleLocker );
+		if( guard )
+		{
+			if( s_watch.getMillis() > 1000 )
+			{
+				std::cout << '\r';
+				for( size_t i=0; i<s_fields.size(); ++i )
+				{
+					std::cout << i << ": " << s_fields.getValueAt(i) << ' ';
+				}
+				std::cout << "      \r";
+				s_watch.start();
+				s_last = flag;
+			}
+		}
+	}
 }
 
 }	// namespace gakLogging

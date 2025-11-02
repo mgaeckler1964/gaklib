@@ -128,6 +128,7 @@ class Profiler
 
 extern LogLevel g_minLogLevel;
 extern LogLevel g_minProfileLevel;
+extern void (*g_showProgress)( char flag, size_t idx, size_t max );
 
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
@@ -294,7 +295,7 @@ void disableLog( void );
 
 
 /*
-	threads and strams
+	threads and streams
 */
 
 #if DEBUG_LOG
@@ -316,6 +317,31 @@ void applyThreads( void );
 void flushLogs( void );
 void immediateLog();
 void fastLog();
+
+/*
+	show progress
+*/
+void showProgress( char flag, size_t idx, size_t max );
+
+inline void doShowProgress( char flag, size_t idx, size_t max=0 )
+{
+	if( g_showProgress ) g_showProgress( flag, idx, max );
+}
+
+inline void setupProgressShow(void (*iShowProgress)( char flag, size_t idx, size_t max ))
+{
+	g_showProgress = iShowProgress;
+}
+
+inline void enableDefaultProgressShow()
+{
+	g_showProgress = showProgress;
+}
+
+inline void disableProgressShow()
+{
+	g_showProgress = nullptr;
+}
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
