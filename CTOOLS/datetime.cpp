@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -233,6 +233,38 @@ long DateTime::calcTzOffset( void ) const
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+void DateTime::setDefaultTime( const STRING &defaultTime )
+{
+	try
+	{
+		T_STRING		dateTimeStr = defaultTime;
+		T_STRING		dateStr = dateTimeStr.getFirstToken( " " );
+		T_STRING		timeStr = dateTimeStr.getNextToken();
+
+		STRING			dayStr = dateStr.getFirstToken(".:/");
+		STRING			monthStr = dateStr.getNextToken();
+		STRING			yearStr = dateStr.getNextToken();
+		STRING			hourStr = timeStr.getFirstToken(".:/");
+		STRING			minuteStr = timeStr.getNextToken();
+		STRING			secondStr = timeStr.getNextToken();
+
+		unsigned		day = dayStr.getValueE<unsigned>();
+		unsigned		month = monthStr.getValueE<unsigned>();
+		unsigned		year = yearStr.getValueE<unsigned>();
+		unsigned char	hour = hourStr.getValueE<unsigned char>();
+		unsigned char	minute = minuteStr.getValueE<unsigned char>();
+		unsigned char	second = secondStr.getValueE<unsigned char>();
+
+		setDate( day, Month(month), year );
+		setTime( hour, minute, second );
+	}
+
+	catch( std::exception &e )
+	{
+		throw IllegalInternetTimestamp( defaultTime ).addErrorText( e );
+	}
+}
+
 void DateTime::setInetTime( const STRING &inetTime )
 {
 	try
@@ -302,7 +334,8 @@ void DateTime::setInetTime( const STRING &inetTime )
 	}
 	catch( std::exception &e )
 	{
-		throw IllegalInternetTimestamp( inetTime ).addErrorText( e );
+		setDefaultTime(inetTime);	// try the default time
+		// throw IllegalInternetTimestamp( inetTime ).addErrorText( e );
 	}
 }
 

@@ -3,10 +3,10 @@
 		Module:			datetime.h
 		Description:	Date and time handling class
 		Author:			Martin Gäckler
-		Address:		HoFmannsthalweg 14, A-4030 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2024 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -535,6 +535,7 @@ class DateTime : public Date, public Time
 
 		return tmp;
 	}
+	void setDefaultTime( const STRING &defaultTime );
 	void setInetTime( const STRING &inetTime );
 
 	Date::WeekDay weekDay() const
