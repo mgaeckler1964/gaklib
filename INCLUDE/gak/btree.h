@@ -63,6 +63,12 @@
 #	pragma option -pc
 #endif
 
+#ifdef __BORLANDC__
+#	define SAFER_BTREE	1
+#else
+#	define SAFER_BTREE	0
+#endif
+
 namespace gak
 {
 
@@ -292,12 +298,12 @@ class Btree : public Container
 		Node()
 		{
 			m_count = 1;
-			m_parent = m_prev = m_next = NULL;
+			m_parent = m_prev = m_next = nullptr;
 		}
 		Node( const OBJ &data ) : m_data( data )
 		{
 			m_count = 1;
-			m_parent = m_prev = m_next = NULL;
+			m_parent = m_prev = m_next = nullptr;
 		}
 		~Node()
 		{
@@ -356,22 +362,28 @@ class Btree : public Container
 	/// creates an empty tree
 	Btree( const Comparator &comparator = Comparator() ) : m_comparator( comparator )
 	{
-		m_root = NULL;
+		m_root = nullptr;
 	}
 
 	/// copy constructor
 	Btree( const Btree &src )
 	{
-		m_root = NULL;
+		m_root = nullptr;
 		m_comparator = src.m_comparator;
-		std::copy(src.cbegin(), src.cend(), std::back_inserter( *this ));
+#if SAFER_BTREE
+		if( src.size() )	// some compiler my produce bad code
+#endif
+			std::copy(src.cbegin(), src.cend(), std::back_inserter( *this ));
 	}
 	/// copy assignment
 	const Btree &operator = ( const Btree &src )
 	{
 		clear();
 		m_comparator = src.m_comparator;
-		std::copy(src.cbegin(), src.cend(), std::back_inserter( *this ));
+#if SAFER_BTREE
+		if( src.size() )	// some compiler my produce bad code
+#endif
+			std::copy(src.cbegin(), src.cend(), std::back_inserter( *this ));
 
 		return *this;
 	}
@@ -398,7 +410,7 @@ class Btree : public Container
 #endif
 	void forget( void )
 	{
-		m_root = NULL;
+		m_root = nullptr;
 		Container::clear();
 	}
 	public:
@@ -484,12 +496,12 @@ class Btree : public Container
 	/// returns the first element in the tree
 	const OBJ *getFirst( void ) const
 	{
-		return m_root ? &m_root->getFirst()->m_data : NULL;
+		return m_root ? &m_root->getFirst()->m_data : nullptr;
 	}
 	/// returns the last element in the tree
 	const OBJ *getLast( void ) const
 	{
-		return m_root ? &m_root->getLast()->m_data : NULL;
+		return m_root ? &m_root->getLast()->m_data : nullptr;
 	}
 	///@}
 
@@ -546,28 +558,28 @@ class Btree : public Container
 	private:
 	Node *findNode( const OBJ &data, int *oCompareResult=nullptr ) const
 	{
-		return m_root ? m_root->findNode( data, m_comparator, oCompareResult ) : NULL;
+		return m_root ? m_root->findNode( data, m_comparator, oCompareResult ) : nullptr;
 	}
 	Node *findMinNode( const OBJ &data ) const
 	{
-		return m_root ? m_root->findMinNode( data, m_comparator ) : NULL;
+		return m_root ? m_root->findMinNode( data, m_comparator ) : nullptr;
 	}
 
 	public:
 	/// return true if a given value is available
 	bool hasElement( const OBJ &data ) const
 	{
-		return findNode( data, nullptr ) != NULL;
+		return findNode( data, nullptr ) != nullptr;
 	}
 	/**
 		@brief searches for a value
 		@param [in] data the value to search for
-		@return the address of the element found NULL if not found
+		@return the address of the element found nullptr if not found
 	*/
 	const OBJ *findElement( const OBJ &data ) const
 	{
 		const Node *node = findNode( data );
-		return  node ? &node->m_data : NULL;
+		return  node ? &node->m_data : nullptr;
 	}
 	class const_iterator;
 
@@ -688,36 +700,64 @@ class Btree : public Container
 		// can change data
 		operator OBJ * ()
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			return &this->value->m_data;
 		}
 		OBJ *operator -> ()
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			return &this->value->m_data;
 		}
 		OBJ & operator * ()
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			return this->value->m_data;
 		}
 
 		// from front to back
 		const iterator &operator ++()				// pre inkrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			this->value = this->value->getNext();
 			return *this;
 		}
 		iterator operator ++( int )					// post inkrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			iterator		temp( *this );
 			this->value = this->value->getNext();
 			return temp;
 		}
 		const iterator &operator --()				// pre dekrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			this->value = this->value->getPrev();
 			return *this;
 		}
 		iterator operator --( int )					// post dekrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			iterator	temp = *this;
 			this->value = this->value->getPrev();
 			return temp;
@@ -737,36 +777,64 @@ class Btree : public Container
 		// can change data
 		operator OBJ * ()
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			return &this->value->data;
 		}
 		OBJ *operator -> ()
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			return &this->value->m_data;
 		}
 		OBJ & operator * ()
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			return this->value->m_data;
 		}
 
 		// from back to front
 		const reverse_iterator &operator ++()				// pre inkrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			this->value = this->value->getPrev();
 			return *this;
 		}
 		reverse_iterator operator ++( int )					// post inkrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			iterator		temp( *this );
 			this->value = this->value->getPrev();
 			return temp;
 		}
 		const reverse_iterator &operator --()				// pre dekrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			this->value = this->value->getNext();
 			return *this;
 		}
 		reverse_iterator operator --( int )					// post dekrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			iterator	temp = *this;
 			this->value = this->value->getNext();
 			return temp;
@@ -787,36 +855,64 @@ class Btree : public Container
 		// cannot change data
 		operator const OBJ * () const
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			return &this->value->m_data;
 		}
 		const OBJ *operator -> () const
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			return &this->value->m_data;
 		}
 		const OBJ & operator * () const
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			return this->value->m_data;
 		}
 
 		// from front to back
 		const const_iterator &operator ++()				// pre inkrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			this->value = this->value->getNext();
 			return *this;
 		}
 		const_iterator operator ++( int )					// post inkrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			const_iterator		temp( *this );
 			this->value = this->value->getNext();
 			return temp;
 		}
 		const const_iterator &operator --()					// pre dekrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			this->value = this->value->getPrev();
 			return *this;
 		}
 		const_iterator operator --( int )					// post dekrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			const_iterator	temp = *this;
 			this->value = this->value->getPrev();
 			return temp;
@@ -837,36 +933,64 @@ class Btree : public Container
 		// cannot change data
 		operator const OBJ * () const
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			return &this->value->m_data;
 		}
 		const OBJ *operator -> () const
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			return &this->value->m_data;
 		}
 		const OBJ & operator * () const
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			return this->value->m_data;
 		}
 
 		// from back to front
 		const const_reverse_iterator &operator ++()				// pre inkrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			this->value = this->value->getPrev();
 			return *this;
 		}
 		const_reverse_iterator operator ++( int )					// post inkrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			const_reverse_iterator		temp( *this );
 			this->value = this->value->getPrev();
 			return temp;
 		}
 		const const_reverse_iterator &operator --()				// pre dekrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			this->value = this->value->getNext();
 			return *this;
 		}
 		const_reverse_iterator operator --( int )					// post dekrement
 		{
+#if SAFER_BTREE
+			if( !this->value )
+				throw IndexError();
+#endif
 			const_reverse_iterator	temp = *this;
 			this->value = this->value->getNext();
 			return temp;
@@ -878,35 +1002,35 @@ class Btree : public Container
 	///@{
 	iterator begin()
 	{
-		return iterator( m_root ? m_root->getFirst() : NULL );
+		return iterator( m_root ? m_root->getFirst() : nullptr );
 	}
 	iterator end()
 	{
-		return iterator( NULL );
+		return iterator( nullptr );
 	}
 	const_iterator cbegin() const
 	{
-		return const_iterator( m_root ? m_root->getFirst() : NULL );
+		return const_iterator( m_root ? m_root->getFirst() : nullptr );
 	}
 	const_iterator cend() const
 	{
-		return const_iterator( NULL );
+		return const_iterator( nullptr );
 	}
 	reverse_iterator rbegin() const
 	{
-		return reverse_iterator( m_root ? m_root->getLast() : NULL );
+		return reverse_iterator( m_root ? m_root->getLast() : nullptr );
 	}
 	reverse_iterator rend() const
 	{
-		return reverse_iterator( NULL );
+		return reverse_iterator( nullptr );
 	}
 	const_reverse_iterator crbegin() const
 	{
-		return const_reverse_iterator( m_root ? m_root->getLast() : NULL );
+		return const_reverse_iterator( m_root ? m_root->getLast() : nullptr );
 	}
 	const_reverse_iterator crend() const
 	{
-		return const_reverse_iterator( NULL );
+		return const_reverse_iterator( nullptr );
 	}
 
 	void push_back( const OBJ &newData )
@@ -1044,9 +1168,9 @@ void Btree<OBJ,Comparator, FACTOR, OFFSET>::removeElement( Node *node )
 		node->m_parent->unlinkChild( node, m_comparator );
 	}
 
-	assert( node->m_parent == NULL );
-	assert( node->m_prev == NULL );
-	assert( node->m_next == NULL );
+	assert( node->m_parent == nullptr );
+	assert( node->m_prev == nullptr );
+	assert( node->m_next == nullptr );
 	delete node;
 	decNumElements();
 }
@@ -1128,36 +1252,36 @@ typename Btree<OBJ,Comparator, FACTOR, OFFSET>::Node *Btree<OBJ,Comparator, FACT
 	{
 		if( m_prev->m_count < m_next->m_count )
 		{
-			m_prev->m_parent = NULL;
+			m_prev->m_parent = nullptr;
 			addNode( m_prev, &m_next, compare );
 			newRoot = m_next;
 		}
 		else
 		{
-			m_next->m_parent = NULL;
+			m_next->m_parent = nullptr;
 			addNode( m_next, &m_prev, compare );
 			newRoot = m_prev;
 		}
-		newRoot->m_parent = NULL;
-		m_next = m_prev = NULL;
+		newRoot->m_parent = nullptr;
+		m_next = m_prev = nullptr;
 	}
 	else if( m_prev )
 	{
-		m_prev->m_parent = NULL;
+		m_prev->m_parent = nullptr;
 		newRoot = m_prev;
-		m_prev = NULL;
+		m_prev = nullptr;
 	}
 	else if( m_next )
 	{
-		m_next->m_parent = NULL;
+		m_next->m_parent = nullptr;
 		newRoot = m_next;
-		m_next = NULL;
+		m_next = nullptr;
 	}
 	else
 	{
-		newRoot = NULL;
+		newRoot = nullptr;
 	}
-	m_parent = NULL;
+	m_parent = nullptr;
 	m_count = 1;
 
 	return newRoot;
@@ -1212,10 +1336,10 @@ BalanceType Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::checkBalance( Node **ro
 		// add previous tree to next tree
 		if( thisRoot->m_prev )
 		{
-			thisRoot->m_prev->m_parent = NULL;
+			thisRoot->m_prev->m_parent = nullptr;
 			addNode( thisRoot->m_prev, &thisRoot->m_next, compare  );
 			assert( thisRoot->m_next->m_count == thisRoot->m_count-1 );
-			thisRoot->m_prev = NULL;
+			thisRoot->m_prev = nullptr;
 		}
 
 		// move next to root
@@ -1223,8 +1347,8 @@ BalanceType Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::checkBalance( Node **ro
 		thisRoot->m_next->m_parent = thisRoot->m_parent;
 
 		// remove me from tree
-		thisRoot->m_next = NULL;
-		thisRoot->m_parent = NULL;
+		thisRoot->m_next = nullptr;
+		thisRoot->m_parent = nullptr;
 		thisRoot->m_count = 1;
 
 		// add myself to the new root
@@ -1236,10 +1360,10 @@ BalanceType Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::checkBalance( Node **ro
 		// add next tree to previous tree
 		if( thisRoot->m_next )
 		{
-			thisRoot->m_next->m_parent = NULL;
+			thisRoot->m_next->m_parent = nullptr;
 			addNode( thisRoot->m_next, &thisRoot->m_prev, compare );
 			assert( thisRoot->m_prev->m_count == thisRoot->m_count-1 );
-			thisRoot->m_next = NULL;
+			thisRoot->m_next = nullptr;
 		}
 
 		// move prev to root
@@ -1247,8 +1371,8 @@ BalanceType Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::checkBalance( Node **ro
 		thisRoot->m_prev->m_parent = thisRoot->m_parent;
 
 		// remove me from tree
-		thisRoot->m_prev = NULL;
-		thisRoot->m_parent = NULL;
+		thisRoot->m_prev = nullptr;
+		thisRoot->m_parent = nullptr;
 		thisRoot->m_count = 1;
 
 		// add myself to the new root
@@ -1328,7 +1452,7 @@ typename Btree<OBJ,Comparator, FACTOR, OFFSET>::Node *Btree<OBJ,Comparator, FACT
 			*oCompareResult = compareResult;
 			return const_cast<Node *>(this);
 		}
-		return NULL;
+		return nullptr;
 	}
 	else if( compareResult < 0 )	// i'm smaller
 	{
@@ -1341,7 +1465,7 @@ typename Btree<OBJ,Comparator, FACTOR, OFFSET>::Node *Btree<OBJ,Comparator, FACT
 			*oCompareResult = compareResult;
 			return const_cast<Node *>(this);
 		}
-		return NULL;
+		return nullptr;
 	}
 	else
 	{
@@ -1379,7 +1503,7 @@ typename Btree<OBJ,Comparator, FACTOR, OFFSET>::Node *Btree<OBJ,Comparator, FACT
 	}
 	else if( compareResult < 0 )	// i'm smaller
 	{
-		result = m_next ? m_next->findMinNode( key, compare ) : NULL;
+		result = m_next ? m_next->findMinNode( key, compare ) : nullptr;
 	}
 	else
 	{
@@ -1408,7 +1532,7 @@ typename Btree<OBJ,Comparator, FACTOR, OFFSET>::Node *Btree<OBJ,Comparator, FACT
 	int compareResult = compare( this->m_data, key );
 	if( compareResult > 0 )			// i'm greater
 	{
-		result = m_prev ? m_prev->findMaxNode( key, compare ) : NULL;
+		result = m_prev ? m_prev->findMaxNode( key, compare ) : nullptr;
 	}
 	else if( compareResult < 0 )	// i'm smaller
 	{
