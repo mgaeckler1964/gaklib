@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -123,7 +123,7 @@ class PoolThread : public Thread
 	public:
 	PoolThread() : Thread(false)
 	{
-		m_dispatcher = NULL;
+		m_dispatcher = nullptr;
 		m_processing = false;
 	}
 
@@ -138,6 +138,22 @@ class PoolThread : public Thread
 		m_objectToProcess = objectToProcess;
 		m_dispatcher = dispatcher;
 		notify();
+	}
+
+	void process( const object_type &objectToProces )
+	{
+		m_processing = true;
+		m_objectToProcess = objectToProces;
+		m_dispatcher = nullptr;
+		try
+		{
+			m_objectProcessor.process( m_objectToProcess );
+		}
+		catch( ... )
+		{
+			/// TODO better error handling
+		}
+		m_processing = false;
 	}
 
 	/// returns true, if this thread is currently waiting for the next item (called by the dispatcher).
@@ -187,7 +203,7 @@ class ThreadPool
 		}
 	};
 
-
+	bool					m_singleThreadMode;
 	PoolArray				m_pool;
 	BlockedQueue<ObjectT>	m_queue;
 	PoolDispatcher			m_dispatcher;
@@ -198,7 +214,7 @@ class ThreadPool
 		@brief creates a new thread pool
 		@param count the numnber of worker threads to create
 	*/
-	ThreadPool( size_t count, const STRING &threadNames ) : m_pool(count), m_dispatcher( m_pool, m_queue ), m_threadNames(threadNames)
+	ThreadPool( size_t count, const STRING &threadNames ) : m_singleThreadMode(count==0), m_pool(m_singleThreadMode?1:count), m_dispatcher( m_pool, m_queue ), m_threadNames(threadNames)
 	{
 	}
 	~ThreadPool()
@@ -212,7 +228,14 @@ class ThreadPool
 	*/
 	void process( const ObjectT &objectToProcess )
 	{
-		m_queue.push( objectToProcess );
+		if(m_singleThreadMode)
+		{
+			m_pool[0].process(objectToProcess);
+		}
+		else
+		{
+			m_queue.push( objectToProcess );
+		}
 	}
 	/// waits for all objects in the queue to be processed returns after the last object is processed
 	void flush();
@@ -348,7 +371,7 @@ void ThreadPool<ObjectT, ThreadT>::PoolDispatcher::ExecuteThread( void )
 template <typename ObjectT, typename ThreadT>
 void ThreadPool<ObjectT, ThreadT>::start()
 {
-	if( !m_dispatcher.isRunning )
+	if( !m_singleThreadMode && !m_dispatcher.isRunning )
 	{
 		m_queue.clear();
 		for( 
