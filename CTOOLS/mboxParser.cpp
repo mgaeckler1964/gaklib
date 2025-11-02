@@ -340,7 +340,7 @@ STRING readMailHeader( std::istream &fp, MAIL *theMail )
 STRING readMailBody( std::istream &fp, const CI_STRING &contentTransfer, const CI_STRING &encoding, const STRING boundary, bool *endFound )
 {
 	doEnterFunctionEx(gakLogging::llDetail, "readMailBody" );
-
+	size_t lineNo=0;
 	STRING	begBoundary = "--" + boundary;
 	STRING	endBoundary = begBoundary + "--";
 
@@ -351,6 +351,7 @@ STRING readMailBody( std::istream &fp, const CI_STRING &contentTransfer, const C
 	{
 		curPos = fp.tellg();
 		fp >> line;
+		gakLogging::doShowProgress( 'r', ++lineNo );
 		if( line.isEmpty() )
 		{
 			empty = true;

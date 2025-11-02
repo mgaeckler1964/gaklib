@@ -76,9 +76,11 @@ namespace ai
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static const uint16 IS_WORD	= 0x01;
-static const uint16 IS_TEXT	= 0x02;
-static const uint16 IS_IDENT= 0x04;
+static const uint16 IS_WORD	= 0x01;			// any phrase with letters, only
+static const uint16 IS_TEXT	= 0x02;			// any non control charakter string
+static const uint16 IS_IDENT= 0x04;			// any programming (C, C++) identifiers
+
+static const uint16 IS_ANY = IS_WORD|IS_TEXT|IS_IDENT;
 
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
@@ -358,7 +360,7 @@ class Index
 		return m_searchIndex.hasElement(text);
 	}
 
-	StatistikData getStatistik() const;
+	void getStatistik(StatistikData *result) const;
 	SearchResult findWords(
 		const STRING &words,
 		bool withFuzzy, bool caseInsensitive, bool withWildcards
@@ -591,10 +593,10 @@ typename Index<SourceT>::SearchResult Index<SourceT>::findPatterns(
 // --------------------------------------------------------------------- //
 
 template<typename SourceT>
-StatistikData Index<SourceT>::getStatistik() const
+void Index<SourceT>::getStatistik(StatistikData *oResult) const
 {
 	doEnterFunctionEx(gakLogging::llInfo, "Index<SourceT>::getStatistik" );
-	StatistikData	result;
+	StatistikData	&result = *oResult;
 
 	for(
 		typename SearchIndex::const_iterator it = m_searchIndex.cbegin(),
@@ -617,7 +619,6 @@ StatistikData Index<SourceT>::getStatistik() const
 		}
 		result.addElement( StatistikEntry( count, word ) );
 	}
-	return result;
 }
 
 template<typename SourceT>
@@ -714,9 +715,9 @@ bool isIdentifierChar( const StringT &identifier, char c )
 }
 
 template<typename StringT, typename StringsT>
-StringTokens tokenString( const StringT &string, const StringsT &stopWords )
+void tokenString( const StringT &string, const StringsT &stopWords, int includeTypes, StringTokens *oPositions )
 {
-	StringTokens						positions;
+	StringTokens						&positions = *oPositions;
 	char								c;
 	size_t								letterCount = 0;
 	STRING								word, lastWord, identifier, lastIdentifier, text;
@@ -750,7 +751,7 @@ StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 			word = NULL_STRING;
 		}
 
-		if( isIdentifierChar( identifier, c ) )
+		if( (includeTypes & IS_IDENT) && isIdentifierChar( identifier, c ) )
 		{
 			if( identifier.isEmpty() )
 			{
@@ -772,7 +773,7 @@ StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 			identifier = NULL_STRING;
 		}
 
-		if( !isControlOrSpace( c ) )
+		if( (includeTypes & IS_TEXT) && !isControlOrSpace( c ) )
 		{
 			if( text.isEmpty() )
 			{
@@ -801,14 +802,12 @@ StringTokens tokenString( const StringT &string, const StringsT &stopWords )
 /*v*/		break;
 		}
 	}	// for( size_t i=0; (c=string[i]) != 0; ++i )
-
-	return positions;
 }
 
 template<typename StringT>
-StringIndex processPositions( const StringT &string, const StringTokens &tokens )
+void processPositions( const StringT &string, const StringTokens &tokens, StringIndex *oPositions )
 {
-	StringIndex positions;
+	StringIndex &positions = *oPositions;
 
 	for(
 		StringTokens::const_iterator it = tokens.cbegin(), endIT = tokens.cend();
@@ -839,13 +838,14 @@ StringIndex processPositions( const StringT &string, const StringTokens &tokens 
 		}
 		positions[word].addElement(pos);
 	}
-	return positions;
 }
 
 template<typename StringT, typename StringsT>
-StringIndex indexString( const StringT &string, const StringsT &stopWords )
+void indexString( const StringT &string, const StringsT &stopWords, int includeTypes, StringIndex *oPositions )
 {
-	return processPositions( string, tokenString( string, stopWords ) );
+	StringTokens	sToken;
+	tokenString( string, stopWords, includeTypes, &sToken );
+	processPositions( string, sToken, oPositions );
 }
 
 }	// namespace ai

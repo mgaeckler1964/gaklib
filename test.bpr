@@ -35,7 +35,8 @@
     <IDLCFLAGS value="-IBORLAND -ICTOOLS -I$(BCB)\include -I$(BCB)\include\vcl -I$(BCB)\ocx 
       -IVCLcomp -Iinclude -Ic:\openssl\include\. 
       -I&quot;C:\Program Files (x86)\OpenSSL\include\.&quot; -src_suffix cpp -D_DEBUG -boa"/>
-    <CFLAG1 value="-Od -Q -w -Vx -Ve -Tkh30000 -X- -r- -a8 -6 -b- -d -k -y -v -vi- -tWC -tWM -c"/>
+    <CFLAG1 value="-vGc -vGt -vGd -Od -Q -w -Vx -Ve -Tkh30000 -X- -r- -a8 -6 -b- -d -k -y -v 
+      -vi- -tWC -tWM -c"/>
     <PFLAGS value="-N2..\..\object\gaklib\test\bcb -N0..\..\object\gaklib\test\bcb -$Y+ -$W 
       -$O- -$I- -$C- -v -M -JPHNE"/>
     <RFLAGS value=""/>
@@ -45,7 +46,7 @@
   <LINKER>
     <ALLOBJ value="c0x32.obj $(OBJFILES)"/>
     <ALLRES value="$(RESFILES)"/>
-    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cw32mt.lib"/>
+    <ALLLIB value="cg32.lib $(LIBFILES) $(LIBRARIES) import32.lib cw32mt.lib"/>
   </LINKER>
   <IDEOPTIONS>
 [Version Info]
@@ -54,7 +55,7 @@ AutoIncBuild=1
 MajorVer=1
 MinorVer=0
 Release=0
-Build=4
+Build=5
 Debug=0
 PreRelease=0
 Special=0
@@ -66,7 +67,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=CRESD GmbH
 FileDescription=
-FileVersion=1.0.0.4
+FileVersion=1.0.0.5
 InternalName=
 LegalCopyright=(c) 20xx by CRESD GmbH
 LegalTrademarks=
@@ -116,7 +117,7 @@ Item2=..\..\object\
 DebugSourceDirs=.
 
 [Parameters]
-RunParams=AiBrainTest DateTimeTest IndexerTest RoutingTest
+RunParams=BtreeTest AiBrainTest DateTimeTest IndexerTest RoutingTest
 HostApplication=
 RemoteHost=
 RemotePath=
@@ -125,7 +126,7 @@ RemoteDebug=0
 [Compiler]
 ShowInfoMsgs=1
 LinkDebugVcl=1
-LinkCGLIB=0
+LinkCGLIB=1
 
 [CORBA]
 AddServerUnit=1

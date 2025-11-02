@@ -104,7 +104,8 @@ class IndexerTest : public UnitTest
 		stopWords.addElement( stopWord );
 		const STRING	testText1 = "the quick brown fox jumps over the lazy dog äöüß+ÄÖÜß=äöüßÄÖÜß";
 		const STRING	testText2 = "the best of the world of all brown universes namespace::class_name";
-		StringIndex	positions = indexString( testText1, stopWords );
+		StringIndex	positions;
+		indexString( testText1, stopWords, ai::IS_ANY, &positions );
 
 		UT_ASSERT_EQUAL( std::size_t(19), positions.size() );
 		UT_ASSERT_EQUAL( std::size_t(2), positions[searchWord1].size());
@@ -123,9 +124,11 @@ class IndexerTest : public UnitTest
 		UT_ASSERT_FALSE(
 			globalIndex.hasElement(searchWord3)
 		);
-		globalIndex.mergeIndexPositions( 
-			"testText2", indexString( testText2, stopWords )
-		);
+		{
+			gak::ai::StringIndex index;
+			indexString( testText2, stopWords, ai::IS_ANY, &index );
+			globalIndex.mergeIndexPositions( "testText2", index	);
+		}
 		UT_ASSERT_EQUAL( 
 			std::size_t(2), 
 			globalIndex[searchWord1].size()
@@ -179,10 +182,15 @@ class IndexerTest : public UnitTest
 		sources = globalIndex.findWords( "fox all", true, true, true );
 		UT_ASSERT_EQUAL( std::size_t(2), sources.size() );
 
-		StatistikData	stats = globalIndex.getStatistik();
+		StatistikData	stats;
+		globalIndex.getStatistik(&stats);
 		UT_ASSERT_EQUAL( std::size_t(34), stats.size() );
 
-		globalIndex.mergeIndexPositions( "Gäckler", indexString( STRING("Gäckler"), stopWords ) );
+		{
+			gak::ai::StringIndex index;
+			indexString( STRING("Gäckler"), stopWords, ai::IS_ANY, &index );
+			globalIndex.mergeIndexPositions( "Gäckler", index );
+		}
 		sources = globalIndex.findWords( "gakler", true, true, true );
 		UT_ASSERT_EQUAL( std::size_t(1), sources.size() );
 		Index<STRING>::RelevantHits	relevant = globalIndex.getRelevantHits( "gakler", true, true, true );

@@ -125,11 +125,11 @@
     <PFLAGS value="-N2..\..\Object\gaklib\win\bcb -N0..\..\Object\gaklib\win\bcb -$Y- -$L- 
       -$D- -v -JPHNE -M"/>
     <AFLAGS value="/mx /w2 /zn"/>
-    <LFLAGS value="/P256 /C"/>
+    <LFLAGS value="/P512 /C"/>
   </OPTIONS>
   <LINKER>
     <ALLOBJ value="$(OBJFILES)"/>
-    <ALLLIB value=""/>
+    <ALLLIB value="cg32.lib"/>
   </LINKER>
   <IDEOPTIONS>
 [Version Info]
@@ -199,13 +199,14 @@ Count=1
 Item0=..\..\Object\gaklib\
 
 [HistoryLists\hlTlibPageSize]
-Count=6
-Item0=0x0100
-Item1=0x0080
-Item2=0x0040
-Item3=64
-Item4=0x0020
-Item5=0x0010
+Count=7
+Item0=0x0200
+Item1=0x0100
+Item2=0x0080
+Item3=0x0040
+Item4=64
+Item5=0x0020
+Item6=0x0010
 
 [Debugging]
 DebugSourceDirs=$(BCB)\source\vcl

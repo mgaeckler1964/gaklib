@@ -291,6 +291,7 @@ void Brain::addPair(const STRING &w1, const STRING &w2, size_t count)
 
 void Brain::learnFromIndex( const StringIndex &source, size_t numWords )
 {
+	doEnterFunctionEx( gakLogging::llInfo, "Brain::learnFromIndex" );
 	if( source.size() < 2 )
 	{
 		return;				// index too small
@@ -319,6 +320,7 @@ void Brain::learnFromIndex( const StringIndex &source, size_t numWords )
 
 void Brain::learnFromTokens( const STRING &source, const StringTokens &tokens, size_t numWords )
 {
+	doEnterFunctionEx( gakLogging::llInfo, "Brain::learnFromTokens" );
 	if( tokens.size() < 2 )
 	{
 		return;				// index too small
@@ -326,19 +328,26 @@ void Brain::learnFromTokens( const STRING &source, const StringTokens &tokens, s
 
 	for( size_t i=0; i<tokens.size()-1; ++i )
 	{
+		gakLogging::doShowProgress( 't', i, tokens.size() );
+
 		const Position &pos1 = tokens[i];
-		STRING word1 = source.subString(pos1.m_start, pos1.m_len);
-		size_t wordsToProcess = numWords;
-		for( size_t j=i+1; j<tokens.size() && wordsToProcess; ++j )
+		if( pos1.m_flags & IS_WORD )
 		{
-			const Position &pos2 = tokens[j];
-			if( pos2.m_flags & IS_WORD )
+			STRING word1 = source.subString(pos1.m_start, pos1.m_len);
+			size_t wordsToProcess = numWords;
+			for( size_t j=i+1; j<tokens.size() && wordsToProcess; ++j )
 			{
-				STRING word2 = source.subString(pos2.m_start, pos2.m_len);
-				if( word1 != word2 )
+				gakLogging::doShowProgress( 'T', j, tokens.size() );
+
+				const Position &pos2 = tokens[j];
+				if( pos2.m_flags & IS_WORD )
 				{
-					addPair( word1, word2 );
-					--wordsToProcess;
+					STRING word2 = source.subString(pos2.m_start, pos2.m_len);
+					if( word1 != word2 )
+					{
+						addPair( word1, word2 );
+						--wordsToProcess;
+					}
 				}
 			}
 		}

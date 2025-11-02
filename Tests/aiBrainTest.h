@@ -147,7 +147,9 @@ class AiBrainTest : public UnitTest
 		UT_ASSERT_EQUAL(count, 2UL);
 
 		const STRING	testText1 = "the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog handball fussball fcbaiern Martin";
-		StringTokens	tokens = tokenString( testText1, Array<STRING>() );
+
+		StringTokens	tokens;
+		tokenString( testText1, Array<STRING>(), ai::IS_ANY, &tokens );
 		UT_ASSERT_EQUAL(tokens.size(), 31UL);
 		UT_ASSERT_EQUAL(cloneBrain.size(), 1UL);
 		cloneBrain.learnFromTokens(testText1, tokens, 5);
@@ -156,7 +158,8 @@ class AiBrainTest : public UnitTest
 		UT_ASSERT_GREATEREQ(count, size_t(1UL));
 
 		const STRING	testText2 = "Martin Gäckler lebt in Linz";
-		StringIndex positions = indexString( testText2, Array<STRING>() );
+		StringIndex positions;
+		indexString( testText2, Array<STRING>(), ai::IS_ANY, &positions );
 		cloneBrain.learnFromIndex(positions, 10);
 		UT_ASSERT_EQUAL(cloneBrain.size(), 58UL);
 		count = cloneBrain.getPairCount("the", "fcbaiern");
