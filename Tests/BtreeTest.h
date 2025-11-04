@@ -156,7 +156,6 @@ class BtreeTest : public UnitTest
 		return root;
 	}
 
-
 	template <typename ContainerT>
 	void rebalanceTest(ContainerT &container, bool expectBadInput)
 	{
@@ -283,7 +282,8 @@ class BtreeTest : public UnitTest
 			{
 				container += randomNumber( std::numeric_limits<int>::max() );
 			}
-			//container.test(true);
+			size_t depth;
+			container.test(&depth, true);
 		}
 		UT_ASSERT_TRUE( container.test(&depth) );
 
@@ -330,13 +330,11 @@ class BtreeTest : public UnitTest
 			TestScope scope( "<10,5>" );
 			ContainerTest<10,5>(numItems,orderedAdd, true);
 		}
-
 		{
 			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::PerformTest::<2,5>" );
 			TestScope scope( "<2,5>" );
 			ContainerTest<2,5>(numItems,orderedAdd,true);
 		}
-
 		{
 //			TestScope scope( "<10,5> no loop" );
 //			ContainerTest<2,5>(64000,true,false);
@@ -424,6 +422,35 @@ class BtreeTest : public UnitTest
 		value = map[60000];
 		UT_ASSERT_TRUE( value.isEmpty() );
 	}
+
+	virtual bool canStressTest()
+	{
+		return true;
+	}
+	virtual void StressTest( size_t factor )
+	{
+		{
+			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::PerformTest::<10,5>" );
+			TestScope scope( "<10,5>" );
+			ContainerTest<10,5>(factor*10240,true, true);
+		}
+
+		{
+			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::PerformTest::<2,5>" );
+			TestScope scope( "<2,5>" );
+			ContainerTest<2,5>(factor*1024,false,true);
+		}
+	}
+	virtual bool canThreadTest()
+	{
+		return true;
+	}
+	virtual UnitTest *duplicate()
+	{
+		return new BtreeTest( false );
+	}
+	public:
+	BtreeTest( bool isStatic=true ) : UnitTest( isStatic ) {}
 };
 
 // --------------------------------------------------------------------- //

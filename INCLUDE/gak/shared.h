@@ -4,10 +4,10 @@
 		Description:	Template for smart pointer that can automaticaly 
 						destroy objects no longer used
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -16,7 +16,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -42,6 +42,8 @@
 // --------------------------------------------------------------------- //
 
 #include <assert.h>
+
+#include <gak/locker.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -82,8 +84,9 @@ namespace gak
 */
 class SharedObject
 {
-	int		usageCount;
-	bool	autoDelete;
+	Critical	m_critical;
+	int			m_usageCount;
+	bool		m_autoDelete;
 
 	protected:
 	/**
@@ -92,44 +95,47 @@ class SharedObject
 	*/
 	SharedObject( bool autoDelete=true )
 	{
-		usageCount = 0;
-		this->autoDelete = autoDelete;
+		m_usageCount = 0;
+		m_autoDelete = autoDelete;
 	}
 	~SharedObject()
 	{
-		assert( !usageCount );
+		assert( !m_usageCount );
 	}
 
 	public:
 	/// Increments the usage counter
-	void incUC( void )
+	void incUC()
 	{
-		usageCount++;
+		CriticalScope scope( m_critical );
+		m_usageCount++;
 	}
 	/// Decrements the usage counter
-	int decUC( void )
+	int decUC()
 	{
-		return --usageCount;
+		CriticalScope scope( m_critical );
+		--m_usageCount;
+		return m_usageCount;
 	}
 	/// Disables the automatoc deletion
-	void disableAutoDelete( void )
+	void disableAutoDelete()
 	{
-		autoDelete = false;
+		m_autoDelete = false;
 	}
 	/// Enables the automatoc deletion
-	void enableAutoDelete( void )
+	void enableAutoDelete()
 	{
-		autoDelete = true;
+		m_autoDelete = true;
 	}
 	/// Returns true if the item can be automatically deleted
-	bool canDelete( void ) const
+	bool canDelete() const
 	{
-		return autoDelete;
+		return m_autoDelete;
 	}
 	/// Returns the number of SharedObjectPointer objects pointing to this item
-	int getUsageCount( void ) const
+	int getUsageCount() const
 	{
-		return usageCount;
+		return m_usageCount;
 	}
 };
 
@@ -239,7 +245,7 @@ class SharedObjectPointer
 		return get();
 	}
 	/// Returns the address of the item this pointer points to
-	ShObj *operator -> ( void ) const
+	ShObj *operator -> () const
 	{
 		return get();
 	}
@@ -250,7 +256,7 @@ class SharedObjectPointer
 	}
 
 	/// Returns true, if this pointer points to no item (NULL)
-	bool operator ! ( void ) const
+	bool operator ! () const
 	{
 		assert( !m_addr || m_addr->getUsageCount() > 0 );
 		return m_addr == NULL;
@@ -371,12 +377,12 @@ class SharedPointer
 	}
 
 	/// Returns the address of the item this pointer points to
-	operator OBJ * ( void ) const
+	operator OBJ * () const
 	{
 		return m_shPointer ? &(m_shPointer->get()) : NULL;
 	}
 	/// Returns the address of the item this pointer points to
-	OBJ *operator -> ( void ) const
+	OBJ *operator -> () const
 	{
 		return m_shPointer ? &(m_shPointer->get()) : NULL;
 	}
@@ -388,7 +394,7 @@ class SharedPointer
 	}
 
 	/// Returns true, if this pointer points to no item (NULL)
-	bool operator ! ( void ) const
+	bool operator ! () const
 	{
 		return !m_shPointer;
 	}

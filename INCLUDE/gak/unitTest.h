@@ -42,11 +42,13 @@
 
 #include <gak/stopWatch.h>
 #include <gak/array.h>
+#include <gak/sortedArray.h>
 #include <gak/fmtNumber.h>
 #include <gak/stringStream.h>
 #include <gak/locker.h>
 #include <gak/math.h>
 #include <gak/logfile.h>
+#include <gak/thread.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -147,14 +149,23 @@ struct TestResult
 	}
 };
 
+struct StressResult
+{
+	STRING	testName;
+	size_t	goodCount, badCount;
+	clock_t	goodTime, badTime;
+};
+
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
 class UnitTest
 {
+	enum TestMode { tmTest, tmStress, tmThread };
 	static Array<TestResult>	s_theTestResults;
-	static Stack<const char *>	s_scopes;
+	static Array<StressResult>	s_theStressResults;
+	static Stack<const char *>	s_scopes;				/// TODO make this thread local
 	static std::size_t			s_errorCount;
 
 	protected:
@@ -167,15 +178,62 @@ class UnitTest
 	private:
 	static Array<UnitTest*> &getTheTestItems();
 	static void PerformTest( UnitTest *theTest );
+	static void StressTest( UnitTest *theTest );
+	static void ThreadTest( UnitTest *theTest, void *pool );
 
-	virtual void PerformTest( void ) = 0;
-	virtual const char *GetClassName( void ) const = 0;
+	static void PerformTests( SortedArray<const char*> &testsToPerform );
+	static void StressTests( SortedArray<const char*> &testsToPerform );
+	static void ThreadTest( SortedArray<const char*> &testsToPerform );
+
+	static void ShowNotFound( const SortedArray<const char*> &testsToPerform );
+
+	virtual void StressTest( size_t /* factor */ )
+	{
+	}
+	virtual bool canStressTest()
+	{
+		return false;
+	}
+	virtual bool canThreadTest()
+	{
+		return false;
+	}
+	virtual UnitTest *duplicate()
+	{
+		return nullptr;
+	}
+	virtual void PerformTest() = 0;
+	virtual const char *GetClassName() const = 0;
 	bool isDisabled() const
 	{
 		return !strncmp(GetClassName(), DISABLED_TEST_PREFIX, sizeof(DISABLED_TEST_PREFIX)-1 );
 	}
 
+	friend class TestScope;
+	static void AddScope( const char *scope )
+	{
+		s_scopes.push( scope );
+	}
+	static void EndScope()
+	{
+		s_scopes.pop();
+	}
+
 	public:
+	UnitTest( bool isStatic = true )
+	{
+		m_ellapsedTime = 0;
+		m_tested = false;
+
+		if( isStatic )
+		{
+			getTheTestItems() += this;
+		}
+	}
+
+	static void PerformTests( const char *argv[] );
+	static void PrintResult();
+	virtual void PerformThreadTest();
 	static void AddResult(
 		const char		*className,
 		const char		*srcFileName,
@@ -194,32 +252,21 @@ class UnitTest
 		newResult.m_testItem = testItem;
 		newResult.m_actualValue = actualValue;
 		newResult.m_success = success;
-		newResult.m_scope = s_scopes.size() ? s_scopes.top() : "";
+		
+		if( Thread::isMainThread() )
+		{
+			newResult.m_scope = s_scopes.size() ? s_scopes.top() : "";
+		}
+		else
+		{
+			newResult.m_scope = "Thread";
+		}
 		if( !success )
 		{
 			++s_errorCount;
 			//std::cerr << actualValue << std::endl;
 		}
 	}
-	static void AddScope( const char *scope )
-	{
-		s_scopes.push( scope );
-	}
-	static void EndScope()
-	{
-		s_scopes.pop();
-	}
-
-	UnitTest()
-	{
-		m_ellapsedTime = 0;
-		m_tested = false;
-
-		getTheTestItems() += this;
-	}
-
-	static void PerformTests( const char *argv[] );
-	static void PrintResult( void );
 };
 
 class TestScope
@@ -228,11 +275,13 @@ class TestScope
 	TestScope( const char *scope )
 	{
 		doLogValue( scope );
-		UnitTest::AddScope( scope );
+		if( Thread::isMainThread() )
+			UnitTest::AddScope( scope );
 	}
 	~TestScope()
 	{
-		UnitTest::EndScope();
+		if( Thread::isMainThread() )
+			UnitTest::EndScope();
 	}
 };
 

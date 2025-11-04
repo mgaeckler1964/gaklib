@@ -78,6 +78,7 @@
     <ClCompile Include="CTOOLS\httpProfiler.cpp" />
     <ClCompile Include="CTOOLS\httpResponse.cpp" />
     <ClCompile Include="CTOOLS\INIFILE.cpp" />
+    <ClCompile Include="CTOOLS\inspector.cpp" />
     <ClCompile Include="CTOOLS\int2mot.c" />
     <ClCompile Include="CTOOLS\io.cpp" />
     <ClCompile Include="CTOOLS\list.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="INCLUDE\gak\httpProfiler.h" />
     <ClInclude Include="INCLUDE\gak\httpResponse.h" />
     <ClInclude Include="INCLUDE\gak\indexer.h" />
+    <ClInclude Include="INCLUDE\gak\inspector.h" />
     <ClInclude Include="INCLUDE\gak\io.h" />
     <ClInclude Include="INCLUDE\gak\iostream.h" />
     <ClInclude Include="INCLUDE\gak\KeyValuePair.h" />

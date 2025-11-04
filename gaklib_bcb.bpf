@@ -103,6 +103,7 @@ USEUNIT("CTOOLS\aiBrain.cpp");
 USEUNIT("CTOOLS\chess.cpp");
 USEUNIT("CTOOLS\board.cpp");
 USEUNIT("CTOOLS\figure.cpp");
+USEUNIT("CTOOLS\inspector.cpp");
 //---------------------------------------------------------------------------
 #define Library
 

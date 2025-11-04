@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			THREAD.CPP
-		Description:	The Threads
+		Module:			inspector.h
+		Description:	A variable inspector for debugging
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -29,6 +29,9 @@
 		SUCH DAMAGE.
 */
 
+#ifndef GAK_DEBUG_WATCH
+#define GAK_DEBUG_WATCH
+
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -37,9 +40,11 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <time.h>
+#include <assert.h>
 
-#include <gak/thread.h>
+// --------------------------------------------------------------------- //
+// ----- imported datas ------------------------------------------------ //
+// --------------------------------------------------------------------- //
 
 // --------------------------------------------------------------------- //
 // ----- module switches ----------------------------------------------- //
@@ -47,11 +52,14 @@
 
 #ifdef __BORLANDC__
 #	pragma option -RT-
+#	pragma option -b
 #	pragma option -a4
 #	pragma option -pc
 #endif
 
 namespace gak
+{
+namespace columbo
 {
 
 // --------------------------------------------------------------------- //
@@ -63,15 +71,11 @@ namespace gak
 // --------------------------------------------------------------------- //
 
 // --------------------------------------------------------------------- //
+// ----- type definitions ---------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- module static data -------------------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- imported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
 // --------------------------------------------------------------------- //
@@ -85,9 +89,6 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-Array< SharedObjectPointer<Thread> >	Thread::theThreadList;
-Locker									Thread::theThreadListLocker;
 
 // --------------------------------------------------------------------- //
 // ----- prototypes ---------------------------------------------------- //
@@ -105,165 +106,13 @@ Locker									Thread::theThreadListLocker;
 // ----- class constructors/destructors -------------------------------- //
 // --------------------------------------------------------------------- //
 
-Thread::Thread( bool autoDelete ) : SharedObject( autoDelete )
-{
-	CheckThreadCount();		// remove lo longer used threads
-
-	terminated = false;
-	isWaiting = false;
-	isRunning = false;
-}
-
 // --------------------------------------------------------------------- //
 // ----- class static functions ---------------------------------------- //
 // --------------------------------------------------------------------- //
 
-Thread::T_RETURN WINAPI Thread::RunThreadCallback( T_PARAM data )
-{
-	Thread	*theThread = static_cast<Thread*>(data);
-
-	theThread->RunThread();
-
-	return 0;
-}
-
-size_t Thread::CheckThreadCount( bool ownThreads, Array<P_HANDLE> *list )
-{
-	size_t		i, otherThreads;
-	ThreadID	threadID = ownThreads ? Locker::GetCurrentThreadID() : 0;
-
-	otherThreads = i = 0;
-
-	{
-		LockGuard	lock( theThreadListLocker );
-
-		if( lock )
-		{
-			while( i<theThreadList.size() )
-			{
-				SharedObjectPointer<Thread> &theThread = GetThread( i );
-				if( !theThread->isRunning )
-				{
-					theThread = NULL;
-					theThreadList.removeElementAt( i );
-				}
-				else
-				{
-					if( threadID && theThread->m_ownerThreadID != threadID )
-						otherThreads++;
-					else if( list )
-#ifdef _Windows
-						*list += theThread->theThreadHandle.get();
-#else
-						*list += theThread->m_threadID;
-#endif
-					i++;
-				}
-			}
-		}
-	}
-
-	return theThreadList.size() - otherThreads;
-}
-
-SharedObjectPointer<Thread> Thread::FindThread( ThreadID threadID )
-{
-	SharedObjectPointer<Thread>	result;
-	size_t						numThreads;
-	bool						found = false;
-
-	{
-		LockGuard	lock( theThreadListLocker, 10000 );
-
-		if( lock )
-		{
-			numThreads = theThreadList.size();
-
-			for( size_t i=0; i<numThreads; i++ )
-			{
-				result = GetThread( i );
-				if( result->getThreadID() == threadID )
-				{
-					found = true;
-/*v*/				break;
-				}
-			}
-		}
-	}
-
-	if( !found )
-		result = NULL;
-
-	return result;
-}
-
-bool Thread::waitForThreads( unsigned long timeOut, bool ownThreads )
-{
-	bool			result;
-	Array<P_HANDLE>	myThreads;
-
-	size_t			numThreads = CheckThreadCount( ownThreads, &myThreads );
-
-	result = (numThreads == 0);
-	if( !result )
-	{
-#ifdef _Windows
-		unsigned long status = WaitForMultipleObjects(
-			DWORD(numThreads), myThreads.getDataBuffer(), true, timeOut
-		);
-
-		result = (status == WAIT_OBJECT_0);
-#else
-		for( size_t i=0; i<myThreads.size(); i++ )
-		{
-			result = pthread_join( myThreads[i], NULL );
-			if( result )
-/*v*/			break;
-		}			
-#endif
-	}
-
-	return result;
-}
-
-#ifdef _Windows
-bool Thread::waitForMsgThreads( unsigned long timeOut, bool ownThreads )
-{
-	Array<HANDLE>	myThreads;
-
-	size_t			numThreads = CheckThreadCount( ownThreads, &myThreads );
-
-	if( numThreads )
-	{
-		MsgWaitForMultipleObjects(
-			DWORD(numThreads), (LPHANDLE)myThreads.getDataBuffer(), false, timeOut, QS_ALLINPUT
-		);
-	}
-
-
-	myThreads.clear();
-	numThreads = CheckThreadCount( ownThreads, &myThreads );
-	return numThreads == 0;
-}
-#endif
-
 // --------------------------------------------------------------------- //
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
-
-void Thread::RunThread( void )
-{
-	setRunning();
-	try
-	{
-		ExecuteThread();
-	}
-	catch( ... )
-	{
-		// ignore any exceptions
-	}
-	clrRunning();
-}
 
 // --------------------------------------------------------------------- //
 // ----- class protected ----------------------------------------------- //
@@ -272,103 +121,63 @@ void Thread::RunThread( void )
 // --------------------------------------------------------------------- //
 // ----- class virtuals ------------------------------------------------ //
 // --------------------------------------------------------------------- //
-
+   
 // --------------------------------------------------------------------- //
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-void Thread::StartThread( const STRING &name, bool hideOwner )
-{
-	CheckThreadCount();		// remove lo longer used threads
-
-	if( isRunning )
-	{
-		return;				// do not start a thread twice
-	}
-
-	terminated = false;
-	isWaiting = false;
-	setRunning();
-
-	m_ownerThreadID = hideOwner ? -1 : Locker::GetCurrentThreadID();
-	{
-		LockGuard lock( theThreadListLocker, 10000 );
-		if( lock )
-		{
-			m_name = name;
-			theThreadList += SharedObjectPointer<Thread>(this);
-		}
-	}
-
-	#if (defined( __BORLANDC__ ) &&!defined( __MT__ )) || defined( NOTHREADS )
-		RunThread();
-	#else
-
-		#if defined( _Windows )
-			theThreadHandle = CreateThread(
-				NULL, 1024,
-				RunThreadCallback,
-				(LPVOID)this,
-				0,
-				&m_threadID
-			);
-		#elif defined( __MACH__ ) || defined( __unix__ )
-			pthread_create( &m_threadID, NULL, RunThreadCallback, this );
-		#endif
-	#endif
-}
-
-void Thread::StopThread( bool stopImmediately )
-{
-	CheckThreadCount();		// remove lo longer used threads
-
-	terminated = true;
-
-	m_theConditional.notify();
-
-	if( stopImmediately )
-	{
-#if defined( _Windows )
-		::TerminateThread(theThreadHandle.get(), 0 );
-#elif defined( __MACH__ ) || defined( __unix__ )
-		pthread_cancel( m_threadID );
-#endif
-		clrRunning();
-	}
-}
-
-#ifdef _Windows
-bool Thread::waitForUserSleep( unsigned long timeOut )
-{
-	bool			ok;
-	LASTINPUTINFO	lastInputInfo;
-	unsigned long	lastPeriod;
-
-	lastInputInfo.cbSize = sizeof( lastInputInfo );
-	while( !terminated )
-	{
-		ok = GetLastInputInfo( &lastInputInfo );
-		if( ok )
-		{
-			lastPeriod = GetTickCount()-lastInputInfo.dwTime;
-			if( lastPeriod > timeOut )
-/*v*/			break;
-			Sleep( timeOut - lastPeriod );
-		}
-		else
-			Sleep( 1000 );
-	}
-	return terminated;
-}
-#endif
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-}	// namespace gak
 
-#ifdef __BORLANDC__
-#	pragma option -p.
-#	pragma option -a.
+/* usage watcher */
+#ifndef NDEBUG
+
+static const int s_minValue = 0;
+static const int s_maxValue = 4;
+
+inline void inspect()
+{
+	extern const int *g_integerInspektor;
+
+	const int *integerInspektor = g_integerInspektor;
+	if(integerInspektor)
+	{
+		assert( *integerInspektor>s_minValue && *integerInspektor<s_maxValue );
+	}
+}
+
+inline void inspect(const int *integerInspektor)
+{
+	extern const int *g_integerInspektor;
+
+	if(integerInspektor == g_integerInspektor)
+	{
+		inspect();
+	}
+}
+
+
+inline void setInspektor( const int *integer )
+{
+	extern const int *g_integerInspektor;
+
+	g_integerInspektor = integer;
+}
 #endif
 
+
+}	// namespace columbo
+}	// namespace gak
+
+
+#ifdef __BORLANDC__
+#	pragma option -RT.
+#	pragma option -b.
+#	pragma option -a.
+#	pragma option -p.
+#endif
+
+
+#endif // GAK_DEBUG_WATCH

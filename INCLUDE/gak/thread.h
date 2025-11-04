@@ -75,7 +75,7 @@ namespace gak
 /**
 	@brief abstract base class for a program thread
 
-	overload virtual function void ExecuteThread( void ); 
+	overload virtual function void ExecuteThread(); 
 */
 class Thread : public SharedObject
 {
@@ -104,11 +104,11 @@ class Thread : public SharedObject
 	static Locker								theThreadListLocker;
 
 	private:
-	void RunThread( void );
+	void RunThread();
 
 	static T_RETURN WINAPI RunThreadCallback( T_PARAM data );
 
-	virtual void ExecuteThread( void ) = 0;
+	virtual void ExecuteThread() = 0;
 
 	protected:
 	/**
@@ -166,7 +166,7 @@ class Thread : public SharedObject
 	public:
 
 	/// notifies the thread
-	void notify( void )
+	void notify()
 	{
 		m_theConditional.notify();
 	}
@@ -209,7 +209,7 @@ class Thread : public SharedObject
 	void StopThread( bool stopImmediately = false );
 
 	/// return the number of currently existing threads
-	static size_t GetThreadCount( void )
+	static size_t GetThreadCount()
 	{
 		return theThreadList.size();
 	}
@@ -269,13 +269,13 @@ class Thread : public SharedObject
 	/**
 		@brief return a thread of the current thread
 	*/
-	static SharedObjectPointer<Thread> FindCurrentThread( void )
+	static SharedObjectPointer<Thread> FindCurrentThread()
 	{
 		return FindThread( Locker::GetCurrentThreadID() );
 	}
 
 	/// returns the OS handle of the thread
-	ThreadID getThreadID( void ) const
+	ThreadID getThreadID() const
 	{
 		return m_threadID;
 	}
@@ -287,7 +287,7 @@ class Thread : public SharedObject
 	}
 
 	/// stops execution until the thread terminates
-	void join( void ) const
+	void join() const
 	{
 		if( isRunning )
 		{
@@ -303,7 +303,7 @@ class Thread : public SharedObject
 
 #ifdef _Windows
 	/// returns the time of the last user input (Windows, only)
-	static unsigned long GetLastInputTime( void )
+	static unsigned long GetLastInputTime()
 	{
 		LASTINPUTINFO	lastInputInfo;
 		unsigned long	lastPeriod;
@@ -319,7 +319,7 @@ class Thread : public SharedObject
 #endif
 
 	/// @todo unix port
-	static unsigned getNumberOfCores( void )
+	static unsigned getNumberOfCores()
 	{
 #ifdef _Windows
 		SYSTEM_INFO sysinfo;
@@ -328,6 +328,12 @@ class Thread : public SharedObject
 #else
 		return 1;
 #endif
+	}
+
+	static bool isMainThread()
+	{
+		SharedObjectPointer<Thread> cur = FindCurrentThread();
+		return !cur;
 	}
 };
 

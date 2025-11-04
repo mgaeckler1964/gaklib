@@ -306,6 +306,9 @@
     <ClCompile Include="CTOOLS\uptime.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="CTOOLS\inspector.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INCLUDE\gak\aes.h">
@@ -681,6 +684,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="INCLUDE\gak\MachineLearning.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="INCLUDE\gak\inspector.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

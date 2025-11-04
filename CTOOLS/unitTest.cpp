@@ -54,7 +54,7 @@
 #include <gak/gaklib.h>
 #include <gak/unitTest.h>
 #include <gak/set.h>
-
+#include <gak/threadPool.h>
 #include <gak/soap.h>
 
 #include <gak/locker.h>
@@ -85,7 +85,8 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static std::size_t TEST_NAME_WIDTH = 30;
+static std::size_t			TEST_NAME_WIDTH = 30;
+static const std::size_t	NUM_POOL_THREADS = 8;
 
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
@@ -95,10 +96,26 @@ static std::size_t TEST_NAME_WIDTH = 30;
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+typedef ThreadPool< UnitTest*>	TestPool;
+
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+template <>
+class ProcessorType<UnitTest*>
+{
+	public:
+	typedef UnitTest*	object_type;
+	/**
+		@brief processes one item
+		@param [in] objectToProcess the item to process
+	*/
+	static void process( const object_type &objectToProcess )
+	{
+		objectToProcess->PerformThreadTest();
+	}
+};
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -111,6 +128,7 @@ static std::size_t TEST_NAME_WIDTH = 30;
 // ----- class static data --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+Array<StressResult>	UnitTest::s_theStressResults;
 Array<TestResult>	UnitTest::s_theTestResults;
 Stack<const char *>	UnitTest::s_scopes;
 Locker				UnitTest::s_testLocker;
@@ -144,6 +162,49 @@ Array<UnitTest*> &UnitTest::getTheTestItems()
 	return theTestItems;
 }
 
+void UnitTest::PerformTests( const char *argv[] )
+{
+	TestMode tm = tmTest;
+
+	SortedArray<const char*>	testsToPerform;
+	for( ++argv; *argv; ++argv )
+	{
+		if( !strcmpi( *argv, "-stress" ) )
+			tm = tmStress;
+		else if( !strcmpi( *argv, "-mt" ) )
+			tm = tmThread;
+		else
+			testsToPerform.addElement( *argv );
+	}
+	if( tm == tmTest )
+		PerformTests( testsToPerform );
+	else if( tm == tmStress )
+		StressTests( testsToPerform );
+	else
+		ThreadTest( testsToPerform );
+}
+
+void UnitTest::ShowNotFound( const SortedArray<const char*> &testsToPerform )
+{
+	for( 
+		SortedArray<const char*>::const_iterator it = testsToPerform.cbegin(), endIT = testsToPerform.cend();
+		it != endIT;
+		++it
+	)
+	{
+		std::cout << "Test " << *it << " not found!" << std::endl;
+		AddResult(
+			*it, *it, 0, *it,
+			"Test not found!", false
+		);
+	}
+}
+
+/*
+	---------------------------------------------------------------------------
+		Unit Tests
+	---------------------------------------------------------------------------
+*/
 void UnitTest::PerformTest( UnitTest *theTest )
 {
 	std::size_t			errorCount = s_errorCount;
@@ -159,7 +220,6 @@ void UnitTest::PerformTest( UnitTest *theTest )
 	StopWatch	stopWatch( true );
 	try
 	{
-		std::stringstream	out;
 		theTest->PerformTest();
 	}
 	catch( net::SoapRequest::SoapException &myException )
@@ -215,16 +275,9 @@ void UnitTest::PerformTest( UnitTest *theTest )
 	}
 }
 
-void UnitTest::PerformTests( const char *argv[] )
+void UnitTest::PerformTests( SortedArray<const char*> &testsToPerform )
 {
 	doEnterFunctionEx(gakLogging::llInfo, "UnitTest::PerformTests");
-
-	SortedArray<const char*>	testsToPerform;
-
-	for( ++argv; *argv; ++argv )
-	{
-		testsToPerform.addElement( *argv );
-	}
 
 	std::size_t				i=1;
 	std::size_t				testFilter = testsToPerform.size();
@@ -258,22 +311,11 @@ void UnitTest::PerformTests( const char *argv[] )
 			}
 		}
 	}
-	for( 
-		SortedArray<const char*>::const_iterator it = testsToPerform.cbegin(), endIT = testsToPerform.cend();
-		it != endIT;
-		++it
-	)
-	{
-		std::cout << "Test " << *it << " not found!" << std::endl;
-		AddResult(
-			*it, *it, 0, *it,
-			"Test not found!", false
-		);
-	}
+	ShowNotFound(testsToPerform);
 	std::cout << numDisabledTests << " disabled test(s)" << std::endl;
 }
 
-void UnitTest::PrintResult( void )
+void UnitTest::PrintResult()
 {
 	LockGuard	lock( s_testLocker );
 
@@ -338,8 +380,179 @@ void UnitTest::PrintResult( void )
 				<< errorCount << " error(s)\n"
 	;
 
+	for( 
+		Array<StressResult>::const_iterator it = s_theStressResults.cbegin(), endIT = s_theStressResults.cend(); 
+		it != endIT;
+		++it )
+	{
+		std::cout << it->testName << '\t' << it->goodCount << ' ' << it->goodTime << '\t' << it->badCount << ' ' << it->badTime << std::endl;
+	}
 	if( !errorCount )
 		std::cout << "\nCongratulations!!!!\n";
+}
+
+/*
+	---------------------------------------------------------------------------
+		Stress Tests
+	---------------------------------------------------------------------------
+*/
+
+void UnitTest::StressTest( UnitTest *theTest )
+{
+	size_t	count = 1;
+	clock_t time, lastTime;
+
+	StopWatch	stopWatch( true );
+	while( true )
+	{
+		theTest->StressTest( count );
+		stopWatch.stop();
+		time = stopWatch.getMillis();
+		if( count == 1 )
+		{
+			lastTime = time;
+		}
+		std::cout << ' ' << count << ' ' << (time/1000.0) << 's' << std::endl;
+
+		if( time > 3*lastTime && count > 7 )
+			break;
+
+		count *= 2;
+		stopWatch.start();
+	}
+
+	if( count > 1 )
+	{
+		LockGuard	lock( s_testLocker );
+		StressResult &sr = s_theStressResults.createElement();
+		sr.testName = theTest->GetClassName();
+		sr.goodCount = count/2;
+		sr.badCount = count;
+		sr.goodTime = lastTime;
+		sr.badTime = time;
+	}
+}
+
+void UnitTest::StressTests( SortedArray<const char*> &testsToPerform )
+{
+	doEnterFunctionEx(gakLogging::llInfo, "UnitTest::StressTests");
+
+	std::size_t				i=1;
+	std::size_t				testFilter = testsToPerform.size();
+	const Array<UnitTest*>	&theTestItems = getTheTestItems();
+	std::size_t				numElements = testFilter ? testFilter : theTestItems.size();
+	std::size_t				width = math::getExponent( double(numElements) )+1;
+	std::size_t				numDisabledTests = 0;
+	for( 
+		Array<UnitTest*>::const_iterator it = theTestItems.cbegin(), endIT = theTestItems.cend();
+		it != endIT;
+		++it
+	)
+	{
+		UnitTest	*theTest = *it;
+		size_t		testIndex = testsToPerform.findElement( theTest->GetClassName() );
+
+		if( !testFilter && theTest->isDisabled() )
+		{
+			numDisabledTests++;
+			continue;
+		}
+		if( theTest->canStressTest() && (!testFilter || testIndex != testsToPerform.no_index ))
+		{
+			std::cout << "Stressing " << std::setw(width) << (i++) << '/' << numElements << ' ' 
+					  << STRING(theTest->GetClassName()).pad(TEST_NAME_WIDTH, STR_P_RIGHT ) << std::flush;
+			StressTest( theTest );
+
+			if( testFilter )
+			{
+				testsToPerform.removeElementAt( testIndex );
+			}
+		}
+	}
+	ShowNotFound(testsToPerform);
+	std::cout << numDisabledTests << " disabled test(s)" << std::endl;
+}
+
+/*
+	---------------------------------------------------------------------------
+		MultiThread Tests
+	---------------------------------------------------------------------------
+*/
+
+void UnitTest::PerformThreadTest()
+{
+	try
+	{
+		std::auto_ptr<UnitTest> myDup( duplicate() );
+		assert( myDup.get() );
+		myDup->PerformTest();
+	}
+	catch( ... )
+	{
+		AddResult(
+			GetClassName(), GetClassName(), 0, GetClassName(),
+			"Exception within PerformThreadTest", false
+		);
+	}
+}
+
+void UnitTest::ThreadTest( UnitTest *theTest, void *pool )
+{
+	TestPool *muliThreadTestPool = static_cast<TestPool*>(pool);
+	for( int i=0; i<NUM_POOL_THREADS*2; ++i )
+	{
+		muliThreadTestPool->process( theTest );
+	}
+	PerformTest(theTest);
+	muliThreadTestPool->flush();
+}
+
+void UnitTest::ThreadTest( SortedArray<const char*> &testsToPerform )
+{
+	doEnterFunctionEx(gakLogging::llInfo, "UnitTest::ThreadTest");
+
+	std::size_t				i=1;
+	std::size_t				testFilter = testsToPerform.size();
+	const Array<UnitTest*>	&theTestItems = getTheTestItems();
+	std::size_t				numElements = testFilter ? testFilter : theTestItems.size();
+	std::size_t				width = math::getExponent( double(numElements) )+1;
+	std::size_t				numDisabledTests = 0;
+
+	TestPool				muliThreadTestPool(NUM_POOL_THREADS, "UnitTestThreads");
+
+	muliThreadTestPool.start();
+
+	for( 
+		Array<UnitTest*>::const_iterator it = theTestItems.cbegin(), endIT = theTestItems.cend();
+		it != endIT;
+		++it
+	)
+	{
+		UnitTest	*theTest = *it;
+		size_t		testIndex = testsToPerform.findElement( theTest->GetClassName() );
+
+		if( !testFilter && theTest->isDisabled() )
+		{
+			numDisabledTests++;
+			continue;
+		}
+		if( theTest->canThreadTest() && (!testFilter || testIndex != testsToPerform.no_index ))
+		{
+			std::cout << "Threading " << std::setw(width) << (i++) << '/' << numElements << ' ' 
+					  << STRING(theTest->GetClassName()).pad(TEST_NAME_WIDTH, STR_P_RIGHT ) << std::flush;;
+			ThreadTest( theTest, &muliThreadTestPool );
+
+			if( testFilter )
+			{
+				testsToPerform.removeElementAt( testIndex );
+			}
+		}
+	}
+	muliThreadTestPool.flush();
+	muliThreadTestPool.shutdown();
+
+	ShowNotFound(testsToPerform);
+	std::cout << numDisabledTests << " disabled test(s)" << std::endl;
 }
 
 // --------------------------------------------------------------------- //
