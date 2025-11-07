@@ -78,13 +78,14 @@ namespace gak
 
 class Functor
 {
-	int	id;
+	int		m_id;
+	size_t	*m_callCount;
+
 	static Locker	locker;
 	public:
-	Functor( int id=-1 ) : id(id)
-	{
-	}
-	static size_t	callCount;
+	Functor( int id=-1, size_t	*callCount=nullptr ) : m_id(id), m_callCount(callCount)
+	{}
+
 	void operator () () const
 	{
 		::Sleep( 1000 );
@@ -92,16 +93,18 @@ class Functor
 		LockGuard	guard( locker );
 		if( guard )
 		{
-			std::cout << "Here is " << ++callCount << '/' << id << std::endl;
+			assert( m_callCount );
+			std::cout << "Here is " << ++(*m_callCount) << '/' << m_id << std::endl;
 		}
 	}
 };
 
-size_t	Functor::callCount = 0;
 Locker	Functor::locker;
 
 class ThreadPoolTest : public UnitTest
 {
+	size_t	callCount;
+
 	virtual const char *GetClassName() const
 	{
 		return "ThreadPoolTest";
@@ -110,49 +113,71 @@ class ThreadPoolTest : public UnitTest
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "ThreadPoolTest::PerformTest");
 		TestScope scope( "PerformTest" );
+		callCount = 0;
 
 		const size_t	count(20);
 		{
 			ThreadPool<Functor>	pool( 5, "ThreadPoolTest1" );
 
+			UT_ASSERT_EQUAL( pool.getCurrentState(), psIdle );
 			pool.start();
+			UT_ASSERT_EQUAL( pool.getCurrentState(), psWaiting );
 			for( size_t i=0; i<count; ++i )
 			{
-				pool.process( Functor( int(i)) );
+				pool.process( Functor( int(i), &callCount ) );
 			}
+			UT_ASSERT_EQUAL( pool.getCurrentState(), psProssesing );
 			pool.flush();
+			UT_ASSERT_EQUAL( pool.getCurrentState(), psWaiting );
 			UT_ASSERT_EQUAL( count, pool.total() );
 		}
-		UT_ASSERT_EQUAL( count, Functor::callCount );
+		UT_ASSERT_EQUAL( count, callCount );
 		{
 			const size_t	count(10);
 			ThreadPool<Functor>	pool( 5, "ThreadPoolTest2" );
 
-			Functor::callCount = 0;
+			callCount = 0;
 			pool.start();
 			Sleep( 2000 );
 			for( size_t i=0; i<count; ++i )
 			{
 				Sleep( 2000 );
-				pool.process( Functor( int(i)) );
+				pool.process( Functor( int(i), &callCount ) );
 			}
 			Sleep( 2000 );
 			pool.flush();
-			UT_ASSERT_EQUAL( count, Functor::callCount );
+			UT_ASSERT_EQUAL( count, callCount );
 			pool.shutdown();
 
-			Functor::callCount = 0;
+			callCount = 0;
 			pool.start();
 			for( size_t i=0; i<count; ++i )
 			{
-				pool.process( Functor( int(i)) );
+				pool.process( Functor( int(i), &callCount ) );
 			}
 			pool.flush();
 			pool.shutdown();
-			UT_ASSERT_EQUAL( count, Functor::callCount );
+			UT_ASSERT_EQUAL( count, callCount );
 
+			UT_ASSERT_EQUAL( pool.getCurrentState(), psIdle );
+
+			UT_ASSERT_EXCEPTION(
+				pool.process( Functor( int(0), &callCount ) ),
+				ThreadPoolError
+			);
 		}
+
 	}
+	virtual bool canThreadTest()
+	{
+		return true;
+	}
+	virtual UnitTest *duplicate()
+	{
+		return new ThreadPoolTest( false );
+	}
+	public:
+	ThreadPoolTest( bool isStatic=true ) : UnitTest( isStatic ) {}
 };
 
 // --------------------------------------------------------------------- //

@@ -59,6 +59,7 @@
 #include <gak/directory.h>
 
 #include "Tests/strcmpiTest.h"
+#include "Tests/TemporaryTest.h"
 
 #include "Tests/ChessTest.h"
 #include "Tests/RandomTest.h"

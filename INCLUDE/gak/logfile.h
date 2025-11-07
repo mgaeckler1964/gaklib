@@ -146,6 +146,9 @@ extern void (*g_showProgress)( char flag, size_t idx, size_t max );
 /*
 	file logging (depreceated???)
 */
+
+void logLine( LogLevel level, const std::string &line );
+
 void logFileLine( const std::string &line );
 
 template <typename ValueT>
@@ -156,7 +159,7 @@ void logFile( const char *fName, int lineNum, const char *valName, const ValueT 
 	out << fName << ' ' << lineNum << ": " << valName << '=' << val;
 	out.flush();
 	logFileLine( out.str() );
-	logLine( out.str() );
+	logLine( llDetail, out.str() );
 }
 
 #if DEBUG_LOG
@@ -169,8 +172,6 @@ void logFile( const char *fName, int lineNum, const char *valName, const ValueT 
 /*
 	values
 */
-
-void logLine( LogLevel level, const std::string &line );
 
 template <typename ValueT>
 void logValue( LogLevel level, const char *fName, int lineNum, size_t callCount, const char *valName, const ValueT &val )

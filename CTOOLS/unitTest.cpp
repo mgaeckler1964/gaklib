@@ -76,8 +76,6 @@
 #	pragma option -pc
 #endif
 
-#define REDIRECT_COUT 1
-
 namespace gak
 {
 
@@ -116,6 +114,51 @@ class ProcessorType<UnitTest*>
 		objectToProcess->PerformThreadTest();
 	}
 };
+
+class StreamCatcher
+{
+	std::ostringstream	ostr, oerrStr;
+    std::streambuf		*coutbuf, *cerrbuf;
+	bool m_caught;
+
+	public:
+	StreamCatcher( bool catchStream )
+	{
+		if( catchStream )
+		{
+			coutbuf = std::cout.rdbuf();
+			cerrbuf = std::cerr.rdbuf();
+
+			std::cout.rdbuf(ostr.rdbuf());
+			std::cerr.rdbuf(oerrStr.rdbuf());
+		}
+		m_caught = catchStream;
+	}
+	void release()
+	{
+		if( m_caught )
+		{
+			std::cout.flush();
+			std::cerr.flush();
+			ostr.flush();
+			oerrStr.flush();
+			std::cout.rdbuf(coutbuf);
+			std::cerr.rdbuf(cerrbuf);
+			m_caught = false;
+		}
+	}
+	void printResult() const
+	{
+		std::cout	<< ostr.str() << '\n'
+					<< oerrStr.str() << std::endl;
+	}
+
+	~StreamCatcher()
+	{
+		release();
+	}
+};
+
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -205,19 +248,12 @@ void UnitTest::ShowNotFound( const SortedArray<const char*> &testsToPerform )
 		Unit Tests
 	---------------------------------------------------------------------------
 */
-void UnitTest::PerformTest( UnitTest *theTest )
+void UnitTest::PerformTest( UnitTest *theTest, bool catchCout )
 {
 	std::size_t			errorCount = s_errorCount;
 	STRING				exceptionType, errorText;
-#if REDIRECT_COUT
-	std::ostringstream	ostr, oerrStr;
-    std::streambuf		*coutbuf = std::cout.rdbuf();
-    std::streambuf		*cerrbuf = std::cerr.rdbuf();
-
-    std::cout.rdbuf(ostr.rdbuf());
-    std::cerr.rdbuf(oerrStr.rdbuf());
-#endif
-	StopWatch	stopWatch( true );
+	StreamCatcher		catcher( catchCout );
+	StopWatch			stopWatch( true );
 	try
 	{
 		theTest->PerformTest();
@@ -242,14 +278,8 @@ void UnitTest::PerformTest( UnitTest *theTest )
 		exceptionType = "Unknown Exception";
 		errorText = "Unknown";
 	}
-#if REDIRECT_COUT
-	std::cout.flush();
-	std::cerr.flush();
-	ostr.flush();
-	oerrStr.flush();
-    std::cout.rdbuf(coutbuf);
-    std::cerr.rdbuf(cerrbuf);
-#endif
+	catcher.release();
+
 	theTest->m_ellapsedTime = stopWatch.get< Hours<std::clock_t> >();
 	theTest->m_tested = true;
 	if( !exceptionType.isEmpty() || !errorText.isEmpty() )
@@ -261,17 +291,17 @@ void UnitTest::PerformTest( UnitTest *theTest )
 
 	}
 
-	if( errorCount == s_errorCount )
+	if( catchCout )
 	{
-		std::cout << " OK" << std::endl;
-	}
-	else
-	{
-		std::cout << " FAILED\n";
-#if REDIRECT_COUT
-		std::cout	<< ostr.str() << '\n'
-					<< oerrStr.str() << std::endl;
-#endif
+		if( errorCount == s_errorCount )
+		{
+			std::cout << " OK" << std::endl;
+		}
+		else
+		{
+			std::cout << " FAILED\n";
+			catcher.printResult();
+		}
 	}
 }
 
@@ -303,7 +333,7 @@ void UnitTest::PerformTests( SortedArray<const char*> &testsToPerform )
 		{
 			std::cout << "Performing " << std::setw(width) << (i++) << '/' << numElements << ' ' 
 					  << STRING(theTest->GetClassName()).pad(TEST_NAME_WIDTH, STR_P_RIGHT ) << std::flush;
-			PerformTest( theTest );
+			PerformTest( theTest, true );
 
 			if( testFilter )
 			{
@@ -498,13 +528,27 @@ void UnitTest::PerformThreadTest()
 
 void UnitTest::ThreadTest( UnitTest *theTest, void *pool )
 {
+	size_t errorCount = s_errorCount;
+	StreamCatcher	catcher( true );
 	TestPool *muliThreadTestPool = static_cast<TestPool*>(pool);
 	for( int i=0; i<NUM_POOL_THREADS*2; ++i )
 	{
 		muliThreadTestPool->process( theTest );
 	}
-	PerformTest(theTest);
+	PerformTest(theTest, false);
 	muliThreadTestPool->flush();
+
+	catcher.release();
+	if( errorCount == s_errorCount )
+	{
+		std::cout << " OK" << std::endl;
+	}
+	else
+	{
+		std::cout << " FAILED\n";
+		catcher.printResult();
+	}
+
 }
 
 void UnitTest::ThreadTest( SortedArray<const char*> &testsToPerform )

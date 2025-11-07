@@ -177,7 +177,7 @@ class UnitTest
 
 	private:
 	static Array<UnitTest*> &getTheTestItems();
-	static void PerformTest( UnitTest *theTest );
+	static void PerformTest( UnitTest *theTest, bool catchCout );
 	static void StressTest( UnitTest *theTest );
 	static void ThreadTest( UnitTest *theTest, void *pool );
 

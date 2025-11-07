@@ -227,5 +227,8 @@
     <ClInclude Include="Tests\MachineLearningTest.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\TemporaryTest.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -340,7 +340,7 @@ class Index
 	{
 		return m_searchIndex.size();
 	}
-	void mergeIndexPositions( const SourceT &source, const StringIndex &index );
+	void mergeIndexPositions( const SourceT &source, StringIndex *index );
 
 	void toBinaryStream ( std::ostream &stream ) const
 	{
@@ -622,14 +622,14 @@ void Index<SourceT>::getStatistik(StatistikData *oResult) const
 }
 
 template<typename SourceT>
-void Index<SourceT>::mergeIndexPositions( const SourceT &source, const StringIndex &index )
+void Index<SourceT>::mergeIndexPositions( const SourceT &source, StringIndex *index )
 {
 	doEnterFunctionEx(gakLogging::llDetail,"SourcePosition::mergeIndexPositions");
 #if USE_PAIR_MAP
-	m_searchIndex.setChunkSize( index.size() );
+	m_searchIndex.setChunkSize( index->size() );
 #endif
 	for(
-		StringIndex::const_iterator it = index.cbegin(), endIT = index.cend();
+		StringIndex::iterator it = index->begin(), endIT = index->end();
 		it != endIT;
 		++it
 	)
@@ -640,6 +640,7 @@ void Index<SourceT>::mergeIndexPositions( const SourceT &source, const StringInd
 #endif
 		sourceIndexPos[source].moveFrom( const_cast<Positions&>(it->getValue()) );
 	}
+	index->clear();
 }
 
 template<typename SourceT>

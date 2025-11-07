@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			aiBrainTest.h
-		Description:	
+		Module:			TemporaryTest.h
+		Description:	Usefuö to add sam small hacking tests with short live time
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -36,11 +36,9 @@
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
-
+#include <memory>
 #include <iostream>
 #include <gak/unitTest.h>
-
-#include <gak/aiBrain.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -64,10 +62,6 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static const char BRAINFILE[] = "aiBrain.bin";
-static const uint32 BRAINMAGIC = 0x12345678;
-static const uint16 BRAINVERSION = 1;
-
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -76,106 +70,29 @@ static const uint16 BRAINVERSION = 1;
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-using ai::Brain;
-using ai::StringTokens;
-using ai::tokenString;
-
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-class AiBrainTest : public UnitTest
+class TemporaryTest : public UnitTest
 {
 	virtual const char *GetClassName() const
 	{
-		return "AiBrainTest";
+		return DISABLED_TEST_PREFIX "TemporaryTest";
 	}
 	virtual void PerformTest()
 	{
-		doEnterFunctionEx(gakLogging::llInfo, "AiBrainTest::PerformTest");
+		doEnterFunctionEx(gakLogging::llInfo, "TemporaryTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
-		Brain		theBrain;
-		STRING		word1 = "Martin",
-					word2 = "Gäckler",
-					word3 = "Linz",
-					word4 = "München",
-					word5 = "Austria",
-					word6 = "Baiern";
+#ifndef __BORLANDC__
+		// my C++ builder does not know unique_ptr
+		std::unique_ptr<STRING> myUnique( new STRING );
+		std::auto_ptr<STRING> myAuto( new STRING );
 
-		// check empty brain
-		size_t count = theBrain.getPairCount(word1, word2);
-		UT_ASSERT_EQUAL(count, 0);
-		UT_ASSERT_EQUAL(theBrain.size(), 0UL);
-
-		// check brain with first item
-		theBrain.addPair(word1, word2);
-		count = theBrain.getPairCount(word1, word2);
-		UT_ASSERT_EQUAL(count, 1);
-		UT_ASSERT_EQUAL(theBrain.size(), 1UL);
-
-		// check brain with second item
-		theBrain.addPair(word1, word2);
-		count = theBrain.getPairCount(word1, word2);
-		UT_ASSERT_EQUAL(count, 2);
-		UT_ASSERT_EQUAL(theBrain.size(), 1UL);
-
-		// check words can be swaped
-		count = theBrain.getPairCount(word2, word1);
-		UT_ASSERT_EQUAL(count, 2);
-
-		// check if one word is not yet known
-		count = theBrain.getPairCount(word2, word3);
-		UT_ASSERT_EQUAL(count, 0);
-		UT_ASSERT_EQUAL(theBrain.size(), 1UL);
-
-		// check equal word
-		theBrain.addPair(word2, word2);
-		count = theBrain.getPairCount(word2, word2);
-		UT_ASSERT_EQUAL(count, 0);
-		UT_ASSERT_EQUAL(theBrain.size(), 1UL);
-
-		Brain		cloneBrain;
-		UT_ASSERT_EQUAL(cloneBrain.size(), 0UL);
-
-		{
-			static Critical	section;
-			CriticalScope	scope(section);
-
-			writeToBinaryFile(BRAINFILE, theBrain, BRAINMAGIC, BRAINVERSION, owmOverwrite);
-			readFromBinaryFile(BRAINFILE, &cloneBrain, BRAINMAGIC, BRAINVERSION, false);
-			strRemoveE(BRAINFILE);
-		}
-
-		UT_ASSERT_EQUAL(cloneBrain.size(), 1UL);
-
-		// check saved and loaded brain
-		count = cloneBrain.getPairCount(word2, word1);
-		UT_ASSERT_EQUAL(count, 2UL);
-
-		const STRING	testText1 = "the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog handball fussball fcbaiern Martin";
-
-		StringTokens	tokens;
-		tokenString( testText1, Array<STRING>(), ai::IS_ANY, &tokens );
-		UT_ASSERT_EQUAL(tokens.size(), 31UL);
-		UT_ASSERT_EQUAL(cloneBrain.size(), 1UL);
-		cloneBrain.learnFromTokens(testText1, tokens, 5);
-		UT_ASSERT_EQUAL(cloneBrain.size(), 49UL);
-		count = cloneBrain.getPairCount("the", "fcbaiern");
-		UT_ASSERT_GREATEREQ(count, size_t(1UL));
-
-		const STRING	testText2 = "Martin Gäckler lebt in Linz";
-		StringIndex positions;
-		indexString( testText2, Array<STRING>(), ai::IS_ANY, &positions );
-		cloneBrain.learnFromIndex(positions, 10);
-		UT_ASSERT_EQUAL(cloneBrain.size(), 58UL);
-		count = cloneBrain.getPairCount("the", "fcbaiern");
-		UT_ASSERT_GREATEREQ(count, size_t(1UL));
-
-		Set<STRING> partners = cloneBrain.getPartners("Martin");
-		UT_ASSERT_EQUAL(partners.size(), 9UL);
-		partners = cloneBrain.getPartners("Gäckler");
-		UT_ASSERT_EQUAL(partners.size(), 4UL);
+		UT_ASSERT_LESSEQ( sizeof(myUnique), sizeof(myAuto) );
+		std::cout << sizeof(myUnique) << ' ' << sizeof(myAuto) << std::endl;
+#endif
 	}
 	virtual bool canThreadTest()
 	{
@@ -183,10 +100,10 @@ class AiBrainTest : public UnitTest
 	}
 	virtual UnitTest *duplicate()
 	{
-		return new AiBrainTest( false );
+		return new TemporaryTest( false );
 	}
 	public:
-	AiBrainTest( bool isStatic=true ) : UnitTest( isStatic ) {}
+	TemporaryTest( bool isStatic=true ) : UnitTest( isStatic ) {}
 };
 
 // --------------------------------------------------------------------- //
@@ -197,7 +114,7 @@ class AiBrainTest : public UnitTest
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static AiBrainTest	myAiBrainTest;
+static TemporaryTest myTemporaryTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -251,4 +168,3 @@ static AiBrainTest	myAiBrainTest;
 #	pragma option -a.
 #	pragma option -p.
 #endif
-

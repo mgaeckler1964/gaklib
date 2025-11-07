@@ -986,32 +986,44 @@ void fastLog()
 */
 void showProgress( char flag, size_t idx, size_t max )
 {
-	static gak::Locker						s_consoleLocker;
+	static gak::Critical					s_criticalSection;
 	static gak::StopWatch					s_watch(true);
 	static gak::PairMap<char,gak::STRING>	s_fields;
 	static char							s_last = 0;
 
 	if( flag != s_last || s_watch.getMillis() > 1000 )
 	{
-		if( max )
-			s_fields[flag] = gak::formatNumber(idx) + '/' + gak::formatNumber(max) + '(' + flag + ')';
-		else
-			s_fields[flag] = gak::formatNumber(idx) + '(' + flag + ')';
+		gak::CriticalScope scope( s_criticalSection );
 
-		gak::LockGuard guard( s_consoleLocker );
-		if( guard )
+		gak::STRING &theField = s_fields[flag];
+
+		theField = gak::formatNumber(idx);
+
+		if( max )
+			theField += gak::STRING('/') + gak::formatNumber(max);
+
+		if( s_fields.size() > 1 )
 		{
-			if( s_watch.getMillis() > 1000 )
+			theField += gak::STRING('(') + flag + ')';
+		}
+
+		if( s_watch.getMillis() > 1000 )
+		{
+			std::cout << '\r';
+			if( s_fields.size() == 1 )
 			{
-				std::cout << '\r';
+				std::cout << s_fields.getValueAt(0);
+			}
+			else
+			{
 				for( size_t i=0; i<s_fields.size(); ++i )
 				{
 					std::cout << i << ": " << s_fields.getValueAt(i) << ' ';
 				}
-				std::cout << "      \r";
-				s_watch.start();
-				s_last = flag;
 			}
+			std::cout << "      \r";
+			s_watch.start();
+			s_last = flag;
 		}
 	}
 }

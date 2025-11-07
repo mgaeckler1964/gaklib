@@ -351,7 +351,9 @@ STRING readMailBody( std::istream &fp, const CI_STRING &contentTransfer, const C
 	{
 		curPos = fp.tellg();
 		fp >> line;
+#ifndef NDEBUG
 		gakLogging::doShowProgress( 'r', ++lineNo );
+#endif
 		if( line.isEmpty() )
 		{
 			empty = true;

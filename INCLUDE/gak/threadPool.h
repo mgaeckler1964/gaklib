@@ -43,6 +43,7 @@
 #include <gak/thread.h>
 #include <gak/blockedQueue.h>
 #include <gak/fixedHeapArray.h>
+#include <gak/exception.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -74,9 +75,23 @@ namespace gak
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+enum PoolState
+{
+	psIdle,
+	psWaiting,
+	psProssesing,
+	psStopping
+};
+
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+class ThreadPoolError : public LibraryException
+{
+	public:
+	ThreadPoolError() : LibraryException("ThreadPoolError") {}
+};
 
 /**
 	@brief helper class that processes an item by calling its operator ()
@@ -191,14 +206,18 @@ class ThreadPool
 		BlockedQueue<ObjectT>	&m_queue;
 
 		public:
-		PoolDispatcher( PoolArray &pool, BlockedQueue<ObjectT> &queue ) : Thread(false), m_pool( pool ), m_queue( queue )
+		PoolDispatcher( PoolArray &pool, BlockedQueue<ObjectT> &queue ) : Thread(false), m_pool(pool), m_queue(queue)
 		{
 		}
 		virtual void ExecuteThread( void );
+
 		void StopThread()
 		{
 			terminated = true;
-			m_queue.push( ObjectT() );
+			m_queue.push( ObjectT() );	// this is a dummy to notify the dispatcher loop, to have a chance to terminate
+										// otherwise the dispatcher could wait for a new object and never terminates
+										// since terminate is true, the dispatcher loop will not forward that dummy to
+										// an object processor
 			Thread::StopThread();
 		}
 	};
@@ -208,15 +227,17 @@ class ThreadPool
 	BlockedQueue<ObjectT>	m_queue;
 	PoolDispatcher			m_dispatcher;
 	STRING					m_threadNames;
+	bool					m_stopping, m_stopped;
 
 	public:
 	/**
 		@brief creates a new thread pool
 		@param count the numnber of worker threads to create
 	*/
-	ThreadPool( size_t count, const STRING &threadNames ) : m_singleThreadMode(count==0), m_pool(m_singleThreadMode?1:count), m_dispatcher( m_pool, m_queue ), m_threadNames(threadNames)
-	{
-	}
+	ThreadPool( size_t count, const STRING &threadNames )
+		: m_singleThreadMode(count==0), m_pool(m_singleThreadMode?1:count),
+		  m_dispatcher(m_pool, m_queue), m_threadNames(threadNames), m_stopping(false), m_stopped(true)
+	{}
 	~ThreadPool()
 	{
 		shutdown();
@@ -228,6 +249,10 @@ class ThreadPool
 	*/
 	void process( const ObjectT &objectToProcess )
 	{
+		if( m_stopped )
+		{
+			throw ThreadPoolError();
+		}
 		if(m_singleThreadMode)
 		{
 			m_pool[0].process(objectToProcess);
@@ -259,6 +284,8 @@ class ThreadPool
 
 	template<typename ProcessorT>
 	void setObjectProcessor( const ProcessorT &objectProcessor );
+
+	PoolState getCurrentState() const;
 };
 
 // --------------------------------------------------------------------- //
@@ -328,7 +355,7 @@ void PoolThread<ProcessorT>::ExecuteThread( void )
 }
 
 template <typename ObjectT, typename ThreadT>
-void ThreadPool<ObjectT, ThreadT>::PoolDispatcher::ExecuteThread( void )
+void ThreadPool<ObjectT, ThreadT>::PoolDispatcher::ExecuteThread()
 {
 	while( !terminated )
 	{
@@ -384,6 +411,7 @@ void ThreadPool<ObjectT, ThreadT>::start()
 		}
 		m_dispatcher.StartThread("PoolDispatcher");
 	}
+	m_stopped = false;
 }
 
 template <typename ObjectT, typename ThreadT>
@@ -429,6 +457,9 @@ size_t ThreadPool<ObjectT, ThreadT>::inProgress() const
 template <typename ObjectT, typename ThreadT>
 void ThreadPool<ObjectT, ThreadT>::shutdown()
 {
+	m_stopped = true;
+	m_stopping = true;
+	flush();
 	for(
 		typename PoolArray::iterator it = m_pool.begin(), endIT = m_pool.end();
 		it != endIT;
@@ -440,6 +471,7 @@ void ThreadPool<ObjectT, ThreadT>::shutdown()
 	}
 	m_dispatcher.StopThread();
 	m_dispatcher.join();
+	m_stopping = false;
 }
 
 template <typename ObjectT, typename ThreadT>
@@ -455,6 +487,33 @@ void ThreadPool<ObjectT, ThreadT>::setObjectProcessor( const ProcessorT &objectP
 		it->setObjectProcessor( objectProcessor );
 	}
 }
+
+template <typename ObjectT, typename ThreadT>
+PoolState ThreadPool<ObjectT, ThreadT>::getCurrentState() const
+{
+	if( m_stopping )
+	{
+		return psStopping;
+	}
+	if( m_queue.size() > 0 || inProgress() > 0 )
+	{
+		return psProssesing;
+	}
+
+	for(
+		typename PoolArray::const_iterator it = m_pool.cbegin(), endIT = m_pool.cend();
+		it != endIT;
+		++it
+	)
+	{
+		if( it->isRunning )
+		{
+			return psWaiting;
+		}
+	}
+	return psIdle;
+}
+
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //

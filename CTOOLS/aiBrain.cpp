@@ -306,6 +306,8 @@ void Brain::learnFromIndex( const StringIndex &source, size_t numWords )
 		size_t	startIndex = (counter.size()>>1) - (toRemove>>1);
 		counter.removeElementsAt(startIndex, toRemove );
 	}
+	size_t newSize = math::max(m_knowledge.size()*2, m_knowledge.size() + counter.size() * numWords);
+	m_knowledge.setChunkSize(newSize);
 	for( size_t i=0; i<counter.size()-1; ++i )
 	{
 		const WordUsage &wu1 = counter[i];
@@ -326,9 +328,12 @@ void Brain::learnFromTokens( const STRING &source, const StringTokens &tokens, s
 		return;				// index too small
 	}
 
+	m_knowledge.setChunkSize(m_knowledge.size() + tokens.size() * numWords);
 	for( size_t i=0; i<tokens.size()-1; ++i )
 	{
-		gakLogging::doShowProgress( 't', i, tokens.size() );
+#ifndef NDEBUG
+		gakLogging::doShowProgress( 'T', i, tokens.size() );
+#endif
 
 		const Position &pos1 = tokens[i];
 		if( pos1.m_flags & IS_WORD )
@@ -337,8 +342,9 @@ void Brain::learnFromTokens( const STRING &source, const StringTokens &tokens, s
 			size_t wordsToProcess = numWords;
 			for( size_t j=i+1; j<tokens.size() && wordsToProcess; ++j )
 			{
-				gakLogging::doShowProgress( 'T', j, tokens.size() );
-
+#ifndef NDEBUG
+				gakLogging::doShowProgress( 't', j, tokens.size() );
+#endif
 				const Position &pos2 = tokens[j];
 				if( pos2.m_flags & IS_WORD )
 				{

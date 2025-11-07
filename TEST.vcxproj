@@ -195,6 +195,7 @@
     <ClInclude Include="Tests\StreamsTest.h" />
     <ClInclude Include="Tests\StringStreamTest.h" />
     <ClInclude Include="Tests\StringTest.h" />
+    <ClInclude Include="Tests\TemporaryTest.h" />
     <ClInclude Include="Tests\threadDirScannerTest.h" />
     <ClInclude Include="Tests\ThreadPoolTest.h" />
     <ClInclude Include="Tests\TypeSizeTest.h" />

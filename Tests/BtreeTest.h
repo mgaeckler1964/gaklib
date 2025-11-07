@@ -311,13 +311,61 @@ class BtreeTest : public UnitTest
 		}
 	}
 
+	void CopyBtreeTest()
+	{
+		const size_t numItems=10240;
+
+		Btree<STRING>	myTree;
+
+		for( size_t i=0; i<numItems; ++i )
+		{
+			while( 1 )
+			{
+				STRING newElement = STRING("TMP") + formatNumber( randomNumber(numItems * numItems), 10) + "GAK";
+				if( !myTree.findElement(newElement) )
+				{
+					myTree.addElement( newElement );
+					break;
+				}
+			}
+		}
+		Btree<STRING>	myTreeCopy = myTree;
+		UT_ASSERT_EQUAL( myTree.size(),myTreeCopy.size() );
+
+		for( 
+			Btree<STRING>::const_iterator it1 = myTree.cbegin(), it2 = myTreeCopy.cbegin(), endIT = myTree.cend();
+			it1 != endIT;
+			++it1, ++it2
+		)
+		{
+			UT_ASSERT_EQUAL(*it1, *it2);
+		}
+
+		Btree<STRING>	myTreeCopy2 = myTree;
+
+		myTree.clear();
+		UT_ASSERT_EQUAL( myTree.size(), 0 );
+		UT_ASSERT_EQUAL( myTreeCopy.size(), myTreeCopy2.size() );
+
+		for( 
+			Btree<STRING>::const_iterator it1 = myTreeCopy.cbegin(), it2 = myTreeCopy2.cbegin(), endIT = myTreeCopy.cend();
+			it1 != endIT;
+			++it1, ++it2
+		)
+		{
+			UT_ASSERT_EQUAL(*it1, *it2);
+		}
+
+
+	}
+
 	virtual void PerformTest()
 	{
 		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::PerformTest" );
 
 		TestScope scope( "PerformTest" );
 		simpleTest();
-
+		CopyBtreeTest();
 #ifdef NDEBUG
 		const size_t numItems = 32000;
 #else
