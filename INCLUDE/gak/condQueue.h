@@ -3,10 +3,11 @@
 		Module:			condQueue.h
 		Description:	Queue with conditional
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Author:			Martin Gäckler
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2023 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -105,25 +106,25 @@ class CondQueue : public LockQueue<OBJ,QueueT>
 	*/
 	bool wait( unsigned long timeOut )
 	{
-		if( !getLocker().lock(timeOut) )
+		if( !this->getLocker().lock(timeOut) )
 		{
 			return false;
 		}
-		if( !size() )
+		if( !this->size() )
 		{
-			if( getLocker().getLockCount()!=1 )
+			if( this->getLocker().getLockCount()!=1 )
 			{
-				getLocker().unlock();
+				this->getLocker().unlock();
 				return false;
 			}
 
-			getLocker().unlock();
+			this->getLocker().unlock();
 			if( !m_cond.wait(timeOut) )
 			{
 				return false;
 			}
 
-			if( !size() || !getLocker().lock(timeOut) )
+			if( !this->size() || !this->getLocker().lock(timeOut) )
 			{
 				return false;
 			}
@@ -139,7 +140,7 @@ class CondQueue : public LockQueue<OBJ,QueueT>
 	/// decreases the lock counter and unlocks the queue if the counter is 0
 	void unlock()
 	{
-		getLocker().unlock();
+		this->getLocker().unlock();
 	}
 	/**
 		pushed new data onto the queue and notifies waiting threads

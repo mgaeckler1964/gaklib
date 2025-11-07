@@ -306,11 +306,11 @@ class ContainerTest : public gak::UnitTest
 		}
 		{
 			TestScope scope("SortedArray<int>");
-			testGetRange< SortedArray<int> >();
+			testGetRange< SortedArray<int> >(false);
 		}
 		{
 			TestScope scope("Btree<int>");
-			testGetRange< Btree<int> >();
+			testGetRange< Btree<int> >(true);
 		}
 		{
 			Array<STRING> arrayString2;
@@ -325,7 +325,7 @@ class ContainerTest : public gak::UnitTest
 	}
 
 	template <typename ContainerT>
-	void testGetRange()
+	void testGetRange( bool isAset )
 	{
 		ContainerT	container;
 
@@ -338,19 +338,31 @@ class ContainerTest : public gak::UnitTest
 		container.addElement( 7 );
 		container.addElement( 9 );
 
+		UT_ASSERT_EQUAL( isAset ? 5 : 8, container.size() );
+
 		ConstIterable<typename ContainerT::const_iterator>	range = container.getRange( 5, 8 );
 		typename ContainerT::const_iterator	it = range.cbegin();
-		UT_ASSERT_EQUAL( 5, *it ); ++it;
-		UT_ASSERT_EQUAL( 5, *it ); ++it;
+
+		if( !isAset )
+		{
+			UT_ASSERT_EQUAL( 5, *it ); ++it;
+			UT_ASSERT_EQUAL( 5, *it ); ++it;
+		}
 		UT_ASSERT_EQUAL( 5, *it ); ++it;
 		UT_ASSERT_EQUAL( 7, *it ); ++it;
-		UT_ASSERT_EQUAL( 7, *it ); ++it;
+		if( !isAset )
+		{
+			UT_ASSERT_EQUAL( 7, *it ); ++it;
+		}
 		UT_ASSERT_EQUAL( it, range.cend() );;
 
 		range = container.getRange( 7, 11 );
 		it = range.cbegin();
 		UT_ASSERT_EQUAL( 7, *it ); ++it;
-		UT_ASSERT_EQUAL( 7, *it ); ++it;
+		if( !isAset )
+		{
+			UT_ASSERT_EQUAL( 7, *it ); ++it;
+		}
 		UT_ASSERT_EQUAL( 9, *it ); ++it;
 		UT_ASSERT_EQUAL( it, range.cend() );;
 

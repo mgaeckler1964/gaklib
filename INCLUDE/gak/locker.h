@@ -105,7 +105,6 @@ namespace gak
 #if defined( _Windows )
 class Critical
 {
-	friend class CriticalScope;
 	CRITICAL_SECTION	m_cs;
 
 public:
@@ -113,8 +112,49 @@ public:
 	{
 		InitializeCriticalSection(&m_cs);
 	}
+	void EnterCriticalSection()
+	{
+		::EnterCriticalSection(&m_cs);
+	}
+	void LeaveCriticalSection()
+	{
+		::LeaveCriticalSection(&m_cs);
+	}
 };
 
+#else
+	/** TODO improoe
+		this is a qad hack not tested
+		I guess it will not work in heavy load systems
+		I have implmemented it to have soon a port to Gnu C++
+	*/
+class Critical
+{
+	int	m_cs;
+
+public:
+	Critical() : m_cs(0)
+	{}
+
+	void EnterCriticalSection()
+	{
+		int myID = randomNumber( clock() );
+		do
+		{
+			while( m_cs != 0 )
+			{
+				Sleep( 1 );
+			}
+			m_cs = myID;
+			Sleep( 1 );
+		} while( m_cs != myID );
+	}
+	void LeaveCriticalSection()
+	{
+		m_cs = 0;
+	}
+};
+#endif
 
 class CriticalScope
 {
@@ -123,14 +163,13 @@ class CriticalScope
 public:
 	CriticalScope(Critical	&cs) : m_cs(cs)
 	{
-		EnterCriticalSection(&m_cs.m_cs);
+		m_cs.EnterCriticalSection();
 	}
 	~CriticalScope()
 	{
-		LeaveCriticalSection(&m_cs.m_cs);
+		m_cs.LeaveCriticalSection();
 	}
 };
-#endif
 
 /// this class can be used as an mutex for multiple threads in the application.
 class Locker

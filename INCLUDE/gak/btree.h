@@ -43,6 +43,7 @@
 #include <assert.h>
 #include <iterator>
 
+#include <gak/fmtNumber.h>
 #include <gak/container.h>
 #include <gak/compare.h>
 #include <gak/iostream.h>

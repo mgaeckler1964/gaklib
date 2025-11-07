@@ -3,10 +3,10 @@
 		Module:			geoGraph.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		HoFmannsthalweg 14, A-4030 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2024 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -103,6 +103,13 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 	typedef GeoGraph<NodeT, LinkT, MapT, IndexT, LayerKeyT, NodeKeyT, LinkKeyT>	SelfT;
 
 	public:
+
+	typedef typename Super::node_container_type				node_container_type;
+	typedef typename Super::link_key_types					link_key_types;
+	typedef typename Super::link_key_type					link_key_type;
+	typedef typename Super::node_key_type					node_key_type;
+	typedef typename Super::LinkInfo						LinkInfo;
+
 	typedef math::Rectangle< math::GeoPosition<double> >	BoundingBox;
 
 	struct PositionValue
@@ -257,10 +264,10 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 	}
 	void extractTile(math::tileid_t tileId, SelfT *theTile) const
 	{
-		const node_container_type	&nodes = getNodes();
+		const node_container_type	&nodes = &this->getNodes();
 
 		for(
-			node_container_type::const_iterator it = nodes.cbegin(), endIT = nodes.cend();
+			typename node_container_type::const_iterator it = nodes.cbegin(), endIT = nodes.cend();
 			it != endIT;
 			++it
 		)
@@ -275,7 +282,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 					theTile->addNode( 0, key, node );
 				}
 				for(
-					link_key_types::const_iterator it2 = it->getValue().m_outgoing.cbegin(), end2 = it->getValue().m_outgoing.cend();
+					typename link_key_types::const_iterator it2 = it->getValue().m_outgoing.cbegin(), end2 = it->getValue().m_outgoing.cend();
 					it2 != end2;
 					++it2 
 				)

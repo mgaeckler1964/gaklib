@@ -47,6 +47,7 @@
 #	include <exception>
 #endif
 
+#include <memory>
 #include <iomanip>
 #include <sstream>
 
@@ -208,6 +209,7 @@ Array<UnitTest*> &UnitTest::getTheTestItems()
 void UnitTest::PerformTests( const char *argv[] )
 {
 	TestMode tm = tmTest;
+	bool		catchCount = true;
 
 	SortedArray<const char*>	testsToPerform;
 	for( ++argv; *argv; ++argv )
@@ -216,11 +218,13 @@ void UnitTest::PerformTests( const char *argv[] )
 			tm = tmStress;
 		else if( !strcmpi( *argv, "-mt" ) )
 			tm = tmThread;
+		else if( !strcmpi( *argv, "-showIO" ) )
+			catchCount = false;
 		else
 			testsToPerform.addElement( *argv );
 	}
 	if( tm == tmTest )
-		PerformTests( testsToPerform );
+		PerformTests( testsToPerform, catchCount );
 	else if( tm == tmStress )
 		StressTests( testsToPerform );
 	else
@@ -305,7 +309,7 @@ void UnitTest::PerformTest( UnitTest *theTest, bool catchCout )
 	}
 }
 
-void UnitTest::PerformTests( SortedArray<const char*> &testsToPerform )
+void UnitTest::PerformTests( SortedArray<const char*> &testsToPerform, bool catchCout )
 {
 	doEnterFunctionEx(gakLogging::llInfo, "UnitTest::PerformTests");
 
@@ -333,7 +337,7 @@ void UnitTest::PerformTests( SortedArray<const char*> &testsToPerform )
 		{
 			std::cout << "Performing " << std::setw(width) << (i++) << '/' << numElements << ' ' 
 					  << STRING(theTest->GetClassName()).pad(TEST_NAME_WIDTH, STR_P_RIGHT ) << std::flush;
-			PerformTest( theTest, true );
+			PerformTest( theTest, catchCout );
 
 			if( testFilter )
 			{

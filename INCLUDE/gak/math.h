@@ -284,28 +284,28 @@ struct MixedFraction
 template <typename NUMBER>
 struct MinMax : private Duo<NUMBER,NUMBER>
 {
-	MinMax(NUMBER first) : Duo(first, first) {}
+	MinMax(NUMBER first) : Duo<NUMBER,NUMBER>(first, first) {}
 	MinMax() : Duo<NUMBER,NUMBER>(std::numeric_limits<NUMBER>::max(), std::numeric_limits<NUMBER>::min()) {}
 
 	void test( NUMBER val )
 	{
-		if( val < val1 )
+		if( val < this->val1 )
 		{
-			val1 = val;
+			this->val1 = val;
 		}
-		if( val	> val2 )
+		if( val	> this->val2 )
 		{
-			val2 = val;
+			this->val2 = val;
 		}
 	}
 
 	NUMBER getMin() const
 	{
-		return val1;
+		return this->val1;
 	}
 	NUMBER getMax() const
 	{
-		return val2;
+		return this->val2;
 	}
 };
 
@@ -314,16 +314,16 @@ struct Mean : private Duo<NUMBER, std::size_t>
 {
 	void add( NUMBER val )
 	{
-		val1 += val;
-		++val2;
+		this->val1 += val;
+		++this->val2;
 	}
 	NUMBER getMean() const
 	{
-		return val1 / val2;
+		return this->val1 / this->val2;
 	}
 	std::size_t getCount() const
 	{
-		return val2;
+		return this->val2;
 	}
 };
 // --------------------------------------------------------------------- //

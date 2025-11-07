@@ -205,8 +205,8 @@ class BtreeTest : public UnitTest
 	{
 		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::loopTest" );
 		{
-			ContainerT::iterator it = container.begin();
-			ContainerT::iterator end = container.end();
+			typename ContainerT::iterator it = container.begin();
+			typename ContainerT::iterator end = container.end();
 			int	last = *it;
 			++it;
 
@@ -219,8 +219,8 @@ class BtreeTest : public UnitTest
 			} 
 		}
 		{
-			ContainerT::const_iterator it = container.cbegin();
-			ContainerT::const_iterator end = container.cend();
+			typename ContainerT::const_iterator it = container.cbegin();
+			typename ContainerT::const_iterator end = container.cend();
 			int	last = *it;
 			++it;
 
@@ -233,8 +233,8 @@ class BtreeTest : public UnitTest
 			} 
 		}
 		{
-			ContainerT::reverse_iterator it = container.rbegin();
-			ContainerT::reverse_iterator end = container.rend();
+			typename ContainerT::reverse_iterator it = container.rbegin();
+			typename ContainerT::reverse_iterator end = container.rend();
 			int last = *it;
 			++it;
 
@@ -247,8 +247,8 @@ class BtreeTest : public UnitTest
 			} 
 		}
 		{
-			ContainerT::const_reverse_iterator it = container.crbegin();
-			ContainerT::const_reverse_iterator end = container.crend();
+			typename ContainerT::const_reverse_iterator it = container.crbegin();
+			typename ContainerT::const_reverse_iterator end = container.crend();
 			int last = *it;
 			++it;
 
@@ -299,8 +299,8 @@ class BtreeTest : public UnitTest
 			while( container.size() )
 			{
 				doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while4" );
-				MyBtree::const_reverse_iterator it = container.crbegin();
-				MyBtree::const_reverse_iterator end = container.crend();
+				typename MyBtree::const_reverse_iterator it = container.crbegin();
+				typename MyBtree::const_reverse_iterator end = container.crend();
 				size_t	fwdCount = randomNumber( int(container.size()) );
 
 				for( size_t idx = 0; idx < fwdCount && it != end; ++it, ++idx ) 

@@ -132,7 +132,7 @@ class MachineLearning
 		if( variableCount )
 			*variableCount = 0;
 		for( 
-			EvalStorageT::const_iterator it = m_evals.cbegin(), endIT = m_evals.cend();
+			typename EvalStorageT::const_iterator it = m_evals.cbegin(), endIT = m_evals.cend();
 			it != endIT;
 			++it
 		)

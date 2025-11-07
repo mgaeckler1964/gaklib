@@ -12,9 +12,12 @@ CFLAGS=-I./INCLUDE -D_REENTRANT ${NO_DEBUG} -fsigned-char
 CPPFLAGS=${CFLAGS} -Wno-deprecated -Wno-invalid-offsetof
 
 OBJECTS=${OBJDIR}/acls.o \
+	${OBJDIR}/aiBrain.o \
 	${OBJDIR}/ansiChar.o \
 	${OBJDIR}/array.o \
+	${OBJDIR}/board.o \
 	${OBJDIR}/cgitools.o \
+	${OBJDIR}/chess.o \
 	${OBJDIR}/cmdlineParser.o \
 	${OBJDIR}/console.o \
 	${OBJDIR}/cppParser.o \
@@ -36,6 +39,7 @@ OBJECTS=${OBJDIR}/acls.o \
 	${OBJDIR}/exif.o \
 	${OBJDIR}/exception.o \
 	${OBJDIR}/fieldSet.o \
+	${OBJDIR}/figure.o \
 	${OBJDIR}/fileID.o \
 	${OBJDIR}/filename.o \
 	${OBJDIR}/fLink.o \

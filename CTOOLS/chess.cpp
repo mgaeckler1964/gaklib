@@ -240,11 +240,11 @@ STRING Movement::toString() const
 
 std::ostream &operator << (std::ostream &stream, Position::MoveFunc func )
 {
-	char *name="unknown";
+	const char *name="unknown";
 	static struct 
 	{
 		Position::MoveFunc	move;
-		char				*name;
+		const char			*name;
 	} moves[] =
 	{
 		{ &Position::moveNorth,			"Position::moveNorth" },

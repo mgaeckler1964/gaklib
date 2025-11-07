@@ -345,7 +345,11 @@ class StringTest : public UnitTest
 		}
 		{
 			STRING		text = "4594812546";
-			UT_ASSERT_EQUAL(4594812546, text.getValueE<int64>());
+#ifdef __BORLANDC__
+			UT_ASSERT_EQUAL(4594812546L, text.getValueE<int64>());
+#else
+			UT_ASSERT_EQUAL(4594812546LL, text.getValueE<int64>());
+#endif
 		}
 
 		{

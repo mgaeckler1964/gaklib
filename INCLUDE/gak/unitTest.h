@@ -181,7 +181,7 @@ class UnitTest
 	static void StressTest( UnitTest *theTest );
 	static void ThreadTest( UnitTest *theTest, void *pool );
 
-	static void PerformTests( SortedArray<const char*> &testsToPerform );
+	static void PerformTests( SortedArray<const char*> &testsToPerform, bool catchCout );
 	static void StressTests( SortedArray<const char*> &testsToPerform );
 	static void ThreadTest( SortedArray<const char*> &testsToPerform );
 

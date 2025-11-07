@@ -303,22 +303,22 @@ struct Position
 		{
 			if( src.row < dest.row )
 			{
-				return &moveNorth;
+				return &Position::moveNorth;
 			}
 			else if( src.row > dest.row )
 			{
-				return &moveSouth;
+				return &Position::moveSouth;
 			}
 		}
 		else if( src.row == dest.row )
 		{
 			if( src.col < dest.col )
 			{
-				return &moveEast;
+				return &Position::moveEast;
 			}
 			else if( src.col > dest.col )
 			{
-				return &moveWest;
+				return &Position::moveWest;
 			}
 		}
 		else
@@ -329,16 +329,16 @@ struct Position
 			if( horizDistance == vertDistance )
 			{
 				if( vertDistance > 0 )
-					return &moveNorthEast;
+					return &Position::moveNorthEast;
 				if( vertDistance < 0 )
-					return &moveSouthWest;
+					return &Position::moveSouthWest;
 			}
 			else if( horizDistance == -vertDistance )
 			{
 				if( vertDistance > 0 )
-					return &moveNorthWest;
+					return &Position::moveNorthWest;
 				if( vertDistance < 0 )
-					return &moveSouthEast;
+					return &Position::moveSouthEast;
 			}
 		}
 		return result;

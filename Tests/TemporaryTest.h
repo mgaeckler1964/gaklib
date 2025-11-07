@@ -85,8 +85,8 @@ class TemporaryTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "TemporaryTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
-#ifndef __BORLANDC__
-		// my C++ builder does not know unique_ptr
+#if !defined( __BORLANDC__ ) && !defined( __GNUC__ )
+		// my old C++ builder and the old Gnu C++ do not know unique_ptr
 		std::unique_ptr<STRING> myUnique( new STRING );
 		std::auto_ptr<STRING> myAuto( new STRING );
 
