@@ -207,6 +207,7 @@ void DirectoryEntry::findFile()
 			hidden = fileInfo.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM);
 			readOnly = fileInfo.dwFileAttributes & FILE_ATTRIBUTE_READONLY;
 			needBackup = fileInfo.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE; 
+			reparsePoint = fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT; 
 			fileID.deviceID = fileInfo.dwVolumeSerialNumber;
 			fileID.fileIndex = (uint64(fileInfo.nFileIndexHigh) << uint64(32)) | uint64(fileInfo.nFileIndexLow);
 			numLinks = fileInfo.nNumberOfLinks;

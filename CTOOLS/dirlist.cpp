@@ -146,7 +146,7 @@ void DirectoryList::findFiles( const STRING &path )
 #if defined( _Windows )
 	WIN32_FIND_DATAW	findDataW;
 	STRING				file;
-	uSTRING				_tmpBuff;
+	uSTRING				tmpBuff;
 
 	unsigned long ntErrCode;
 	HANDLE fs = FindFirstFileW( uSTRING(path), &findDataW );
@@ -156,16 +156,17 @@ void DirectoryList::findFiles( const STRING &path )
 
 		do
 		{
-			_tmpBuff = findDataW.cFileName;
+			tmpBuff = findDataW.cFileName;
 
 			addElement( 
 				DirectoryEntry( 
-					_tmpBuff.toString(), (uint64(findDataW.nFileSizeHigh) << uint64(32)) | uint64(findDataW.nFileSizeLow),
+					tmpBuff.toString(), (uint64(findDataW.nFileSizeHigh) << uint64(32)) | uint64(findDataW.nFileSizeLow),
 					DateTime(findDataW.ftCreationTime), DateTime(findDataW.ftLastWriteTime), DateTime(findDataW.ftLastAccessTime), 
 					findDataW.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY, 
 					findDataW.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM),
 					findDataW.dwFileAttributes & FILE_ATTRIBUTE_READONLY,
-					findDataW.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE
+					findDataW.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE,
+					findDataW.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT
 				)
 			);
 

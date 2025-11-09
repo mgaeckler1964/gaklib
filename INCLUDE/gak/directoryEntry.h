@@ -110,6 +110,7 @@ struct DirectoryEntry
 	bool		directory;
 #if defined( __WINDOWS__ )
 	bool		needBackup;
+	bool		reparsePoint;
 #endif
 	bool		hidden;
 	bool		readOnly;
@@ -139,7 +140,7 @@ struct DirectoryEntry
 		DateTime creationDate, DateTime modifiedDate, DateTime accessDate,
 		bool directory, bool hidden, bool readOnly
 #if defined( __WINDOWS__ )
-			, bool needBackup
+			, bool needBackup, bool reparsePoint
 #endif
 	) : fileName( fName ), creationDate(creationDate), modifiedDate(modifiedDate), accessDate(accessDate)
 	{
@@ -149,6 +150,7 @@ struct DirectoryEntry
 		this->readOnly = readOnly;
 #if defined( __WINDOWS__ )
 		this->needBackup = needBackup;
+		this->reparsePoint = reparsePoint;
 #endif
 		fileID.deviceID = 0;
 		fileID.fileIndex = 0;
@@ -181,6 +183,7 @@ struct DirectoryEntry
 			<< readOnly << ' '
 #if defined( __WINDOWS__ )
 			<< needBackup << ' '
+			<< reparsePoint << ' '
 #endif
 			<< fileID << ' '
 			<< numLinks << ')';
@@ -197,6 +200,7 @@ struct DirectoryEntry
 		gak::toBinaryStream( stream, readOnly );
 #if defined( __WINDOWS__ )
 		gak::toBinaryStream( stream, needBackup );
+		gak::toBinaryStream( stream, reparsePoint );
 #endif
 		gak::toBinaryStream( stream, fileID );
 		gak::toBinaryStream( stream, numLinks );
@@ -213,6 +217,7 @@ struct DirectoryEntry
 		gak::fromBinaryStream( stream, &readOnly );
 #if defined( __WINDOWS__ )
 		gak::fromBinaryStream( stream, &needBackup );
+		gak::fromBinaryStream( stream, &reparsePoint );
 #endif
 		gak::fromBinaryStream( stream, &fileID );
 		gak::fromBinaryStream( stream, &numLinks );
