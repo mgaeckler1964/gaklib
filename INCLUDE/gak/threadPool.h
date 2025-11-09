@@ -130,26 +130,26 @@ class PoolThread : public Thread
 
 	processor_type	m_objectProcessor;
 	object_type		m_objectToProcess;
-	bool			m_processing;
+	enum ThreadMode { tmIdle, tmAquired, tmProcessing } m_mode;
 	Thread			*m_dispatcher;
 
-	virtual void ExecuteThread( void );
+	virtual void ExecuteThread();
 
 	public:
 	PoolThread() : Thread(false)
 	{
 		m_dispatcher = nullptr;
-		m_processing = false;
+		m_mode = tmIdle;
 	}
 
 	/**
-		@brief notifies the thread to process the next item (called by the dispatcher).
+		@brief notifies the thread to process the next item (called by the dispatcher thread).
 		@param [in] objectToProcess the item to process
 		@param [in] dispatcher the dispatcher thread which is notified, after the item was processed
 	*/
 	void process( const object_type &objectToProcess, Thread *dispatcher )
 	{
-		m_processing = true;
+		assert(m_mode == tmAquired);
 		m_objectToProcess = objectToProcess;
 		m_dispatcher = dispatcher;
 		notify();
@@ -157,7 +157,8 @@ class PoolThread : public Thread
 
 	void process( const object_type &objectToProces )
 	{
-		m_processing = true;
+		assert(m_mode != tmProcessing);
+		m_mode = tmProcessing;
 		m_objectToProcess = objectToProces;
 		m_dispatcher = nullptr;
 		try
@@ -168,13 +169,24 @@ class PoolThread : public Thread
 		{
 			/// TODO better error handling
 		}
-		m_processing = false;
+		m_mode = tmIdle;
 	}
 
-	/// returns true, if this thread is currently waiting for the next item (called by the dispatcher).
-	bool isFree() const
+	/// returns true, if this thread is currently waiting for the next item
+	bool isIdle() const
 	{
-		return !m_processing;
+		return m_mode == tmIdle ;
+	}
+
+	/// returns true, if this thread is currently waiting for the next item and changes mode to aquired (called by the dispatcher thread).
+	bool aquire()
+	{
+		if( isIdle() )
+		{
+			m_mode = tmAquired;
+			return true;
+		}
+		return false;
 	}
 
 	void setObjectProcessor( const processor_type &objectProcessor )
@@ -209,7 +221,7 @@ class ThreadPool
 		PoolDispatcher( PoolArray &pool, BlockedQueue<ObjectT> &queue ) : Thread(false), m_pool(pool), m_queue(queue)
 		{
 		}
-		virtual void ExecuteThread( void );
+		virtual void ExecuteThread();
 
 		void StopThread()
 		{
@@ -334,7 +346,7 @@ class ThreadPool
 
    
 template <typename ProcessorT>
-void PoolThread<ProcessorT>::ExecuteThread( void )
+void PoolThread<ProcessorT>::ExecuteThread()
 {
 	while( !terminated )
 	{
@@ -348,7 +360,7 @@ void PoolThread<ProcessorT>::ExecuteThread( void )
 			{
 				// ignore all errors
 			}
-			m_processing = false;
+			m_mode = tmIdle;
 			m_dispatcher->notify();
 		}
 	}
@@ -371,7 +383,7 @@ void ThreadPool<ObjectT, ThreadT>::PoolDispatcher::ExecuteThread()
 				++it
 			)
 			{
-				if( it->isFree() )
+				if( it->aquire() )
 				{
 					it->process( objectToProcess, this );
 					processing = true;
@@ -427,7 +439,7 @@ void ThreadPool<ObjectT, ThreadT>::flush()
 		++it
 	)
 	{
-		while( !it->isFree() )
+		while( !it->isIdle() )
 		{
 			Sleep( 100 );
 		}
@@ -445,7 +457,7 @@ size_t ThreadPool<ObjectT, ThreadT>::inProgress() const
 		++it
 	)
 	{
-		if( !it->isFree() )
+		if( !it->isIdle() )
 		{
 			++inProgress;
 		}
