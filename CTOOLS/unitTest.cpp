@@ -110,7 +110,7 @@ class ProcessorType<UnitTest*>
 		@brief processes one item
 		@param [in] objectToProcess the item to process
 	*/
-	static void process( const object_type &objectToProcess )
+	static void process( const object_type &objectToProcess, void *threadPool, void *mainData )
 	{
 		objectToProcess->PerformThreadTest();
 	}
@@ -566,7 +566,7 @@ void UnitTest::ThreadTest( SortedArray<const char*> &testsToPerform )
 	std::size_t				width = math::getExponent( double(numElements) )+1;
 	std::size_t				numDisabledTests = 0;
 
-	TestPool				muliThreadTestPool(NUM_POOL_THREADS, "UnitTestThreads");
+	TestPool				muliThreadTestPool(NUM_POOL_THREADS, "UnitTestThreads", nullptr);
 
 	muliThreadTestPool.start();
 

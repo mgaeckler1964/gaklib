@@ -104,7 +104,7 @@ struct ProcessorType<STRING>
 			return false;
 		}
 	}
-	void process( const STRING &fileName )
+	void process( const STRING &fileName, void *threadPool, void *mainData )
 	{
 		doEnterFunctionEx(gakLogging::llDetail,"ProcessorType<IndexSourcePtr>::process");
 		doLogValueEx( gakLogging::llDetail, fileName );
@@ -127,7 +127,7 @@ class ParalelDirScannerTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "ParalelDirScannerTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
-		ParalelDirScanner	myScanner("ParalelDirScannerTest", CommandLine(), 5);
+		ParalelDirScanner	myScanner("ParalelDirScannerTest", CommandLine(), nullptr, 5);
 
 		myScanner("Java");
 

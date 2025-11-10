@@ -107,7 +107,7 @@ class ProcessorType
 		@brief processes one item
 		@param [in] objectToProcess the item to process
 	*/
-	static void process( const object_type &objectToProcess )
+	static void process( const object_type &objectToProcess, void *threadPool, void *mainData  )
 	{
 		objectToProcess();
 	}
@@ -133,12 +133,16 @@ class PoolThread : public Thread
 	enum ThreadMode { tmIdle, tmAquired, tmProcessing } m_mode;
 	Thread			*m_dispatcher;
 
+	void			*m_threadPool,
+					*m_mainData;
+
 	virtual void ExecuteThread();
 
 	public:
 	PoolThread() : Thread(false)
 	{
 		m_dispatcher = nullptr;
+		m_threadPool = m_mainData = nullptr; 
 		m_mode = tmIdle;
 	}
 
@@ -147,23 +151,25 @@ class PoolThread : public Thread
 		@param [in] objectToProcess the item to process
 		@param [in] dispatcher the dispatcher thread which is notified, after the item was processed
 	*/
-	void process( const object_type &objectToProcess, Thread *dispatcher )
+	void process( const object_type &objectToProcess, Thread *dispatcher, void *threadPool, void *mainData  )
 	{
 		assert(m_mode == tmAquired);
 		m_objectToProcess = objectToProcess;
 		m_dispatcher = dispatcher;
+		m_threadPool = threadPool;
+		m_mainData = mainData;
 		notify();
 	}
 
-	void process( const object_type &objectToProces )
+	void process( const object_type &objectToProces, void *threadPool, void *mainData )
 	{
-		assert(m_mode != tmProcessing);
-		m_mode = tmProcessing;
 		m_objectToProcess = objectToProces;
 		m_dispatcher = nullptr;
+		m_threadPool = threadPool;
+		m_mainData = mainData;
 		try
 		{
-			m_objectProcessor.process( m_objectToProcess );
+			m_objectProcessor.process( m_objectToProcess, threadPool, mainData  );
 		}
 		catch( ... )
 		{
@@ -209,46 +215,56 @@ class PoolThread : public Thread
 template <typename ObjectT, typename ThreadT = PoolThread<ProcessorType<ObjectT> > > 
 class ThreadPool
 {
-	typedef FixedHeapArray<ThreadT>	PoolArray;
+	typedef FixedHeapArray<ThreadT>			PoolArray;
+	typedef ThreadPool<ObjectT,ThreadT>		SelfT;
 
 	class PoolDispatcher : public Thread
 	{
 		private:
-		PoolArray				&m_pool;
-		BlockedQueue<ObjectT>	&m_queue;
+		SelfT					&m_pool;
+		void					*m_mainData;
+		bool					m_dispatching;
 
-		public:
-		PoolDispatcher( PoolArray &pool, BlockedQueue<ObjectT> &queue ) : Thread(false), m_pool(pool), m_queue(queue)
-		{
-		}
 		virtual void ExecuteThread();
 
+		public:
+		PoolDispatcher( SelfT &pool, void *mainData ) : Thread(false), m_pool(pool), m_mainData(mainData), m_dispatching(false)
+		{}
+
+		bool dispatching() const
+		{
+			return m_dispatching;
+		}
 		void StopThread()
 		{
 			terminated = true;
-			m_queue.push( ObjectT() );	// this is a dummy to notify the dispatcher loop, to have a chance to terminate
-										// otherwise the dispatcher could wait for a new object and never terminates
-										// since terminate is true, the dispatcher loop will not forward that dummy to
-										// an object processor
+			m_pool.m_queue.push( ObjectT() );	// this is a dummy to notify the dispatcher loop, to have a chance to terminate
+												// otherwise the dispatcher could wait for a new object and never terminates
+												// since terminate is true, the dispatcher loop will not forward that dummy to
+												// an object processor
 			Thread::StopThread();
 		}
 	};
 
+	private:
 	bool					m_singleThreadMode;
-	PoolArray				m_pool;
-	BlockedQueue<ObjectT>	m_queue;
 	PoolDispatcher			m_dispatcher;
 	STRING					m_threadNames;
 	bool					m_stopping, m_stopped;
+	void					*m_mainData;
+
+	public:
+	PoolArray				m_pool;
+	BlockedQueue<ObjectT>	m_queue;
 
 	public:
 	/**
 		@brief creates a new thread pool
 		@param count the numnber of worker threads to create
 	*/
-	ThreadPool( size_t count, const STRING &threadNames )
-		: m_singleThreadMode(count==0), m_pool(m_singleThreadMode?1:count),
-		  m_dispatcher(m_pool, m_queue), m_threadNames(threadNames), m_stopping(false), m_stopped(true)
+	ThreadPool( size_t count, const STRING &threadNames, void *mainData=nullptr )
+		: m_singleThreadMode(count==0), m_dispatcher(*this, mainData), m_threadNames(threadNames),
+		  m_stopping(false), m_stopped(true), m_mainData(mainData), m_pool(count==0?1:count)
 	{}
 	~ThreadPool()
 	{
@@ -267,7 +283,7 @@ class ThreadPool
 		}
 		if(m_singleThreadMode)
 		{
-			m_pool[0].process(objectToProcess);
+			m_pool[0].process(objectToProcess, this, m_mainData );
 		}
 		else
 		{
@@ -291,7 +307,7 @@ class ThreadPool
 	/// returns thr number of items still waiting in this queue
 	size_t size() const
 	{
-		return m_queue.size() + inProgress();
+		return m_queue.size() + inProgress() + (m_dispatcher.dispatching() ? 1 : 0);
 	}
 
 	template<typename ProcessorT>
@@ -348,13 +364,23 @@ class ThreadPool
 template <typename ProcessorT>
 void PoolThread<ProcessorT>::ExecuteThread()
 {
+#ifndef NDEBUG
+	ThreadID t_id1 = getThreadID();
+	Thread *thread = Thread::FindCurrentThread();
+	ThreadID t_id2 = thread->getThreadID();
+#endif
+
 	while( !terminated )
 	{
+		assert(t_id1 == t_id2);
+		assert(this == thread);
+
 		if( wait() && !terminated && m_dispatcher )
 		{
 			try
 			{
-				m_objectProcessor.process( m_objectToProcess );
+				if( m_mode == tmAquired )
+					m_objectProcessor.process( m_objectToProcess, m_threadPool, m_mainData );
 			}
 			catch( ... )
 			{
@@ -369,29 +395,32 @@ void PoolThread<ProcessorT>::ExecuteThread()
 template <typename ObjectT, typename ThreadT>
 void ThreadPool<ObjectT, ThreadT>::PoolDispatcher::ExecuteThread()
 {
+	m_dispatching = false;
 	while( !terminated )
 	{
-		ObjectT objectToProcess = m_queue.pop();
+		ObjectT objectToProcess = m_pool.m_queue.pop();
 
 		bool	processing = false;
+		m_dispatching = true;
 
 		while( !terminated )
 		{
 			for( 
-				typename PoolArray::iterator it = m_pool.begin(), endIT = m_pool.end();
+				typename PoolArray::iterator it = m_pool.m_pool.begin(), endIT = m_pool.m_pool.end();
 				it != endIT;
 				++it
 			)
 			{
 				if( it->aquire() )
 				{
-					it->process( objectToProcess, this );
+					m_dispatching = false;
+					it->process( objectToProcess, this, &m_pool, m_mainData );
 					processing = true;
 					break;
 				}
 			}
 
-			if( !processing && !terminated )
+			if( !processing  && !terminated )
 			{
 				wait( 100 );
 			}
@@ -401,6 +430,7 @@ void ThreadPool<ObjectT, ThreadT>::PoolDispatcher::ExecuteThread()
 			}
 		}
 	}
+	m_dispatching = false;
 }
 
 // --------------------------------------------------------------------- //
@@ -483,6 +513,7 @@ void ThreadPool<ObjectT, ThreadT>::shutdown()
 	}
 	m_dispatcher.StopThread();
 	m_dispatcher.join();
+	m_queue.clear();
 	m_stopping = false;
 }
 

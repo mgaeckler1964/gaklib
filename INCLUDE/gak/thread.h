@@ -264,16 +264,25 @@ class Thread : public SharedObject
 	/**
 		@brief return a thread object
 		@param [in] threadID the OS handle of the thread to search for
+		@param [out] idx the  internal index of the thread
 	*/
-	static SharedObjectPointer<Thread> FindThread( ThreadID threadID );
+	static SharedObjectPointer<Thread> FindThread( ThreadID threadID, size_t *idx=nullptr );
 	/**
 		@brief return a thread of the current thread
+		@param [out] idx the  internal index of the thread
 	*/
-	static SharedObjectPointer<Thread> FindCurrentThread()
+	static SharedObjectPointer<Thread> FindCurrentThread( size_t *idx=nullptr )
 	{
-		return FindThread( Locker::GetCurrentThreadID() );
+		return FindThread( Locker::GetCurrentThreadID(), idx );
 	}
 
+	/// returns the index of the current thread (no_index in case of the mnain thread, or not managed by this class)
+	static size_t FindCurrentThreadIdx()
+	{
+		size_t index;
+		FindCurrentThread( &index );
+		return index;
+	}
 	/// returns the OS handle of the thread
 	ThreadID getThreadID() const
 	{

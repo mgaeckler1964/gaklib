@@ -166,12 +166,13 @@ size_t Thread::CheckThreadCount( bool ownThreads, Array<P_HANDLE> *list )
 	return theThreadList.size() - otherThreads;
 }
 
-SharedObjectPointer<Thread> Thread::FindThread( ThreadID threadID )
+SharedObjectPointer<Thread> Thread::FindThread( ThreadID threadID, size_t *idx )
 {
 	SharedObjectPointer<Thread>	result;
 	size_t						numThreads;
 	bool						found = false;
 
+	if( idx ) *idx = theThreadList.no_index;
 	{
 		LockGuard	lock( theThreadListLocker, 10000 );
 
@@ -184,6 +185,7 @@ SharedObjectPointer<Thread> Thread::FindThread( ThreadID threadID )
 				result = GetThread( i );
 				if( result->getThreadID() == threadID )
 				{
+					if( idx ) *idx = i;
 					found = true;
 /*v*/				break;
 				}
@@ -261,6 +263,7 @@ void Thread::RunThread( void )
 	catch( ... )
 	{
 		// ignore any exceptions
+		std::cerr << "Thread Crash " << FindCurrentThreadIdx() << std::endl;
 	}
 	clrRunning();
 }

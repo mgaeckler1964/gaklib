@@ -95,7 +95,7 @@ class ServerProcessorBase : public SocketStreambuf
 	typedef ClientConnection object_type;
 
 	/// this type is called by PoolThread
-	void process( const ClientConnection &connection )
+	void process( const ClientConnection &connection, void *threadPool, void *mainData )
 	{
 		accept( connection.m_socket, 10240 );
 		m_client = connection.m_client;
@@ -259,7 +259,7 @@ void SocketServer<ServerProcessorT>::ListenerThread::ExecuteThread( void )
 {
 	doEnterFunction("SocketServer<ServerProcessorT>::ListenerThread::ExecuteThread");
 
-	ThreadPool<ClientConnection, PoolThread<ServerProcessorT> >	threadPool( m_numWorker, "ServerPool" );
+	ThreadPool<ClientConnection, PoolThread<ServerProcessorT> >	threadPool( m_numWorker, "ServerPool", nullptr );
 
 	if( !m_socket.listen( m_port ) )
 	{

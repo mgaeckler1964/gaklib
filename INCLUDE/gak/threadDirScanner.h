@@ -98,7 +98,7 @@ class ParalelDirScanner
 	ThreadPool<STRING>							m_threadPool;
 
 	public:
-	ParalelDirScanner( const STRING &threadName, const CommandLine &cmdLine, size_t count=8 ) : m_cmdLine(cmdLine), m_scanner(this), m_threadPool(count, threadName) {}
+	ParalelDirScanner( const STRING &threadName, const CommandLine &cmdLine, void *mainData=nullptr, size_t count=8 ) : m_cmdLine(cmdLine), m_scanner(this), m_threadPool(count, threadName, mainData ) {}
 	void operator () ( const STRING &path )
 	{
 		m_threadPool.start();

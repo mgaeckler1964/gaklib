@@ -81,13 +81,13 @@ class Functor
 	int		m_id;
 	size_t	*m_callCount;
 
-	static Locker	locker;
 	public:
 	Functor( int id=-1, size_t	*callCount=nullptr ) : m_id(id), m_callCount(callCount)
 	{}
 
 	void operator () () const
 	{
+		static Locker	locker;
 		::Sleep( 1000 );
 
 		LockGuard	guard( locker );
@@ -99,7 +99,30 @@ class Functor
 	}
 };
 
-Locker	Functor::locker;
+struct MainData
+{
+	Critical	critical;
+
+	int sum;
+	int waiting;
+
+	MainData() : sum(0), waiting(0) {}
+};
+
+template <>
+struct ProcessorType<int>
+{
+	typedef int object_type;
+
+	void process( int i, void *threadPool, void *imainData )
+	{
+		MainData * mainData = (MainData *)imainData;
+		CriticalScope scope(mainData->critical);
+
+		mainData->sum += i;
+		mainData->waiting += ((ThreadPool<int> *)threadPool)->size();
+	}
+};
 
 class ThreadPoolTest : public UnitTest
 {
@@ -113,11 +136,11 @@ class ThreadPoolTest : public UnitTest
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "ThreadPoolTest::PerformTest");
 		TestScope scope( "PerformTest" );
-		callCount = 0;
 
+		callCount = 0;
 		const size_t	count(20);
 		{
-			ThreadPool<Functor>	pool( 5, "ThreadPoolTest1" );
+			ThreadPool<Functor>	pool( 5, "ThreadPoolTest1", nullptr );
 
 			UT_ASSERT_EQUAL( pool.getCurrentState(), psIdle );
 			pool.start();
@@ -134,7 +157,7 @@ class ThreadPoolTest : public UnitTest
 		UT_ASSERT_EQUAL( count, callCount );
 		{
 			const size_t	count(10);
-			ThreadPool<Functor>	pool( 5, "ThreadPoolTest2" );
+			ThreadPool<Functor>	pool( 5, "ThreadPoolTest2", nullptr );
 
 			callCount = 0;
 			pool.start();
@@ -166,7 +189,44 @@ class ThreadPoolTest : public UnitTest
 				ThreadPoolError
 			);
 		}
+		{
+			MainData	mainData;
+			ThreadPool<int>	pool(3, "MyIntPool", &mainData );
 
+			pool.start();
+			UT_ASSERT_EQUAL( mainData.sum, 0 );
+			pool.process( 5 );
+			pool.flush();
+			pool.shutdown();
+			UT_ASSERT_EQUAL( mainData.sum, 5 );
+			pool.start();
+			pool.process( 5 );
+			pool.process( 10 );
+			pool.flush();
+			pool.shutdown();
+			UT_ASSERT_EQUAL( mainData.sum, 20 );
+
+			UT_ASSERT_GREATER( mainData.waiting, 0 );
+		}
+		{
+			MainData	mainData;
+			ThreadPool<int>	pool(0, "MyIntPool", &mainData );
+
+			pool.start();
+			UT_ASSERT_EQUAL( mainData.sum, 0 );
+			pool.process( 5 );
+			pool.flush();
+			pool.shutdown();
+			UT_ASSERT_EQUAL( mainData.sum, 5 );
+			pool.start();
+			pool.process( 5 );
+			pool.process( 10 );
+			pool.flush();
+			pool.shutdown();
+			UT_ASSERT_EQUAL( mainData.sum, 20 );
+
+			UT_ASSERT_GREATER( mainData.waiting, 0 );
+		}
 	}
 	virtual bool canThreadTest()
 	{

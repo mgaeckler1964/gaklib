@@ -997,7 +997,7 @@ void showProgress( char flag, size_t idx, size_t max )
 
 		gak::STRING &theField = s_fields[flag];
 
-		theField = gak::formatNumber(idx);
+		theField = gak::STRING(' ') + gak::formatNumber(idx);
 
 		if( max )
 			theField += gak::STRING('/') + gak::formatNumber(max);
@@ -1012,16 +1012,17 @@ void showProgress( char flag, size_t idx, size_t max )
 			std::cout << '\r';
 			if( s_fields.size() == 1 )
 			{
-				std::cout << s_fields.getValueAt(0);
+				std::cout << gak::Thread::FindCurrentThreadIdx()  << s_fields.getValueAt(0);
 			}
 			else
 			{
+				std::cout << gak::Thread::FindCurrentThreadIdx()  << ' ';
 				for( size_t i=0; i<s_fields.size(); ++i )
 				{
-					std::cout << i << ": " << s_fields.getValueAt(i) << ' ';
+					std::cout << i << ':' << s_fields.getValueAt(i) << ' ';
 				}
 			}
-			std::cout << "      \r";
+			std::cout << "        \r";
 			s_watch.start();
 			s_last = flag;
 		}
