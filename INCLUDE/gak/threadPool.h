@@ -163,6 +163,7 @@ class PoolThread : public Thread
 
 	void process( const object_type &objectToProces, void *threadPool, void *mainData )
 	{
+		m_mode = tmProcessing;
 		m_objectToProcess = objectToProces;
 		m_dispatcher = nullptr;
 		m_threadPool = threadPool;

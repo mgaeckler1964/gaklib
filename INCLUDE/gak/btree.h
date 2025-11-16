@@ -48,6 +48,7 @@
 #include <gak/compare.h>
 #include <gak/iostream.h>
 #include <gak/keyValuePair.h>
+#include <gak/set.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -190,6 +191,18 @@ class Btree : public Container
 
 			return result;
 		}
+		bool testRecursion( Set<size_t> &nodes )
+		{
+			if( nodes.findElement( size_t(this) ) != nodes.no_index )
+				return false;
+			nodes.addElement( size_t(this) );
+			if( m_prev && !m_prev->testRecursion( nodes ) )
+				return false;
+			if( m_next && !m_next->testRecursion( nodes ) )
+				return false;
+			return true;
+		}
+
 		BalanceType isBalanced()
 		{
 			size_t		prevCount = 0;
@@ -308,15 +321,11 @@ class Btree : public Container
 		}
 		~Node()
 		{
-			if( m_prev )
-			{
-				delete m_prev;
-			}
-			if( m_next )
-			{
-				delete m_next;
-			}
+			if( m_count > 1 )
+				deleteSiblings( this );
 		}
+
+		void deleteSiblings( Node *node );
 
 		Node *getFirst() const;
 		Node *getNext() const;
@@ -1100,6 +1109,16 @@ class Btree : public Container
 
 		return result;
 	}
+	bool testRecursion() const
+	{
+		if( m_root )
+		{
+			Set<size_t>		nodes;
+			nodes.setChunkSize( size() );
+			return m_root->testRecursion( nodes );
+		}
+		return true;
+	}
 
 	BalanceType isBalanced()
 	{
@@ -1146,6 +1165,47 @@ class Btree : public Container
 // --------------------------------------------------------------------- //
 // ----- class constructors/destructors -------------------------------- //
 // --------------------------------------------------------------------- //
+
+template <class OBJ, class Comparator, int FACTOR, int OFFSET>
+void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::deleteSiblings( Node *node )
+{
+	size_t count = m_count;
+	Node *root = node;
+	while( count > 1 )
+	{
+		gakLogging::doShowProgress('b', count, m_count );
+		if( node->m_prev )
+		{
+			node = node->m_prev;
+		}
+		else if( node->m_next )
+		{
+			node = node->m_next;
+		}
+		else if( root != node )
+		{
+			Node *prev = node;
+			node = node->m_parent;
+			if( node->m_prev )
+			{
+				count--;
+				node->m_prev->m_count = 1;
+				delete node->m_prev;
+				node->m_prev = nullptr;
+			}
+			if( node->m_next && node->m_next == prev)
+			{
+				count--;
+				node->m_next->m_count = 1;
+				delete node->m_next;
+				node->m_next = nullptr;
+			}
+		}
+		else
+			break;
+	}
+	m_count = 1;
+}
 
 // --------------------------------------------------------------------- //
 // ----- class static functions ---------------------------------------- //

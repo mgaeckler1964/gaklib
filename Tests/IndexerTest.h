@@ -113,7 +113,7 @@ class IndexerTest : public UnitTest
 		Index<STRING>	globalIndex;
 		typedef Index<STRING>::SearchResult	SearchResult;
 
-		globalIndex.mergeIndexPositions( "testText1", &positions );
+		globalIndex.moveIndexPositions( "testText1", &positions );
 		UT_ASSERT_EQUAL( 
 			std::size_t(1), 
 			globalIndex[searchWord1].size()
@@ -127,7 +127,7 @@ class IndexerTest : public UnitTest
 		{
 			gak::ai::StringIndex index;
 			indexString( testText2, stopWords, ai::IS_ANY, &index );
-			globalIndex.mergeIndexPositions( "testText2", &index	);
+			globalIndex.moveIndexPositions( "testText2", &index	);
 		}
 		UT_ASSERT_EQUAL( 
 			std::size_t(2), 
@@ -189,7 +189,7 @@ class IndexerTest : public UnitTest
 		{
 			gak::ai::StringIndex index;
 			indexString( STRING("Gäckler"), stopWords, ai::IS_ANY, &index );
-			globalIndex.mergeIndexPositions( "Gäckler", &index );
+			globalIndex.moveIndexPositions( "Gäckler", &index );
 		}
 		sources = globalIndex.findWords( "gakler", true, true, true );
 		UT_ASSERT_EQUAL( std::size_t(1), sources.size() );

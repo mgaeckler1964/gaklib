@@ -652,6 +652,16 @@ class TimeoutException : public LibraryException
 	}
 };
 
+/// @brief Exception thrown if unix signal was caught
+class SignalException : public LibraryException
+{
+	public:
+	SignalException( int sig ) : LibraryException( getText( sig ) ) {}
+	static STRING getText( int sig );
+	static void catchSignals();
+	static void signalHandler( int sig );
+};
+
 namespace Internal
 {
 	/// @brief Exception thrown if method not yet implemented

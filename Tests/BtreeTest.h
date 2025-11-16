@@ -120,6 +120,22 @@ NodeTemplate	simpleTemp[] =
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+class DeleteCounter
+{
+	int		m_value;
+	size_t	*m_counter;
+
+	public:
+	DeleteCounter(int value, size_t *counter) : m_value(value), m_counter(counter) {}
+	~DeleteCounter()
+	{
+		(*m_counter)++;
+	}
+	int compare( const DeleteCounter &other ) const
+	{
+		return gak::compare( m_value, other.m_value );
+	}
+};
 class BtreeTest : public UnitTest
 {
 	virtual const char *GetClassName() const
@@ -198,6 +214,31 @@ class BtreeTest : public UnitTest
 //		assert( root->m_parent == nullptr );
 //		root->testPointer(true);
 //		oldRoot->testPointer(true);
+	}
+
+	void deleteTest()
+	{
+		size_t counter=0;
+
+		{
+			Btree<DeleteCounter>	btree;
+
+			UT_ASSERT_EQUAL( counter, 0 );
+
+			btree.addElement( DeleteCounter( 1, &counter ) );
+			btree.addElement( DeleteCounter( 2, &counter ) );
+			btree.addElement( DeleteCounter( 3, &counter ) );
+			btree.addElement( DeleteCounter( 10, &counter ) );
+			btree.addElement( DeleteCounter( 7, &counter ) );
+			btree.addElement( DeleteCounter( 6, &counter ) );
+			btree.addElement( DeleteCounter( 8, &counter ) );
+			btree.addElement( DeleteCounter( 9, &counter ) );
+			btree.addElement( DeleteCounter( 5, &counter ) );
+			btree.addElement( DeleteCounter( 4, &counter ) );
+
+			UT_ASSERT_EQUAL( counter, 10 );	// temporary items also count
+		}
+		UT_ASSERT_EQUAL( counter, 20 );
 	}
 
 	template <typename ContainerT>
@@ -365,6 +406,7 @@ class BtreeTest : public UnitTest
 
 		TestScope scope( "PerformTest" );
 		simpleTest();
+		deleteTest();
 		CopyBtreeTest();
 #ifdef NDEBUG
 		const size_t numItems = 32000;

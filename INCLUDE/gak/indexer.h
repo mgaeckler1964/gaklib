@@ -340,7 +340,8 @@ class Index
 	{
 		return m_searchIndex.size();
 	}
-	void mergeIndexPositions( const SourceT &source, StringIndex *index );
+	void copyIndexPositions( const SourceT &source, const StringIndex &index );
+	void moveIndexPositions( const SourceT &source, StringIndex *index );
 
 	void toBinaryStream ( std::ostream &stream ) const
 	{
@@ -373,6 +374,10 @@ class Index
 	void clear()
 	{
 		m_searchIndex.clear();
+	}
+	bool testRecursion()
+	{
+		return m_searchIndex.testRecursion();
 	}
 };
 
@@ -622,9 +627,30 @@ void Index<SourceT>::getStatistik(StatistikData *oResult) const
 }
 
 template<typename SourceT>
-void Index<SourceT>::mergeIndexPositions( const SourceT &source, StringIndex *index )
+void Index<SourceT>::copyIndexPositions( const SourceT &source, const StringIndex &index )
 {
-	doEnterFunctionEx(gakLogging::llDetail,"SourcePosition::mergeIndexPositions");
+	doEnterFunctionEx(gakLogging::llDetail,"SourcePosition::copyIndexPositions");
+#if USE_PAIR_MAP
+	m_searchIndex.setChunkSize( index->size() );
+#endif
+	for(
+		StringIndex::const_iterator it = index.cbegin(), endIT = index.cend();
+		it != endIT;
+		++it
+	)
+	{
+		SearchResult &sourceIndexPos = m_searchIndex[it->getKey()];
+#if USE_PAIR_MAP
+		sourceIndexPos.setChunkSize(sourceIndexPos.size()/2);
+#endif
+		sourceIndexPos[source] = it->getValue();
+	}
+}
+
+template<typename SourceT>
+void Index<SourceT>::moveIndexPositions( const SourceT &source, StringIndex *index )
+{
+	doEnterFunctionEx(gakLogging::llDetail,"SourcePosition::moveIndexPositions");
 #if USE_PAIR_MAP
 	m_searchIndex.setChunkSize( index->size() );
 #endif
@@ -641,6 +667,7 @@ void Index<SourceT>::mergeIndexPositions( const SourceT &source, StringIndex *in
 		sourceIndexPos[source].moveFrom( const_cast<Positions&>(it->getValue()) );
 	}
 	index->clear();
+//	index->forget();
 }
 
 template<typename SourceT>

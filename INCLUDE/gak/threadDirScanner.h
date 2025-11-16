@@ -106,6 +106,15 @@ class ParalelDirScanner
 		doLogMessageEx(gakLogging::llInfo, "Dirscanner completed. Waiting for processors");
 		m_threadPool.flush();
 	}
+	void shutdown()
+	{
+		m_threadPool.flush();
+		m_threadPool.shutdown();
+	}
+	~ParalelDirScanner()
+	{
+		shutdown();
+	}
 };
 
 // --------------------------------------------------------------------- //

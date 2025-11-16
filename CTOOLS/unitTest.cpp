@@ -60,6 +60,7 @@
 
 #include <gak/locker.h>
 #include <gak/logfile.h>
+#include <gak/exception.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -208,6 +209,9 @@ Array<UnitTest*> &UnitTest::getTheTestItems()
 
 void UnitTest::PerformTests( const char *argv[] )
 {
+	std::cout << "catching signals " << std::endl;
+	SignalException::catchSignals();
+
 	TestMode tm = tmTest;
 	bool		catchCount = true;
 

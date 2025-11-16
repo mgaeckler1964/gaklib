@@ -39,6 +39,9 @@
 // --------------------------------------------------------------------- //
 
 #include <gak/exception.h>
+
+#include <signal.h>
+
 #include <gak/fmtNumber.h>
 
 // --------------------------------------------------------------------- //
@@ -121,6 +124,31 @@ namespace Internal
 // --------------------------------------------------------------------- //
 // ----- class static functions ---------------------------------------- //
 // --------------------------------------------------------------------- //
+
+STRING SignalException::getText( int sig )
+{
+	if( sig == SIGSEGV )
+		return "Segmentation Fault";
+	else if( sig == SIGFPE )
+		return "Floating Point Error";
+	else if( sig == SIGILL )
+		return "Illegal Instruction";
+	else
+		return STRING("Signal " ) + formatNumber( sig ) + " caught";
+}
+
+void SignalException::catchSignals()
+{
+	signal( SIGSEGV, signalHandler );
+	signal( SIGFPE, signalHandler );
+	signal( SIGILL, signalHandler );
+}
+
+void SignalException::signalHandler( int sig )
+{
+	throw SignalException(sig);
+}
+
 
 // --------------------------------------------------------------------- //
 // ----- class privates ------------------------------------------------ //
