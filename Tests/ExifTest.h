@@ -90,15 +90,7 @@ class ExifTest : public UnitTest
 
 		ImageMetaData	metaData;
 
-#if defined( _Windows )
-		//STRING	fileName = "T:\\gak\\NetPictures\\München\\Allach\\2009-03-28_17-01-50.jpg";
-		//STRING	fileName = "T:\\gak\\NetPictures\\München\\Allach\\2009-05-01_18-41-23_2399.jpg";
-		//STRING	fileName = "T:\\gak\\NetPictures\\Testbilder\\Staubtest\\2013-11-13_12-30-42_8877.NEF";
-		STRING	fileName = "T:\\gak\\NetPictures\\Testbilder\\Freistellung\\2013-01-28_10-58-39_32122.jpg";
-		//STRING	fileName = "F:\\Nikon Transfer\\Saturn269\\DSCN4235.NRW";
-#else
-		STRING	fileName = "/home/gak/NetPictures/Testbilder/Freistellung/2013-01-28_10-58-39_32122.jpg";
-#endif
+		STRING	fileName = "test_data" DIRECTORY_DELIMITER_STRING "2013-01-28_10-58-39_32122.jpg";
 
 		bool imageRead = readImageMetaData( fileName, &metaData );
 
@@ -113,6 +105,8 @@ class ExifTest : public UnitTest
 			UT_ASSERT_EQUAL( STRING(metaData.getFlashModeStr()), STRING("Compulsory flash firing") );
 			UT_ASSERT_EQUAL( metaData.tiffData.Artist, STRING("Martin Gäckler") );
 		}
+		else
+			std::cout << "Cannot read " << fileName << std::endl;
 	}
 };
 

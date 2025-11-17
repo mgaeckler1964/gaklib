@@ -116,32 +116,32 @@ struct ProcessorType<STRING>
 };
 
 
-class ParalelDirScannerTest : public UnitTest
+class ThreadDirScannerTest : public UnitTest
 {
 	virtual const char *GetClassName() const
 	{
-		return "ParalelDirScannerTest";
+		return "ThreadDirScannerTest";
 	}
 	virtual void PerformTest()
 	{
-		doEnterFunctionEx(gakLogging::llInfo, "ParalelDirScannerTest::PerformTest");
+		doEnterFunctionEx(gakLogging::llInfo, "ThreadDirScannerTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
-		ParalelDirScanner	myScanner("ParalelDirScannerTest", CommandLine(), nullptr, 5);
+		ParalelDirScanner	myScanner("ThreadDirScannerTest", CommandLine(), nullptr, 5);
 
 		myScanner("Java");
 
 		// We expect to find these 4 files in this sort order (it is sorted by name):
 		UT_ASSERT_EQUAL(g_count,4);
 		UT_ASSERT_EQUAL(g_filesFound.size(),4);
-		UT_ASSERT_EQUAL(g_filesFound[0],"Java\\com\\gaklib\\Lock.java");
-		UT_ASSERT_EQUAL(g_filesFound[1],"Java\\com\\gaklib\\MessageBox.java");
-		UT_ASSERT_EQUAL(g_filesFound[2],"Java\\gaklib.jpr");
-		UT_ASSERT_EQUAL(g_filesFound[3],"Java\\gaklib.jpr.local");
+		UT_ASSERT_EQUAL(g_filesFound[0],"Java" DIRECTORY_DELIMITER_STRING "com" DIRECTORY_DELIMITER_STRING "gaklib" DIRECTORY_DELIMITER_STRING "Lock.java");
+		UT_ASSERT_EQUAL(g_filesFound[1],"Java" DIRECTORY_DELIMITER_STRING "com" DIRECTORY_DELIMITER_STRING "gaklib" DIRECTORY_DELIMITER_STRING "MessageBox.java");
+		UT_ASSERT_EQUAL(g_filesFound[2],"Java" DIRECTORY_DELIMITER_STRING "gaklib.jpr");
+		UT_ASSERT_EQUAL(g_filesFound[3],"Java" DIRECTORY_DELIMITER_STRING "gaklib.jpr.local");
 	}
 };
 
-static ParalelDirScannerTest	myParalelDirScannerTest;
+static ThreadDirScannerTest	myThreadDirScannerTest;
 
 }	//namespace gak
 

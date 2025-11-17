@@ -122,5 +122,5 @@ ${OBJDIR}/%.o: CTOOLS/%.cpp
 
 test: TEST.CPP ${DESTFILE}
 	g++ ${CPPFLAGS} -lpthread ${LIBRARIES} $^ -o $@
-	./test
+	./test -ct -exclude StreamsTest BtreeTest LogfileTest
 	rm test

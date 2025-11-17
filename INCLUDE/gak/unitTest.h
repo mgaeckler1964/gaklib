@@ -177,13 +177,13 @@ class UnitTest
 
 	private:
 	static Array<UnitTest*> &getTheTestItems();
-	static void PerformTest( UnitTest *theTest, bool catchCout );
-	static void StressTest( UnitTest *theTest );
-	static void ThreadTest( UnitTest *theTest, void *pool );
+	static bool PerformTest( UnitTest *theTest, bool catchCout );
+	static bool StressTest( UnitTest *theTest );
+	static bool ThreadTest( UnitTest *theTest, void *pool );
 
-	static void PerformTests( SortedArray<const char*> &testsToPerform, bool catchCout );
-	static void StressTests( SortedArray<const char*> &testsToPerform );
-	static void ThreadTest( SortedArray<const char*> &testsToPerform );
+	static void PerformTests( SortedArray<const char*> &testsToPerform, bool catchCout, bool checkTested );
+	static void StressTests( SortedArray<const char*> &testsToPerform, bool checkTested );
+	static void ThreadTest( SortedArray<const char*> &testsToPerform, bool checkTested );
 
 	static void ShowNotFound( const SortedArray<const char*> &testsToPerform );
 

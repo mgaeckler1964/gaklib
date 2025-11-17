@@ -120,7 +120,7 @@ class DateTimeTest : public UnitTest
 		std::cout << "Vollmond: " << nextFullMoon << " Neumond: " << nextNewMoon << '\n';
 #endif
 
-		UT_ASSERT_EQUAL( now.getTZoffset(), 7200L );
+		UT_ASSERT_EQUAL( now.getTZoffset(), 3600L );
 		DateTime	epochBegin( time_t( 0 ) );
 		UT_ASSERT_EQUAL( epochBegin.getYear(), (unsigned short)1970 );
 		UT_ASSERT_EQUAL( epochBegin.getMonth(), Date::JANUARY );

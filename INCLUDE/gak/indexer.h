@@ -631,7 +631,7 @@ void Index<SourceT>::copyIndexPositions( const SourceT &source, const StringInde
 {
 	doEnterFunctionEx(gakLogging::llDetail,"SourcePosition::copyIndexPositions");
 #if USE_PAIR_MAP
-	m_searchIndex.setChunkSize( index->size() );
+	m_searchIndex.setChunkSize( index.size() );
 #endif
 	for(
 		StringIndex::const_iterator it = index.cbegin(), endIT = index.cend();

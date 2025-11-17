@@ -169,6 +169,8 @@ class StreamCatcher
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+const char TESTED_FILENAME[] = ".tested";
+
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -187,6 +189,12 @@ std::size_t			UnitTest::s_errorCount = 0;
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+static void addToTested( const STRING &testName )
+{
+	std::ofstream out(TESTED_FILENAME, std::ios_base::app);
+	out << testName << '\n';
+}
 
 // --------------------------------------------------------------------- //
 // ----- class inlines ------------------------------------------------- //
@@ -213,7 +221,10 @@ void UnitTest::PerformTests( const char *argv[] )
 	SignalException::catchSignals();
 
 	TestMode tm = tmTest;
-	bool		catchCount = true;
+	bool		catchCout = true,
+				excludeTests = false,
+				checkTested = false;
+	ArrayOfStrings	alreadyTested;
 
 	SortedArray<const char*>	testsToPerform;
 	for( ++argv; *argv; ++argv )
@@ -223,16 +234,50 @@ void UnitTest::PerformTests( const char *argv[] )
 		else if( !strcmpi( *argv, "-mt" ) )
 			tm = tmThread;
 		else if( !strcmpi( *argv, "-showIO" ) )
-			catchCount = false;
+			catchCout = false;
+		else if( !strcmpi( *argv, "-exclude" ) )
+			excludeTests = true;
+		else if( !strcmpi( *argv, "-ct" ) )
+			checkTested = true;
 		else
 			testsToPerform.addElement( *argv );
 	}
+
+	if( checkTested )
+		alreadyTested.readFromFile(TESTED_FILENAME);
+
+	if( excludeTests || (checkTested && alreadyTested.size()) )
+	{
+		const Array<UnitTest*>	&theTestItems = getTheTestItems();
+		SortedArray<const char*>	excludes;
+		excludes.moveFrom( testsToPerform );
+
+		for( 
+			Array<UnitTest*>::const_iterator it = theTestItems.cbegin(), endIT = theTestItems.cend();
+			it != endIT;
+			++it
+		)
+		{
+			UnitTest	*theTest = *it;
+			if( !theTest->isDisabled() )
+			{
+				size_t		testIndex = excludeTests ? excludes.findElement( theTest->GetClassName() ) : excludes.no_index;
+
+				if( testIndex == excludes.no_index && alreadyTested.size() )
+					testIndex = alreadyTested.findElement( theTest->GetClassName() );
+				if( testIndex == excludes.no_index )
+				{
+					testsToPerform.addElement( theTest->GetClassName() );
+				}
+			}
+		}
+	}
 	if( tm == tmTest )
-		PerformTests( testsToPerform, catchCount );
+		PerformTests( testsToPerform, catchCout, checkTested );
 	else if( tm == tmStress )
-		StressTests( testsToPerform );
+		StressTests( testsToPerform, checkTested );
 	else
-		ThreadTest( testsToPerform );
+		ThreadTest( testsToPerform, checkTested );
 }
 
 void UnitTest::ShowNotFound( const SortedArray<const char*> &testsToPerform )
@@ -256,7 +301,7 @@ void UnitTest::ShowNotFound( const SortedArray<const char*> &testsToPerform )
 		Unit Tests
 	---------------------------------------------------------------------------
 */
-void UnitTest::PerformTest( UnitTest *theTest, bool catchCout )
+bool UnitTest::PerformTest( UnitTest *theTest, bool catchCout )
 {
 	std::size_t			errorCount = s_errorCount;
 	STRING				exceptionType, errorText;
@@ -311,9 +356,11 @@ void UnitTest::PerformTest( UnitTest *theTest, bool catchCout )
 			catcher.printResult();
 		}
 	}
+
+	return errorCount < s_errorCount;
 }
 
-void UnitTest::PerformTests( SortedArray<const char*> &testsToPerform, bool catchCout )
+void UnitTest::PerformTests( SortedArray<const char*> &testsToPerform, bool catchCout, bool checkTested )
 {
 	doEnterFunctionEx(gakLogging::llInfo, "UnitTest::PerformTests");
 
@@ -341,7 +388,9 @@ void UnitTest::PerformTests( SortedArray<const char*> &testsToPerform, bool catc
 		{
 			std::cout << "Performing " << std::setw(width) << (i++) << '/' << numElements << ' ' 
 					  << STRING(theTest->GetClassName()).pad(TEST_NAME_WIDTH, STR_P_RIGHT ) << std::flush;
-			PerformTest( theTest, catchCout );
+			bool errFlag = PerformTest( theTest, catchCout );
+			if( !errFlag && checkTested )
+				addToTested(theTest->GetClassName());
 
 			if( testFilter )
 			{
@@ -435,10 +484,11 @@ void UnitTest::PrintResult()
 	---------------------------------------------------------------------------
 */
 
-void UnitTest::StressTest( UnitTest *theTest )
+bool UnitTest::StressTest( UnitTest *theTest )
 {
 	size_t	count = 1;
 	clock_t time, lastTime;
+	size_t errorCount = s_errorCount;
 
 	StopWatch	stopWatch( true );
 	while( true )
@@ -469,9 +519,11 @@ void UnitTest::StressTest( UnitTest *theTest )
 		sr.goodTime = lastTime;
 		sr.badTime = time;
 	}
+	
+	return errorCount < s_errorCount;
 }
 
-void UnitTest::StressTests( SortedArray<const char*> &testsToPerform )
+void UnitTest::StressTests( SortedArray<const char*> &testsToPerform, bool checkTested )
 {
 	doEnterFunctionEx(gakLogging::llInfo, "UnitTest::StressTests");
 
@@ -499,7 +551,9 @@ void UnitTest::StressTests( SortedArray<const char*> &testsToPerform )
 		{
 			std::cout << "Stressing " << std::setw(width) << (i++) << '/' << numElements << ' ' 
 					  << STRING(theTest->GetClassName()).pad(TEST_NAME_WIDTH, STR_P_RIGHT ) << std::flush;
-			StressTest( theTest );
+			bool errFlag = StressTest( theTest );
+			if( !errFlag && checkTested )
+				addToTested(theTest->GetClassName());
 
 			if( testFilter )
 			{
@@ -534,7 +588,7 @@ void UnitTest::PerformThreadTest()
 	}
 }
 
-void UnitTest::ThreadTest( UnitTest *theTest, void *pool )
+bool UnitTest::ThreadTest( UnitTest *theTest, void *pool )
 {
 	size_t errorCount = s_errorCount;
 	StreamCatcher	catcher( true );
@@ -556,10 +610,10 @@ void UnitTest::ThreadTest( UnitTest *theTest, void *pool )
 		std::cout << " FAILED\n";
 		catcher.printResult();
 	}
-
+	return errorCount < s_errorCount;
 }
 
-void UnitTest::ThreadTest( SortedArray<const char*> &testsToPerform )
+void UnitTest::ThreadTest( SortedArray<const char*> &testsToPerform, bool checkTested )
 {
 	doEnterFunctionEx(gakLogging::llInfo, "UnitTest::ThreadTest");
 
@@ -592,7 +646,9 @@ void UnitTest::ThreadTest( SortedArray<const char*> &testsToPerform )
 		{
 			std::cout << "Threading " << std::setw(width) << (i++) << '/' << numElements << ' ' 
 					  << STRING(theTest->GetClassName()).pad(TEST_NAME_WIDTH, STR_P_RIGHT ) << std::flush;;
-			ThreadTest( theTest, &muliThreadTestPool );
+			bool errFlag = ThreadTest( theTest, &muliThreadTestPool );
+			if( !errFlag && checkTested )
+				addToTested(theTest->GetClassName());
 
 			if( testFilter )
 			{
