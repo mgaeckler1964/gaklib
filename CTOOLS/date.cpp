@@ -213,8 +213,8 @@ void Date::loadHolidays( const char *fileName )
 			char *cp = holiday.name;
 			while( (c=fgetc( fp )) != EOF )
 			{
-				if( c == '\n' )
-				{
+				if( c < ' ' )
+				{	// any control character should terminate the string
 					break;
 				}
 

@@ -137,6 +137,12 @@ struct TestResult
 
 	std::ostream &toFmtStream( std::ostream &out ) const
 	{
+		doEnterFunctionEx(gakLogging::llDetail, "TestResult::toFmtStream");
+		doLogValueEx(gakLogging::llDetail, m_srcFileName);
+		doLogValueEx(gakLogging::llDetail, m_srcFileLine);
+		doLogValueEx(gakLogging::llDetail, m_className);
+		doLogValueEx(gakLogging::llDetail, m_testItem);
+
 		out << m_srcFileName << ' ' << m_srcFileLine << ' ' << m_className;
 		if( m_scope && *m_scope )
 		{
