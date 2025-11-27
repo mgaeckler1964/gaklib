@@ -90,6 +90,7 @@ class Thread : public SharedObject
 	typedef pthread_t	P_HANDLE;
 	#define WINAPI		/* */
 #endif
+	typedef SharedObjectPointer<Thread>	Ptr;
 
 	private:
 	ThreadID	m_threadID, m_ownerThreadID;
@@ -100,8 +101,8 @@ class Thread : public SharedObject
 	windows::WinHandle	theThreadHandle;
 #endif
 
-	static Array< SharedObjectPointer<Thread> >	theThreadList;
-	static Locker								theThreadListLocker;
+	static Array<Ptr>	s_ThreadList;
+	static Locker		s_ThreadListLocker;
 
 	private:
 	void RunThread();
@@ -211,7 +212,7 @@ class Thread : public SharedObject
 	/// return the number of currently existing threads
 	static size_t GetThreadCount()
 	{
-		return theThreadList.size();
+		return s_ThreadList.size();
 	}
 
 	/**
@@ -230,7 +231,7 @@ class Thread : public SharedObject
 	/// @copydoc join( const Thread *other )
 	static void joinOtherThread( const Thread *other )
 	{
-		SharedObjectPointer<Thread>	myThread=FindCurrentThread();
+		Ptr	myThread=FindCurrentThread();
 		if( myThread )
 		{
 			myThread->join( other );
@@ -257,21 +258,21 @@ class Thread : public SharedObject
 		@brief return a thread object
 		@param [in] pos index of the required thread object
 	*/
-	static SharedObjectPointer<Thread> &GetThread( size_t pos )
+	static Ptr &GetThread( size_t pos )
 	{
-		return theThreadList[pos];
+		return s_ThreadList[pos];
 	}
 	/**
 		@brief return a thread object
 		@param [in] threadID the OS handle of the thread to search for
 		@param [out] idx the  internal index of the thread
 	*/
-	static SharedObjectPointer<Thread> FindThread( ThreadID threadID, size_t *idx=nullptr );
+	static Ptr FindThread( ThreadID threadID, size_t *idx=nullptr );
 	/**
 		@brief return a thread of the current thread
 		@param [out] idx the  internal index of the thread
 	*/
-	static SharedObjectPointer<Thread> FindCurrentThread( size_t *idx=nullptr )
+	static Ptr FindCurrentThread( size_t *idx=nullptr )
 	{
 		return FindThread( Locker::GetCurrentThreadID(), idx );
 	}
@@ -341,7 +342,7 @@ class Thread : public SharedObject
 
 	static bool isMainThread()
 	{
-		SharedObjectPointer<Thread> cur = FindCurrentThread();
+		Ptr cur = FindCurrentThread();
 		return !cur;
 	}
 };

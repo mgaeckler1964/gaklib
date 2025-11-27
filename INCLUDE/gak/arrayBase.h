@@ -3,10 +3,10 @@
 		Module:			arrayBase.H
 		Description:
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2023 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -376,7 +376,7 @@ class ArrayBase : public Container
 	protected:
 	/// @todo realy protected
 	/// forget any data without freeing it @see move
-	void forget( void )
+	void forget()
 	{
 		m_data = NULL;
 		m_capacity = 0;
@@ -386,7 +386,7 @@ class ArrayBase : public Container
 
 	public:
 	/// returns the MemHandle to the allocated memory block
-	MemHandle getDataHandle( void ) const
+	MemHandle getDataHandle() const
 	{
 		return m_data;
 	}
@@ -443,7 +443,7 @@ class ArrayBase : public Container
 	}
 
 	/// removes all items in the buffer and releases all allocated memory
-	void clear( void )
+	void clear()
 	{
 		if( m_data )
 		{
@@ -455,7 +455,7 @@ class ArrayBase : public Container
 		}
 	}
 	/// returns the size of an item
-	size_t getElementSize( void ) const
+	size_t getElementSize() const
 	{
 		return sizeof( OBJ );
 	}
@@ -470,7 +470,7 @@ class ArrayBase : public Container
 	///@{
 	protected:
 	///	returns a new created element in the buffer
-	OBJ &createElement( void )
+	OBJ &createElement()
 	{
 		return getOrCreateElementAt( size() );
 	}
@@ -625,12 +625,12 @@ class ArrayBase : public Container
 
 	public:
 	/// returns the address of the buffer
-	const OBJ *getDataBuffer( void ) const
+	const OBJ *getDataBuffer() const
 	{
 		return ALLOCATOR::getData( m_data );
 	}
 	/// returns the address of the buffer
-	OBJ *getDataBuffer( void )
+	OBJ *getDataBuffer()
 	{
 		return ALLOCATOR::getData( m_data );
 	}
@@ -844,7 +844,7 @@ class ArrayBase : public Container
 		@tparam F class with a static member function perform that accepts an item
 	*/
 	template <class F> 
-	void forEach( void )
+	void forEach()
 	{
 		OBJ	*dataPtr = getDataBuffer();
 		for( size_t i=0; i<size(); i++ )
@@ -857,7 +857,7 @@ class ArrayBase : public Container
 		@tparam F class with a static member function perform that accepts an item
 	*/
 	template <class F> 
-	void forEach( void ) const
+	void forEach() const
 	{
 		const OBJ	*dataPtr = getDataBuffer();
 		for( size_t i=0; i<size(); i++ )
@@ -1308,11 +1308,11 @@ void ArrayBase<OBJ, ALLOCATOR>::removeElementAt( size_t pos )
 template <class OBJ, class ALLOCATOR>
 void ArrayBase<OBJ, ALLOCATOR>::removeElementsAt( size_t pos, size_t count )
 {
-	OBJ *data = getDataBuffer();
-
 	size_t	numElements = size();
 	if( pos < numElements )			// is pos within range ?
 	{
+		OBJ *data = getDataBuffer();
+
 		size_t	i, j;
 
 		for( i=pos, j=pos+count; j<numElements; i++, j++ )

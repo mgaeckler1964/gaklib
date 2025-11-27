@@ -340,7 +340,9 @@ STRING readMailHeader( std::istream &fp, MAIL *theMail )
 STRING readMailBody( std::istream &fp, const CI_STRING &contentTransfer, const CI_STRING &encoding, const STRING boundary, bool *endFound )
 {
 	doEnterFunctionEx(gakLogging::llDetail, "readMailBody" );
+#ifndef NDEBUG
 	size_t lineNo=0;
+#endif
 	STRING	begBoundary = "--" + boundary;
 	STRING	endBoundary = begBoundary + "--";
 

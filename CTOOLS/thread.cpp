@@ -86,8 +86,8 @@ namespace gak
 // ----- class static data --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-Array< SharedObjectPointer<Thread> >	Thread::theThreadList;
-Locker									Thread::theThreadListLocker;
+Array<Thread::Ptr>	Thread::s_ThreadList;
+Locker				Thread::s_ThreadListLocker;
 
 // --------------------------------------------------------------------- //
 // ----- prototypes ---------------------------------------------------- //
@@ -135,17 +135,17 @@ size_t Thread::CheckThreadCount( bool ownThreads, Array<P_HANDLE> *list )
 	otherThreads = i = 0;
 
 	{
-		LockGuard	lock( theThreadListLocker );
+		LockGuard	lock( s_ThreadListLocker );
 
 		if( lock )
 		{
-			while( i<theThreadList.size() )
+			while( i<s_ThreadList.size() )
 			{
-				SharedObjectPointer<Thread> &theThread = GetThread( i );
+				Ptr &theThread = GetThread( i );
 				if( !theThread->isRunning )
 				{
 					theThread = NULL;
-					theThreadList.removeElementAt( i );
+					s_ThreadList.removeElementAt( i );
 				}
 				else
 				{
@@ -163,22 +163,22 @@ size_t Thread::CheckThreadCount( bool ownThreads, Array<P_HANDLE> *list )
 		}
 	}
 
-	return theThreadList.size() - otherThreads;
+	return s_ThreadList.size() - otherThreads;
 }
 
-SharedObjectPointer<Thread> Thread::FindThread( ThreadID threadID, size_t *idx )
+Thread::Ptr Thread::FindThread( ThreadID threadID, size_t *idx )
 {
-	SharedObjectPointer<Thread>	result;
-	size_t						numThreads;
-	bool						found = false;
+	Ptr		result;
+	size_t	numThreads;
+	bool	found = false;
 
-	if( idx ) *idx = theThreadList.no_index;
+	if( idx ) *idx = s_ThreadList.no_index;
 	{
-		LockGuard	lock( theThreadListLocker, 10000 );
+		LockGuard	lock( s_ThreadListLocker, 10000 );
 
 		if( lock )
 		{
-			numThreads = theThreadList.size();
+			numThreads = s_ThreadList.size();
 
 			for( size_t i=0; i<numThreads; i++ )
 			{
@@ -253,7 +253,7 @@ bool Thread::waitForMsgThreads( unsigned long timeOut, bool ownThreads )
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-void Thread::RunThread( void )
+void Thread::RunThread()
 {
 	setRunning();
 	try
@@ -295,11 +295,11 @@ void Thread::StartThread( const STRING &name, bool hideOwner )
 
 	m_ownerThreadID = hideOwner ? -1 : Locker::GetCurrentThreadID();
 	{
-		LockGuard lock( theThreadListLocker, 10000 );
+		LockGuard lock( s_ThreadListLocker, 10000 );
 		if( lock )
 		{
 			m_name = name;
-			theThreadList += SharedObjectPointer<Thread>(this);
+			s_ThreadList += Ptr(this);
 		}
 	}
 

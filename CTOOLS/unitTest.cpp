@@ -111,7 +111,7 @@ class ProcessorType<UnitTest*>
 		@brief processes one item
 		@param [in] objectToProcess the item to process
 	*/
-	static void process( const object_type &objectToProcess, void *threadPool, void *mainData )
+	static void process( const object_type &objectToProcess, void *, void * )
 	{
 		objectToProcess->PerformThreadTest();
 	}

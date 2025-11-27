@@ -52,7 +52,7 @@
 #	include <pthread.h>
 #	include <sys/types.h>
 #	include <unistd.h>
-inline int GetCurrentProcessId( void )
+inline int GetCurrentProcessId()
 {
 	return (int)getpid();
 }
@@ -106,18 +106,27 @@ namespace gak
 class Critical
 {
 	CRITICAL_SECTION	m_cs;
+	size_t				m_useCount;
 
 public:
 	Critical()
 	{
+		m_useCount = 0;
 		InitializeCriticalSection(&m_cs);
+	}
+	~Critical()
+	{
+		assert( !m_useCount );
+		DeleteCriticalSection(&m_cs);
 	}
 	void EnterCriticalSection()
 	{
 		::EnterCriticalSection(&m_cs);
+		++m_useCount;
 	}
 	void LeaveCriticalSection()
 	{
+		--m_useCount;
 		::LeaveCriticalSection(&m_cs);
 	}
 };
@@ -201,7 +210,7 @@ class Locker
 		m_lockCount = 0;
 	}
 	/// return the OS specific handle of the current Thread
-	static ThreadID GetCurrentThreadID( void )
+	static ThreadID GetCurrentThreadID()
 	{
 #if defined( _Windows )
 		return ::GetCurrentThreadId();
@@ -215,8 +224,13 @@ class Locker
 		return myID;
 #endif
 	}
+	static ThreadID GetMainThreadID()
+	{
+		static ThreadID s_threadID = GetCurrentThreadID();
+		return s_threadID;
+	}
 	/// returns true if the mutex can be locked by the current Thread
-	bool isAvail( void ) const
+	bool isAvail() const
 	{
 		return isAvail( GetCurrentThreadID() );
 	}
@@ -229,7 +243,7 @@ class Locker
 		
 		@see lock
 	*/
-	void unlock( void )
+	void unlock()
 	{
 		if( m_lockedBy == GetCurrentThreadID() )
 		{
@@ -255,12 +269,12 @@ class Locker
 	*/
 	bool lock( unsigned long timeOut = WAIT_FOREVER );
 	/// return the OS specific handle of the Thread that locked this mutex
-	ThreadID getLockedBy( void ) const
+	ThreadID getLockedBy() const
 	{
 		return m_lockedBy;
 	}
 	/// returns the lock count
-	int getLockCount( void ) const
+	int getLockCount() const
 	{
 		return m_lockCount;
 	}
@@ -300,17 +314,17 @@ class LockGuard
 		m_locked = locker.lock( timeout );
 	}
 	/// return true if the Locker is locked by the owner
-	bool isLocked( void ) const
+	bool isLocked() const
 	{
 		return m_locked;
 	}
 	/// return true if the Locker is locked by the owner
-	operator bool ( void ) const
+	operator bool () const
 	{
 		return m_locked;
 	}
 	/// unlocks the Locker
-	void unlock( void )
+	void unlock()
 	{
 		if( m_locked )
 		{

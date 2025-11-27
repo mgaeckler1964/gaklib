@@ -563,7 +563,7 @@ Movements Board::findCheckDefend(size_t *numCheckers) const
 int Board::evaluateMovements(Movements &movements, int maxLevel)
 {
 	doEnterFunctionEx(logLevel, "Board::evaluateMovements");
-	SharedObjectPointer<Thread>	currentThread = Thread::FindCurrentThread();
+	Thread::Ptr	currentThread = Thread::FindCurrentThread();
 
 	--maxLevel;
 	int minVal = std::numeric_limits<int>::max();

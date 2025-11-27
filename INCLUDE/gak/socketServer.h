@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -89,13 +89,13 @@ class ServerProcessorBase : public SocketStreambuf
 	SOCKADDR_IN			m_client;
 	unsigned short		m_port;
 
-	virtual void runServerThread( void ) = 0;
+	virtual void runServerThread() = 0;
 	public:
 	/// this type is used by PoolThread
 	typedef ClientConnection object_type;
 
 	/// this type is called by PoolThread
-	void process( const ClientConnection &connection, void *threadPool, void *mainData )
+	void process( const ClientConnection &connection, void *, void * )
 	{
 		accept( connection.m_socket, 10240 );
 		m_client = connection.m_client;
@@ -104,7 +104,7 @@ class ServerProcessorBase : public SocketStreambuf
 		disconnect();
 	}
 	/// returns the client with this worker is connected to
-	const SOCKADDR_IN &getClient( void ) const
+	const SOCKADDR_IN &getClient() const
 	{
 		return m_client;
 	}
@@ -139,14 +139,14 @@ class SocketServer
 		size_t				m_numWorker;
 		SocketStreambuf		m_socket;
 
-		virtual void ExecuteThread( void );
+		virtual void ExecuteThread();
 		public:
 		ListenerThread( unsigned short port, size_t numWorker ) 
 		: Thread(), m_port(port), m_numWorker(numWorker)
 		{
 			StartThread();
 		}
-		STRING	getSocketError( void ) const
+		STRING	getSocketError() const
 		{
 			return m_socket.getSocketError();
 		}
@@ -157,7 +157,7 @@ class SocketServer
 
 	public:
 	/// returns true, if the server is enabled and running
-	bool isRunning( void ) const
+	bool isRunning() const
 	{
 		return bool(m_listener) && m_listener->isRunning;
 	}
@@ -190,13 +190,13 @@ class SocketServer
 	}
 
 	/// returns the port number this server is listening to
-	unsigned short getPort( void ) const
+	unsigned short getPort() const
 	{
 		return m_port;
 	}
 
 	/// returns the last socket error if available
-	STRING	getSocketError( void ) const
+	STRING	getSocketError() const
 	{
 		return m_listener ? m_listener->getSocketError() : NULL_STRING;
 	}
@@ -255,7 +255,7 @@ class SocketServer
 // --------------------------------------------------------------------- //
 
 template <typename ServerProcessorT>   
-void SocketServer<ServerProcessorT>::ListenerThread::ExecuteThread( void )
+void SocketServer<ServerProcessorT>::ListenerThread::ExecuteThread()
 {
 	doEnterFunction("SocketServer<ServerProcessorT>::ListenerThread::ExecuteThread");
 
