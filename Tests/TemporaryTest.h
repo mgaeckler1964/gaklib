@@ -66,6 +66,22 @@ namespace gak
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+template <typename FunctorT>
+static void xConsoleOut( const FunctorT &functor )
+{
+static Critical s_consoleCheck;
+
+	CriticalScope	scope( s_consoleCheck );
+	functor();
+}
+
+static Critical s_consoleCheck;
+#define ConsoleOut( functor )	\
+{ \
+	CriticalScope	scope( s_consoleCheck );	\
+	functor;	\
+}
+
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -92,6 +108,25 @@ class TemporaryTest : public UnitTest
 
 		UT_ASSERT_LESSEQ( sizeof(myUnique), sizeof(myAuto) );
 		std::cout << sizeof(myUnique) << ' ' << sizeof(myAuto) << std::endl;
+
+		const size_t count = 100000;
+		StopWatch sw1(true);
+		for( size_t i=0; i<count; ++i )
+		{
+			ConsoleOut( {  std::cout << i << '\r' << std::flush; } );
+		}
+		sw1.stop();
+		std::cout << std::endl << "Macro " << sw1.get<Seconds<>>().toString() << std::endl;
+
+		StopWatch sw2(true);
+		for( size_t i=0; i<count; ++i )
+		{
+			xConsoleOut( [=] {  std::cout << i << '\r' << std::flush; } );
+		}
+		sw2.stop();
+		std::cout << std::endl << "Lambda " << sw2.get<Seconds<>>().toString() << std::endl;
+
+		UT_ASSERT_LESS( sw2.getMillis(), sw1.getMillis() );
 #endif
 	}
 	virtual bool canThreadTest()
