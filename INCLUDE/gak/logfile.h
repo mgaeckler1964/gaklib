@@ -283,7 +283,7 @@ void exitFunction( ProfileMode mode, const char *file, int line );
 */
 void enableLog( LogLevel minLevel );
 void enableProfile(LogLevel minLevel);
-void disableLog( void );
+void disableLog();
 #if DEBUG_LOG || PROFILER
 #	define doEnableProfile(lvl)	gakLogging::enableProfile(lvl)
 #	define doEnableLogEx(lvl)	gakLogging::enableLog(lvl)
@@ -314,9 +314,9 @@ void disableLog( void );
 #define doFastLog()				/* nothing */
 #endif
 
-void ignoreThreads( void );
-void applyThreads( void );
-void flushLogs( void );
+void ignoreThreads();
+void applyThreads();
+void flushLogs();
 void immediateLog();
 void fastLog();
 

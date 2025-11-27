@@ -178,21 +178,21 @@ class LoggingThread : public gak::Thread
 	std::ofstream		m_out;
 	std::string			m_fileName;
 	std::queue<LogLine>	m_logLines;
-	gak::Locker			m_locker;
+	gak::Critical		m_critical;
+	gak::ThreadID		m_forThreadId; 
 
-	virtual void ExecuteThread( void );
+	virtual void ExecuteThread();
 
 	public:
-	LoggingThread( const std::string &fileName )
+	LoggingThread( const std::string &fileName, const gak::ThreadID &threadId ) : m_fileName(fileName), m_forThreadId(threadId)
 	{
-		m_fileName = fileName;
 		StartThread("Logger", true);
 	}
 
 	void logLine( const LogLine &line );
 	void pushLine( const LogLine &line )
 	{
-		gak::LockGuard	guard( m_locker );
+		gak::CriticalScope	scrope( m_critical );
 		return m_logLines.push( line );
 	}
 	bool hasOpenLines() const
@@ -205,6 +205,16 @@ class LoggingThread : public gak::Thread
 		{
 			Sleep( 1 );
 		}
+	}
+	bool isForRunning()
+	{
+		if( gak::Locker::GetMainThreadID() == m_forThreadId )
+		{
+			return true;
+		}
+		gak::Thread::Ptr	forThread = gak::Thread::FindThread( m_forThreadId );
+
+		return forThread && forThread->isRunning;
 	}
 };
 
@@ -234,7 +244,6 @@ static ProfileQueue s_profileQueue;
 static bool s_flushDebug	= true;
 static bool s_asyncLog	= false;
 
-static gak::Critical s_profileCritical;
 static gak::Critical s_profileQueueCritical;
 static gak::Critical s_logCritical;
 
@@ -291,7 +300,7 @@ static ProfileVektor &getProfileVektor()
 	return *profileVektor;
 }
 
-static FILE *getCsvFp( void )
+static FILE *getCsvFp()
 {
 	char		tmpFile[10240];
 	const char	*temp = getenv( "TEMP" );
@@ -351,7 +360,7 @@ static void createSummaryEntry( ProfileEntry &logEntry )
 	summaryEntries.push_back( logEntry );
 }
 
-static void writeProfilerCSV( void )
+static void writeProfilerCSV()
 {
 	s_shutdownProfile = true;
 
@@ -494,7 +503,7 @@ static void exitFunction2( gak::ThreadID curThread, std::clock_t cpuTime, std::c
 }
 
 
-static void performProfiler( void )
+static void performProfiler()
 {
 	s_shutdownProfile = true;
 	while(s_profileQueue.size() )
@@ -558,16 +567,49 @@ static void exitLogging()
 	threads.clear();
 }
 
-static LoggingThreadPtr &getLoggingThread( const std::string &logFileName )
+static void internalCheckLoggingThreads()
+{
+	LoggingThreads &threads = getLoggingThreads();
+	size_t newSize=0;
+	for( size_t i=0; i<threads.size(); ++i )
+	{
+		LoggingThreads::value_type	&log = threads.getElementAt(i);
+		LoggingThreadPtr &thread = log.getValue();
+
+		if( !thread )
+		{
+		}
+		else if( !thread->isForRunning() )
+		{
+			thread->flush();
+			thread->StopThread();
+			thread->join();
+		}
+		else
+		{
+			if( newSize<i )
+			{
+				threads.getElementAt(newSize) = log;
+			}
+			newSize++;
+		}
+	}
+
+	threads.removeElementsAt( newSize, threads.size() );
+}
+
+
+static LoggingThreadPtr &getLoggingThread( const std::string &logFileName, const gak::ThreadID	&curThread )
 {
 	LoggingThreads		&threads = getLoggingThreads();
 	LoggingThreadPtr	&thread = threads[logFileName];
-	if( !thread )
-	{
-		thread = new LoggingThread( logFileName );
-	}
+	if( thread )
+		return thread;
 
-	return thread;
+	thread = new LoggingThread( logFileName, curThread );
+	internalCheckLoggingThreads();
+
+	return threads[logFileName];
 }
 
 static inline std::string getLogFilename( gak::ThreadID curThread )
@@ -635,7 +677,7 @@ static inline std::string getGlobalLogFilename()
 // ----- class virtuals ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-void LoggingThread::ExecuteThread( void )
+void LoggingThread::ExecuteThread()
 {
 	while( !terminated )
 	{
@@ -645,7 +687,7 @@ void LoggingThread::ExecuteThread( void )
 		}
 		else
 		{
-			gak::LockGuard	guard( m_locker );
+			gak::CriticalScope	scrope( m_critical );
 
 			const LogLine &line = m_logLines.front();
 			logLine( line );
@@ -763,7 +805,7 @@ ProfileMode enterFunction( LogLevel level, const char *file, int line, const cha
 	}
 
 	//gak::LockGuard		lock( getLocker() );
-	gak::CriticalScope scope(s_profileCritical);
+	gak::CriticalScope scope(s_logCritical);
 
 	gak::ThreadID curThread = gak::Locker::GetCurrentThreadID();
 	std::clock_t startTimeReal = gak::UserTimeClock::clock();
@@ -772,9 +814,8 @@ ProfileMode enterFunction( LogLevel level, const char *file, int line, const cha
 
 	if( level >= g_minLogLevel )
 	{
-		std::string		fileName = getLogFilename( curThread );
-
-		LoggingThreadPtr	&thread = getLoggingThread( fileName );
+		std::string			fileName = getLogFilename( curThread );
+		LoggingThreadPtr	&thread = getLoggingThread( fileName, curThread );
 		std::stringstream	out;
 
 		out << ">>>Enter " << function << " at " << file << ' ' << line << ":  time =" << startTimeReal;
@@ -796,7 +837,7 @@ void exitFunction( ProfileMode mode, const char *file, int line )
 	}
 
 //	gak::LockGuard		lock( getLocker() );
-	gak::CriticalScope	scope(s_profileCritical);
+	gak::CriticalScope	scope(s_logCritical);
 	gak::ThreadID		curThread = gak::Locker::GetCurrentThreadID();
 	std::clock_t cpuTime = gak::CpuTimeClock::clock();
 	std::clock_t userTime = gak::UserTimeClock::clock();
@@ -818,7 +859,7 @@ void exitFunction( ProfileMode mode, const char *file, int line )
 			clock_t				executionTimeReal = userTime-theEntry.startTimeReal;
 
 			std::stringstream	out;
-			LoggingThreadPtr	&thread = getLoggingThread( fileName );
+			LoggingThreadPtr	&thread = getLoggingThread( fileName, curThread );
 
 			out << "<<<Exit " << theEntry.functionName << " at " << file << ' ' << line << ":  time =" << executionTimeCPU << '/' << executionTimeReal;
 			out.flush();
@@ -832,7 +873,7 @@ void exitFunction( ProfileMode mode, const char *file, int line )
 	else if( mode >= pm_LOGED )
 	{
 		std::stringstream	out;
-		LoggingThreadPtr	&thread = getLoggingThread( fileName );
+		LoggingThreadPtr	&thread = getLoggingThread( fileName, curThread );
 
 		out << "!!!unknown exit from " << file << ' ' << line << " disabled at start?";
 		out.flush();
@@ -857,7 +898,7 @@ void logFileLine( const std::string &line )
 //	gak::LockGuard		lock( getLocker() );
 	gak::CriticalScope	scope(s_logCritical);
 	std::string			fileName = getGlobalLogFilename();
-	LoggingThreadPtr	&thread = getLoggingThread( fileName );
+	LoggingThreadPtr	&thread = getLoggingThread( fileName, gak::Locker::GetCurrentThreadID() );
 	thread->pushLine( LogLine( llInfo, line, 0 ) );
 /*
 
@@ -883,7 +924,7 @@ void logLine( LogLevel level, const std::string &line )
 	CallStack			&logEntries = getCallStack(curThread);
 	std::size_t			curIndent = logEntries.size();
 	std::string			fileName = getLogFilename( curThread );
-	LoggingThreadPtr	&thread = getLoggingThread( fileName );
+	LoggingThreadPtr	&thread = getLoggingThread( fileName, curThread );
 
 	thread->pushLine( LogLine( level, line, curIndent ) );
 	if( !s_asyncLog )
@@ -922,8 +963,9 @@ void logError( const char *file, int line, DWORD dw )
 }
 #endif
 
-void flushLogs( void )
+void flushLogs()
 {
+	gak::CriticalScope	scope(s_logCritical);
 	LoggingThreads &threads = getLoggingThreads();
 	for( 
 		LoggingThreads::iterator it = threads.begin(), endIT = threads.end();
@@ -932,7 +974,8 @@ void flushLogs( void )
 	)
 	{
 		LoggingThreadPtr thread = it->getValue();
-		thread->flush();
+		if( thread )
+			thread->flush();
 	}
 }
 
@@ -942,7 +985,7 @@ void flushLogs( void )
 	Configuration
 ---------------------------------------------------------------------------
 */
-void disableLog( void )
+void disableLog()
 {
 	g_minLogLevel = llNolog;
 	g_minProfileLevel = llNolog;
@@ -959,12 +1002,12 @@ void enableProfile( LogLevel minLevel )
 	g_minProfileLevel = minLevel;
 }
 
-void ignoreThreads( void )
+void ignoreThreads()
 {
 	s_ignoreThread = true;
 }
 
-void applyThreads( void )
+void applyThreads()
 {
 	s_ignoreThread = false;
 }
