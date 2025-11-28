@@ -41,6 +41,7 @@
 // --------------------------------------------------------------------- //
 
 #include <ctime>
+#include <gak/fmtNumber.h>
 
 #if defined( __MACH__ ) || defined( __unix__ )
 #	include <sys/time.h>
@@ -424,11 +425,11 @@ struct TimeConverter
 	/// converts the clock ticks in milliseconds ticks
 	static std::clock_t getMillis( std::clock_t clock )
 	{
-#if CLOCKS_PER_SEC != 1000
+		if( CLOCKS_PER_SEC != 1000 )
 		{
 			clock = clock * 1000 / CLOCKS_PER_SEC;
 		}
-#endif
+
 		return clock;
 	}
 };

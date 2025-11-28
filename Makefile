@@ -1,3 +1,5 @@
+# HOSTNAME=`hostname`
+
 OUTDIR=/Object/gaklib
 OBJDIR=${OUTDIR}/${HOSTNAME}
 DESTFILE=${OUTDIR}/libgak${HOSTNAME}.a
@@ -109,6 +111,7 @@ clean:
 	-rm -f /tmp/test.dat
 	-rm -rf /tmp/FcopyTest
 	-rm /tmp/rsaKey.*
+	-rm .tested
 
 xclean: clean
 	-rm ${DESTFILE}

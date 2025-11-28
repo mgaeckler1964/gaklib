@@ -3,10 +3,10 @@
 		Module:			map.h
 		Description:	Some maps
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -544,7 +544,7 @@ class UnorderedPairMap : public UnorderedMap<KeyValuePair<KEY, VALUE> >
 	*/
 	void setValue( const key_type &key, const mapped_type &value )
 	{
-		getElementByKey( key ).setValue( value );
+		this->getElementByKey( key ).setValue( value );
 	}
 	/**
 		@brief returns the user data at a given position
@@ -583,7 +583,7 @@ class UnorderedPairMap : public UnorderedMap<KeyValuePair<KEY, VALUE> >
 	*/
 	mapped_type &operator [] ( const key_type &key )
 	{
-		return getElementByKey( key ).getValue();
+		return this->getElementByKey( key ).getValue();
 	}
 	/**
 		@brief returns the user data for a given key
@@ -593,7 +593,7 @@ class UnorderedPairMap : public UnorderedMap<KeyValuePair<KEY, VALUE> >
 	*/
 	const mapped_type &operator [] ( const key_type &key ) const
 	{
-		return getElementByKey( key ).getValue();
+		return this->getElementByKey( key ).getValue();
 	}
 	/**
 		@brief return the key value of a user data
@@ -629,7 +629,7 @@ class PairMap : public Map< KeyValuePair<KEY, VALUE>, ALLOCATOR >
 	/// @copydoc UnorderedPairMap::setValue
 	void setValue( const key_type &key, const mapped_type &value )
 	{
-		getElementByKey( key ).setValue( value );
+		this->getElementByKey( key ).setValue( value );
 	}
 
 	/// @copydoc UnorderedPairMap::getValueAt
@@ -657,7 +657,7 @@ class PairMap : public Map< KeyValuePair<KEY, VALUE>, ALLOCATOR >
 	*/
 	mapped_type &operator [] ( const key_type &key )
 	{
-		return getElementByKey( key ).getValue();
+		return this->getElementByKey( key ).getValue();
 	}
 	/**
 		@brief returns the user data for a given key
@@ -667,7 +667,7 @@ class PairMap : public Map< KeyValuePair<KEY, VALUE>, ALLOCATOR >
 	*/
 	const mapped_type &operator [] ( const key_type &key ) const
 	{
-		return getElementByKey( key ).getValue();
+		return this->getElementByKey( key ).getValue();
 	}
 	/// @copydoc UnorderedPairMap::findValue
 	key_type findValue( const mapped_type &value ) const

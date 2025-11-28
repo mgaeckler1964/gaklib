@@ -208,7 +208,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 		const NodeKeyT &nodeID
 	)
 	{
-		const NodeT	&node = getNode( nodeID );
+		const NodeT	&node = this->getNode( nodeID );
 		float	 longitude = node.getPosition().longitude;
 		float	 latitude = node.getPosition().latitude;
 		PositionValue	lonPosition ( longitude, nodeID );

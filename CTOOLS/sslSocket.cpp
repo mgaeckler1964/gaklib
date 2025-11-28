@@ -43,6 +43,8 @@
 #include <gak/strFiles.h>
 #include <gak/directory.h>
 
+#if USE_SSL
+
 #include <openssl/err.h>
 
 // --------------------------------------------------------------------- //
@@ -373,3 +375,5 @@ STRING SSLsocketStreambuf::getSocketError( void ) const
 }	// namespace net
 }	// namespace gak
 
+
+#endif	// USE_SSL

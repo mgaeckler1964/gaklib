@@ -4,10 +4,10 @@
 		Description:	stream buffer to read/write from/to a vector compatible
 						container
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -16,7 +16,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -118,7 +118,7 @@ class BasicMemoryStreamBuf : public std::basic_streambuf<charT, traits>
 		{
 			--ptr;
 			*ptr = charT(c);
-			setg( ptr, ptr, this->egptr() );
+			this->setg( ptr, ptr, this->egptr() );
 
 			return c;
 		}
@@ -133,7 +133,7 @@ class BasicMemoryStreamBuf : public std::basic_streambuf<charT, traits>
 
 		if( c != traits::eof() )
 		{
-			sputc( charT(c) );
+			this->sputc( charT(c) );
 			this->gbump(1);       // pptr and gptr must be the same
 		}
 
@@ -361,7 +361,7 @@ typename BasicMemoryStreamBuf<ContainerT, charT, traits>::int_type BasicMemorySt
 	if( ptr == buffer+MemPutbackSize )
 /*@*/	return traits::eof();
 
-	setg( buffer+MemPutbackSize, buffer+MemPutbackSize, ptr );
+	this->setg( buffer+MemPutbackSize, buffer+MemPutbackSize, ptr );
 
 	return traits::to_int_type( buffer[MemPutbackSize] );
 }
@@ -380,10 +380,10 @@ int BasicMemoryStreamBuf<ContainerT, charT, traits>::sync( void )
 			theDataBuffer.push_back( *ptr );
 	}
 
-	setp( buffer+MemPutbackSize, buffer+MemBufferSize );
+	this->setp( buffer+MemPutbackSize, buffer+MemBufferSize );
 
 	// set input pointers so that next read causes an underflow
-	setg( buffer+MemPutbackSize, buffer+MemBufferSize, buffer+MemBufferSize );
+	this->setg( buffer+MemPutbackSize, buffer+MemBufferSize, buffer+MemBufferSize );
 
 	return 0;
 }

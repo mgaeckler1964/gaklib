@@ -104,7 +104,7 @@ class HttpTest : public UnitTest
 		SocketServer<TestWebServer>	myServer;
 
 		HTTPrequest	myClient;
-		STRING	   	url = "http://localhost:6666/" __FILE__;
+		STRING	   	url = "https://localhost:6666/" __FILE__;
 
 		/*
 			start server and client

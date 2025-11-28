@@ -82,6 +82,8 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+#if SHA_SUPPORT
+
 class CryptoTest : public UnitTest
 {
 	virtual const char *GetClassName() const
@@ -330,6 +332,8 @@ class CryptoTest : public UnitTest
 // --------------------------------------------------------------------- //
 
 static CryptoTest myCryptoTest;
+
+#endif	// SHA_SUPPORT
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //

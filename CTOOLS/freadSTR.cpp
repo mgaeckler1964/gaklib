@@ -48,7 +48,7 @@
 namespace gak
 {
 
-static const char UTF8_BOM[3] = {0xEFu, 0xBBu, 0xBFu};
+static const unsigned char UTF8_BOM[3] = {0xEFu, 0xBBu, 0xBFu};
 
 /* --------------------------------------------------------------------- */
 /* ----- entry points -------------------------------------------------- */
