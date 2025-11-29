@@ -63,6 +63,7 @@ OBJECTS=${OBJDIR}/acls.o \
 	${OBJDIR}/list.o \
 	${OBJDIR}/locker.o \
 	${OBJDIR}/logfile.o \
+	${OBJDIR}/mailParser.o \
 	${OBJDIR}/makePath.o \
 	${OBJDIR}/mathExpression.o \
 	${OBJDIR}/mboxParser.o \
