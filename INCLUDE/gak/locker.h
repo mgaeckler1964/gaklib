@@ -102,68 +102,56 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-#if defined( _Windows )
 class Critical
 {
+#if defined( _Windows )
 	CRITICAL_SECTION	m_cs;
+#else
+	pthread_mutex_t		m_mutex;
+	pthread_mutexattr_t	m_attr;
+#endif
 	size_t				m_useCount;
 
 public:
 	Critical()
 	{
 		m_useCount = 0;
+#if defined( _Windows )
 		InitializeCriticalSection(&m_cs);
+#else
+		pthread_mutexattr_init(&m_attr);
+		pthread_mutexattr_settype(&m_attr, PTHREAD_MUTEX_RECURSIVE);
+		pthread_mutex_init(&m_mutex, &m_attr);
+#endif
 	}
 	~Critical()
 	{
 		assert( !m_useCount );
+#if defined( _Windows )
 		DeleteCriticalSection(&m_cs);
+#else
+		pthread_mutex_destroy(&m_mutex);
+#endif
 	}
 	void EnterCriticalSection()
 	{
+#if defined( _Windows )
 		::EnterCriticalSection(&m_cs);
+#else
+		pthread_mutex_lock(&m_mutex);
+#endif
 		++m_useCount;
 	}
 	void LeaveCriticalSection()
 	{
 		--m_useCount;
+#if defined( _Windows )
 		::LeaveCriticalSection(&m_cs);
-	}
-};
-
 #else
-	/** TODO improoe
-		this is a qad hack not tested
-		I guess it will not work in heavy load systems
-		I have implmemented it to have soon a port to Gnu C++
-	*/
-class Critical
-{
-	int	m_cs;
-
-public:
-	Critical() : m_cs(0)
-	{}
-
-	void EnterCriticalSection()
-	{
-		int myID = randomNumber( clock() );
-		do
-		{
-			while( m_cs != 0 )
-			{
-				Sleep( 1 );
-			}
-			m_cs = myID;
-			Sleep( 1 );
-		} while( m_cs != myID );
-	}
-	void LeaveCriticalSection()
-	{
-		m_cs = 0;
+		pthread_mutex_unlock(&m_mutex);
+#endif
 	}
 };
-#endif
 
 class CriticalScope
 {
