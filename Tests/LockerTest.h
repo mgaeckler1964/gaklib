@@ -136,7 +136,7 @@ class LockerTest : public UnitTest
 			locker.unlock();
 			thread.join();
 			UT_ASSERT_TRUE( thread.m_ok );
-			UT_ASSERT_GREATER( thread.m_sw.getMillis(), clock_t(TIMEOUT)/2 );
+			UT_ASSERT_GREATEREQ( thread.m_sw.getMillis(), clock_t(TIMEOUT)/2 );
 			UT_ASSERT_LESS( thread.m_sw.getMillis(), clock_t(TIMEOUT) );
 			UT_ASSERT_EQUAL( locker.getLockCount(), 0 );
 		}

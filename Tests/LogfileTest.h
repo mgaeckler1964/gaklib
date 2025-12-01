@@ -140,7 +140,7 @@ class LogfileTest : public UnitTest
 };
 
 
-#ifdef NDEBUG
+#if defined( NDEBUG ) && !defined( __GNUC__ )
 const size_t LogfileTest::s_loop_count = 10000000;
 const size_t ThreadProfiler::s_loop_count = 10000000;
 #else

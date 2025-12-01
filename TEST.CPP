@@ -269,9 +269,9 @@ static TemplateTest	myTemplateTest;
 
 int main( int, const char *argv[] )
 {
-	//doEnableLogEx(gakLogging::llDetail);
+	doEnableLogEx(gakLogging::llDetail);
 	//doImmediateLog();
-	doDisableLog();
+	//doDisableLog();
 	//doEnableProfile(gakLogging::llInfo); 
 	gak::F_STRING	sourcePath;
 	doEnterFunctionEx( gakLogging::llInfo, "main" );
