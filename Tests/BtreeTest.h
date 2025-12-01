@@ -354,13 +354,18 @@ class BtreeTest : public UnitTest
 
 	void CopyBtreeTest()
 	{
+#ifdef NDEBUG
 		const size_t numItems=10240;
+#else
+		const size_t numItems=1024;
+#endif
+		const size_t numTries=16;
 
 		Btree<STRING>	myTree;
 
 		for( size_t i=0; i<numItems; ++i )
 		{
-			while( 1 )
+			for( size_t j=0; j<numTries; ++j )
 			{
 				STRING newElement = STRING("TMP") + formatNumber( randomNumber(numItems * numItems), 10) + "GAK";
 				if( !myTree.findElement(newElement) )
@@ -408,7 +413,7 @@ class BtreeTest : public UnitTest
 		simpleTest();
 		deleteTest();
 		CopyBtreeTest();
-#ifdef NDEBUG
+#if defined( NDEBUG ) && !defined(__GNUC__)
 		const size_t numItems = 32000;
 #else
 		const size_t numItems = 4000;

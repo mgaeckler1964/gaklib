@@ -106,8 +106,10 @@ ${DESTFILE}: ${OBJECTS}
 
 all: xclean ${DESTFILE} ${BINDIR}/impwsdl
 
-clean:
+clean: tclean
 	-rm ${OBJECTS}
+
+tclean:
 	-rm test
 	-rm -f /tmp/test.dat
 	-rm -rf /tmp/FcopyTest
@@ -127,6 +129,14 @@ ${OBJDIR}/%.o: CTOOLS/%.cpp
 test: TEST.CPP ${DESTFILE}
 	g++ ${CPPFLAGS} -lpthread ${LIBRARIES} $^ -o $@
 
-doTest: test
-	./test -ct -exclude StreamsTest BtreeTest LogfileTest
+dotest: test
+	# options:	-mt			multi thread tests
+	#			-stress		stress tests
+	#			-showIO		allway show console I/O
+	#			-exclude	exclude tests
+	#			-ct			check tests (do not repeat passed tests)
+	./test -ct
 	# rm test
+
+vtest: test
+	valgrind --leak-check=full ./test -showIO BtreeTest

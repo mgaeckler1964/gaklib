@@ -177,13 +177,21 @@ class FcopyTest : public UnitTest
 		copyFileTest( "GAKDLL32.DEF", targetFile, false );
 
 		STRING	tmpFile = getTempPath() + DIRECTORY_DELIMITER_STRING "test.dat";
+		bool	deleteOnExit = false;
 		if( !exists( tmpFile ) )
 		{
+			const size_t	blockSize = 1024*1024;
+			const size_t	blockCount = 5;
+			const size_t	loopCount = 1024;
+
 			std::cout << "Creating " << tmpFile << std::endl;
-			Buffer<char>	buffer( malloc( 5*1024*1024 ) );
+			Buffer<char>	buffer( malloc( blockCount*blockSize ) );
 			STDfile fp( tmpFile, "wb" );
-			for( size_t i=1; i<1024; i++ )
-				fwrite( buffer, 1024*1024, 5, fp );
+			for( size_t i=1; i<loopCount; i++ )
+			{
+				if( (deleteOnExit = (fwrite( buffer, blockSize, blockCount, fp ) != blockCount)) == true )
+					break;
+			}
 		}
 
 		const DateTime	date( Date::getMothersDay(2009), Time(0UL) );
@@ -194,6 +202,11 @@ class FcopyTest : public UnitTest
 		std::time_t modTime2 = x.st_mtime;
 		std::cout << modTime1 <<'-' << modTime2 << '=' << (modTime2-modTime1) << std::endl;
 		UT_ASSERT_EQUAL( modTime1, modTime2 );
+
+		if( deleteOnExit )
+		{
+			strRemove(tmpFile);
+		}
 	}
 };
 
