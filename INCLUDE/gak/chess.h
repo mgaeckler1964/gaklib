@@ -447,7 +447,9 @@ class Figure
 
 	public:
 	Figure( Color color, Position pos, bool moved, Board &board ) : m_color(color), m_pos(pos), m_board(board), m_moved(moved), m_toKing(NULL), m_fromKing(NULL) {}
-
+	virtual ~Figure()
+	{
+	}
 	King *getKing() const;
 	void checkInterPos();
 
@@ -735,7 +737,7 @@ struct Movement
 	int			evaluate;
 	State		state;
 
-	Movement() : fig(NULL), promotion(NULL), promotionType(Figure::ftNone), captured(NULL), rook(NULL), evaluate(0) {}
+	Movement() : fig(nullptr), promotion(nullptr), promotionType(Figure::ftNone), captured(nullptr), rook(nullptr), evaluate(0), state(csBlank) {}
 	operator bool ()
 	{
 		return fig != NULL && src && dest;

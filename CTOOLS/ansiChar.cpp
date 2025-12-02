@@ -3,10 +3,10 @@
 		Module:			ansiChar.cpp
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -2053,12 +2053,12 @@ int ansiCompare( const char *s1, const char *s2 )
 
 	do
 	{
-		c1 = *s1++;
-		c2 = *s2++;
+		c1 = *s1;
+		c2 = *s2;
 		o1 = ansiOrder[c1];
 		o2 = ansiOrder[c2];
 		result = o1-o2;
-	} while( (*s1 || *s2) && !result );
+	} while( !result && *s1++ && *s2++ );
 
 	return result;
 #endif
@@ -2073,14 +2073,13 @@ int ansiCompareN( const char *s1, const char *s2, size_t len )
 	short			o1, o2;
 	int				result = 0;
 
-	while( len>0 && (*s1 || *s2) && !result)
+	while( len-->0 && !result && (*s1 || *s2))
 	{
 		c1 = *s1++;
 		c2 = *s2++;
 		o1 = ansiOrder[c1];
 		o2 = ansiOrder[c2];
 		result = o1-o2;
-		len--;
 	}
 
 	return result;
@@ -2095,12 +2094,12 @@ int ansiCompareI( const char *s1, const char *s2 )
 
 	do
 	{
-		c1 = *s1++;
-		c2 = *s2++;
+		c1 = *s1;
+		c2 = *s2;
 		o1 = ansiIgnoreCaseOrder[c1];
 		o2 = ansiIgnoreCaseOrder[c2];
 		result = o1-o2;
-	} while( (*s1 || *s2) && !result );
+	} while( !result && *s1++ && *s2++ );
 
 	return result;
 }
@@ -2111,14 +2110,13 @@ int ansiCompareNI( const char *s1, const char *s2, size_t len )
 	short			o1, o2;
 	int				result = 0;
 
-	while( len>0 && (*s1 || *s2) && !result)
+	while( len-->0 && (*s1 || *s2) && !result)
 	{
 		c1 = *s1++;
 		c2 = *s2++;
 		o1 = ansiIgnoreCaseOrder[c1];
 		o2 = ansiIgnoreCaseOrder[c2];
 		result = o1-o2;
-		len--;
 	}
 
 	return result;

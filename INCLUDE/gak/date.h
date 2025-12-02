@@ -3,10 +3,10 @@
 		Module:			Date.H
 		Description:	Date handlig class
 		Author:			Martin Gäckler
-		Address:		HoFmannsthalweg 14, A-4030 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2024 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -279,7 +279,7 @@ class BasicDate
 		--------------------------------------------------------------------------------------
 	*/
 	protected:
-	BasicDate( bool noDefault )
+	BasicDate( bool noDefault ) : m_day(0), m_month(0), m_year(0)
 	{
 		if( !noDefault )
 		{
@@ -287,7 +287,7 @@ class BasicDate
 		}
 	}
 	public:
-	BasicDate()
+	BasicDate() : m_day(0), m_month(0), m_year(0)
 	{
 		initCurrentDate();
 	}

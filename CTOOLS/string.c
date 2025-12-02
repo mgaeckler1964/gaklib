@@ -3,10 +3,10 @@
 		Module:			STRING.C
 		Description:	String functions (Using type STR)
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2025 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -28,13 +28,18 @@
 		OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 		SUCH DAMAGE.
 */
+// --------------------------------------------------------------------- //
+// ----- switches ------------------------------------------------------ //
+// --------------------------------------------------------------------- //
+
+#define USE_MY_OWN_PRIMITIVES 0		// for valgrind use 1
 
 /* --------------------------------------------------------------------- */
 /* ----- includes ------------------------------------------------------ */
 /* --------------------------------------------------------------------- */
 
 #if defined( __BORLANDC__ ) && __BORLANDC__ == 0x621
-// otherweise I get al lot of useless warnings about unused identifiers
+// otherweise I get a lot of useless warnings about unused identifiers
 #pragma option -w-use
 #pragma option -w-pch
 #pragma option -w-eff
@@ -59,6 +64,26 @@
 /* --------------------------------------------------------------------- */
 /* ----- module statics ------------------------------------------------ */
 /* --------------------------------------------------------------------- */
+
+#if USE_MY_OWN_PRIMITIVES
+/*
+	otherwise valgrind reports lots of false negatives
+*/
+	char *strcpy( char *dest, const char *src )
+	{
+		char *ret = dest;
+		while( *dest++ = *src++ )
+			;
+		return ret;
+	}
+	char *strncpy( char *dest, const char *src, size_t n )
+	{
+		char *ret = dest;
+		while( n-- && (*dest++ = *src++) )
+			;
+		return ret;
+	}
+#endif
 
 /* --------------------------------------------------------------------- */
 /* ----- entry points -------------------------------------------------- */
@@ -559,7 +584,9 @@ STR *replaceText( STR *str, size_t startPos, size_t len, const char *newText )
 	else
 	{
 		if( startPos > 0 )
+		{
 			newTextStr = subString( str, 0, startPos );
+		}
 		else
 			newTextStr = NULL;
 
@@ -569,6 +596,7 @@ STR *replaceText( STR *str, size_t startPos, size_t len, const char *newText )
 		{
 			newTextStr = addStr( newTextStr, str->string + startPos + len );
 		}
+		free( str );
 	}
 	return newTextStr;
 }
@@ -1024,7 +1052,9 @@ STR *pad( STR *str, size_t len, STR_PADDING mode )
 		{
 			char	*cp;
 
-			str = rightString( str, len );
+			STR *newStr = rightString( str, len );
+			free( str );
+			str = newStr;
 			cp = str->string;
 			while( count-- )
 			{
