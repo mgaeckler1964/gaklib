@@ -96,6 +96,9 @@ class Thread : public SharedObject
 	ThreadID	m_threadID, m_ownerThreadID;
 	Conditional	m_theConditional;
 	STRING		m_name;
+#ifndef _Windows
+	bool		m_detached;
+#endif
 
 #if defined( _Windows )
 	windows::WinHandle	theThreadHandle;
@@ -116,7 +119,7 @@ class Thread : public SharedObject
 		@brief stop current execution until another thread terminates
 		@param [in] other the other thread's object to wait for
 	*/ 
-	void join( const Thread *other )
+	void join( Thread *other )
 	{
 		isWaiting = true;
 		if( other->isRunning )
@@ -198,6 +201,11 @@ class Thread : public SharedObject
 	virtual ~Thread()
 	{
 		assert( !isRunning );
+		#ifndef _Windows
+			if( !m_detached )
+				pthread_detach( m_threadID );
+		#endif
+
 	}
 
 	/// Starts execution of the thread
@@ -229,7 +237,7 @@ class Thread : public SharedObject
 	);
 
 	/// @copydoc join( const Thread *other )
-	static void joinOtherThread( const Thread *other )
+	static void joinOtherThread( Thread *other )
 	{
 		Ptr	myThread=FindCurrentThread();
 		if( myThread )
@@ -297,7 +305,7 @@ class Thread : public SharedObject
 	}
 
 	/// stops execution until the thread terminates
-	void join() const
+	void join()
 	{
 		if( isRunning )
 		{
@@ -305,6 +313,7 @@ class Thread : public SharedObject
 			WaitForSingleObject( theThreadHandle.get(), INFINITE );
 #else
 			pthread_join( m_threadID, NULL );
+			m_detached = true;
 #endif
 		}
 		// otherwise ~SharedObject crashes for not auto deleting thread objects 

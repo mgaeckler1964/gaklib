@@ -441,6 +441,8 @@ static void writeProfilerCSV()
 	}
 
 	disableLog();
+
+	getCallStacks().clear();
 }
 
 static std::size_t enterFunction2( LogLevel level, const char *file, int line, const char *function, gak::ThreadID curThread, std::clock_t cpuTime, std::clock_t userTime )
@@ -1055,11 +1057,11 @@ void showProgress( char flag, size_t idx, size_t max )
 			std::cout << '\r';
 			if( s_fields.size() == 1 )
 			{
-				std::cout << gak::Thread::FindCurrentThreadIdx()  << s_fields.getValueAt(0);
+				std::cout << gak::Thread::FindCurrentThreadIdx()+1  << s_fields.getValueAt(0);
 			}
 			else
 			{
-				std::cout << gak::Thread::FindCurrentThreadIdx()  << ' ';
+				std::cout << gak::Thread::FindCurrentThreadIdx()+1  << ' ';
 				for( size_t i=0; i<s_fields.size(); ++i )
 				{
 					std::cout << i << ':' << s_fields.getValueAt(i) << ' ';

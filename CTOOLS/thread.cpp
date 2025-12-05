@@ -108,7 +108,9 @@ Locker				Thread::s_ThreadListLocker;
 Thread::Thread( bool autoDelete ) : SharedObject( autoDelete )
 {
 	CheckThreadCount();		// remove lo longer used threads
-
+#ifndef _Windows
+	m_detached = true;
+#endif
 	terminated = false;
 	isWaiting = false;
 	isRunning = false;
@@ -317,6 +319,7 @@ void Thread::StartThread( const STRING &name, bool hideOwner )
 			);
 		#elif defined( __MACH__ ) || defined( __unix__ )
 			pthread_create( &m_threadID, NULL, RunThreadCallback, this );
+			m_detached = false;
 		#endif
 	#endif
 }
