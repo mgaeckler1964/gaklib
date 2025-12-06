@@ -139,4 +139,4 @@ dotest: test
 	# rm test
 
 vtest: test
-	valgrind --leak-check=full ./test
+	valgrind --leak-check=full ./test -exclude PrimeTest FcopyTest

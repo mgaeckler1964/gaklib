@@ -32,8 +32,6 @@
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#define USE_MY_OWN_PRIMITIVES 0		// for valgrind use 1
-
 /* --------------------------------------------------------------------- */
 /* ----- includes ------------------------------------------------------ */
 /* --------------------------------------------------------------------- */
@@ -64,26 +62,6 @@
 /* --------------------------------------------------------------------- */
 /* ----- module statics ------------------------------------------------ */
 /* --------------------------------------------------------------------- */
-
-#if USE_MY_OWN_PRIMITIVES
-/*
-	otherwise valgrind reports lots of false negatives
-*/
-	char *strcpy( char *dest, const char *src )
-	{
-		char *ret = dest;
-		while( *dest++ = *src++ )
-			;
-		return ret;
-	}
-	char *strncpy( char *dest, const char *src, size_t n )
-	{
-		char *ret = dest;
-		while( n-- && (*dest++ = *src++) )
-			;
-		return ret;
-	}
-#endif
 
 /* --------------------------------------------------------------------- */
 /* ----- entry points -------------------------------------------------- */
@@ -184,7 +162,7 @@ STR *addStr( STR *dest, const char *source )
 
 STR *delStr( STR *dest, size_t pos, size_t len )
 {
-	size_t	newSize;
+	size_t	newSize, offset;
 
 	if( !dest )
 		return dest;
@@ -201,8 +179,9 @@ STR *delStr( STR *dest, size_t pos, size_t len )
 		return dest;
 
 	newSize = dest->actSize - len;
+	offset = pos + len;
 
-	strcpy( dest->string + pos, dest->string + pos + len );
+	memmove(dest->string + pos, dest->string + offset, dest->actSize - offset +1);
 	dest->actSize = newSize;
 
 	dest = resizeStr( dest, newSize, cFalse );
@@ -419,7 +398,7 @@ STR *stripBlanks( STR *str )
 		}
 
 		/* end of string not yet found -> copy the blanks */
-		strncpy( dest, src, numBlanks );
+		memmove( dest, src, numBlanks );
 		dest += numBlanks;
 		src  += numBlanks; 
 	}
@@ -451,9 +430,8 @@ STR *stripLeftChar( STR *str, const char c )
 
 	if( numStriped )
 	{
-		strcpy( dest, src );
-
 		str->actSize -= numStriped;
+		memmove(dest,src,str->actSize+1);
 	}
 	return str; 
 }

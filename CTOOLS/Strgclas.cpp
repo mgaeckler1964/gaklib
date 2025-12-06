@@ -515,8 +515,8 @@ STRING &STRING::operator += ( size_t offset )
 
 	if( text && offset < text->actSize )
 	{
-		strcpy( text->string, text->string + offset );
 		text->actSize -= offset;
+		memmove(text->string, text->string + offset, text->actSize+1 );
 	}
 	else
 	{
