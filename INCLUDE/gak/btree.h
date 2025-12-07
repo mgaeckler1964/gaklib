@@ -1173,7 +1173,9 @@ void Btree<OBJ,Comparator, FACTOR, OFFSET>::Node::deleteSiblings( Node *node )
 	Node *root = node;
 	while( count > 1 )
 	{
+#ifndef NDEBUG
 		gakLogging::doShowProgress('b', count, m_count );
+#endif
 		if( node->m_prev )
 		{
 			node = node->m_prev;
