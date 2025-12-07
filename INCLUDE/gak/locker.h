@@ -111,11 +111,12 @@ class Critical
 	pthread_mutexattr_t	m_attr;
 #endif
 	size_t				m_useCount;
-
+	ThreadID			m_thread;
 public:
 	Critical()
 	{
 		m_useCount = 0;
+		m_thread = ThreadID();
 #if defined( _Windows )
 		InitializeCriticalSection(&m_cs);
 #else
@@ -141,9 +142,14 @@ public:
 		pthread_mutex_lock(&m_mutex);
 #endif
 		++m_useCount;
+		if( m_useCount == 1 )
+			m_thread = GetCurrentThreadID();
 	}
 	void LeaveCriticalSection()
 	{
+		assert( m_useCount );
+		assert( m_thread == GetCurrentThreadID() );
+
 		--m_useCount;
 #if defined( _Windows )
 		::LeaveCriticalSection(&m_cs);
@@ -151,6 +157,17 @@ public:
 		pthread_mutex_unlock(&m_mutex);
 #endif
 	}
+
+	/// return the OS specific handle of the current Thread
+	static ThreadID GetCurrentThreadID()
+	{
+#if defined( _Windows )
+		return ::GetCurrentThreadId();
+#elif defined( __MACH__ ) || defined( __unix__ )
+		return pthread_self();
+#endif
+	}
+
 };
 
 class CriticalScope
@@ -176,9 +193,6 @@ class Locker
 	Critical	m_cs;
 	ThreadID	m_lockedBy;
 	int			m_lockCount;
-#if defined( __MACH__ ) || defined( __unix__ )
-//	static ThreadID		mainThread;
-#endif
 
 	bool lock( const StopWatch &startTime, unsigned long timeOut );
 	bool isAvail( ThreadID threadId ) const
@@ -200,17 +214,7 @@ class Locker
 	/// return the OS specific handle of the current Thread
 	static ThreadID GetCurrentThreadID()
 	{
-#if defined( _Windows )
-		return ::GetCurrentThreadId();
-#elif defined( __MACH__ ) || defined( __unix__ )
-		ThreadID	myID = pthread_self();
-//		if( mainThread == LOCKERundefinedThread )
-//			mainThread = myID;
-//		else if( pthread_equal( mainThread, myID ) )
-//			myID = mainThread;
-
-		return myID;
-#endif
+		return Critical::GetCurrentThreadID();
 	}
 	static ThreadID GetMainThreadID()
 	{

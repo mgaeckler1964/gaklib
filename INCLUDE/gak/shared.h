@@ -107,14 +107,14 @@ class SharedObject
 	/// Increments the usage counter
 	void incUC()
 	{
-		CriticalScope scope( m_critical );
 		m_usageCount++;
 	}
 	/// Decrements the usage counter
 	int decUC()
 	{
-		CriticalScope scope( m_critical );
+		assert( m_usageCount > 0 );
 		--m_usageCount;
+		assert( m_usageCount >= 0 );
 		return m_usageCount;
 	}
 	/// Disables the automatoc deletion
@@ -136,6 +136,11 @@ class SharedObject
 	int getUsageCount() const
 	{
 		return m_usageCount;
+	}
+
+	Critical &getCritical()
+	{
+		return m_critical;
 	}
 };
 
@@ -163,16 +168,24 @@ class SharedObjectPointer
 	private:
 	void clrPointer()
 	{
-		if( m_addr && !m_addr->decUC() && m_addr->SharedObject::canDelete() )
+		bool	doDelete = false;
+		if( m_addr )
 		{
-			delete m_addr;
+			CriticalScope	scope( m_addr->getCritical() );
+			if( !m_addr->decUC() && m_addr->SharedObject::canDelete() )
+			{
+				doDelete = true;
+			}
 		}
+		if( doDelete )
+			delete m_addr;
 	}
 	void setPointer( ShObj *addr )
 	{
 		m_addr = addr;
 		if( addr )
 		{
+			CriticalScope	scope( m_addr->getCritical() );
 			addr->incUC();
 		}
 	}
