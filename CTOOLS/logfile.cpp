@@ -272,11 +272,16 @@ static gak::Locker &getLocker()
 ---------------------------------------------------------------------------
 */
 
+static CallStacks		*s_logEntries = nullptr;
+static Summaries		*s_summaryEntries = nullptr;
+static ProfileVektor	*s_profileVektor = nullptr;
+
 static CallStacks &getCallStacks()
 {
-	static CallStacks	*logEntries = new CallStacks();
+	if( !s_logEntries )
+		s_logEntries = new CallStacks();
 
-	return *logEntries;
+	return *s_logEntries;
 }
 
 static inline CallStack &getCallStack(gak::ThreadID curThread)
@@ -288,16 +293,37 @@ static inline CallStack &getCallStack(gak::ThreadID curThread)
 
 static Summaries &getSummaryEntries()
 {
-	static Summaries *summaryEntries = new Summaries();
+	if( !s_summaryEntries )
+		s_summaryEntries = new Summaries();
 
-	return *summaryEntries;
+	return *s_summaryEntries;
 }
 
 static ProfileVektor &getProfileVektor()
 {
-	static ProfileVektor *profileVektor = new ProfileVektor();
+	if( !s_profileVektor )
+		s_profileVektor = new ProfileVektor();
 
-	return *profileVektor;
+	return *s_profileVektor;
+}
+
+static void deleteProfile()
+{
+	if( s_logEntries )
+	{
+		delete s_logEntries;
+		s_logEntries = nullptr;
+	}
+	if( s_summaryEntries )
+	{
+		delete s_summaryEntries;
+		s_summaryEntries = nullptr;
+	}
+	if( s_profileVektor )
+	{
+		delete s_profileVektor;
+		s_profileVektor = nullptr;
+	}
 }
 
 static FILE *getCsvFp()
@@ -442,7 +468,7 @@ static void writeProfilerCSV()
 
 	disableLog();
 
-	getCallStacks().clear();
+	deleteProfile();
 }
 
 static std::size_t enterFunction2( LogLevel level, const char *file, int line, const char *function, gak::ThreadID curThread, std::clock_t cpuTime, std::clock_t userTime )
@@ -535,9 +561,10 @@ static void performProfiler()
 
 static void exitLogging();
 
+static LoggingThreads	*s_loggingThreads = nullptr;
+
 static LoggingThreads &getLoggingThreads()
 {
-	static LoggingThreads	*loggingThreads = new LoggingThreads();
 	static bool first = true;
 
 	if( first )
@@ -546,7 +573,10 @@ static LoggingThreads &getLoggingThreads()
 		first = false;
 	}
 
-	return *loggingThreads;
+	if( !s_loggingThreads )
+		s_loggingThreads = new LoggingThreads();
+
+	return *s_loggingThreads;
 }
 
 static void exitLogging()
@@ -567,6 +597,8 @@ static void exitLogging()
 	}
 
 	threads.clear();
+	delete s_loggingThreads;
+	s_loggingThreads = nullptr;
 }
 
 static void internalCheckLoggingThreads()
@@ -1034,7 +1066,7 @@ void showProgress( char flag, size_t idx, size_t max )
 	static gak::Critical					s_criticalSection;
 	static gak::StopWatch					s_watch(true);
 	static gak::PairMap<char,gak::STRING>	s_fields;
-	static char							s_last = 0;
+	static char								s_last = 0;
 
 	if( flag != s_last || s_watch.getMillis() > 1000 )
 	{
