@@ -126,6 +126,7 @@ Thread::T_RETURN WINAPI Thread::RunThreadCallback( T_PARAM data )
 
 	theThread->RunThread();
 
+	doLogPositionEx( gakLogging::llInfo );
 	return 0;
 }
 
@@ -266,6 +267,7 @@ void Thread::RunThread()
 	{
 		// ignore any exceptions
 		std::cerr << "Thread Crash " << FindCurrentThreadIdx() << std::endl;
+		doLogMessageEx(gakLogging::llFatal,"Thread Crash");
 	}
 	clrRunning();
 }

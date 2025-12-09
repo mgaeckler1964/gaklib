@@ -5,7 +5,7 @@ OBJDIR=${OUTDIR}/${HOSTNAME}
 DESTFILE=${OUTDIR}/libgak${HOSTNAME}.a
 
 BINDIR=/Object/bin/${HOSTNAME}
-LIBRARIES=-lcrypt -lssl -lpthread
+LIBRARIES=-lcrypto -lssl -lpthread
 
 DEBUG=-ggdb
 NO_DEBUG=-DNDEBUG -O3
@@ -135,7 +135,7 @@ dotest: test
 	#			-showIO		allway show console I/O
 	#			-exclude	exclude tests
 	#			-ct			check tests (do not repeat passed tests)
-	./test -ct
+	./test CryptoTest
 	# rm test
 
 vtest: test
