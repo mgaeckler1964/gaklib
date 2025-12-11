@@ -648,17 +648,12 @@ static LoggingThreadPtr &getLoggingThread( const std::string &logFileName, const
 
 static inline std::string getLogFilename( gak::ThreadID curThread )
 {
-	std::stringstream	stream;
 	const char			*temp = getenv( "TEMP" );
 	std::string			fName = temp ? temp : "";
 
 	if( !fName.size() )
 	{
-		stream << DIRECTORY_DELIMITER_STRING "tmp";
-	}
-	else
-	{
-		stream << fName;
+		fName = DIRECTORY_DELIMITER_STRING "tmp";
 	}
 
 	gak::STRING threadName;
@@ -670,8 +665,8 @@ static inline std::string getLogFilename( gak::ThreadID curThread )
 			threadName = theThread->getName();
 		}
 	}
-	stream << DIRECTORY_DELIMITER_STRING "gaklib" << GetCurrentProcessId() << '_' << (s_ignoreThread ? 0 :curThread) << threadName << ".log";
-	return stream.str();
+	fName += gak::STRING(DIRECTORY_DELIMITER_STRING "gaklib") + gak::formatNumber(GetCurrentProcessId()) + '_' + gak::formatNumber(s_ignoreThread ? 0 :curThread) + threadName + ".log";
+	return fName;
 }
 
 static inline std::string getGlobalLogFilename()
@@ -1089,11 +1084,11 @@ void showProgress( char flag, size_t idx, size_t max )
 			std::cout << '\r';
 			if( s_fields.size() == 1 )
 			{
-				std::cout << gak::Thread::FindCurrentThreadIdx()+1  << s_fields.getValueAt(0);
+				std::cout << (gak::Thread::FindCurrentThreadIdx()+1)  << s_fields.getValueAt(0);
 			}
 			else
 			{
-				std::cout << gak::Thread::FindCurrentThreadIdx()+1  << ' ';
+				std::cout << (gak::Thread::FindCurrentThreadIdx()+1)  << ' ';
 				for( size_t i=0; i<s_fields.size(); ++i )
 				{
 					std::cout << i << ':' << s_fields.getValueAt(i) << ' ';
