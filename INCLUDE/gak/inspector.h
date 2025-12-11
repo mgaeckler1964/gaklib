@@ -135,7 +135,9 @@ namespace columbo
 #ifndef NDEBUG
 
 static const int s_minValue = 0;
-static const int s_maxValue = 4;
+static const int s_maxValue = 2;
+
+inline void breakPoint(){}
 
 inline void inspect()
 {
@@ -144,7 +146,12 @@ inline void inspect()
 	const int *integerInspektor = g_integerInspektor;
 	if(integerInspektor)
 	{
+#ifdef __BORLANDC__
+		if( !(*integerInspektor>s_minValue && *integerInspektor<s_maxValue) )
+			breakPoint();
+#else
 		assert( *integerInspektor>s_minValue && *integerInspektor<s_maxValue );
+#endif
 	}
 }
 
