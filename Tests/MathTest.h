@@ -139,6 +139,13 @@ class MathTest : public UnitTest
 		UT_ASSERT_EQUAL( 3, minMax.getMin() );
 		UT_ASSERT_EQUAL( 10, minMax.getMax() );
 
+		math::MinMax<double>	minMaxD;
+
+		minMaxD.test( -4 );
+		minMaxD.test( -8 );
+		UT_ASSERT_EQUAL( -8, minMaxD.getMin() );
+		UT_ASSERT_EQUAL( -4, minMaxD.getMax() );
+
 		math::Mean<double>	mean;
 		mean.add( 8.0 );
 		UT_ASSERT_EQUAL( 8.0, mean.getMean() );

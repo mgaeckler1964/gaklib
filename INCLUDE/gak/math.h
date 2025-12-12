@@ -282,10 +282,23 @@ struct MixedFraction
 };
 
 template <typename NUMBER>
+struct limits
+{
+	static NUMBER lowest()
+	{
+#if __cplusplus < 199711
+		return std::numeric_limits<NUMBER>::min() > 0 ? -std::numeric_limits<NUMBER>::max() : std::numeric_limits<NUMBER>::min();
+#else
+		return std::numeric_limits<NUMBER>::lowest();
+#endif
+	}
+};
+
+template <typename NUMBER>
 struct MinMax : private Duo<NUMBER,NUMBER>
 {
 	MinMax(NUMBER first) : Duo<NUMBER,NUMBER>(first, first) {}
-	MinMax() : Duo<NUMBER,NUMBER>(std::numeric_limits<NUMBER>::max(), std::numeric_limits<NUMBER>::min()) {}
+	MinMax() : Duo<NUMBER,NUMBER>(std::numeric_limits<NUMBER>::max(), limits<NUMBER>::lowest() ) {}
 
 	void test( NUMBER val )
 	{
@@ -306,6 +319,10 @@ struct MinMax : private Duo<NUMBER,NUMBER>
 	NUMBER getMax() const
 	{
 		return this->val2;
+	}
+	NUMBER getRange() const
+	{
+		return getMax() - getMin();
 	}
 };
 
