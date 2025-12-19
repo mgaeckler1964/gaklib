@@ -237,6 +237,7 @@
     <ClInclude Include="INCLUDE\gak\threadDirScanner.h" />
     <ClInclude Include="INCLUDE\gak\threadPool.h" />
     <ClInclude Include="INCLUDE\gak\time.h" />
+    <ClInclude Include="INCLUDE\gak\tmpfile.h" />
     <ClInclude Include="INCLUDE\gak\types.h" />
     <ClInclude Include="INCLUDE\gak\type_traits.h" />
     <ClInclude Include="INCLUDE\gak\t_string.h" />

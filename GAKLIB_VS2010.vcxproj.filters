@@ -689,5 +689,8 @@
     <ClInclude Include="INCLUDE\gak\inspector.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="INCLUDE\gak\tmpfile.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

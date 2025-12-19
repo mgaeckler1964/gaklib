@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			MboxParserTest.h
-		Description:	test creation and reading of mails in mbox files
+		Module:			tmpfile.h
+		Description:	usage of temporary files that are deleted at end
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -29,6 +29,9 @@
 		SUCH DAMAGE.
 */
 
+#ifndef GAKLIB_TMPFILE_H
+#define GAKLIB_TMPFILE_H
+
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -37,11 +40,8 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <iostream>
-#include <gak/unitTest.h>
-
-#include <gak/tmpfile.h>
-#include <gak/mboxParser.h>
+#include <gak/string.h>
+#include <gak/strFiles.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -77,41 +77,43 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-class MboxParserTest : public UnitTest
+class TempFileName 
 {
-	virtual const char *GetClassName() const
-	{
-		return "MboxParserTest";
-	}
-	virtual void PerformTest()
-	{
-		doEnterFunctionEx(gakLogging::llInfo, "MboxParserTest::PerformTest");
-		TestScope scope( "PerformTest" );
+	STRING m_filename;
 
-		TempFileName	useOwnFile;
-
-		STRING mboxFile = getenv("MBOX_FILE");
-		if( mboxFile.isEmpty() )
+	void deleteFile()
+	{
+		if( !m_filename.isEmpty() )
 		{
-			mboxFile = useOwnFile = "mboxFile";
+			strRemove( m_filename );
+			m_filename = nullptr;
 		}
+	}
 
-		STRING mailSubject = "This is a test " + formatNumber( randomNumber( 1024 ) );
-		STRING mailBody = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG\n" +  formatNumber( randomNumber( 1024 ) );
+	public:
+	TempFileName( const STRING &tmpName=nullptr ) : m_filename(tmpName) {}
 
-		if( useOwnFile )
-			mail::appendMail( mboxFile, "martin@gaeckler.at", "martin@gaeckler.de", mailSubject, mailBody );
-		else
-			mail::appendMail( mailSubject, mailBody );
+	TempFileName &operator = ( const STRING &tmpName )
+	{
+		deleteFile();
+		m_filename = tmpName;
 
-		mail::Mails theMails;
-		mail::loadMboxFile( mboxFile, theMails );
-		mail::MAIL theMail = theMails[theMails.size()-1];
+		return *this;
+	}
+	operator const STRING &() const
+	{
+		return m_filename;
+	}
+	operator bool () const
+	{
+		return !m_filename.isEmpty();
+	}
 
-		UT_ASSERT_EQUAL( theMail.subject, mailSubject );
+	~TempFileName()
+	{
+		deleteFile();
 	}
 };
-
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -119,8 +121,6 @@ class MboxParserTest : public UnitTest
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-static MboxParserTest myMboxParserTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -166,7 +166,7 @@ static MboxParserTest myMboxParserTest;
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-}	// namespace gak
+} // namespace gak
 
 #ifdef __BORLANDC__
 #	pragma option -RT.
@@ -174,3 +174,5 @@ static MboxParserTest myMboxParserTest;
 #	pragma option -a.
 #	pragma option -p.
 #endif
+
+#endif // GAKLIB_TMPFILE_H
