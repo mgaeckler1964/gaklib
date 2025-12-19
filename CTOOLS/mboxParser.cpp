@@ -577,6 +577,24 @@ void loadMboxFile( const STRING &mboxFile, Array<MAIL> &theMails, Array<int64> *
 	}
 }
 
+void appendMail(const STRING &imboxFile, const STRING &ifrom, const STRING &ito, const STRING &subject, const STRING &text)
+{
+	DateTime		now;
+	STRING			mboxFile = imboxFile.isEmpty() ? getenv("MBOX_FILE") : imboxFile;
+	STRING			from = ifrom.isEmpty() ? getenv("FROM") : ifrom;
+	STRING			to = ito.isEmpty() ? getenv("TO") : ito;
+	std::ofstream	out( mboxFile, std::ios_base::app|std::ios_base::binary|std::ios_base::out );
+
+	out << "\nFrom " << from << ' ' << now.getMailTime() << '\n';
+	out << "From: " << from << '\n';
+	out << "Date: " << now.getLocalTime() << '\n';
+	out << "To: " << to << '\n';
+	out << "Subject: " << subject << '\n';
+	out << "Status: O\n";
+
+	out << '\n' << text << "\n\n";
+}
+
 }	// namespace mail
 }	// namespace gak
 

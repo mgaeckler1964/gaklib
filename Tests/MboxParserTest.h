@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			mboxParser.h
-		Description:	Parser for Linux mbox files
+		Module:			MboxParserTest.h
+		Description:	test creation and reading of mails in mbox files
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -29,7 +29,6 @@
 		SUCH DAMAGE.
 */
 
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -38,10 +37,10 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <gak/string.h>
-#include <gak/ci_string.h>
-#include <gak/datetime.h>
-#include <gak/mailParser.h>
+#include <iostream>
+#include <gak/unitTest.h>
+
+#include <gak/mboxParser.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -60,8 +59,6 @@
 
 namespace gak
 {
-namespace mail
-{
 
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
@@ -75,11 +72,48 @@ namespace mail
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-typedef Array<MAIL>	Mails;
-
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+class MboxParserTest : public UnitTest
+{
+	virtual const char *GetClassName() const
+	{
+		return "MboxParserTest";
+	}
+	virtual void PerformTest()
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "MboxParserTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
+		bool useOwnFile = false;
+
+		STRING mboxFile = getenv("MBOX_FILE");
+		if( mboxFile.isEmpty() )
+		{
+			mboxFile = "mboxFile";
+			useOwnFile = true;
+		}
+
+		STRING mailSubject = "This is a test " + formatNumber( randomNumber( 1024 ) );
+		STRING mailBody = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG\n" +  formatNumber( randomNumber( 1024 ) );
+
+		if( useOwnFile )
+			mail::appendMail( mboxFile, "martin@gaeckler.at", "martin@gaeckler.de", mailSubject, mailBody );
+		else
+			mail::appendMail( mailSubject, mailBody );
+
+		mail::Mails theMails;
+		mail::loadMboxFile( mboxFile, theMails );
+		mail::MAIL theMail = theMails[theMails.size()-1];
+
+		UT_ASSERT_EQUAL( theMail.subject, mailSubject );
+
+		if( useOwnFile )
+			strRemove( mboxFile );
+	}
+};
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
@@ -89,6 +123,8 @@ typedef Array<MAIL>	Mails;
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+static MboxParserTest myMboxParserTest;
+
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -96,21 +132,6 @@ typedef Array<MAIL>	Mails;
 // --------------------------------------------------------------------- //
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-STRING readMailHeader( std::istream &fp, MAIL *theMail );
-STRING readMailBody( std::istream &fp, const CI_STRING &contentTransfer, const CI_STRING &encoding, const STRING boundary="", bool *endFound=nullptr );
-void getBodyParts( const STRING &body, Array<MAIL> *theMails, const STRING &boundary );
-void loadMail(const STRING &mboxFile, const STRING &messageID, MAIL *theMail);
-void loadMail(const STRING &mboxFile, size_t index, const Array<int64> &positions, MAIL *theMail);
-void loadMail(const STRING &mboxFile, size_t index, MAIL *theMail);
-
-void loadMboxFile( const STRING &mboxFile, Mails &theMails, Array<int64> *positions=nullptr );
-
-void appendMail(const STRING &mboxFile, const STRING &from, const STRING &to, const STRING &subject, const STRING &text);
-inline void appendMail(const STRING &subject, const STRING &text)
-{
-	appendMail( "", "", "", subject, text );
-}
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
@@ -148,7 +169,6 @@ inline void appendMail(const STRING &subject, const STRING &text)
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-}	// namespace mail
 }	// namespace gak
 
 #ifdef __BORLANDC__
@@ -157,4 +177,3 @@ inline void appendMail(const STRING &subject, const STRING &text)
 #	pragma option -a.
 #	pragma option -p.
 #endif
-

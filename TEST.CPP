@@ -143,7 +143,7 @@
 #	include "Tests/CryptoTest.h"
 #endif
 
-
+#	include "Tests/MboxParserTest.h"
 
 #ifdef NDEBUG
 #	include "Tests/PerformanceTest.h"

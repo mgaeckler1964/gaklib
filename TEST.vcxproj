@@ -144,6 +144,7 @@
     <ClInclude Include="Tests\LockerTest.h" />
     <ClInclude Include="Tests\LogfileTest.h" />
     <ClInclude Include="Tests\MachineLearningTest.h" />
+    <ClInclude Include="Tests\MboxParserTest.h" />
     <ClInclude Include="Tests\mvv.h" />
     <ClInclude Include="Tests\AlgorithmTest.h" />
     <ClInclude Include="Tests\ArrayListTest.h" />

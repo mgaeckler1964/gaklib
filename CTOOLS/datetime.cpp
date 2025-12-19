@@ -94,6 +94,17 @@ static const char *monthNames[] =
 	"Dec"
 };
 
+static const char *dayNames[] =
+{
+	"Sun",
+	"Mon",
+	"Tue",
+	"Wen",
+	"Thu",
+	"Fri",
+	"Sat",
+};
+
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -130,7 +141,7 @@ static const char *monthNames[] =
 // ----- class static functions ---------------------------------------- //
 // --------------------------------------------------------------------- //
 
-void DateTime::initTimeZone( void )
+void DateTime::initTimeZone()
 {
 	static bool first = true;
 	if( first )
@@ -144,7 +155,7 @@ void DateTime::initTimeZone( void )
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-STRING DateTime::getInetTimeStr( void ) const
+STRING DateTime::getInetTimeStr() const
 {
 	doEnterFunctionEx(gakLogging::llDetail, "DateTime::getInetTimeStr");
 
@@ -202,7 +213,7 @@ void DateTime::calcTime( long tzOffset )
 	setTime( (unsigned char)hour, (unsigned char)minute, (unsigned char)second );
 }
 
-long DateTime::calcTzOffset( void ) const
+long DateTime::calcTzOffset() const
 {
 	long	tzOffset = -getTimezone();
 	bool	isDst = hasDst(getHour());
@@ -337,6 +348,29 @@ void DateTime::setInetTime( const STRING &inetTime )
 		setDefaultTime(inetTime);	// try the default time
 		// throw IllegalInternetTimestamp( inetTime ).addErrorText( e );
 	}
+}
+
+STRING DateTime::getMailTime()  const
+{
+	doEnterFunctionEx(gakLogging::llDetail, "DateTime::getMailTime");
+
+	STRING mailTime = dayNames[weekDay()];
+
+	mailTime += ' ';
+	mailTime += monthNames[getMonth()-1];
+	mailTime += ' ';
+	mailTime += formatNumber( getDay(), 2 );
+	mailTime += ' ';
+	mailTime += formatNumber( getHour(), 2 );
+	mailTime += ':';
+	mailTime += formatNumber( getMinute(), 2 );
+	mailTime += ':';
+	mailTime += formatNumber( getSecond(), 2 );
+	mailTime += ' ';
+	mailTime += formatNumber( getYear(), 4 );
+	mailTime += " +0000";
+
+	return mailTime;
 }
 
 STRING DateTime::getInetTime( long tzOffset )  const

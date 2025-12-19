@@ -191,9 +191,9 @@ class DateTime : public Date, public Time
 	*/
 	long	m_tzOffset;	// original time zome offset (incl. DST)
 
-	STRING	getInetTimeStr( void ) const;
+	STRING	getInetTimeStr() const;
 	void	calcTime( long tzOffset );
-	long	calcTzOffset( void ) const;
+	long	calcTzOffset() const;
 
 	void makeEntry( time_t	timer )
 	{
@@ -209,12 +209,12 @@ class DateTime : public Date, public Time
 
 		m_tzOffset = tzOffset;
 	}
-	void makeNow( void )
+	void makeNow()
 	{
 		makeEntry( time(NULL) );
 	}
 
-	static void initTimeZone( void );
+	static void initTimeZone();
 
 	public:
 	/*
@@ -271,7 +271,7 @@ class DateTime : public Date, public Time
 		initTimeZone();
 		m_tzOffset = tzOffset;
 	}
-	operator TDateTime ( void ) const
+	operator TDateTime () const
 	{
 		return Date::operator TDateTime() + Time::operator TDateTime();
 	}
@@ -332,7 +332,7 @@ class DateTime : public Date, public Time
 		Date::fromBinaryStream( stream );
 		Time::fromBinaryStream( stream );
 	}
-	static DateTime now( void )
+	static DateTime now()
 	{
 		DateTime thisStamp;
 
@@ -478,11 +478,11 @@ class DateTime : public Date, public Time
 		makeEntry( timeVal );
 		return *this;
 	}
-	time_t getUtcUnixSeconds( void ) const
+	time_t getUtcUnixSeconds() const
 	{
 		return Date::getUtcUnixSeconds() + getDaySeconds();
 	}
-	long getTZoffset( void ) const
+	long getTZoffset() const
 	{
 		return m_tzOffset;
 	}
@@ -508,27 +508,29 @@ class DateTime : public Date, public Time
 #endif
 	}
 
+	STRING getMailTime()  const;
 	STRING getInetTime( long tzOffset )  const;
-	STRING getOriginalTime( void ) const
+	STRING getOriginalTime() const
 	{
 		return getInetTime( m_tzOffset );
 	}
-	STRING getLocalTime( void ) const
+	STRING getLocalTime() const
 	{
 		return getInetTime( -getTimezone() - (hasDst(getHour()) ? -3600 : 0));
 	}
-	STRING getUTCTime( void ) const
+	STRING getUTCTime() const
 	{
 		return getInetTime( 0 );
 	}
-	DateTime calcOriginalTime( void ) const
+	DateTime calcOriginalTime() const
 	{
 		DateTime tmp = *this;
 		tmp.calcTime( -m_tzOffset );
+		tmp.m_tzOffset = 0;
 
 		return tmp;
 	}
-	DateTime calcLocalTime( void ) const
+	DateTime calcLocalTime() const
 	{
 		DateTime tmp = *this;
 		tmp.calcTime( getTimezone()  - (hasDst(getHour()) ? 3600 : 0 ) );
@@ -545,7 +547,7 @@ class DateTime : public Date, public Time
 			DateTime tmp = *this;
 			tmp.calcTime( -m_tzOffset );
 
-			return tmp.weekDay();
+			return tmp.Date::weekDay();
 		}
 		return Date::weekDay();
 	}
