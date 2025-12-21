@@ -42,6 +42,7 @@
 
 #include <fstream>
 
+#include <gak/exception.h>
 #include <gak/string.h>
 #include <gak/logfile.h>
 #include <gak/textReader.h>
@@ -87,6 +88,10 @@ namespace mail
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
+
+const char MBOX_FILE[] = "MBOX_FILE";
+const char FROM[] = "FROM";
+const char TO[] = "TO";
 
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
@@ -580,10 +585,23 @@ void loadMboxFile( const STRING &mboxFile, Array<MAIL> &theMails, Array<int64> *
 void appendMail(const STRING &imboxFile, const STRING &ifrom, const STRING &ito, const STRING &subject, const STRING &text)
 {
 	DateTime		now;
-	STRING			mboxFile = imboxFile.isEmpty() ? getenv("MBOX_FILE") : imboxFile;
-	STRING			from = ifrom.isEmpty() ? getenv("FROM") : ifrom;
-	STRING			to = ito.isEmpty() ? getenv("TO") : ito;
+	STRING			mboxFile = imboxFile.isEmpty() ? STRING(getenv(MBOX_FILE)) : imboxFile;
+	STRING			from = ifrom.isEmpty() ? STRING(getenv(FROM)) : ifrom;
+	STRING			to = ito.isEmpty() ? STRING(getenv(TO)) : ito;
 	std::ofstream	out( mboxFile, std::ios_base::app|std::ios_base::binary|std::ios_base::out );
+
+	if( !out.is_open() )
+	{
+		throw OpenWriteError( mboxFile );
+	}
+	if( to.isEmpty() )
+	{
+		throw LibraryException( "missing reciever E-Mail" );
+	}
+	if( from.isEmpty() )
+	{
+		throw LibraryException( "missing sender E-Mail" );
+	}
 
 	out << "\nFrom " << from << ' ' << now.getMailTime() << '\n';
 	out << "From: " << from << '\n';

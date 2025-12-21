@@ -93,7 +93,7 @@ class MboxParserTest : public UnitTest
 		STRING mboxFile = getenv("MBOX_FILE");
 		if( mboxFile.isEmpty() )
 		{
-			mboxFile = useOwnFile = "mboxFile";
+			useOwnFile = mboxFile = "mboxFile";
 		}
 
 		STRING mailSubject = "This is a test " + formatNumber( randomNumber( 1024 ) );
@@ -109,6 +109,28 @@ class MboxParserTest : public UnitTest
 		mail::MAIL theMail = theMails[theMails.size()-1];
 
 		UT_ASSERT_EQUAL( theMail.subject, mailSubject );
+
+		if( !getenv( mail::MBOX_FILE ) )
+		{
+			UT_ASSERT_EXCEPTION( 
+				mail::appendMail( "", "martin@gaeckler.at", "martin@gaeckler.de", mailSubject, mailBody ), 
+				LibraryException 
+			);
+		}
+		if( !getenv( mail::FROM ) )
+		{
+			UT_ASSERT_EXCEPTION( 
+				mail::appendMail( mboxFile, "", "martin@gaeckler.de", mailSubject, mailBody ), 
+				LibraryException 
+			);
+		}
+		if( !getenv( mail::TO ) )
+		{
+			UT_ASSERT_EXCEPTION( 
+				mail::appendMail( mboxFile, "martin@gaeckler.at", "", mailSubject, mailBody ),
+				LibraryException 
+			);
+		}
 	}
 };
 

@@ -93,7 +93,9 @@
       ..\..\Object\gaklib\win\bcb\aiBrain.obj 
       ..\..\Object\gaklib\win\bcb\chess.obj 
       ..\..\Object\gaklib\win\bcb\board.obj ..\..\Object\gaklib\win\bcb\figure.obj 
-      ..\..\Object\gaklib\win\bcb\inspector.obj"/>
+      ..\..\Object\gaklib\win\bcb\inspector.obj 
+      ..\..\Object\gaklib\win\bcb\mailParser.obj 
+      ..\..\Object\gaklib\win\bcb\mboxParser.obj"/>
     <RESFILES value=""/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>

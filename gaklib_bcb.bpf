@@ -104,6 +104,8 @@ USEUNIT("CTOOLS\chess.cpp");
 USEUNIT("CTOOLS\board.cpp");
 USEUNIT("CTOOLS\figure.cpp");
 USEUNIT("CTOOLS\inspector.cpp");
+USEUNIT("CTOOLS\mailParser.cpp");
+USEUNIT("CTOOLS\mboxParser.cpp");
 //---------------------------------------------------------------------------
 #define Library
 
