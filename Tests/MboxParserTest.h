@@ -97,7 +97,7 @@ class MboxParserTest : public UnitTest
 		}
 
 		STRING mailSubject = "This is a test " + formatNumber( randomNumber( 1024 ) );
-		STRING mailBody = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG\n" +  formatNumber( randomNumber( 1024 ) );
+		STRING mailBody = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG\n" +  formatNumber( randomNumber( 1024 ) ) + '\n' + mboxFile;
 
 		if( useOwnFile )
 			mail::appendMail( mboxFile, "martin@gaeckler.at", "martin@gaeckler.de", mailSubject, mailBody );
