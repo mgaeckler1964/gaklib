@@ -85,7 +85,7 @@ class ParalelDirScanner
 		ParalelDirScanner *m_scanner;
 	public:
 		ScannerFileProcessor(ParalelDirScanner *scanner) : FileProcessor(scanner->m_cmdLine), m_scanner(scanner) {}
-		void process( const STRING &file )
+		void process( const DirectoryEntry &entry, const STRING &file )
 		{
 			m_scanner->m_threadPool.process(file);
 		}

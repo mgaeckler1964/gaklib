@@ -90,7 +90,7 @@ public:
 	{
 		++m_startCount;
 	}
-	void process( const STRING &file )
+	void process( const DirectoryEntry &entry, const STRING &file )
 	{
 		++m_processCount;
 	}

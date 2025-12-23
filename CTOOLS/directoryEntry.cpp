@@ -172,6 +172,21 @@ int DirectoryEntry::compare ( const DirectoryEntry &oper, SortType theSort ) con
 
 void DirectoryEntry::findFile()
 {
+	if( fileName == DIRECTORY_DELIMITER_STRING 
+#if defined( __WINDOWS__ )
+	|| (fileName.size() == 3 && fileName[1U] == ':' && fileName[2U] == DIRECTORY_DELIMITER)
+#endif
+	)
+	{
+		// this is a root directory
+		directory = true;
+#if defined( __WINDOWS__ )
+		needBackup = reparsePoint = false;
+#endif
+		hidden = readOnly = false;
+		numLinks = 0;
+		return;
+	}
 #if defined( __WINDOWS__ )
 	HANDLE						hFile;
 

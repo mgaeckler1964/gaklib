@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -86,7 +86,7 @@ public:
 	void start( const STRING &path )
 	{
 	}
-	void process( const STRING &file )
+	void process( const DirectoryEntry &entry, const STRING &file )
 	{
 	}
 	void end( const STRING &path )
@@ -94,17 +94,43 @@ public:
 	}
 };
 
+static const unsigned FOLLOW_REPARSE = 0x01U;
+static const unsigned IGNORE_ERROR   = 0x02U;
+
 template <class PROCESSORt>
 class DirectoryScanner
 {
 	PROCESSORt	m_prozessor;
 
-	void scanDirectory( const STRING &path, const STRING &filePattern, bool followReparse )
+	void processEntry( const DirectoryEntry	&entry, const STRING &path, const STRING &filePattern, unsigned flags )
+	{
+		STRING newPath = path;
+		newPath.condAppend( DIRECTORY_DELIMITER );
+		newPath += entry.fileName;
+
+		if( entry.directory )
+		{
+			scanDirectory( newPath, filePattern, flags );
+		}
+		else
+		{
+			m_prozessor.process(entry, newPath);
+		}
+	}
+	void scanDirectory( const STRING &path, const STRING &filePattern, unsigned flags )
 	{
 		DirectoryList		content;
 
 		m_prozessor.start( path );
-		content.dirlist( path, filePattern );
+		try
+		{
+			content.dirlist( path, filePattern );
+		}
+		catch( ... )
+		{
+			if( !(flags&IGNORE_ERROR) )
+				throw;
+		}
 		for(
 			DirectoryList::const_iterator it = content.cbegin(), endIT = content.cend();
 			it != endIT;
@@ -113,16 +139,12 @@ class DirectoryScanner
 		{
 			const DirectoryEntry	&entry = *it;
 #if defined( __WINDOWS__ )
-			if( !followReparse && entry.reparsePoint )
+			if( !(flags&FOLLOW_REPARSE) && entry.reparsePoint )
 /*^*/			continue;
 #endif
 			if( entry.fileName != "." && entry.fileName != ".." )
 			{
-				STRING newPath = path;
-				newPath.condAppend( DIRECTORY_DELIMITER );
-				newPath += entry.fileName;
-
-				(*this)(newPath, filePattern, followReparse);
+				processEntry(entry, path, filePattern, flags);
 			}
 		}
 		m_prozessor.end( path );
@@ -131,19 +153,17 @@ class DirectoryScanner
 	template <class InitT>
 	DirectoryScanner(const InitT &initData) : m_prozessor(initData) {}
 
-	void operator () ( const STRING &path, const STRING &filePattern = NULL_STRING, bool followReparse = true  )
+	void operator () ( const STRING &path, const STRING &filePattern = NULL_STRING, unsigned flags = FOLLOW_REPARSE  )
 	{
-		if( isDirectory( path ) )
+		DirectoryEntry	entry( path );
+
+		if( entry.directory )
 		{
-			scanDirectory( path, filePattern, followReparse );
+			scanDirectory( path, filePattern, flags );
 		}
-		else if( isFile( path ) )
+		else 
 		{
-			m_prozessor.process(path);
-		}
-		else
-		{
-			throw 1;
+			m_prozessor.process(entry, path);
 		}
 	}
 	const PROCESSORt &processor() const
