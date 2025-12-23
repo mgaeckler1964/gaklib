@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			threadDirScanner.h
-		Description:	Multi thread directory scanner
+		Module:			DirectoryScannerTest.h
+		Description:	unit test for DirectoryScanner
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -29,9 +29,6 @@
 		SUCH DAMAGE.
 */
 
-#ifndef GAK_THREADED_DIR_SCANNER_H
-#define GAK_THREADED_DIR_SCANNER_H
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -40,9 +37,10 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+#include <iostream>
+#include <gak/unitTest.h>
 #include <gak/dirScanner.h>
-#include <gak/threadPool.h>
-#include <gak/keyValuePair.h>
+#include <gak/cmdlineParser.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -78,42 +76,62 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-class ParalelDirScanner
+class TheProcessor : public FileProcessor
 {
-	class ScannerFileProcessor : public FileProcessor
+public:
+	size_t	m_startCount, m_processCount, m_endCount;
+	TheProcessor(const CommandLine	&cmdLine) : FileProcessor(cmdLine), m_startCount(0), m_processCount(0), m_endCount(0)
 	{
-		ParalelDirScanner *m_scanner;
-	public:
-		ScannerFileProcessor(ParalelDirScanner *scanner) : FileProcessor(scanner->m_cmdLine), m_scanner(scanner) {}
-		void process( const STRING &file )
-		{
-			m_scanner->m_threadPool.process(file);
-		}
-	};
-
-	friend class ScannerFileProcessor;
-
-	const CommandLine &							m_cmdLine;
-	DirectoryScanner<ScannerFileProcessor>		m_scanner;
-	ThreadPool<STRING>							m_threadPool;
-
-	public:
-	ParalelDirScanner( const STRING &threadName, const CommandLine &cmdLine, void *mainData=nullptr, size_t count=8 ) : m_cmdLine(cmdLine), m_scanner(this), m_threadPool(count, threadName, mainData ) {}
-	void operator () ( const STRING &path, const STRING &filePattern = NULL_STRING )
-	{
-		m_threadPool.start();
-		m_scanner(path, filePattern);
-		doLogMessageEx(gakLogging::llInfo, "Dirscanner completed. Waiting for processors");
-		m_threadPool.flush();
 	}
-	void shutdown()
+	~TheProcessor()
 	{
-		m_threadPool.flush();
-		m_threadPool.shutdown();
 	}
-	~ParalelDirScanner()
+	void start( const STRING &path )
 	{
-		shutdown();
+		++m_startCount;
+	}
+	void process( const STRING &file )
+	{
+		++m_processCount;
+	}
+	void end( const STRING &path )
+	{
+		++m_endCount;
+	}
+};
+
+class DirectoryScannerTest : public UnitTest
+{
+	virtual const char *GetClassName() const
+	{
+		return "DirectoryScannerTest";
+	}
+	virtual void PerformTest()
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "DirectoryScannerTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
+		int argc = 1;
+		const char *argv[] = {
+			"dummy", nullptr
+		};
+		CommandLine	dummy;
+		DirectoryScanner<TheProcessor> theScanner(dummy);
+
+		theScanner("CTOOLS", "*.cpp" );
+		UT_ASSERT_EQUAL( theScanner.processor().m_startCount, 1 ); 
+		UT_ASSERT_EQUAL( theScanner.processor().m_processCount, 90 ); 
+		UT_ASSERT_EQUAL( theScanner.processor().m_endCount, 1 ); 
+
+		theScanner("INCLUDE", "*.h");
+		UT_ASSERT_EQUAL( theScanner.processor().m_startCount, 3 ); 
+		UT_ASSERT_EQUAL( theScanner.processor().m_processCount, 217 ); 
+		UT_ASSERT_EQUAL( theScanner.processor().m_endCount, 3 ); 
+
+		theScanner("TESTS", "*.h");
+		UT_ASSERT_EQUAL( theScanner.processor().m_startCount, 4 ); 
+		UT_ASSERT_EQUAL( theScanner.processor().m_processCount, 292 ); 
+		UT_ASSERT_EQUAL( theScanner.processor().m_endCount, 4 ); 
 	}
 };
 
@@ -124,6 +142,8 @@ class ParalelDirScanner
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+static DirectoryScannerTest myDirectoryScannerTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -169,7 +189,7 @@ class ParalelDirScanner
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-} // namespace gak
+}	// namespace gak
 
 #ifdef __BORLANDC__
 #	pragma option -RT.
@@ -177,5 +197,3 @@ class ParalelDirScanner
 #	pragma option -a.
 #	pragma option -p.
 #endif
-
-#endif //  GAK_THREADED_DIR_SCANNER_H

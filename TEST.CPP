@@ -121,6 +121,7 @@
 #include "Tests/XmlTest.h"
 #include "Tests/threadDirScannerTest.h"
 #include "Tests/DirectoryListTest.h"
+#include "Tests/DirectoryScannerTest.h"
 #include "Tests/QueueStackTest.h"
 #include "Tests/SleeperTest.h"
 #include "Tests/AlgorithmTest.h"

@@ -99,12 +99,12 @@ class DirectoryScanner
 {
 	PROCESSORt	m_prozessor;
 
-	void scanDirectory( const STRING &path )
+	void scanDirectory( const STRING &path, const STRING &filePattern, bool followReparse )
 	{
 		DirectoryList		content;
 
 		m_prozessor.start( path );
-		content.dirlist( path );
+		content.dirlist( path, filePattern );
 		for(
 			DirectoryList::const_iterator it = content.cbegin(), endIT = content.cend();
 			it != endIT;
@@ -112,13 +112,17 @@ class DirectoryScanner
 		)
 		{
 			const DirectoryEntry	&entry = *it;
+#if defined( __WINDOWS__ )
+			if( !followReparse && entry.reparsePoint )
+/*^*/			continue;
+#endif
 			if( entry.fileName != "." && entry.fileName != ".." )
 			{
 				STRING newPath = path;
-				newPath += DIRECTORY_DELIMITER;
+				newPath.condAppend( DIRECTORY_DELIMITER );
 				newPath += entry.fileName;
 
-				(*this)(newPath);
+				(*this)(newPath, filePattern, followReparse);
 			}
 		}
 		m_prozessor.end( path );
@@ -127,11 +131,11 @@ class DirectoryScanner
 	template <class InitT>
 	DirectoryScanner(const InitT &initData) : m_prozessor(initData) {}
 
-	void operator () ( const STRING &path )
+	void operator () ( const STRING &path, const STRING &filePattern = NULL_STRING, bool followReparse = true  )
 	{
 		if( isDirectory( path ) )
 		{
-			scanDirectory( path );
+			scanDirectory( path, filePattern, followReparse );
 		}
 		else if( isFile( path ) )
 		{

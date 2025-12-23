@@ -233,5 +233,8 @@
     <ClInclude Include="Tests\MboxParserTest.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\DirectoryScannerTest.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

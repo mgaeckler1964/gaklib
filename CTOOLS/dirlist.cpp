@@ -388,7 +388,13 @@ FStype fileType( const STRING &fileName )
 
 	FStype	fType = fsNOT_EXISTING;
 
+	if( fileName == DIRECTORY_DELIMITER_STRING )		// root directory
+		return fsDIRECTORY;
+
 #if defined( _Windows )
+	if( fileName.size() == 3 && fileName[1U] == ':' && fileName[2U] == '\\' )
+		return fsDIRECTORY;
+
 	bool	useWide = (fileName.getCharSet() == STR_UTF8);
 	if( useWide )
 	{
