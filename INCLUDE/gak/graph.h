@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			graph.h
-		Description:	
+		Description:	a container used to control linked data structures
 		Author:			Martin Gäckler
 		Address:		Hopfengasse 15, A-4020 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -246,14 +246,12 @@ class Graph
 		{
 			throw NodeNotFoundError();
 		}
-		if( !m_nodes.hasElement( to ) )
-		{
-			throw NodeNotFoundError();
-		}
 
 		m_nodes[from].m_outgoing.addElement( key );
+
 #if HAVE_INCOMING
-		m_nodes[to].m_incoming.addElement( key );
+		if( m_nodes.hasElement(to) )
+			m_nodes[to].m_incoming.addElement( key );
 #endif
 		LinkInfo	&linkInfo = m_links[key];
 		linkInfo.m_startNodeID = from;

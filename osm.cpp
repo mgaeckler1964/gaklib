@@ -6,7 +6,7 @@
 		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2024 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -44,6 +44,8 @@
 #include <gak/iostream.h>
 #include <gak/stopWatch.h>
 #include <gak/directory.h>
+
+#include "Tests/OsmTest.h"
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -239,6 +241,8 @@ struct XmlProcessor : public XmlNullProcessor
 	typedef TreeMap<OsmWayKeyT, ProcessorWay>	Ways;
 	typedef TreeMap<OsmNodeKeyT, ProcessorNode>	Nodes;
 
+	typedef PairMap<tileid_t,OSMbuilder>		MapData;
+
 	enum OsmElement
 	{
 		oeUNKOWN, oeNODE, oeWAY, oeRELATION
@@ -255,8 +259,10 @@ struct XmlProcessor : public XmlNullProcessor
 					m_placeCounter,
 					m_landuseCounter[3];
 
-	OSMbuilder		m_map;
-
+	bool			m_buildTiles;
+	STRING			m_tilesPath;
+	MapData			m_map;
+	//OSMbuilder	m_map;
 	Nodes			m_allNodes;
 	Ways			m_ways;
 
@@ -283,11 +289,9 @@ struct XmlProcessor : public XmlNullProcessor
 	OsmKeyT			m_relationID;
 	OuterWays		m_outerWays;
 
-	XmlProcessor()
-	{
-		m_osmElement = oeUNKOWN;
-		m_linkID = 0;
-	}
+	XmlProcessor( bool buildTiles, const STRING &tilesPath = nullptr) 
+		: m_osmElement(oeUNKOWN), m_linkID(0), m_buildTiles(buildTiles), m_tilesPath(tilesPath)
+	{}
 
 	static void showCounter( std::size_t count, const STRING &value )
 	{
@@ -323,7 +327,81 @@ struct XmlProcessor : public XmlNullProcessor
 		}
 	}
 
-
+	STRING getTileFileName( tileid_t tileID ) const
+	{
+		return ::getTileFileName( m_tilesPath, tileID );
+	}
+	OSMbuilder &getMap( tileid_t tileID )
+	{
+		if( m_buildTiles )
+		{
+			if( !m_map.hasElement( tileID ) )
+			{
+				OSMbuilder &newMap = m_map[tileID];
+				STRING fileName = getTileFileName( tileID );
+//				if( exists( fileName ) )
+//					readFromBinaryFile( fileName, &newMap, OSM_MAGIC2, VERSION_MAGIC, false );
+				return newMap;
+			}
+			return m_map[tileID];
+		}
+		else
+		{
+			return m_map[0];
+		}
+	}
+	bool hasArea( OsmAreaKeyT id ) const
+	{
+		for(MapData::const_iterator it = m_map.cbegin(), endIT = m_map.cend(); it != endIT; ++it ) 
+		{
+			if( it->getValue().hasArea( id ) )
+				return true;
+		}
+		return false;
+	}
+	size_t getNumNodes() const
+	{
+		size_t numNodes = 0;
+		for(MapData::const_iterator it = m_map.cbegin(), endIT = m_map.cend(); it != endIT; ++it ) 
+		{
+			numNodes += it->getValue().getNumNodes();
+		}
+		return numNodes;
+	}
+	size_t getNumAreas() const
+	{
+		size_t numAreas = 0;
+		for(MapData::const_iterator it = m_map.cbegin(), endIT = m_map.cend(); it != endIT; ++it ) 
+		{
+			numAreas += it->getValue().getNumAreas();
+		}
+		return numAreas;
+	}
+	size_t getNumPlaces() const
+	{
+		size_t numPlaces = 0;
+		for(MapData::const_iterator it = m_map.cbegin(), endIT = m_map.cend(); it != endIT; ++it ) 
+		{
+			numPlaces += it->getValue().getNumPlaces();
+		}
+		return numPlaces;
+	}
+	size_t getNumLinks() const
+	{
+		size_t numLinks = 0;
+		for(MapData::const_iterator it = m_map.cbegin(), endIT = m_map.cend(); it != endIT; ++it ) 
+		{
+			numLinks += it->getValue().getNumLinks();
+		}
+		return numLinks;
+	}
+	void saveTiles()
+	{
+		for(MapData::const_iterator it = m_map.cbegin(), endIT = m_map.cend(); it != endIT; ++it ) 
+		{
+			writeToBinaryFile( getTileFileName(it->getKey()), it->getValue(), OSM_MAGIC2, VERSION_MAGIC, owmOverwrite );
+		}
+	}
 	void initItem()
 	{
 		m_highway = m_waterway = m_water = m_natural = m_railway = m_landuse = m_newWay.type = OsmLink::Unkown;
@@ -839,14 +917,16 @@ struct XmlProcessor : public XmlNullProcessor
 	const ProcessorNode &addWayPoint( OsmNodeKeyT nodeID, OsmLink::Type wayType )
 	{
 		ProcessorNode &node = m_allNodes[nodeID];
-		if( !m_map.hasNode( nodeID ) )
+		math::tileid_t	tileID = node.getTileID();
+		OSMbuilder	&map = getMap( tileID );
+		if( !map.hasNode( nodeID ) )
 		{
 			node.maxWayType = wayType;
-			m_map.addNode( node.maxWayType, nodeID, node );
+			map.addNode( node.maxWayType, nodeID, node );
 		}
 		else if( wayType != node.maxWayType && getPriority(wayType) > getPriority(node.maxWayType) )
 		{
-			m_map.moveNode( node.maxWayType, wayType, nodeID );
+			map.moveNode( node.maxWayType, wayType, nodeID );
 			node.maxWayType = wayType;
 		}
 
@@ -869,40 +949,83 @@ struct XmlProcessor : public XmlNullProcessor
 			way.length = distance;
 
 			++m_linkID;
+			math::tileid_t	startID = startNode.getTileID();
+			math::tileid_t	endID = endNode.getTileID();
+			OSMbuilder	&startMap = getMap( startID );
+			OSMbuilder	&endMap = getMap( endID );
 			if( way.m_direction == odBOTH )
 			{
-				m_map.addLink(
-					m_linkID,
-					way,
-					startNodeID, endNodeID
-				);
-				m_map.addLink(
-					-m_linkID,
-					way,
-					endNodeID, startNodeID
-				);
+				if( !startMap.hasLink( m_linkID ) )
+				{
+					startMap.addLink(
+						m_linkID,
+						way,
+						startNodeID, endNodeID
+					);
+				}
+				if( !startMap.hasLink( -m_linkID ) && startMap.hasNode(endNodeID) )
+				{
+					startMap.addLink(
+						-m_linkID,
+						way,
+						endNodeID, startNodeID
+					);
+				}
+				if( &startMap != &endMap )
+				{
+					if( !endMap.hasLink( -m_linkID ) )
+					{
+						endMap.addLink(
+							-m_linkID,
+							way,
+							endNodeID, startNodeID
+						);
+					}
+				}
 			}
 			else if( way.m_direction == odFROM_START )
 			{
-				m_map.addLink(
-					m_linkID,
-					way,
-					startNodeID, endNodeID
-				);
+				if( !startMap.hasLink( m_linkID ) )
+				{
+					startMap.addLink(
+						m_linkID,
+						way,
+						startNodeID, endNodeID
+					);
+				}
+				if( &startMap != &endMap && !endMap.hasLink( m_linkID ))
+				{
+					endMap.addLink(
+						m_linkID,
+						way,
+						startNodeID, endNodeID
+					);
+				}
 			}
 			else if( way.m_direction == odFROM_END )
 			{
-				m_map.addLink(
-					m_linkID,
-					way,
-					endNodeID, startNodeID
-				);
+				if( !startMap.hasLink( m_linkID ) )
+				{
+					startMap.addLink(
+						m_linkID,
+						way,
+						endNodeID, startNodeID
+					);
+				}
+				if( &startMap != &endMap && !endMap.hasLink(m_linkID) )
+				{
+					endMap.addLink(
+						m_linkID,
+						way,
+						endNodeID, startNodeID
+					);
+				}
 			}
 			startNodeID = endNodeID;
 			startNode = endNode;
 
 			{
-				std::size_t	count = m_map.getNumLinks();
+				std::size_t	count = startMap.getNumLinks();
 				showCounter( count, "map.getNumLinks" );
 			}
 
@@ -914,7 +1037,9 @@ struct XmlProcessor : public XmlNullProcessor
 	{
 		if( m_newPlace.m_type != OsmPlace::Unkown && !m_newPlace.name.isEmpty() )
 		{
-			m_map.addPlace(gak::OsmPlaceKeyT(m_map.getNumPlaces()+1), m_newPlace.m_type, m_newPlace );
+			math::tileid_t tileID = m_newPlace.getTileID();
+			OSMbuilder map = getMap( tileID );
+			map.addPlace(gak::OsmPlaceKeyT(map.getNumPlaces()+1), m_newPlace.m_type, m_newPlace );
 		}
 	}
 	void processEndWay()
@@ -985,7 +1110,9 @@ struct XmlProcessor : public XmlNullProcessor
 	}
 	void addArea( OsmLink::Type	areaType, OsmAreaKeyT areaID, const WayPoints &areaNodes )
 	{
-		while( m_map.hasArea( areaID ) )
+		math::tileid_t tileID = m_allNodes[areaNodes[0U]].getTileID();
+		OSMbuilder map = getMap( tileID );
+		while( map.hasArea( areaID ) )
 		{
 			std::cerr << "\narea " << areaID << " exists.\n";
 			areaID++;
@@ -1004,9 +1131,9 @@ struct XmlProcessor : public XmlNullProcessor
 			area.points.addElement( node.getPosition() );
 		}
 
-		m_map.addArea( areaID, areaType, area );
+		map.addArea( areaID, areaType, area );
 		{
-			std::size_t	count = m_map.getNumAreas();
+			std::size_t	count = map.getNumAreas();
 			showCounter( count, "map.getNumAreas" );
 		}
 	}
@@ -1067,7 +1194,7 @@ struct XmlProcessor : public XmlNullProcessor
 					{
 						if( !m_ways.hasElement( *it1 ) )
 						{
-							if( !m_map.hasArea( *it1 ) )
+							if( !hasArea( *it1 ) )
 							{
 								std::cerr << "\nway not found " << *it1 << " for relation " << m_relationID << '\n';
 							}
@@ -1144,7 +1271,7 @@ struct XmlProcessor : public XmlNullProcessor
 				}
 				else
 				{
-					if( !m_map.hasArea( areaID ) )
+					if( !hasArea( areaID ) )
 					{
 						std::cerr << "\nempty area " << areaID << " for relation " << m_relationID << '\n';
 					}
@@ -1267,19 +1394,22 @@ namespace gak
 	}
 }
 
-int main( void )
+int main()
 {
+#if 1
+	const bool	buildTiles = true;
+	const bool	readMap = false;
 	STRING	osmPath = "C:\\Cache\\OSM\\";
-  	STRING	osmName = osmPath + "andorra-latest.osm";
+	STRING	osmName = osmPath + "andorra-latest.osm";
 //	STRING	osmName = osmPath + "austria-latest.osm";
 //	STRING	osmName = osmPath + "oberbayern-latest.osm";
 //	STRING	osmName = osmPath + "unterfranken-latest.osm";
 
-	STRING	resultFile = osmName + "bin";
+	STRING	resultFile = osmName + BINMAP_EXTENSION;
 	STRING	statFile = osmName + ".txt";
 
 	gak::xml::Parser	myParser( osmName );
-	XmlProcessor		myProcessor;
+	XmlProcessor		myProcessor(buildTiles, osmPath);
 
 	std::cout	<< sizeof( OSMviewer::link_container_type::value_type ) << ' ' 
 				<< sizeof( OSMbuilder::link_container_type::value_type ) << ' ' 
@@ -1289,15 +1419,16 @@ int main( void )
 				<< sizeof( tileid_t ) << std::endl;
 
 	std::cout << "Reading " << osmName << std::endl;
-	if( exists( resultFile ) )
+	if( readMap && !buildTiles && exists( resultFile ) )
 	{
-//		readFromFile( resultFile, &myProcessor.m_map, OSM_MAGIC );
+		readFromBinaryFile( resultFile, &myProcessor.getMap(0), OSM_MAGIC2, VERSION_MAGIC, false );
 	}
 
-	myProcessor.m_map.clear();
-
+//	std::cout << __FILE__ << __LINE__ << std::endl;
 	myParser.parseXML( myProcessor );
+//	std::cout << __FILE__ << __LINE__ << std::endl;
 	myProcessor.postProcess();
+//	std::cout << __FILE__ << __LINE__ << std::endl;
 
 	std::cout << std::endl;
 
@@ -1318,43 +1449,71 @@ int main( void )
 	XmlProcessor::printCounter( out, LANDUSE + "-way", myProcessor.m_landuseCounter[XmlProcessor::oeWAY-1] );
 	XmlProcessor::printCounter( out, LANDUSE + "-relation", myProcessor.m_landuseCounter[XmlProcessor::oeRELATION-1] );
 
-	std::cout << "Writing " << resultFile << std::endl;
-	writeToBinaryFile( resultFile, myProcessor.m_map, OSM_MAGIC2, VERSION_MAGIC, owmOverwrite );
 
-	const TileIDsSet &tileIDs = myProcessor.m_map.getTimeIDs();
+	if( !buildTiles )
+	{
+		std::cout << "Writing " << resultFile << std::endl;
+		writeToBinaryFile( resultFile, myProcessor.getMap(0), OSM_MAGIC2, VERSION_MAGIC, owmOverwrite );
+	}
+	else
+	{
+		std::cout << "Writing Tiles" << std::endl;
+		myProcessor.saveTiles();
+	}
 
-	std::cout	<< "Nodes: "  << formatNumber( myProcessor.m_map.getNumNodes(),  0, 0, '.' ) 
-				<< " Places: " << formatNumber( myProcessor.m_map.getNumPlaces(), 0, 0, '.' )
-				<< " Links: "  << formatNumber( myProcessor.m_map.getNumLinks(),  0, 0, '.' ) 
-				<< " Areas: "  << formatNumber( myProcessor.m_map.getNumAreas(),  0, 0, '.' ) 
-				<< " Tiles: " << formatNumber( tileIDs.size(),  0, 0, '.' ) 
+#endif
+#if 1
+	Array<tileid_t> tileIDs1 = myProcessor.m_map.getKeys();
+	const TileIDsSet &tileIDs2 = myProcessor.getMap(0).getTileIDs();
+
+	std::cout	<< "Nodes: "  << formatNumber( myProcessor.getNumNodes(),  0, 0, '.' ) 
+				<< " Places: " << formatNumber( myProcessor.getNumPlaces(), 0, 0, '.' )
+				<< " Links: "  << formatNumber( myProcessor.getNumLinks(),  0, 0, '.' ) 
+				<< " Areas: "  << formatNumber( myProcessor.getNumAreas(),  0, 0, '.' ) 
+				<< " Tiles1:" << formatNumber( tileIDs1.size(),  0, 0, '.' ) 
+				<< " Tiles2:" << formatNumber( tileIDs2.size(),  0, 0, '.' ) 
 				<< std::endl
 				<< "List of Tiles:" 
 				<< std::endl;
 
-	size_t count = 0;
+
+	size_t count1 = 0;
 	for( 
-		TileIDsSet::const_iterator it = tileIDs.cbegin(), endIT = tileIDs.cend();
+		Array<tileid_t>::const_iterator it = tileIDs1.cbegin(), endIT = tileIDs1.cend();
 		it != endIT;
 		++it )
 	{
-		if( count )
+		if( count1 )
 		{
 			std::cout << ", ";
 		}
-		if( !(count % 10) )
+		if( !(count1 % 10) )
 		{
 			std::cout << std::endl;
 		}
 		std::cout << *it;
-		++count;
-#if 0
-		/// TODO: enable when extractTile is OK
-		OSMbuilder	tileMap = myProcessor.m_map.extractTile(*it);
-		STRING tilePath = osmPath + formatNumber(*it) + ".osmbin";
-		writeToBinaryFile( tilePath, tileMap, OSM_MAGIC2, VERSION_MAGIC, owmOverwrite );
-#endif
+		++count1;
 	}
+
+	size_t count2 = 0;
+	for( 
+		TileIDsSet::const_iterator it = tileIDs2.cbegin(), endIT = tileIDs2.cend();
+		it != endIT;
+		++it )
+	{
+		if( count2 )
+		{
+			std::cout << ", ";
+		}
+		if( !(count2 % 10) )
+		{
+			std::cout << std::endl;
+		}
+		std::cout << *it;
+		++count2;
+	}
+#endif
+
 	return 0;
 }
 

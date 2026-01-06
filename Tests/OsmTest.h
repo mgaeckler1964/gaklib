@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			tmpfile.h
-		Description:	usage of temporary files that are deleted at end
+		Module:			OsmTest.h
+		Description:	Open Street Map test
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -29,9 +29,6 @@
 		SUCH DAMAGE.
 */
 
-#ifndef GAKLIB_TMPFILE_H
-#define GAKLIB_TMPFILE_H
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -40,9 +37,11 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <gak/string.h>
-#include <gak/strFiles.h>
-#include <gak/locker.h>
+#include <iostream>
+#include <gak/unitTest.h>
+
+#include <gak/osm.h>
+#include <gak/tmpfile.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -66,6 +65,8 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+const STRING osmPath = "C:\\Cache\\OSM";
+
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -78,56 +79,189 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-class TempFileName 
+class OsmTest : public UnitTest
 {
-	STRING m_filename;
-
-	void deleteFile()
+	public:
+	virtual const char *GetClassName() const
 	{
-		if( !m_filename.isEmpty() )
+		return "OsmTest";
+	}
+	virtual void PerformTest()
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "OsmTest::PerformTest");
+		TestScope scope( "PerformTest" );
+		SyntheticTest();
+		AndorraTest();
+	}
+	void SyntheticTest()
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "OsmTest::SyntheticTest");
+
+		const OSMbuilder::layer_key_type	layer = 0;
+		const OSMbuilder::node_key_type		node1key = 1;
+		const OSMbuilder::node_key_type		node2key = 2;
+		const OSMbuilder::link_key_type		link3key = 3;
+		const OsmAreaKeyT					area4key = 4;
+		const OsmPlaceKeyT					place5key = 5;
+
+		const OSMbuilder::node_key_type		node6key = 6;
+		const OSMbuilder::node_key_type		node7key = 7;
+		const OSMbuilder::link_key_type		link8key = 8;
+
+		const OSMbuilder::link_key_type		link9key = 9;	// node 7 to node2
+
+		const OsmAreaKeyT					area10key = 10;
+		const OsmPlaceKeyT					place11key = 11;
+
+		OSMbuilder	builder3;
+
+		TempFileName	tmpName1(true);
+		TempFileName	tmpName2(true);
+
+		// data for the first tile
+		OsmNode	node1;
+		node1.pos.latitude = 45;
+		node1.pos.longitude = 14.6f;
+		OsmNode	node2;
+		node2.pos.latitude = 45.1f;
+		node2.pos.longitude = 14.7f;
+		OsmLink	link3;
+		link3.length = 666;
+		link3.type = OsmLink::subway;
+
+		// data for the second tile
+		OsmNode	node6;
+		node6.pos.latitude = 45;
+		node6.pos.longitude = 24.6f;
+		OsmNode	node7;
+		node7.pos.latitude = 55.1f;
+		node7.pos.longitude = 24.7f;
+		OsmLink	link8;
+		link8.length = 333;
+		link8.type = OsmLink::cycleway;
+		OsmLink	link9;
+		link9.length = 999;
+		link9.type = OsmLink::tramway;
+
 		{
-			strRemove( m_filename );
-			m_filename = nullptr;
+			// construct the first tiile
+			OSMbuilder	builder;
+
+			builder.addNode(layer, node1key, node1 );
+
+			builder.addNode(layer, node2key, node2 );
+
+			builder.addLink(link3key, link3, node1key, node2key );
+
+			builder.addArea( area4key, layer, Area() );					// add an empty area
+			builder.addPlace( place5key, layer, OsmPlace() );			// add an empty place
+
+			writeToBinaryFile(
+				STRING(tmpName1),
+				builder, OSM_MAGIC2, VERSION_MAGIC, owmOverwrite 
+			);
+		}
+
+		{
+			// construct the second tiile
+			OSMbuilder	builder;
+
+			builder.addNode(layer, node6key, node6 );
+
+			builder.addNode(layer, node7key, node7 );
+
+			builder.addLink(link8key, link8, node6key, node7key );
+			builder.addLink(link9key, link9, node7key, node2key );
+
+			builder.addArea( area10key, layer, Area() );					// add an empty area
+			builder.addPlace( place11key, layer, OsmPlace() );				// add an empty place
+
+			writeToBinaryFile(
+				STRING(tmpName2),
+				builder, OSM_MAGIC2, VERSION_MAGIC, owmOverwrite 
+			);
+		}
+
+		{
+			OSMbuilder	builder;
+
+			readFromBinaryFile(
+				STRING(tmpName1),
+				&builder, OSM_MAGIC2, VERSION_MAGIC, false 
+			);
+
+			OsmLink &link = builder.getLink(link3key);
+			UT_ASSERT_EQUAL( link.length, link3.length );
+			UT_ASSERT_EQUAL( link.type, link3.type );
+
+			OsmNode &node = builder.getNode(node2key);
+			UT_ASSERT_EQUAL( node.pos.latitude, node2.pos.latitude );
+			UT_ASSERT_EQUAL( node.pos.longitude, node2.pos.longitude );
+
+			// it is OK, if there is no exception
+			builder.getArea( area4key );
+			builder.getPlace( place5key );
+		}
+
+
+		{
+			OSMviewer	osmViewer;
+
+			readFromBinaryFile(
+				STRING(tmpName1),
+				&osmViewer, OSM_MAGIC2, VERSION_MAGIC, true 
+			);
+
+			{
+				OsmLink &link = osmViewer.getLink(link3key);
+				UT_ASSERT_EQUAL( link.length, link3.length );
+				UT_ASSERT_EQUAL( link.type, link3.type );
+			}
+
+			{
+				OsmNode &node = osmViewer.getNode(node2key);
+				UT_ASSERT_EQUAL( node.pos.latitude, node2.pos.latitude );
+				UT_ASSERT_EQUAL( node.pos.longitude, node2.pos.longitude );
+			}
+
+			// it is OK, if there is no exception
+			osmViewer.getArea( area4key );
+			osmViewer.getPlace( place5key );
+
+			osmViewer.appendTile( STRING(tmpName2) );
+			{
+				OsmNode &node = osmViewer.getNode(node6key);
+				UT_ASSERT_EQUAL( node.pos.latitude, node6.pos.latitude );
+				UT_ASSERT_EQUAL( node.pos.longitude, node6.pos.longitude );
+			}
+			{
+				OsmLink &link = osmViewer.getLink(link8key);
+				UT_ASSERT_EQUAL( link.length, link8.length );
+				UT_ASSERT_EQUAL( link.type, link8.type );
+			}
+			{
+				OsmLink &link = osmViewer.getLink(link9key);
+				UT_ASSERT_EQUAL( link.length, link9.length );
+				UT_ASSERT_EQUAL( link.type, link9.type );
+			}
+
+			osmViewer.getPlace( place11key );
+			osmViewer.getArea( area10key );
 		}
 	}
+	void AndorraTest()
+	{
+		OSMviewer	openStreetMap;
 
-	void assign( const STRING &tmpName )
-	{
-		deleteFile();
-		m_filename = tmpName;
-	}
-	public:
-	TempFileName( const STRING &tmpName=nullptr ) : m_filename(tmpName) {}
-	TempFileName( bool ) : m_filename(nullptr)
-	{
-		buildUniqueName();
-	}
-
-	TempFileName &operator = ( const STRING &tmpName )
-	{
-		assign( tmpName );
-		return *this;
-	}
-	operator const STRING &() const
-	{
-		return m_filename;
-	}
-	operator bool () const
-	{
-		return !m_filename.isEmpty();
-	}
-	void buildUniqueName()
-	{
-		static size_t counter = 0;
-		STRING tmpName = STRING("TMP") + formatNumber(GetCurrentProcessId()) + '_' + formatNumber(Locker::GetCurrentThreadID()) + '_' + formatNumber(++counter) + ".TMP";
-		assign( tmpName );
-	}
-
-	~TempFileName()
-	{
-		deleteFile();
+		STRING fName = getTileFileName( osmPath, 190443 );
+		readFromBinaryFile(
+			fName,
+			&openStreetMap, OSM_MAGIC2, VERSION_MAGIC, true 
+		);
+		openStreetMap.appendTile( 190442, osmPath );
 	}
 };
+
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -135,6 +269,8 @@ class TempFileName
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+static OsmTest myOsmTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -180,7 +316,7 @@ class TempFileName
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-} // namespace gak
+}	// namespace gak
 
 #ifdef __BORLANDC__
 #	pragma option -RT.
@@ -188,5 +324,3 @@ class TempFileName
 #	pragma option -a.
 #	pragma option -p.
 #endif
-
-#endif // GAKLIB_TMPFILE_H

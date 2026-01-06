@@ -6,7 +6,7 @@
 		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2024 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -67,6 +67,8 @@ namespace gak
 
 const uint32 OSM_MAGIC2 = 0x12873666;
 const uint16 VERSION_MAGIC = 2;
+
+#define BINMAP_EXTENSION ".bin"
 
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
@@ -249,8 +251,16 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 
 	public:
 
-	typedef MapT<OsmAreaKeyT, Area>			area_container_type;
-	typedef MapT<OsmPlaceKeyT, OsmPlace>	place_container_type;
+	typedef typename Super::node_container_type		node_container_type;
+	typedef typename Super::link_container_type		link_container_type;
+	typedef typename Super::link_key_types			link_key_types;
+	typedef typename Super::link_key_type			link_key_type;
+	typedef typename Super::node_key_type			node_key_type;
+	typedef typename Super::LinkInfo				LinkInfo;
+	typedef typename Super::layer_key_type			layer_key_type;
+
+	typedef MapT<OsmAreaKeyT, Area>					area_container_type;
+	typedef MapT<OsmPlaceKeyT, OsmPlace>			place_container_type;
 
 	private:
 	Layers					m_lonPlaceIndex;
@@ -315,45 +325,6 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 		Set<OsmAreaKeyT>									*result
 	) const;
 
-	SelfT extractTile(math::tileid_t tileId) const
-	{
-		SelfT		theTile;
-		Super::extractTile(tileId, &theTile);
-		for(
-			place_container_type::const_iterator it = m_places.cbegin(), endIT = m_places.cend();
-			it != endIT;
-			++it
-		)
-		{
-			OsmPlaceKeyT key = it->getKey();
-			const OsmPlace &val = it->getValue();
-			if(val.getTileID() == tileId)
-			{
-				/// TODO, find the correct layer
-				theTile.addPlace(key, 0, val );
-			}
-		}
-
-		for(
-			area_container_type::const_iterator it = m_areas.cbegin(), endIT = m_areas.cend();
-			it != endIT;
-			++it
-		)
-		{
-			OsmAreaKeyT key = it->getKey();
-			const Area &val = it->getValue();
-
-			if( inTile(val, tileId) )
-			{
-				/// TODO, find the correct layer
-				theTile.addArea(key, 0, val );
-			}
-		}
-
-		return theTile;
-	}
-
-
 	void clear()
 	{
 		Super::clear();
@@ -407,6 +378,60 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 			gak::fromBinaryStream( stream, &m_areas );
 		}
 	}
+	void appendTile( const STRING &mapFileName )
+	{
+		SelfT	tileMap;
+		readFromBinaryFile(
+			mapFileName,
+			&tileMap, OSM_MAGIC2, VERSION_MAGIC, true 
+		);
+
+		const node_container_type &nodes = tileMap.getNodes();
+		for(
+			node_container_type::const_iterator it = nodes.cbegin(), endIT = nodes.cend();
+			it != endIT;
+			++it
+		)
+		{
+			addNode( 0, it->getKey(), it->getValue().m_node );
+		}
+
+		const link_container_type &links = tileMap.getLinks();
+		for(
+			link_container_type::const_iterator it = links.cbegin(), endIT = links.cend();
+			it != endIT;
+			++it
+		)
+		{
+			const LinkInfo &link = it->getValue();
+			addLink(it->getKey(), link.m_link, link.m_startNodeID, link.m_endNodeID );
+		}
+
+		const place_container_type &places = tileMap.m_places;
+		for(
+			place_container_type::const_iterator it = places.cbegin(), endIT = places.cend();
+			it != endIT;
+			++it
+		)
+		{
+			addPlace(it->getKey(), 0, it->getValue() );
+		}
+		const area_container_type &areas = tileMap.m_areas;
+		for(
+			area_container_type::const_iterator it = areas.cbegin(), endIT = areas.cend();
+			it != endIT;
+			++it
+		)
+		{
+			addArea(it->getKey(), 0, it->getValue() );
+		}
+	}
+	void appendTile( math::tileid_t tileID, const STRING &path )
+	{
+		STRING	mapFileName = getTileFileName( path, tileID );
+
+		appendTile(mapFileName);
+	}
 };
 
 typedef BasicOpenStreetMap<GraphTree, GeoBTree>	OSMbuilder;
@@ -454,6 +479,11 @@ bool inTile( const Area &area, math::tileid_t tileID );
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+inline STRING getTileFileName( const STRING &tilesPath, math::tileid_t tileID )
+{
+	return tilesPath + DIRECTORY_DELIMITER + formatNumber(tileID) + BINMAP_EXTENSION;
+}
 
 // --------------------------------------------------------------------- //
 // ----- class inlines ------------------------------------------------- //

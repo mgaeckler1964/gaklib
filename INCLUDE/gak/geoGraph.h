@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			geoGraph.h
-		Description:	
+		Description:	a graph for geometry data
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -105,13 +105,19 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 	public:
 
 	typedef typename Super::node_container_type				node_container_type;
+	typedef typename Super::link_container_type				link_container_type;
 	typedef typename Super::link_key_types					link_key_types;
 	typedef typename Super::link_key_type					link_key_type;
 	typedef typename Super::node_key_type					node_key_type;
 	typedef typename Super::LinkInfo						LinkInfo;
 
+	typedef LayerKeyT										layer_key_type;
+
 	typedef math::Rectangle< math::GeoPosition<double> >	BoundingBox;
 
+#ifdef _MSC_VER
+#	pragma pack(push, 2)
+#endif
 	struct PositionValue
 	{
 		float		circleDegree;
@@ -120,6 +126,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 		PositionValue( float circleDegree = 0, NodeKeyT nodeID = NodeKeyT() )
 		: circleDegree(circleDegree), nodeID(nodeID)
 		{
+			assert( sizeof(*this) == sizeof(float) + sizeof(NodeKeyT));
 		}
 		int compare( const PositionValue &other ) const
 		{
@@ -141,6 +148,9 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 			gak::fromBinaryStream( stream, &nodeID );
 		}
 	};
+#ifdef _MSC_VER
+#	pragma pack( pop )
+#endif
 	typedef IndexT<PositionValue>		Layer;
 	typedef PairMap<LayerKeyT, Layer>	Layers;
 
@@ -258,7 +268,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 
 		return m_boundingBox;
 	}
-	const math::TileIDsSet &getTimeIDs() const
+	const math::TileIDsSet &getTileIDs() const
 	{
 		return m_tileIDs;
 	}
