@@ -93,11 +93,32 @@ class OsmTest : public UnitTest
 		SyntheticTest();
 		AndorraTest();
 	}
+	static Area getDefaultArea()
+	{
+		Area	def;
+
+		def.points.addElement(OsmPosition(45,15));
+		def.points.addElement(OsmPosition(45.1,15.1));
+		def.points.addElement(OsmPosition(45.0,15.1));
+
+		return def;
+	}
+	static OsmPlace getDefaultPlace()
+	{
+		OsmPlace	def;
+
+		def.pos.latitude = 40;
+		def.pos.longitude = 11;
+
+		return def;
+	}
 	void SyntheticTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "OsmTest::SyntheticTest");
 
-		const OSMbuilder::layer_key_type	layer = 0;
+		const OSMbuilder::layer_key_type	layer1 = 111;
+		const OSMbuilder::layer_key_type	layer2 = 333;
+
 		const OSMbuilder::node_key_type		node1key = 1;
 		const OSMbuilder::node_key_type		node2key = 2;
 		const OSMbuilder::link_key_type		link3key = 3;
@@ -147,14 +168,20 @@ class OsmTest : public UnitTest
 			// construct the first tiile
 			OSMbuilder	builder;
 
-			builder.addNode(layer, node1key, node1 );
+			builder.addNode(layer1, node1key, node1 );
 
-			builder.addNode(layer, node2key, node2 );
+			builder.addNode(layer1, node2key, node2 );
 
 			builder.addLink(link3key, link3, node1key, node2key );
 
-			builder.addArea( area4key, layer, Area() );					// add an empty area
-			builder.addPlace( place5key, layer, OsmPlace() );			// add an empty place
+			builder.addArea( area4key, layer1, getDefaultArea() );
+			builder.addPlace( place5key, layer1, getDefaultPlace() );
+
+			{
+				Array<OSMviewer::node_key_type>	nodes;
+				builder.getRegion( layer1, builder.getFrameBox(0.01), &nodes );
+				UT_ASSERT_EQUAL( nodes.size(), 2 );
+			}
 
 			writeToBinaryFile(
 				STRING(tmpName1),
@@ -166,15 +193,30 @@ class OsmTest : public UnitTest
 			// construct the second tiile
 			OSMbuilder	builder;
 
-			builder.addNode(layer, node6key, node6 );
+			builder.addNode(layer2, node6key, node6 );
 
-			builder.addNode(layer, node7key, node7 );
+			builder.addNode(layer2, node7key, node7 );
 
 			builder.addLink(link8key, link8, node6key, node7key );
 			builder.addLink(link9key, link9, node7key, node2key );
 
-			builder.addArea( area10key, layer, Area() );					// add an empty area
-			builder.addPlace( place11key, layer, OsmPlace() );				// add an empty place
+			builder.addArea( area10key, layer2, getDefaultArea() );
+			builder.addPlace( place11key, layer2, getDefaultPlace() );
+
+			{
+				Array<OSMviewer::node_key_type>	nodes;
+				builder.getRegion( layer2, builder.getFrameBox(0.01), &nodes );
+				UT_ASSERT_EQUAL( nodes.size(), 2 );
+			}
+			{
+				Set<OsmAreaKeyT>	areas;
+				Array<OsmPlaceKeyT>	places;
+
+				builder.getAreas( layer2, builder.getFrameBox(0.01), &areas );
+				UT_ASSERT_EQUAL( areas.size(), 1 );
+				builder.getPlaces( layer2, builder.getFrameBox(0.01), &places );
+				UT_ASSERT_EQUAL( places.size(), 1 );
+			}
 
 			writeToBinaryFile(
 				STRING(tmpName2),
@@ -201,6 +243,12 @@ class OsmTest : public UnitTest
 			// it is OK, if there is no exception
 			builder.getArea( area4key );
 			builder.getPlace( place5key );
+
+			{
+				Array<OSMviewer::node_key_type>	nodes;
+				builder.getRegion( layer1, builder.getFrameBox(0.01), &nodes );
+				UT_ASSERT_EQUAL( nodes.size(), 2 );
+			}
 		}
 
 
@@ -228,7 +276,43 @@ class OsmTest : public UnitTest
 			osmViewer.getArea( area4key );
 			osmViewer.getPlace( place5key );
 
+			{
+				Array<OSMviewer::node_key_type>	nodes;
+				osmViewer.getRegion( layer1, osmViewer.getFrameBox(0.01), &nodes );
+				UT_ASSERT_EQUAL( nodes.size(), 2 );
+				nodes.clear();
+				osmViewer.getRegion( layer2, osmViewer.getBoundingBox(), &nodes );
+				UT_ASSERT_EQUAL( nodes.size(), 0 );
+			}
+			{
+				Set<OsmAreaKeyT>	areas;
+				Array<OsmPlaceKeyT>	places;
+
+				// test layer 2 is not yet loaded
+				osmViewer.getAreas( layer2, osmViewer.getFrameBox(0.01), &areas );
+				UT_ASSERT_EQUAL( areas.size(), 0 );
+				osmViewer.getPlaces( layer2, osmViewer.getFrameBox(0.01), &places );
+				UT_ASSERT_EQUAL( places.size(), 0 );
+
+				// test layer 1 is present
+				osmViewer.getAreas( layer1, osmViewer.getFrameBox(0.01), &areas );
+				UT_ASSERT_EQUAL( areas.size(), 1 );
+				osmViewer.getPlaces( layer1, osmViewer.getFrameBox(0.01), &places );
+				UT_ASSERT_EQUAL( places.size(), 1 );
+			}
+
 			osmViewer.appendTile( STRING(tmpName2) );
+
+			{
+				Array<OSMviewer::node_key_type>	nodes;
+				osmViewer.getRegion( layer1, osmViewer.getFrameBox(0.01), &nodes );
+				UT_ASSERT_EQUAL( nodes.size(), 2 );
+				nodes.clear();
+				osmViewer.getRegion( layer2, osmViewer.getFrameBox(0.01), &nodes );
+				UT_ASSERT_EQUAL( nodes.size(), 2 );
+			}
+
+
 			{
 				OsmNode &node = osmViewer.getNode(node6key);
 				UT_ASSERT_EQUAL( node.pos.latitude, node6.pos.latitude );
@@ -247,6 +331,24 @@ class OsmTest : public UnitTest
 
 			osmViewer.getPlace( place11key );
 			osmViewer.getArea( area10key );
+
+			{
+				Array<OSMviewer::node_key_type>	nodes;
+				osmViewer.getRegion( layer1, osmViewer.getFrameBox(0.01), &nodes );
+				UT_ASSERT_EQUAL( nodes.size(), 2 );
+				nodes.clear();
+				osmViewer.getRegion( layer2, osmViewer.getFrameBox(0.01), &nodes );
+				UT_ASSERT_EQUAL( nodes.size(), 2 );
+			}
+			{
+				Set<OsmAreaKeyT>	areas;
+				Array<OsmPlaceKeyT>	places;
+
+				osmViewer.getAreas( layer2, osmViewer.getFrameBox(0.01), &areas );
+				UT_ASSERT_EQUAL( areas.size(), 1 );
+				osmViewer.getPlaces( layer2, osmViewer.getFrameBox(0.01), &places );
+				UT_ASSERT_EQUAL( places.size(), 1 );
+			}
 		}
 	}
 	void AndorraTest()

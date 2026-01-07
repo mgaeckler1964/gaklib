@@ -164,11 +164,10 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 	GeoGraph() : m_boundingBox( +180, -90, -180, +90 )
 	{
 	}
-	void addNode( const LayerKeyT &layerKey, const NodeKeyT &key, const NodeT &node )
-	{
-		double	 longitude = node.getPosition().longitude;
-		double	 latitude = node.getPosition().latitude;
 
+	protected:
+	void expandBoundingBox( double longitude, double latitude )
+	{
 		if( m_boundingBox.topLeft.longitude > longitude )
 		{
 			m_boundingBox.topLeft.longitude = longitude;
@@ -185,8 +184,23 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 		{
 			m_boundingBox.bottomRight.latitude = latitude;
 		}
+	}
+	private:
+	void addNode( const NodeKeyT &key, const NodeT &node )
+	{
+		double	 longitude = node.getPosition().longitude;
+		double	 latitude = node.getPosition().latitude;
 
+		expandBoundingBox(longitude, latitude);
 		Super::addNode( key, node );
+	}
+	public:
+	void addNode( const LayerKeyT &layerKey, const NodeKeyT &key, const NodeT &node )
+	{
+		double	 longitude = node.getPosition().longitude;
+		double	 latitude = node.getPosition().latitude;
+
+		addNode(key, node);
 		m_lonIndex[layerKey].addElement(
 			PositionValue( float(longitude), key )
 		);
@@ -194,24 +208,8 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 			PositionValue( float(latitude), key )
 		);
 		m_tileIDs.addElement(node.getTileID());
-#if 0
-		if( m_lonIndex[layerKey].size() != m_latIndex[layerKey].size() )
-		{
-			const Layer &layer1 = m_lonIndex[layerKey];
-			const Layer &layer2 = m_latIndex[layerKey];
-			size_t		size1 = layer1.size();
-			size_t		size2 = layer2.size();
 
-			std::cout << "\nCorupted Data1: " << size1 << "!=" << size2 << ' ' << key << '\n';
-			m_lonIndex[layerKey].addElement(
-				PositionValue( float(longitude), key )
-			);
-			m_latIndex[layerKey].addElement(
-				PositionValue( float(latitude), key )
-			);
-			exit( -1 );
-		}
-#endif
+		assert( m_lonIndex[layerKey].size() == m_latIndex[layerKey].size() );
 	}
 	void moveNode( 
 		const LayerKeyT &oldLayerKey, const LayerKeyT &newLayerKey, 
@@ -229,30 +227,60 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 
 		m_latIndex[oldLayerKey].removeElement( latPosition );
 		m_latIndex[newLayerKey].addElement( latPosition );
-#if 0
-		if( m_lonIndex[oldLayerKey].size() != m_latIndex[oldLayerKey].size() )
-		{
-			const Layer &layer1 = m_lonIndex[oldLayerKey];
-			const Layer &layer2 = m_latIndex[oldLayerKey];
-			size_t		size1 = layer1.size();
-			size_t		size2 = layer2.size();
 
-			std::cout << "\nCorupted Data2: " << size1 << "!=" << size2 << ' ' << key << '\n';
-			std::cout << "Corupted Data2: " << oldLayerKey << "!=" << newLayerKey << ' ' << key << '\n';
-			exit( -2 );
-		}
-		if( m_lonIndex[newLayerKey].size() != m_latIndex[newLayerKey].size() )
-		{
-			const Layer &layer1 = m_lonIndex[newLayerKey];
-			const Layer &layer2 = m_latIndex[newLayerKey];
-			size_t		size1 = layer1.size();
-			size_t		size2 = layer2.size();
+		assert( m_lonIndex[oldLayerKey].size() == m_latIndex[oldLayerKey].size() );
+		assert( m_lonIndex[newLayerKey].size() == m_latIndex[newLayerKey].size() );
+	}
 
-			std::cout << "\nCorupted Data3: " << size1 << "!=" << size2 << ' ' << key << '\n';
-			std::cout << "Corupted Data3: " << oldLayerKey << "!=" << newLayerKey << ' ' << key << '\n';
-			exit( -3 );
+	void mergeLayer( Layer &target, const Layer src )
+	{
+		for(
+			Layer::const_iterator it = src.cbegin(), endIT = src.cend();
+			it != endIT;
+			++it
+		)
+		{
+			target.addElement( *it );
 		}
-#endif
+	}
+	void mergeIndex( Layers &target, const Layers &src )
+	{
+		for(
+			Layers::const_iterator it = src.cbegin(), endIT = src.cend();
+			it != endIT;
+			++it
+		)
+		{
+			Layer &targetLayer = target[it->getKey()];
+			const Layer &srcLayer = it->getValue();
+			mergeLayer( targetLayer, srcLayer );
+		}
+	}
+	void mergeTile( const SelfT &tileMap )
+	{
+		const node_container_type &nodes = tileMap.getNodes();
+		for(
+			node_container_type::const_iterator it = nodes.cbegin(), endIT = nodes.cend();
+			it != endIT;
+			++it
+		)
+		{
+			addNode( it->getKey(), it->getValue().m_node );
+		}
+
+		const link_container_type &links = tileMap.getLinks();
+		for(
+			link_container_type::const_iterator it = links.cbegin(), endIT = links.cend();
+			it != endIT;
+			++it
+		)
+		{
+			const LinkInfo &link = it->getValue();
+			addLink(it->getKey(), link.m_link, link.m_startNodeID, link.m_endNodeID );
+		}
+
+		mergeIndex(m_lonIndex, tileMap.m_lonIndex);
+		mergeIndex(m_latIndex, tileMap.m_latIndex);
 	}
 
 	Optional<NodeKeyT> findNextNode( 
@@ -268,62 +296,24 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 
 		return m_boundingBox;
 	}
+	BoundingBox getFrameBox(double frame)
+	{
+		BoundingBox frameBox = m_boundingBox;
+
+		frameBox.topLeft.latitude += frame;
+		frameBox.topLeft.longitude -= frame;
+		frameBox.bottomRight.latitude -= frame;
+		frameBox.bottomRight.longitude += frame; 
+
+		return frameBox;
+	}
 	const math::TileIDsSet &getTileIDs() const
 	{
 		return m_tileIDs;
 	}
-	void extractTile(math::tileid_t tileId, SelfT *theTile) const
-	{
-		const node_container_type	&nodes = &this->getNodes();
-
-		for(
-			typename node_container_type::const_iterator it = nodes.cbegin(), endIT = nodes.cend();
-			it != endIT;
-			++it
-		)
-		{
-			const NodeKeyT &key = it->getKey();
-			const NodeT &node = it->getValue().m_node;
-			if( node.getTileID() == tileId )
-			{
-				/// TODO check for a better layer
-				if( !theTile->hasNode( key ) )
-				{
-					theTile->addNode( 0, key, node );
-				}
-				for(
-					typename link_key_types::const_iterator it2 = it->getValue().m_outgoing.cbegin(), end2 = it->getValue().m_outgoing.cend();
-					it2 != end2;
-					++it2 
-				)
-				{
-					link_key_type	linkID = *it2;
-					const LinkInfo	&link = getLinkInfo( linkID );
-					node_key_type	startNodeID = link.m_startNodeID;
-					node_key_type	endNodeID = link.m_endNodeID;
-					NodeT			startNode = getNode( startNodeID );
-					NodeT			endNode = getNode( endNodeID );
-
-					if( !theTile->hasNode( startNodeID ) )
-					{
-						theTile->addNode( 0, startNodeID, startNode );
-					}
-					if( !theTile->hasNode( endNodeID ) )
-					{
-						theTile->addNode( 0, endNodeID, endNode );
-					}
-					if( !theTile->hasLink( linkID ) )
-					{
-						theTile->addLink(linkID,link.m_link, startNodeID, endNodeID);
-					}
-				}
-			}
-		}
-	}
-
 	template <typename ScalarT>
 	void getRegion(
-		const LinkKeyT										&layerKey, 
+		const LayerKeyT										&layerKey, 
 		const math::Rectangle< math::GeoPosition<ScalarT> >	&region,
 		Array<NodeKeyT>										*result
 	) const;
@@ -422,7 +412,7 @@ template <
 >
 	template <typename ScalarT>
 void GeoGraph<NodeT, LinkT, MapT, IndexT, LayerKeyT, NodeKeyT, LinkKeyT>::getRegion(
-	const LinkKeyT										&layerKey, 
+	const LayerKeyT										&layerKey, 
 	const math::Rectangle< math::GeoPosition<ScalarT> >	&region,
 	Array<NodeKeyT>										*result
 ) const
@@ -436,10 +426,12 @@ void GeoGraph<NodeT, LinkT, MapT, IndexT, LayerKeyT, NodeKeyT, LinkKeyT>::getReg
 
 	if( m_lonIndex.hasElement(layerKey) )
 	{
-		assert( m_lonIndex[layerKey].size() == m_latIndex[layerKey].size() );
+		const Layer &lonLayerIndex = m_lonIndex[layerKey];
+
+		assert( lonLayerIndex.size() == m_latIndex[layerKey].size() );
 
 		ConstIterable<typename Layer::const_iterator>	rangeValues =
-		m_lonIndex[layerKey].getRange(
+		lonLayerIndex.getRange(
 			PositionValue(
 				float(region.topLeft.longitude)
 			),
@@ -461,8 +453,10 @@ void GeoGraph<NodeT, LinkT, MapT, IndexT, LayerKeyT, NodeKeyT, LinkKeyT>::getReg
 
 	if( m_latIndex.hasElement(layerKey) )
 	{
+		const Layer &latLayerIndex = m_latIndex[layerKey];
+
 		ConstIterable<typename Layer::const_iterator>	rangeValues =
-		m_latIndex[layerKey].getRange(
+		latLayerIndex.getRange(
 			PositionValue(
 				float(region.bottomRight.latitude)
 			),
