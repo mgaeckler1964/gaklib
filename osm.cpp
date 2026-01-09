@@ -279,7 +279,6 @@ struct XmlProcessor : public XmlNullProcessor
 	ProcessorPlace	m_newPlace;
 
 	// reading a way
-	OsmLinkKeyT		m_linkID;
 	ProcessorWay	m_newWay;
 
 	// for railways
@@ -289,8 +288,13 @@ struct XmlProcessor : public XmlNullProcessor
 	OsmKeyT			m_relationID;
 	OuterWays		m_outerWays;
 
+	static OsmLinkKeyT getNextLinkID( tileid_t tileID )
+	{
+		static uint32 baseID = 0;
+		return OsmLinkKeyT(tileID)<<32| ++baseID;
+	}
 	XmlProcessor( bool buildTiles, const STRING &tilesPath = nullptr) 
-		: m_osmElement(oeUNKOWN), m_linkID(0), m_buildTiles(buildTiles), m_tilesPath(tilesPath)
+		: m_osmElement(oeUNKOWN), m_buildTiles(buildTiles), m_tilesPath(tilesPath)
 	{}
 
 	static void showCounter( std::size_t count, const STRING &value )
@@ -948,55 +952,47 @@ struct XmlProcessor : public XmlNullProcessor
 			float distance = float(getDistance( startNode.getPosition(), endNode.getPosition() ));
 			way.length = distance;
 
-			++m_linkID;
 			math::tileid_t	startID = startNode.getTileID();
 			math::tileid_t	endID = endNode.getTileID();
-			OSMbuilder	&startMap = getMap( startID );
-			OSMbuilder	&endMap = getMap( endID );
+			OsmLinkKeyT		linkID = getNextLinkID( startID );
+			OSMbuilder		&startMap = getMap( startID );
+			OSMbuilder		&endMap = getMap( endID );
+
 			if( way.m_direction == odBOTH )
 			{
-				if( !startMap.hasLink( m_linkID ) )
+				startMap.addLink(
+					linkID,
+					way,
+					startNodeID, endNodeID
+				);
+				if( startMap.hasNode(endNodeID) )
 				{
 					startMap.addLink(
-						m_linkID,
-						way,
-						startNodeID, endNodeID
-					);
-				}
-				if( !startMap.hasLink( -m_linkID ) && startMap.hasNode(endNodeID) )
-				{
-					startMap.addLink(
-						-m_linkID,
+						-linkID,
 						way,
 						endNodeID, startNodeID
 					);
 				}
 				if( &startMap != &endMap )
 				{
-					if( !endMap.hasLink( -m_linkID ) )
-					{
-						endMap.addLink(
-							-m_linkID,
-							way,
-							endNodeID, startNodeID
-						);
-					}
+					endMap.addLink(
+						-linkID,
+						way,
+						endNodeID, startNodeID
+					);
 				}
 			}
 			else if( way.m_direction == odFROM_START )
 			{
-				if( !startMap.hasLink( m_linkID ) )
-				{
-					startMap.addLink(
-						m_linkID,
-						way,
-						startNodeID, endNodeID
-					);
-				}
-				if( &startMap != &endMap && !endMap.hasLink( m_linkID ))
+				startMap.addLink(
+					linkID,
+					way,
+					startNodeID, endNodeID
+				);
+				if( &startMap != &endMap )
 				{
 					endMap.addLink(
-						m_linkID,
+						linkID,
 						way,
 						startNodeID, endNodeID
 					);
@@ -1004,18 +1000,15 @@ struct XmlProcessor : public XmlNullProcessor
 			}
 			else if( way.m_direction == odFROM_END )
 			{
-				if( !startMap.hasLink( m_linkID ) )
-				{
-					startMap.addLink(
-						m_linkID,
-						way,
-						endNodeID, startNodeID
-					);
-				}
-				if( &startMap != &endMap && !endMap.hasLink(m_linkID) )
+				startMap.addLink(
+					linkID,
+					way,
+					endNodeID, startNodeID
+				);
+				if( &startMap != &endMap )
 				{
 					endMap.addLink(
-						m_linkID,
+						linkID,
 						way,
 						endNodeID, startNodeID
 					);
@@ -1400,8 +1393,8 @@ int main()
 	const bool	buildTiles = true;
 	const bool	readMap = false;
 	STRING	osmPath = "C:\\Cache\\OSM\\";
-	STRING	osmName = osmPath + "andorra-latest.osm";
-//	STRING	osmName = osmPath + "austria-latest.osm";
+//	STRING	osmName = osmPath + "andorra-latest.osm";
+	STRING	osmName = osmPath + "austria-latest.osm";
 //	STRING	osmName = osmPath + "oberbayern-latest.osm";
 //	STRING	osmName = osmPath + "unterfranken-latest.osm";
 

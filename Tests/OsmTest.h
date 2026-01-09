@@ -353,14 +353,15 @@ class OsmTest : public UnitTest
 	}
 	void AndorraTest()
 	{
-		OSMviewer	openStreetMap;
+		OSMbuilder	openStreetMap;
 
-		STRING fName = getTileFileName( osmPath, 190443 );
+		STRING fName = getTileFileName( osmPath, 190442 );
 		readFromBinaryFile(
 			fName,
 			&openStreetMap, OSM_MAGIC2, VERSION_MAGIC, true 
 		);
-		openStreetMap.appendTile( 190442, osmPath );
+
+		openStreetMap.appendTile( 199104, osmPath );
 	}
 };
 

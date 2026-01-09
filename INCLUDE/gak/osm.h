@@ -81,7 +81,7 @@ const uint16 VERSION_MAGIC = 2;
 typedef int64	OsmKeyT;	// OSM uses 64 bit ids
 
 typedef int64		OsmNodeKeyT;
-typedef int32		OsmLinkKeyT;
+typedef int64		OsmLinkKeyT;
 typedef int32		OsmPlaceKeyT;
 typedef OsmKeyT		OsmWayKeyT;
 typedef OsmNodeKeyT	OsmAreaKeyT;
@@ -419,9 +419,12 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 	}
 	void appendTile( math::tileid_t tileID, const STRING &path )
 	{
-		STRING	mapFileName = getTileFileName( path, tileID );
+		if( !getTileIDs().hasElement(tileID) )
+		{
+			STRING	mapFileName = getTileFileName( path, tileID );
 
-		appendTile(mapFileName);
+			appendTile(mapFileName);
+		}
 	}
 };
 
