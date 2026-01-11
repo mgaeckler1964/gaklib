@@ -225,29 +225,44 @@ class OsmTest : public UnitTest
 		}
 
 		{
-			OSMbuilder	builder;
+			OSMbuilder	builder1;
 
 			readFromBinaryFile(
 				STRING(tmpName1),
-				&builder, OSM_MAGIC2, VERSION_MAGIC, false 
+				&builder1, OSM_MAGIC2, VERSION_MAGIC, false 
 			);
 
-			OsmLink &link = builder.getLink(link3key);
-			UT_ASSERT_EQUAL( link.length, link3.length );
-			UT_ASSERT_EQUAL( link.type, link3.type );
+			{
+				OsmLink &link = builder1.getLink(link3key);
+				UT_ASSERT_EQUAL( link.length, link3.length );
+				UT_ASSERT_EQUAL( link.type, link3.type );
+			}
 
-			OsmNode &node = builder.getNode(node2key);
+			OsmNode &node = builder1.getNode(node2key);
 			UT_ASSERT_EQUAL( node.pos.latitude, node2.pos.latitude );
 			UT_ASSERT_EQUAL( node.pos.longitude, node2.pos.longitude );
 
 			// it is OK, if there is no exception
-			builder.getArea( area4key );
-			builder.getPlace( place5key );
+			builder1.getArea( area4key );
+			builder1.getPlace( place5key );
 
 			{
 				Array<OSMviewer::node_key_type>	nodes;
-				builder.getRegion( layer1, builder.getFrameBox(0.01), &nodes );
+				builder1.getRegion( layer1, builder1.getFrameBox(0.01), &nodes );
 				UT_ASSERT_EQUAL( nodes.size(), 2 );
+			}
+
+			OSMbuilder	builder2;
+			readFromBinaryFile(
+				STRING(tmpName2),
+				&builder2, OSM_MAGIC2, VERSION_MAGIC, false 
+			);
+
+			builder1.mergeTile( layer2, builder2 );
+			{
+				OsmLink &link = builder1.getLink(link9key);
+				UT_ASSERT_EQUAL( link.length, link9.length );
+				UT_ASSERT_EQUAL( link.type, link9.type );
 			}
 		}
 

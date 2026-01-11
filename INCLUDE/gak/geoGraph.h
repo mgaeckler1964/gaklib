@@ -283,6 +283,53 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 		mergeIndex(m_latIndex, tileMap.m_latIndex);
 	}
 
+
+	void mergeTileLayer( layer_key_type layerKey, const Layer src, const SelfT &tileMap )
+	{
+		for(
+			Layer::const_iterator itN = src.cbegin(), endIT = src.cend();
+			itN != endIT;
+			++itN
+		)
+		{
+			node_key_type nodeID = itN->nodeID;
+			const NodeInfo &nInfo = tileMap.getNodeInfo( nodeID );
+			addNode(layerKey, nodeID, nInfo.m_node);
+			const link_key_types &outgoing = nInfo.m_outgoing;
+			for(
+				link_key_types::const_iterator itL = outgoing.cbegin(), endIT = outgoing.cend();
+				itL != endIT;
+				++itL
+			)
+			{
+				link_key_type linkID = *itL;
+				const LinkInfo &lInfo = tileMap.getLinkInfo(linkID);
+				addLink(linkID,lInfo.m_link, lInfo.m_startNodeID, lInfo.m_endNodeID );
+			}
+		}
+	}
+	void mergeTileIndex( layer_key_type layerKey, const Layers &src, const SelfT &tileMap )
+	{
+		for(
+			Layers::const_iterator it = src.cbegin(), endIT = src.cend();
+			it != endIT;
+			++it
+		)
+		{
+			layer_key_type curLayerKey = it->getKey();
+			if( curLayerKey == layerKey )
+			{
+				const Layer &srcLayer = it->getValue();
+				mergeTileLayer( curLayerKey, srcLayer, tileMap );
+			}
+		}
+	}
+	void mergeTile( layer_key_type layerKey, const SelfT &tileMap )
+	{
+		mergeTileIndex(layerKey, tileMap.m_lonIndex, tileMap);
+		//mergeTileIndex(layerKey, tileMap.m_latIndex);
+	}
+
 	Optional<NodeKeyT> findNextNode( 
 		const math::GeoPosition<double> &point, double searchRange, LayerKeyT layer
 	) const;
