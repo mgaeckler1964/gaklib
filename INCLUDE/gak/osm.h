@@ -386,7 +386,8 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 			gak::fromBinaryStream( stream, &m_areas );
 		}
 	}
-	void appendTile( const STRING &mapFileName )
+
+	void mergeOsmTile( const STRING &mapFileName )
 	{
 		SelfT	tileMap;
 		readFromBinaryFile(
@@ -417,13 +418,32 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 		mergeIndex(m_lonAreaIndex, tileMap.m_lonAreaIndex);
 		mergeIndex(m_latAreaIndex, tileMap.m_latAreaIndex);
 	}
-	void appendTile( math::tileid_t tileID, const STRING &path )
+	void mergeOsmTile( math::tileid_t tileID, const STRING &path )
 	{
 		if( !getTileIDs().hasElement(tileID) )
 		{
 			STRING	mapFileName = getTileFileName( path, tileID );
 
-			appendTile(mapFileName);
+			mergeOsmTile(mapFileName);
+		}
+	}
+
+	void mergeOsmLayer( layer_key_type layerKey, const STRING &mapFileName )
+	{
+		SelfT	tileMap;
+		readFromBinaryFile(
+			mapFileName,
+			&tileMap, OSM_MAGIC2, VERSION_MAGIC, true 
+		);
+		mergeLayer( layerKey, tileMap );
+	}
+	void mergeOsmLayer( layer_key_type layerKey, math::tileid_t tileID, const STRING &path )
+	{
+		if( !getTileIDs().hasElement(tileID) )
+		{
+			STRING	mapFileName = getTileFileName( path, tileID );
+
+			mergeOsmLayer(layerKey, mapFileName);
 		}
 	}
 };

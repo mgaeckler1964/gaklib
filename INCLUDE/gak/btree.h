@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -375,25 +375,36 @@ class Btree : public Container
 		m_root = nullptr;
 	}
 
+	private:
+	void copyData(const Btree &src)
+	{
+		m_comparator = src.m_comparator;
+#if SAFER_BTREE
+		if( src.size() )	// some compiler may produce bad code
+#endif
+		{
+			for(
+				const_iterator it = src.cbegin(), endIT = src.cend();
+				it != endIT;
+				++it
+			)
+			{
+				addElement(*it);
+			}
+		}
+	}
+	public:
 	/// copy constructor
 	Btree( const Btree &src )
 	{
 		m_root = nullptr;
-		m_comparator = src.m_comparator;
-#if SAFER_BTREE
-		if( src.size() )	// some compiler my produce bad code
-#endif
-			std::copy(src.cbegin(), src.cend(), std::back_inserter( *this ));
+		copyData(src);
 	}
 	/// copy assignment
 	const Btree &operator = ( const Btree &src )
 	{
 		clear();
-		m_comparator = src.m_comparator;
-#if SAFER_BTREE
-		if( src.size() )	// some compiler my produce bad code
-#endif
-			std::copy(src.cbegin(), src.cend(), std::back_inserter( *this ));
+		copyData(src);
 
 		return *this;
 	}

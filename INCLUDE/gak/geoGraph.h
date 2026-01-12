@@ -284,7 +284,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 	}
 
 
-	void mergeTileLayer( layer_key_type layerKey, const Layer src, const SelfT &tileMap )
+	void mergeLayerTile( layer_key_type layerKey, const Layer &src, const SelfT &srcMap )
 	{
 		for(
 			Layer::const_iterator itN = src.cbegin(), endIT = src.cend();
@@ -293,7 +293,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 		)
 		{
 			node_key_type nodeID = itN->nodeID;
-			const NodeInfo &nInfo = tileMap.getNodeInfo( nodeID );
+			const NodeInfo &nInfo = srcMap.getNodeInfo( nodeID );
 			addNode(layerKey, nodeID, nInfo.m_node);
 			const link_key_types &outgoing = nInfo.m_outgoing;
 			for(
@@ -303,31 +303,31 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 			)
 			{
 				link_key_type linkID = *itL;
-				const LinkInfo &lInfo = tileMap.getLinkInfo(linkID);
+				const LinkInfo &lInfo = srcMap.getLinkInfo(linkID);
 				addLink(linkID,lInfo.m_link, lInfo.m_startNodeID, lInfo.m_endNodeID );
 			}
 		}
 	}
-	void mergeTileIndex( layer_key_type layerKey, const Layers &src, const SelfT &tileMap )
+	void mergeLayerIndex( layer_key_type layerKey, const Layers &srcIndex, const SelfT &srcMap )
 	{
 		for(
-			Layers::const_iterator it = src.cbegin(), endIT = src.cend();
+			Layers::const_iterator it = srcIndex.cbegin(), endIT = srcIndex.cend();
 			it != endIT;
 			++it
 		)
 		{
 			layer_key_type curLayerKey = it->getKey();
-			if( curLayerKey == layerKey )
+			if( curLayerKey <= layerKey )
 			{
 				const Layer &srcLayer = it->getValue();
-				mergeTileLayer( curLayerKey, srcLayer, tileMap );
+				mergeLayerTile( curLayerKey, srcLayer, srcMap );
 			}
 		}
 	}
-	void mergeTile( layer_key_type layerKey, const SelfT &tileMap )
+	void mergeLayer( layer_key_type layerKey, const SelfT &srcMap )
 	{
-		mergeTileIndex(layerKey, tileMap.m_lonIndex, tileMap);
-		//mergeTileIndex(layerKey, tileMap.m_latIndex);
+		mergeLayerIndex(layerKey, srcMap.m_lonIndex, srcMap);
+		//mergeTileIndex(layerKey, srcMap.m_latIndex, srcMap);
 	}
 
 	Optional<NodeKeyT> findNextNode( 
