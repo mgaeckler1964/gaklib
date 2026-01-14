@@ -232,35 +232,47 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 		assert( m_lonIndex[newLayerKey].size() == m_latIndex[newLayerKey].size() );
 	}
 
-	void mergeLayer( Layer &target, const Layer src )
+	const Layers &getLonIndex() const
+	{
+		return m_lonIndex;
+	}
+	const Layers &getLatIndex() const
+	{
+		return m_latIndex;
+	}
+
+	template <class SrcLayerT>
+	void mergeIndexLayer( Layer &target, const SrcLayerT src )
 	{
 		for(
-			Layer::const_iterator it = src.cbegin(), endIT = src.cend();
+			typename SrcLayerT::const_iterator it = src.cbegin(), endIT = src.cend();
 			it != endIT;
 			++it
 		)
 		{
-			target.addElement( *it );
+			target.addElement( PositionValue(it->circleDegree, it->nodeID) );
 		}
 	}
-	void mergeIndex( Layers &target, const Layers &src )
+
+	template <class SrcLayersT>
+	void mergeIndex( Layers &target, const SrcLayersT &src )
 	{
 		for(
-			Layers::const_iterator it = src.cbegin(), endIT = src.cend();
+			typename SrcLayersT::const_iterator it = src.cbegin(), endIT = src.cend();
 			it != endIT;
 			++it
 		)
 		{
 			Layer &targetLayer = target[it->getKey()];
-			const Layer &srcLayer = it->getValue();
-			mergeLayer( targetLayer, srcLayer );
+			mergeIndexLayer( targetLayer, it->getValue() );
 		}
 	}
-	void mergeTile( const SelfT &tileMap )
+	template <class TileT>
+	void mergeTile( const TileT &tileMap )
 	{
-		const node_container_type &nodes = tileMap.getNodes();
+		const typename TileT::node_container_type &nodes = tileMap.getNodes();
 		for(
-			node_container_type::const_iterator it = nodes.cbegin(), endIT = nodes.cend();
+			typename TileT::node_container_type::const_iterator it = nodes.cbegin(), endIT = nodes.cend();
 			it != endIT;
 			++it
 		)
@@ -268,32 +280,33 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 			addNode( it->getKey(), it->getValue().m_node );
 		}
 
-		const link_container_type &links = tileMap.getLinks();
+		const typename TileT::link_container_type &links = tileMap.getLinks();
 		for(
-			link_container_type::const_iterator it = links.cbegin(), endIT = links.cend();
+			typename TileT::link_container_type::const_iterator it = links.cbegin(), endIT = links.cend();
 			it != endIT;
 			++it
 		)
 		{
-			const LinkInfo &link = it->getValue();
+			const typename TileT::LinkInfo &link = it->getValue();
 			addLink(it->getKey(), link.m_link, link.m_startNodeID, link.m_endNodeID );
 		}
 
-		mergeIndex(m_lonIndex, tileMap.m_lonIndex);
-		mergeIndex(m_latIndex, tileMap.m_latIndex);
+		mergeIndex(m_lonIndex, tileMap.getLonIndex());
+		mergeIndex(m_latIndex, tileMap.getLatIndex());
 	}
 
 
-	void mergeLayerTile( layer_key_type layerKey, const Layer &src, const SelfT &srcMap )
+	template <class TileT>
+	void mergeLayerTile( layer_key_type layerKey, const typename TileT::Layer &src, const TileT &srcMap )
 	{
 		for(
-			Layer::const_iterator itN = src.cbegin(), endIT = src.cend();
+			typename TileT::Layer::const_iterator itN = src.cbegin(), endIT = src.cend();
 			itN != endIT;
 			++itN
 		)
 		{
 			node_key_type nodeID = itN->nodeID;
-			const NodeInfo &nInfo = srcMap.getNodeInfo( nodeID );
+			const typename TileT::NodeInfo &nInfo = srcMap.getNodeInfo( nodeID );
 			addNode(layerKey, nodeID, nInfo.m_node);
 			const link_key_types &outgoing = nInfo.m_outgoing;
 			for(
@@ -303,30 +316,34 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 			)
 			{
 				link_key_type linkID = *itL;
-				const LinkInfo &lInfo = srcMap.getLinkInfo(linkID);
+				const typename TileT::LinkInfo &lInfo = srcMap.getLinkInfo(linkID);
 				addLink(linkID,lInfo.m_link, lInfo.m_startNodeID, lInfo.m_endNodeID );
 			}
 		}
 	}
-	void mergeLayerIndex( layer_key_type layerKey, const Layers &srcIndex, const SelfT &srcMap )
+
+	template <class TileT>
+	void mergeLayerIndex( layer_key_type minLayerKey, layer_key_type maxLayerKey, const typename TileT::Layers &srcIndex, const TileT &srcMap )
 	{
 		for(
-			Layers::const_iterator it = srcIndex.cbegin(), endIT = srcIndex.cend();
+			typename TileT::Layers::const_iterator it = srcIndex.cbegin(), endIT = srcIndex.cend();
 			it != endIT;
 			++it
 		)
 		{
 			layer_key_type curLayerKey = it->getKey();
-			if( curLayerKey <= layerKey )
+			if( minLayerKey <= curLayerKey && curLayerKey <= maxLayerKey )
 			{
-				const Layer &srcLayer = it->getValue();
+				const typename TileT::Layer &srcLayer = it->getValue();
 				mergeLayerTile( curLayerKey, srcLayer, srcMap );
 			}
 		}
 	}
-	void mergeLayer( layer_key_type layerKey, const SelfT &srcMap )
+
+	template <class TileT>
+	void mergeLayer( layer_key_type minLayerKey, layer_key_type maxLayerKey, const TileT &srcMap )
 	{
-		mergeLayerIndex(layerKey, srcMap.m_lonIndex, srcMap);
+		mergeLayerIndex(minLayerKey, maxLayerKey, srcMap.getLonIndex(), srcMap);
 		//mergeTileIndex(layerKey, srcMap.m_latIndex, srcMap);
 	}
 

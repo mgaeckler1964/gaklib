@@ -246,7 +246,6 @@ template<template<typename, typename>class MapT, template<typename>class IndexT>
 class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLayerKeyT, OsmNodeKeyT, OsmLinkKeyT>
 {
 	typedef GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLayerKeyT, OsmNodeKeyT, OsmLinkKeyT>	Super;
-	typedef Super::Layers																		Layers;
 	typedef BasicOpenStreetMap<MapT,IndexT>														SelfT;
 
 	public:
@@ -258,18 +257,20 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 	typedef typename Super::node_key_type			node_key_type;
 	typedef typename Super::LinkInfo				LinkInfo;
 	typedef typename Super::layer_key_type			layer_key_type;
+	typedef Super::Layers							Layers;
 
-	typedef MapT<OsmAreaKeyT, Area>					area_container_type;
+	/*
+		------------------------------------------------------------------------------------------
+			Places
+		------------------------------------------------------------------------------------------
+	*/
+	public:
 	typedef MapT<OsmPlaceKeyT, OsmPlace>			place_container_type;
 
 	private:
 	Layers					m_lonPlaceIndex;
 	Layers					m_latPlaceIndex;
 	place_container_type	m_places;
-
-	Layers					m_lonAreaIndex;
-	Layers					m_latAreaIndex;
-	area_container_type		m_areas;
 
 	void addPlace( OsmPlaceKeyT key, const OsmPlace &newPlace )
 	{
@@ -300,6 +301,20 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 		return m_places[id];
 	}
 
+	const Layers &getLonPlaceIndex() const
+	{
+		return m_lonPlaceIndex;
+	}
+	const Layers &getLatPlaceIndex() const
+	{
+		return m_latPlaceIndex;
+	}
+
+	const place_container_type &getAllPlaces() const
+	{
+		return m_places;
+	}
+
 	template <typename ScalarT>
 	void getPlaces(
 		const OsmLayerKeyT									&layerKey, 
@@ -307,7 +322,19 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 		Array<OsmPlaceKeyT>									*result
 	) const;
 
+	/*
+		------------------------------------------------------------------------------------------
+			Areas
+		------------------------------------------------------------------------------------------
+	*/
+	public:
+	typedef MapT<OsmAreaKeyT, Area>					area_container_type;
+
 	private:
+	Layers					m_lonAreaIndex;
+	Layers					m_latAreaIndex;
+	area_container_type		m_areas;
+
 	void addArea( OsmAreaKeyT key, const Area &newArea );
 	public:
 	void addArea( OsmAreaKeyT key, OsmLayerKeyT layerKey, const Area &newArea );
@@ -326,6 +353,19 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 		return m_areas.hasElement( id );
 	}
 
+	const Layers &getLonAreaIndex() const
+	{
+		return m_lonAreaIndex;
+	}
+	const Layers &getLatAreaIndex() const
+	{
+		return m_latAreaIndex;
+	}
+
+	const area_container_type &getAllAreas() const
+	{
+		return m_areas;
+	}
 	template <typename ScalarT>
 	void getAreas(
 		const OsmLayerKeyT									&layerKey, 
@@ -333,6 +373,11 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 		Set<OsmAreaKeyT>									*result
 	) const;
 
+	/*
+		------------------------------------------------------------------------------------------
+			Common
+		------------------------------------------------------------------------------------------
+	*/
 	void clear()
 	{
 		Super::clear();
@@ -387,65 +432,70 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 		}
 	}
 
+	template <class TileT>
 	void mergeOsmTile( const STRING &mapFileName )
 	{
-		SelfT	tileMap;
+		TileT tileMap;
 		readFromBinaryFile(
 			mapFileName,
 			&tileMap, OSM_MAGIC2, VERSION_MAGIC, true 
 		);
 		mergeTile(tileMap);
-		const place_container_type &places = tileMap.m_places;
+		const typename TileT::place_container_type &places = tileMap.getAllPlaces();
 		for(
-			place_container_type::const_iterator it = places.cbegin(), endIT = places.cend();
+			typename TileT::place_container_type::const_iterator it = places.cbegin(), endIT = places.cend();
 			it != endIT;
 			++it
 		)
 		{
 			addPlace(it->getKey(), it->getValue() );
 		}
-		const area_container_type &areas = tileMap.m_areas;
+		const typename TileT::area_container_type &areas = tileMap.getAllAreas();
 		for(
-			area_container_type::const_iterator it = areas.cbegin(), endIT = areas.cend();
+			typename TileT::area_container_type::const_iterator it = areas.cbegin(), endIT = areas.cend();
 			it != endIT;
 			++it
 		)
 		{
 			addArea(it->getKey(), it->getValue() );
 		}
-		mergeIndex(m_lonPlaceIndex, tileMap.m_lonPlaceIndex);
-		mergeIndex(m_latPlaceIndex, tileMap.m_latPlaceIndex);
-		mergeIndex(m_lonAreaIndex, tileMap.m_lonAreaIndex);
-		mergeIndex(m_latAreaIndex, tileMap.m_latAreaIndex);
+		mergeIndex(m_lonPlaceIndex, tileMap.getLonPlaceIndex());
+		mergeIndex(m_latPlaceIndex, tileMap.getLatPlaceIndex());
+		mergeIndex(m_lonAreaIndex, tileMap.getLonAreaIndex());
+		mergeIndex(m_latAreaIndex, tileMap.getLatAreaIndex());
 	}
+	template <class TileT>
 	void mergeOsmTile( math::tileid_t tileID, const STRING &path )
 	{
 		if( !getTileIDs().hasElement(tileID) )
 		{
 			STRING	mapFileName = getTileFileName( path, tileID );
 
-			mergeOsmTile(mapFileName);
+			mergeOsmTile<TileT>(mapFileName);
 		}
 	}
 
-	void mergeOsmLayer( layer_key_type layerKey, const STRING &mapFileName )
+	template <class TileT>
+	void mergeOsmLayer( layer_key_type minLayerKey, layer_key_type maxLayerKey, const STRING &mapFileName, TileT *tileMap )
 	{
-		SelfT	tileMap;
 		readFromBinaryFile(
 			mapFileName,
-			&tileMap, OSM_MAGIC2, VERSION_MAGIC, true 
+			tileMap, OSM_MAGIC2, VERSION_MAGIC, true 
 		);
-		mergeLayer( layerKey, tileMap );
+		mergeLayer( minLayerKey, maxLayerKey, *tileMap );
 	}
-	void mergeOsmLayer( layer_key_type layerKey, math::tileid_t tileID, const STRING &path )
+
+	template <class TileT>
+	void mergeOsmLayer( layer_key_type minLayerKey, layer_key_type maxLayerKey, math::tileid_t tileID, const STRING &path, TileT *tileMap )
 	{
 		if( !getTileIDs().hasElement(tileID) )
 		{
 			STRING	mapFileName = getTileFileName( path, tileID );
 
-			mergeOsmLayer(layerKey, mapFileName);
+			mergeOsmLayer(minLayerKey, maxLayerKey, mapFileName, tileMap);
 		}
 	}
+
 };
 
 typedef BasicOpenStreetMap<GraphTree, GeoBTree>	OSMbuilder;
@@ -487,8 +537,6 @@ inline void fromBinaryStream( std::istream &stream, OSMviewer::PositionValue *va
 // --------------------------------------------------------------------- //
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-bool inTile( const Area &area, math::tileid_t tileID );
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //

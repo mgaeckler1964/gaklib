@@ -258,7 +258,7 @@ class OsmTest : public UnitTest
 				&builder2, OSM_MAGIC2, VERSION_MAGIC, false 
 			);
 
-			builder1.mergeLayer( layer2, builder2 );
+			builder1.mergeLayer( layer2, layer2, builder2 );
 			{
 				OsmLink &link = builder1.getLink(link9key);
 				UT_ASSERT_EQUAL( link.length, link9.length );
@@ -316,7 +316,7 @@ class OsmTest : public UnitTest
 				UT_ASSERT_EQUAL( places.size(), 1 );
 			}
 
-			osmViewer.mergeOsmTile( STRING(tmpName2) );
+			osmViewer.mergeOsmTile<OSMviewer>( STRING(tmpName2) );
 
 			{
 				Array<OSMviewer::node_key_type>	nodes;
@@ -375,8 +375,9 @@ class OsmTest : public UnitTest
 			fName,
 			&openStreetMap, OSM_MAGIC2, VERSION_MAGIC, true 
 		);
-
-		openStreetMap.mergeOsmTile( 199104, osmPath );
+		
+		OSMviewer	layer;
+		openStreetMap.mergeOsmLayer( OsmLink::minWayType, OsmLink::unclassified, 199104, osmPath, &layer );
 	}
 };
 

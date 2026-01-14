@@ -44,8 +44,7 @@
 #include <gak/iostream.h>
 #include <gak/stopWatch.h>
 #include <gak/directory.h>
-
-#include "Tests/OsmTest.h"
+#include <gak/cmdlineParser.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -66,18 +65,9 @@ using namespace gak;
 using namespace xml;
 using namespace math;
 
-#define DEBUG_MODE 0
-
-#if DEBUG_MODE
-	static const OsmKeyT relationID = 2027269;
-#endif
-
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-static const bool STREETS_ONLY = true;
-static const bool ALLOW_AREAS = false;
 
 // element tags
 static const STRING NODE = "node";
@@ -191,6 +181,27 @@ static const STRING ISLET = "islet";
 static const STRING SQUARE = "square";
 static const STRING LOCALITY = "locality";
 
+static const char CHAR_TILES	= 'T';
+static const char CHAR_READ		= 'R';
+static const char CHAR_OSM_PATH	= 'P';
+static const char CHAR_MAP_FILE	= 'M';
+
+static const unsigned FLAG_TILES	= 0x10;
+static const unsigned FLAG_READ_MAP	= 0x20;
+static const unsigned OPT_OSM_PATH	= 0x40;
+static const unsigned OPT_MAP_FILE	= 0x80;
+
+const bool	readMap = false;
+
+static const gak::CommandLine::Options options[] =
+{
+	{ CHAR_TILES, "buildTiles",	0, 1, FLAG_TILES,							"save map data per tile" },
+	{ CHAR_READ, "readMap",		0, 1, FLAG_READ_MAP,						"read existing map data" },
+	{ CHAR_OSM_PATH, "osmPath",	0, 1, OPT_OSM_PATH|CommandLine::needArg,	"open street map path" },
+	{ CHAR_MAP_FILE, "mapFile",	0, 1, OPT_MAP_FILE|CommandLine::needArg,	"binary map file" },
+	{ 0 },
+};
+
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -262,7 +273,6 @@ struct XmlProcessor : public XmlNullProcessor
 	bool			m_buildTiles;
 	STRING			m_tilesPath;
 	MapData			m_map;
-	//OSMbuilder	m_map;
 	Nodes			m_allNodes;
 	Ways			m_ways;
 
@@ -343,14 +353,15 @@ struct XmlProcessor : public XmlNullProcessor
 			{
 				OSMbuilder &newMap = m_map[tileID];
 				STRING fileName = getTileFileName( tileID );
-//				if( exists( fileName ) )
-//					readFromBinaryFile( fileName, &newMap, OSM_MAGIC2, VERSION_MAGIC, false );
+				if( exists( fileName ) )
+					readFromBinaryFile( fileName, &newMap, OSM_MAGIC2, VERSION_MAGIC, false );
 				return newMap;
 			}
 			return m_map[tileID];
 		}
 		else
 		{
+			m_map.setChunkSize(1);
 			return m_map[0];
 		}
 	}
@@ -872,12 +883,6 @@ struct XmlProcessor : public XmlNullProcessor
 			if( tag == RELATION )
 			{
 				m_relationID = attributes[ID].getValueE<OsmKeyT>();
-#if DEBUG_MODE
-				if( m_relationID == relationID )
-				{
-					std::cout << "\nprocessAttributes: got relation\n";
-				}
-#endif
 			}
 			else if( tag == MEMBER )
 			{
@@ -960,20 +965,15 @@ struct XmlProcessor : public XmlNullProcessor
 
 			if( way.m_direction == odBOTH )
 			{
-				startMap.addLink(
-					linkID,
-					way,
-					startNodeID, endNodeID
-				);
-				if( startMap.hasNode(endNodeID) )
+				if( !startMap.hasLink(linkID) )
 				{
 					startMap.addLink(
-						-linkID,
+						linkID,
 						way,
-						endNodeID, startNodeID
+						startNodeID, endNodeID
 					);
 				}
-				if( &startMap != &endMap )
+				if( !endMap.hasLink(-linkID) )
 				{
 					endMap.addLink(
 						-linkID,
@@ -984,14 +984,9 @@ struct XmlProcessor : public XmlNullProcessor
 			}
 			else if( way.m_direction == odFROM_START )
 			{
-				startMap.addLink(
-					linkID,
-					way,
-					startNodeID, endNodeID
-				);
-				if( &startMap != &endMap )
+				if( !startMap.hasLink(linkID) )
 				{
-					endMap.addLink(
+					startMap.addLink(
 						linkID,
 						way,
 						startNodeID, endNodeID
@@ -1000,12 +995,7 @@ struct XmlProcessor : public XmlNullProcessor
 			}
 			else if( way.m_direction == odFROM_END )
 			{
-				startMap.addLink(
-					linkID,
-					way,
-					endNodeID, startNodeID
-				);
-				if( &startMap != &endMap )
+				if( !endMap.hasLink(linkID) )
 				{
 					endMap.addLink(
 						linkID,
@@ -1031,7 +1021,7 @@ struct XmlProcessor : public XmlNullProcessor
 		if( m_newPlace.m_type != OsmPlace::Unkown && !m_newPlace.name.isEmpty() )
 		{
 			math::tileid_t tileID = m_newPlace.getTileID();
-			OSMbuilder map = getMap( tileID );
+			OSMbuilder &map = getMap( tileID );
 			map.addPlace(gak::OsmPlaceKeyT(map.getNumPlaces()+1), m_newPlace.m_type, m_newPlace );
 		}
 	}
@@ -1073,25 +1063,22 @@ struct XmlProcessor : public XmlNullProcessor
 
 			if( m_newWay.type > OsmLink::minWayType && m_newWay.type < OsmLink::maxRailType )
 			{
-				if ( !STREETS_ONLY || m_newWay.type <= OsmLink::living_street )
+				if ( m_newWay.type <= OsmLink::living_street )
 				{
 					addWayPoints( m_newWay );
 				}
 			}
 			else if( m_newWay.type > OsmLink::minWaterType && m_newWay.type < OsmLink::maxAreaType )
 			{
-				if (ALLOW_AREAS)
+				if( *m_newWay.m_wayPoints.cbegin() == *m_newWay.m_wayPoints.rbegin() )
 				{
-					if( *m_newWay.m_wayPoints.cbegin() == *m_newWay.m_wayPoints.rbegin() )
-					{
-						// this is a polygon =>
-						addArea( m_newWay.type, m_newWay.m_newWayID, m_newWay.m_wayPoints );
-					}
-					else
-					{
-						// store this way for later usage (relation)
-						m_ways[m_newWay.m_newWayID] = m_newWay;
-					}
+					// this is a polygon =>
+					addArea( m_newWay.type, m_newWay.m_newWayID, m_newWay.m_wayPoints );
+				}
+				else
+				{
+					// store this way for later usage (relation)
+					m_ways[m_newWay.m_newWayID] = m_newWay;
 				}
 			}
 			else
@@ -1104,11 +1091,11 @@ struct XmlProcessor : public XmlNullProcessor
 	void addArea( OsmLink::Type	areaType, OsmAreaKeyT areaID, const WayPoints &areaNodes )
 	{
 		math::tileid_t tileID = m_allNodes[areaNodes[0U]].getTileID();
-		OSMbuilder map = getMap( tileID );
-		while( map.hasArea( areaID ) )
+		OSMbuilder &map = getMap( tileID );
+		if( map.hasArea( areaID ) )
 		{
 			std::cerr << "\narea " << areaID << " exists.\n";
-			areaID++;
+/*@*/		return;
 		}
 
 		Area	area;
@@ -1135,12 +1122,6 @@ struct XmlProcessor : public XmlNullProcessor
 	{
 		if( m_outerWays.size() > 0 )
 		{
-#if DEBUG_MODE
-			if( m_relationID == relationID )
-			{
-				std::cout << "\nprocessEndRelation: got relation\n";
-			}
-#endif
 			OsmLink::Type	areaType;
 			if( m_natural != OsmLink::Unkown )
 			{
@@ -1156,12 +1137,6 @@ struct XmlProcessor : public XmlNullProcessor
 			}
 			else
 			{
-#if DEBUG_MODE
-				if( m_relationID == relationID )
-				{
-					std::cout << "\nprocessEndRelation: bad relation\n";
-				}
-#endif
 /*@*/			return;	// unkown relation
 			}
 
@@ -1169,12 +1144,6 @@ struct XmlProcessor : public XmlNullProcessor
 			{
 				OsmAreaKeyT	areaID = *m_outerWays.cbegin();
 				WayPoints	area;
-#if DEBUG_MODE
-				if( m_relationID == relationID )
-				{
-					std::cout << "\nm_outerWays.size " << m_outerWays.size() << "\n";
-				}
-#endif
 				while( area.size() == 0 || *area.cbegin() != *area.rbegin() )
 				{
 					bool	wayAdded = false;
@@ -1211,12 +1180,6 @@ struct XmlProcessor : public XmlNullProcessor
 
 						if( area.size() == 0 || *area.rbegin() == *wayPoints.cbegin() )
 						{
-#if DEBUG_MODE
-							if( m_relationID == relationID )
-							{
-								std::cout << "\nadd way " << *it1 << " to area\n";
-							}
-#endif
 							area.addElements( wayPoints );
 							m_outerWays.erase( it1 );
 							wayAdded = true;
@@ -1224,12 +1187,6 @@ struct XmlProcessor : public XmlNullProcessor
 						}
 						if( area.size() == 0 || *area.rbegin() == *wayPoints.crbegin() )
 						{
-#if DEBUG_MODE
-							if( m_relationID == relationID )
-							{
-								std::cout << "\nadd reverted way " << *it1 << " to area\n";
-							}
-#endif
 							for( 
 								WayPoints::const_reverse_iterator it2 = wayPoints.crbegin(),
 									endIT2 = wayPoints.crend();
@@ -1251,16 +1208,7 @@ struct XmlProcessor : public XmlNullProcessor
 				}
 				if( area.size() )
 				{
-#if DEBUG_MODE
-					if( m_relationID == relationID )
-					{
-						std::cout << "\naddArea: got relation id: " << areaID << " type: " << areaType << " count: " << area.size() << '\n';
-					}
-#endif
-					if (ALLOW_AREAS)
-					{
-						addArea( areaType, areaID, area );
-					}
+					addArea( areaType, areaID, area );
 				}
 				else
 				{
@@ -1307,7 +1255,7 @@ struct XmlProcessor : public XmlNullProcessor
 				{
 					addArea( it->getValue().type, it->getKey(), it->getValue().m_wayPoints );
 				}
-				else if( it->getValue().type <= OsmLink::living_street || (it->getValue().type != OsmLink::Unkown && !STREETS_ONLY) )
+				else if( it->getValue().type <= OsmLink::living_street || it->getValue().type != OsmLink::Unkown )
 				{
 					addWayPoints( it->getValue() );
 				}
@@ -1336,71 +1284,24 @@ struct XmlProcessor : public XmlNullProcessor
 // ----- module functions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-// --------------------------------------------------------------------- //
-// ----- class inlines ------------------------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- class constructors/destructors -------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- class static functions ---------------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- class privates ------------------------------------------------ //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- class protected ----------------------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- class virtuals ------------------------------------------------ //
-// --------------------------------------------------------------------- //
-   
-// --------------------------------------------------------------------- //
-// ----- class publics ------------------------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- entry points -------------------------------------------------- //
-// --------------------------------------------------------------------- //
-
-namespace gak
+static STRING osm( const CommandLine &cmdLine, const STRING &iOsmFile)
 {
-	bool inTile( const Area &area, math::tileid_t tileID )
-	{
-		for( 
-			Area::const_iterator it = area.cbegin(), endIT = area.cend();
-			it != endIT;
-			++it
-		)
-		{
-			if( it->getTileID() == tileID )
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-}
+	const bool		buildTiles = cmdLine.flags & FLAG_TILES;
+	const bool		readMap = cmdLine.flags & FLAG_READ_MAP;
+	const STRING	osmPath = (cmdLine.flags & OPT_OSM_PATH) ? cmdLine.parameter[CHAR_OSM_PATH][0] : STRING("." DIRECTORY_DELIMITER_STRING);
+	STRING			mapFile = (cmdLine.flags & OPT_MAP_FILE) ? cmdLine.parameter[CHAR_MAP_FILE][0] : STRING();
 
-int main()
-{
-#if 1
-	const bool	buildTiles = true;
-	const bool	readMap = false;
-	STRING	osmPath = "C:\\Cache\\OSM\\";
 //	STRING	osmName = osmPath + "andorra-latest.osm";
-	STRING	osmName = osmPath + "austria-latest.osm";
+//	STRING	osmName = osmPath + "austria-latest.osm";
 //	STRING	osmName = osmPath + "oberbayern-latest.osm";
 //	STRING	osmName = osmPath + "unterfranken-latest.osm";
 
-	STRING	resultFile = osmName + BINMAP_EXTENSION;
+	const STRING	osmName = osmPath + iOsmFile; 
+	const STRING	resultFile = osmName + BINMAP_EXTENSION;
 	STRING	statFile = osmName + ".txt";
 
+	if(mapFile.isNullPtr())
+		mapFile = resultFile;
 	gak::xml::Parser	myParser( osmName );
 	XmlProcessor		myProcessor(buildTiles, osmPath);
 
@@ -1417,13 +1318,8 @@ int main()
 		readFromBinaryFile( resultFile, &myProcessor.getMap(0), OSM_MAGIC2, VERSION_MAGIC, false );
 	}
 
-//	std::cout << __FILE__ << __LINE__ << std::endl;
 	myParser.parseXML( myProcessor );
-//	std::cout << __FILE__ << __LINE__ << std::endl;
 	myProcessor.postProcess();
-//	std::cout << __FILE__ << __LINE__ << std::endl;
-
-	std::cout << std::endl;
 
 	std::ofstream out( statFile );
 	XmlProcessor::printCounter( out, "tags", myProcessor.m_tagCounter );
@@ -1441,7 +1337,7 @@ int main()
 	XmlProcessor::printCounter( out, PLACE, myProcessor.m_placeCounter );
 	XmlProcessor::printCounter( out, LANDUSE + "-way", myProcessor.m_landuseCounter[XmlProcessor::oeWAY-1] );
 	XmlProcessor::printCounter( out, LANDUSE + "-relation", myProcessor.m_landuseCounter[XmlProcessor::oeRELATION-1] );
-
+	std::cout << std::endl;
 
 	if( !buildTiles )
 	{
@@ -1453,9 +1349,6 @@ int main()
 		std::cout << "Writing Tiles" << std::endl;
 		myProcessor.saveTiles();
 	}
-
-#endif
-#if 1
 	Array<tileid_t> tileIDs1 = myProcessor.m_map.getKeys();
 	const TileIDsSet &tileIDs2 = myProcessor.getMap(0).getTileIDs();
 
@@ -1468,8 +1361,6 @@ int main()
 				<< std::endl
 				<< "List of Tiles:" 
 				<< std::endl;
-
-
 	size_t count1 = 0;
 	for( 
 		Array<tileid_t>::const_iterator it = tileIDs1.cbegin(), endIT = tileIDs1.cend();
@@ -1505,9 +1396,90 @@ int main()
 		std::cout << *it;
 		++count2;
 	}
-#endif
+	return mapFile;
+}
 
-	return 0;
+static void osm( const CommandLine &cmdLine )
+{
+	STRING	mapFile = (cmdLine.flags & OPT_MAP_FILE) ? cmdLine.parameter[CHAR_MAP_FILE][0] : STRING();
+	for( size_t i=1; i<cmdLine.argc; ++i )
+	{
+		mapFile = osm( cmdLine, cmdLine.argv[i] );
+	}
+	if( !mapFile.isEmpty() )
+	{
+		std::cout << "Reading " << mapFile << std::endl;
+
+		OSMviewer	map;
+		readFromBinaryFile(
+			mapFile,
+			&map, OSM_MAGIC2, VERSION_MAGIC, true 
+		);
+
+		std::cout << "found " << map.getNumAreas() << " areas\n"
+			<< map.getNumPlaces() << " places\n"
+			<< map.getNumLinks() << " links\n"
+			<< map.getNumNodes() << " nodes" << std::endl;
+	}
+}
+
+// --------------------------------------------------------------------- //
+// ----- class inlines ------------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class constructors/destructors -------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class static functions ---------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class privates ------------------------------------------------ //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class protected ----------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class virtuals ------------------------------------------------ //
+// --------------------------------------------------------------------- //
+   
+// --------------------------------------------------------------------- //
+// ----- class publics ------------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- entry points -------------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+int main( int, const char *argv[] )
+{
+	int result = EXIT_FAILURE;
+
+	try
+	{
+		CommandLine cmdLine( options, argv );
+		osm( cmdLine );
+		result = EXIT_SUCCESS;
+	}
+	catch( CmdlineError &e )
+	{
+		std::cerr << argv[0] << ": " << e.what() << std::endl;
+		std::cerr << "Usage: " << argv[0] << " <options>... <URL to WSDL>\n" << options;
+	}
+	catch( std::exception &e )
+	{
+		std::cerr << argv[0] << ": " << e.what() << std::endl;
+	}
+	catch( ... )
+	{
+		std::cerr << argv[0] << ": Unkown error" << std::endl;
+	}
+
+	return result;
 }
 
 #ifdef __BORLANDC__
