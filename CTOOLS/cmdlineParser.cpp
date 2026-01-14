@@ -3,10 +3,10 @@
 		Module:			cmdlineParser.cpp
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -107,9 +107,9 @@ static bool beginsWith( const char *arg, const char *opt )
 	return co == 0;
 }
 
-static size_t searchOptionString( const char *arg, CommandLine::Options *opt )
+static size_t searchOptionString( const char *arg, const CommandLine::Options *opt )
 {
-	CommandLine::Options * const options = opt;
+	const CommandLine::Options * const options = opt;
 	while( opt->optionChar )
 	{
 		if( opt->optionString && *opt->optionString && beginsWith( arg, opt->optionString ) )
@@ -133,9 +133,9 @@ static const char *searchAssignment( const char *cmdLineOption )
 	return c ? cmdLineOption + index + 1: NULL;
 }
 
-static size_t searchOptionChar( char arg, CommandLine::Options *opt )
+static size_t searchOptionChar( char arg, const CommandLine::Options *opt )
 {
-	CommandLine::Options * const options = opt;
+	const CommandLine::Options * const options = opt;
 	while( opt->optionChar )
 	{
 		if( opt->optionChar == arg )
@@ -176,7 +176,7 @@ static size_t searchOptionChar( char arg, CommandLine::Options *opt )
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-void CommandLine::parseCommandLine( Options *opt, const char ** const iargv )
+void CommandLine::parseCommandLine( const Options *opt, const char ** const iargv )
 {
 	const char ** argv = iargv + 1; // ignore program name
 	int argc = 1;

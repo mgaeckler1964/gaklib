@@ -3,10 +3,10 @@
 		Module:			cmdlineParser.h
 		Description:	the command line processor
 		Author:			Martin Gäckler
-		Address:		Hofmannsthalweg 14, A-4030 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -150,7 +150,7 @@ struct CommandLine
 	};
 
 	private:
-	void parseCommandLine( Options *opt, const char **argv );
+	void parseCommandLine( const Options *opt, const char **argv );
 
 	public:
 	static const int	needArg		= 0x01;
@@ -162,7 +162,7 @@ struct CommandLine
 	int								argc;
 	const char						**argv;
 
-	CommandLine( Options *opt=NULL, const char **argv=NULL ) : flags(0), argc(0), argv(argv)
+	CommandLine( const Options *opt=NULL, const char **argv=NULL ) : flags(0), argc(0), argv(argv)
 	{
 		if( opt && argv )
 		{
