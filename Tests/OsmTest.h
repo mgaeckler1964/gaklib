@@ -316,7 +316,10 @@ class OsmTest : public UnitTest
 				UT_ASSERT_EQUAL( places.size(), 1 );
 			}
 
-			osmViewer.mergeOsmTile<OSMviewer>( STRING(tmpName2) );
+			{
+				OSMviewer tmp;
+				osmViewer.mergeOsmTile( STRING(tmpName2), &tmp );
+			}
 
 			{
 				Array<OSMviewer::node_key_type>	nodes;

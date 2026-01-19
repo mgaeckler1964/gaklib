@@ -433,15 +433,14 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 	}
 
 	template <class TileT>
-	void mergeOsmTile( const STRING &mapFileName )
+	void mergeOsmTile( const STRING &mapFileName, TileT *tileMap )
 	{
-		TileT tileMap;
 		readFromBinaryFile(
 			mapFileName,
-			&tileMap, OSM_MAGIC2, VERSION_MAGIC, true 
+			tileMap, OSM_MAGIC2, VERSION_MAGIC, true 
 		);
-		mergeTile(tileMap);
-		const typename TileT::place_container_type &places = tileMap.getAllPlaces();
+		mergeTile(*tileMap);
+		const typename TileT::place_container_type &places = tileMap->getAllPlaces();
 		for(
 			typename TileT::place_container_type::const_iterator it = places.cbegin(), endIT = places.cend();
 			it != endIT;
@@ -450,7 +449,7 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 		{
 			addPlace(it->getKey(), it->getValue() );
 		}
-		const typename TileT::area_container_type &areas = tileMap.getAllAreas();
+		const typename TileT::area_container_type &areas = tileMap->getAllAreas();
 		for(
 			typename TileT::area_container_type::const_iterator it = areas.cbegin(), endIT = areas.cend();
 			it != endIT;
@@ -459,19 +458,19 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 		{
 			addArea(it->getKey(), it->getValue() );
 		}
-		mergeIndex(m_lonPlaceIndex, tileMap.getLonPlaceIndex());
-		mergeIndex(m_latPlaceIndex, tileMap.getLatPlaceIndex());
-		mergeIndex(m_lonAreaIndex, tileMap.getLonAreaIndex());
-		mergeIndex(m_latAreaIndex, tileMap.getLatAreaIndex());
+		mergeIndex(m_lonPlaceIndex, tileMap->getLonPlaceIndex());
+		mergeIndex(m_latPlaceIndex, tileMap->getLatPlaceIndex());
+		mergeIndex(m_lonAreaIndex, tileMap->getLonAreaIndex());
+		mergeIndex(m_latAreaIndex, tileMap->getLatAreaIndex());
 	}
 	template <class TileT>
-	void mergeOsmTile( math::tileid_t tileID, const STRING &path )
+	void mergeOsmTile( math::tileid_t tileID, const STRING &path, TileT *tileMap )
 	{
 		if( !getTileIDs().hasElement(tileID) )
 		{
 			STRING	mapFileName = getTileFileName( path, tileID );
 
-			mergeOsmTile<TileT>(mapFileName);
+			mergeOsmTile(mapFileName, tileMap);
 		}
 	}
 

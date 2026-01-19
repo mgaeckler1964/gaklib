@@ -69,6 +69,7 @@
     <ClCompile Include="CTOOLS\fstream.cpp" />
     <ClCompile Include="CTOOLS\getcwd.cpp" />
     <ClCompile Include="CTOOLS\gps.cpp" />
+    <ClCompile Include="CTOOLS\GpxUtils.cpp" />
     <ClCompile Include="CTOOLS\hash.cpp" />
     <ClCompile Include="CTOOLS\hostResolver.cpp" />
     <ClCompile Include="CTOOLS\html.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="INCLUDE\gak\geoGraph.h" />
     <ClInclude Include="INCLUDE\gak\geometry.h" />
     <ClInclude Include="INCLUDE\gak\gps.h" />
+    <ClInclude Include="INCLUDE\gak\GpxUtils.h" />
     <ClInclude Include="INCLUDE\gak\graph.h" />
     <ClInclude Include="INCLUDE\gak\hash.h" />
     <ClInclude Include="INCLUDE\gak\hostResolver.h" />
