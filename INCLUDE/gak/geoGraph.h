@@ -76,6 +76,8 @@ namespace gak
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+typedef math::Rectangle< math::GeoPosition<double> >	BoundingBox;
+
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -104,16 +106,14 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 
 	public:
 
-	typedef typename Super::node_container_type				node_container_type;
-	typedef typename Super::link_container_type				link_container_type;
-	typedef typename Super::link_key_types					link_key_types;
-	typedef typename Super::link_key_type					link_key_type;
-	typedef typename Super::node_key_type					node_key_type;
-	typedef typename Super::LinkInfo						LinkInfo;
+	typedef typename Super::node_container_type	node_container_type;
+	typedef typename Super::link_container_type	link_container_type;
+	typedef typename Super::link_key_types		link_key_types;
+	typedef typename Super::link_key_type		link_key_type;
+	typedef typename Super::node_key_type		node_key_type;
+	typedef typename Super::LinkInfo			LinkInfo;
 
-	typedef LayerKeyT										layer_key_type;
-
-	typedef math::Rectangle< math::GeoPosition<double> >	BoundingBox;
+	typedef LayerKeyT							layer_key_type;
 
 #ifdef _MSC_VER
 #	pragma pack(push, 2)

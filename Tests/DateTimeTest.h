@@ -95,6 +95,7 @@ class DateTimeTest : public UnitTest
 
 		DateTime lastSpring = now.lastSpring();
 		DateTime nextSpring = now.nextSpring();
+
 		std::cout << now << ' ' << now.getUtcUnixSeconds() << '\n';
 		std::cout << lastSpring << '\n';
 		std::cout << nextSpring << '\n';
@@ -159,6 +160,15 @@ class DateTimeTest : public UnitTest
 			UT_ASSERT_EQUAL( theDate.getUtcUnixSeconds(), 1700000000 );
 		}
 		//UT_ASSERT_FALSE(true);
+		{
+		    double latitude = 48.269655;
+			double longitude = 14.311495;
+			DateTime	theDate( 25, Date::DECEMBER, 2026, 0, 0, 0 );
+			DateTime	sunrise, sunset;
+
+			theDate.sunriseEquation( longitude, latitude, &sunrise, &sunset );
+			std::cout << sunrise << ' ' << sunset << std::endl;
+		}
 	}
 };
 

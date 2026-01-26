@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -43,6 +43,7 @@
 #include <gak/fmtNumber.h>
 #include <gak/numericString.h>
 #include <gak/logfile.h>
+#include <gak/geometry.h>
 
 // --------------------------------------------------------------------- //
 // ----- module switches ----------------------------------------------- //
@@ -259,9 +260,9 @@ void DateTime::setDefaultTime( const STRING &defaultTime )
 		STRING			minuteStr = timeStr.getNextToken();
 		STRING			secondStr = timeStr.getNextToken();
 
-		unsigned		day = dayStr.getValueE<unsigned>();
+		unsigned char	day = dayStr.getValueE<unsigned char>();
 		unsigned		month = monthStr.getValueE<unsigned>();
-		unsigned		year = yearStr.getValueE<unsigned>();
+		unsigned short	year = yearStr.getValueE<unsigned short>();
 		unsigned char	hour = hourStr.getValueE<unsigned char>();
 		unsigned char	minute = minuteStr.getValueE<unsigned char>();
 		unsigned char	second = secondStr.getValueE<unsigned char>();
@@ -343,7 +344,7 @@ void DateTime::setInetTime( const STRING &inetTime )
 		calcTime( tzOffset );
 		m_tzOffset = tzOffset;
 	}
-	catch( std::exception &e )
+	catch( ... )
 	{
 		setDefaultTime(inetTime);	// try the default time
 		// throw IllegalInternetTimestamp( inetTime ).addErrorText( e );
@@ -400,6 +401,61 @@ STRING DateTime::getInetTime( long tzOffset )  const
 	inetTime += buffer;
 
 	return inetTime;
+}
+
+inline std::time_t j2ts(double j)
+{
+    return std::time_t((j - 2440587.5) * 86400 +0.5);
+}
+
+void DateTime::sunriseEquation(double lon, double lat, DateTime *sunrise, DateTime *sunset) const
+{
+	const double elevation = 0;
+	// Julian day (days since 1.1.2000)
+	long J_day = since() - Date(1, 2000 ).since();
+
+	// Mean Solar Time
+	double	mst = J_day + 0.0009 - lon / 360.0;
+
+	// Solar mean anomaly
+	double M_degrees = fmod(357.5291 + 0.98560028 * mst, 360);
+	double M_radians = math::degree2radians(M_degrees);
+
+	// Equation of center
+	double C_degrees = 1.9148 * sin(M_radians) + 0.02 * sin(2 * M_radians) + 0.0003 * sin(3 * M_radians);
+
+	// Ecliptic longitude
+	double L_degrees = fmod(M_degrees + C_degrees + 180.0 + 102.9372, 360);
+	double L_radians = math::degree2radians(L_degrees);
+
+	// Solar transit time
+	double J_transit = (2451545.0 + mst + 0.0053 * sin(M_radians) - 0.0069 * sin(2 * L_radians));
+
+	// hour angle
+	double sin_d = sin(L_radians) * sin(math::degree2radians(23.4397));
+	double cos_d = cos(asin(sin_d));
+	double latRad = math::degree2radians(lat);
+	double some_cos = (sin(math::degree2radians(-0.833 - 2.076 * sqrt(elevation) / 60.0)) - sin(latRad) * sin_d) / (cos(latRad) * cos_d);
+	double ha_radians = acos(some_cos);
+	double ha_degrees = math::radians2degree(ha_radians);  // 0...180
+
+	// sunrise and sunset
+	double j_rise = J_transit - ha_degrees / 360;
+	double j_set = J_transit + ha_degrees / 360;
+
+#if 0
+	std::cout << "Julian day " << J_day << std::endl;
+	std::cout << "Mean solar time " << mst << std::endl;
+	std::cout << "Solar mean anomaly " << M_radians << ' ' << M_degrees << '°' << std::endl;
+	std::cout << "Equation of center " << C_degrees << '°' << std::endl;
+	std::cout << "Ecliptic longitude " << L_radians << ' ' << L_degrees << '°' << std::endl;
+	std::cout << "Solar transit time " << J_transit << std::endl;
+	std::cout << "Hour angle " << ha_radians << ' ' << ha_degrees << '°' << std::endl;
+#endif
+
+	// convert to DateTime
+	*sunrise = DateTime( j2ts(j_rise) );
+	*sunset = DateTime( j2ts(j_set) );
 }
 
 // --------------------------------------------------------------------- //

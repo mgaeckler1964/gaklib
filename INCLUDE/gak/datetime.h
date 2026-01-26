@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -389,6 +389,7 @@ class DateTime : public Date, public Time
 	{
 		return DateTime( getNextSeasonStart<FULL_MOON_1,AVG_MOON_PHASE>(getUtcUnixSeconds()), 0 );
 	}
+	void sunriseEquation(double lon, double lat, DateTime *sunrise, DateTime *sunset) const;
 
 	Season getSeason() const
 	{
