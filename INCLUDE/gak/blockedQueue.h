@@ -3,10 +3,10 @@
 		Module:			blockedQueue.h
 		Description:	
 		Author:			Martin Gäckler
-		Address:		Hofmannsthalweg 14, A-4030 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -196,7 +196,7 @@ OBJ BlockedQueue<OBJ>::pop( unsigned long timeout )
 	LockGuard	lock( m_lock, timeout );
 	if( lock )
 	{
-		while( !size() && sw.getMillis() < timeout  )
+		while( !size() && static_cast<unsigned long>(sw.getMillis()) < timeout  )
 		{
 			m_conditional.wait( timeout );
 		}

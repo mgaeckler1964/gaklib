@@ -213,11 +213,11 @@ void GPXtrack::LoadGpxTrack( xml::Element *theSegments )
 
 			if( endPos.height < m_minHeight )
 			{
-				m_minHeight = endPos.height;
+				m_minHeight = int(endPos.height);
 			}
 			if( endPos.height > m_maxHeight )
 			{
-				m_maxHeight = endPos.height;
+				m_maxHeight = int(endPos.height);
 			}
 
 			endDate.setDate(
@@ -270,7 +270,7 @@ void GPXtrack::LoadGpxTrack( xml::Element *theSegments )
 					acceleration = 0;
 				}
 
-				sign = math::sign( heightDistance );
+				sign = char(math::sign( heightDistance ));
 
 				if( sphereDistance )
 				{
@@ -309,15 +309,18 @@ void GPXtrack::LoadGpxTrack( xml::Element *theSegments )
 
 			trackEntry.m_position = endPos;
 			trackEntry.m_time = time;
-			trackEntry.m_timestamp = DateTime(day, DateTime::Month(month),year,hour,minute,second);
+			trackEntry.m_timestamp = DateTime(
+				static_cast<unsigned char>(day), DateTime::Month(month),static_cast<unsigned short>(year),
+				static_cast<unsigned char>(hour),static_cast<unsigned char>(minute),static_cast<unsigned char>(second)
+			);
 
 			trackEntry.m_longitude = lon;
 			trackEntry.m_latitude = lat;
 			trackEntry.m_heightDistance = heightDistance;
 			trackEntry.m_sphereDistance = sphereDistance;
 			trackEntry.m_distance = distance;
-			trackEntry.m_totalDistance = m_totalDistance;
-			trackEntry.m_height = endPos.height;
+			trackEntry.m_totalDistance = int(m_totalDistance);
+			trackEntry.m_height = int(endPos.height);
 			trackEntry.m_speed = speed;
 			trackEntry.m_acceleration = acceleration;
 			trackEntry.m_elapsedTime = elapsedTime;
@@ -500,7 +503,8 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 	lastDistance = 0;
 	acceleration = lastSpeed = 0.0;
 	elapsedTime = 0;
-	heightDistance = sphereDistance = distance = gradient = 0;
+	heightDistance = distance = 0;
+	sphereDistance = gradient = 0;
 
 	m_minHeight = std::numeric_limits<int>::max();
 	m_maxHeight = std::numeric_limits<int>::min();
@@ -655,7 +659,10 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 
 				GPXpoint	&trackEntry = createElement();
 				trackEntry.m_time = time;
-				trackEntry.m_timestamp = DateTime( day, DateTime::Month(month), year, hour, minute, second );
+				trackEntry.m_timestamp = DateTime( 
+					static_cast<unsigned char>(day), DateTime::Month(month), static_cast<unsigned short>(year), 
+					static_cast<unsigned char>(hour), static_cast<unsigned char>(minute), static_cast<unsigned char>(second) 
+				);
 				trackEntry.m_longitude = "";
 				trackEntry.m_latitude = "";
 				trackEntry.m_heightDistance = heightDistance;

@@ -3,10 +3,10 @@
 		Module:			MachineLearningTest.h
 		Description:	Test for MachineLearning
 		Author:			Martin Gäckler
-		Address:		Hofmannsthalweg 14, A-4030 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -167,7 +167,7 @@ class MachineLearningTest : public UnitTest
 		mlSchool.learnLesson( inp, out );
 		++expectedLessonCount;
 
-		size_t	expectedVaiableCount = (maxVal - minVal)/increment + 1;
+		size_t	expectedVaiableCount = size_t((maxVal - minVal)/increment + 1);
 		size_t	lessonsCount, variableCount;
 		expectedVaiableCount *= expectedVaiableCount;
 		MyVariableType	best = mlSchool.getBest( &lessonsCount, &variableCount );

@@ -3,10 +3,10 @@
 		Module:			dirScanner.h
 		Description:	directory (tree) scanner
 		Author:			Martin Gäckler
-		Address:		Hofmannsthalweg 14, A-4030 Linz
+		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -83,13 +83,13 @@ public:
 	const CommandLine &m_cmdLine;
 
 	FileProcessor(const CommandLine &cmdLine) : m_cmdLine(cmdLine) {}
-	void start( const STRING &path )
+	void start( const STRING & /* path */ )
 	{
 	}
-	void process( const DirectoryEntry &entry, const STRING &file )
+	void process( const DirectoryEntry & /* entry */, const STRING & /* file */ )
 	{
 	}
-	void end( const STRING &path )
+	void end( const STRING & /* path */)
 	{
 	}
 };
