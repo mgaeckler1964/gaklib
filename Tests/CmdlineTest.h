@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			CmdlineTest.h
-		Description:	
+		Description:	the command line and parameter handling
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -102,56 +102,117 @@ class CmdlineTest : public UnitTest
 			{ 0 },
 		};
 
-		const char *argv[] =
+		const char *scopes[] =
 		{
-			"test.exe",
-			"otherParam1",
-			"-D=optCharWithParam",
-			"otherParam2",
-			"-D:optCharWithParam",
-			"otherParam3",
-			"-D", "optCharWithParam",
-			"otherParam4",
-			"--option=optStringWithParam",
-			"otherParam5",
-			"--option:optStringWithParam",
-			"otherParam6",
-			"--option", "optStringWithParam",
-			"otherParam7",
-			"-F",
-			"otherParam8",
-			"--flag2",
-			"otherParam9",
-			NULL
+			"no args",
+			"command line",
+			"config file",
+			"command & config"
 		};
 
-		CommandLine	cmdLine( options, argv );
+		for( int x=0; x<=3; ++x )
+		{
+			TestScope scope( scopes[x] );
 
-		UT_ASSERT_EQUAL( cmdLine.flags & optionPresent, optionPresent );
-		UT_ASSERT_EQUAL( cmdLine.flags & flag1Present, flag1Present );
-		UT_ASSERT_EQUAL( cmdLine.flags & flag2Present, flag2Present );
-		UT_ASSERT_EQUAL( cmdLine.flags & flag3Present, 0 );
+			const char *argv[] =
+			{
+				"test.EXE",
+				"otherParam1",
+				"-D=optCharWithParam",
+				"otherParam2",
+				"-D:optCharWithParam",
+				"otherParam3",
+				"-D", "optCharWithParam",
+				"otherParam4",
+				"--option=optStringWithParam",
+				"otherParam5",
+				"--option:optStringWithParam",
+				"otherParam6",
+				"--option", "optStringWithParam",
+				"otherParam7",
+				"-F",
+				"otherParam8",
+				"--flag2",
+				"otherParam9",
+				NULL
+			};
+			const char *noargv[] =
+			{
+				"test.EXE",
+				NULL
+			};
 
-		UT_ASSERT_EQUAL( cmdLine.parameter['D'].size(), size_t(6) );
-		UT_ASSERT_EQUAL( cmdLine.parameter['D'][0], STRING("optCharWithParam") );
-		UT_ASSERT_EQUAL( cmdLine.parameter['D'][1], STRING("optCharWithParam") );
-		UT_ASSERT_EQUAL( cmdLine.parameter['D'][2], STRING("optCharWithParam") );
-		UT_ASSERT_EQUAL( cmdLine.parameter['D'][3], STRING("optStringWithParam") );
-		UT_ASSERT_EQUAL( cmdLine.parameter['D'][4], STRING("optStringWithParam") );
-		UT_ASSERT_EQUAL( cmdLine.parameter['D'][5], STRING("optStringWithParam") );
+			TempFileName	cfg( STRING(".test.cfg") );
+			if( x&2 )
+			{
+				std::ofstream out = std::ofstream( STRING(cfg) );
+				out << "-D=fromConfig\n";
+			}
+			else
+				strRemove(STRING(".test.cfg"));
 
-		UT_ASSERT_EQUAL( cmdLine.argc, 10 );
-		UT_ASSERT_EQUAL( (const char *)cmdLine.argv[0], (const char *)"test.exe" );
-		UT_ASSERT_EQUAL( (const char *)cmdLine.argv[1], (const char *)"otherParam1" );
-		UT_ASSERT_EQUAL( (const char *)cmdLine.argv[2], (const char *)"otherParam2" );
-		UT_ASSERT_EQUAL( (const char *)cmdLine.argv[3], (const char *)"otherParam3" );
-		UT_ASSERT_EQUAL( (const char *)cmdLine.argv[4], (const char *)"otherParam4" );
-		UT_ASSERT_EQUAL( (const char *)cmdLine.argv[5], (const char *)"otherParam5" );
-		UT_ASSERT_EQUAL( (const char *)cmdLine.argv[6], (const char *)"otherParam6" );
-		UT_ASSERT_EQUAL( (const char *)cmdLine.argv[7], (const char *)"otherParam7" );
-		UT_ASSERT_EQUAL( (const char *)cmdLine.argv[8], (const char *)"otherParam8" );
-		UT_ASSERT_EQUAL( (const char *)cmdLine.argv[9], (const char *)"otherParam9" );
-		UT_ASSERT_EQUAL( (void *)cmdLine.argv[10], (void *)NULL );
+			CommandLine	cmdLine( options, x & 1 ? argv : noargv );
+
+			if( x )
+			{
+				UT_ASSERT_EQUAL( cmdLine.flags & optionPresent, optionPresent );
+				if( x&1 )
+				{
+					UT_ASSERT_EQUAL( cmdLine.flags & flag1Present, flag1Present );
+					UT_ASSERT_EQUAL( cmdLine.flags & flag2Present, flag2Present );
+				}
+				else
+				{
+					UT_ASSERT_EQUAL( cmdLine.flags & flag1Present, 0 );
+					UT_ASSERT_EQUAL( cmdLine.flags & flag2Present, 0 );
+				}
+				UT_ASSERT_EQUAL( cmdLine.flags & flag3Present, 0 );
+			}
+			else
+				UT_ASSERT_EQUAL( cmdLine.flags, 0 );
+
+			int index = 0;
+			size_t expectedCount = 0;
+			if( x&1 )
+				expectedCount += 6;
+			if( x&2 )
+				expectedCount += 1;
+
+			UT_ASSERT_EQUAL( cmdLine.parameter['D'].size(), expectedCount );
+			if( x&2 )
+			{
+				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("fromConfig") );
+			}
+			if( x&1 )
+			{
+				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("optCharWithParam") );
+				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("optCharWithParam") );
+				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("optCharWithParam") );
+				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("optStringWithParam") );
+				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("optStringWithParam") );
+				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("optStringWithParam") );
+			}
+
+			if( x&1 )
+			{
+				UT_ASSERT_EQUAL( cmdLine.argc, 10 );
+				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[0], (const char *)"test.EXE" );
+				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[1], (const char *)"otherParam1" );
+				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[2], (const char *)"otherParam2" );
+				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[3], (const char *)"otherParam3" );
+				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[4], (const char *)"otherParam4" );
+				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[5], (const char *)"otherParam5" );
+				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[6], (const char *)"otherParam6" );
+				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[7], (const char *)"otherParam7" );
+				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[8], (const char *)"otherParam8" );
+				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[9], (const char *)"otherParam9" );
+				UT_ASSERT_EQUAL( (void *)cmdLine.argv[10], (void *)NULL );
+			}
+			else
+			{
+				UT_ASSERT_EQUAL( cmdLine.argc, 1 );
+			}
+		}
 	}
 };
 // --------------------------------------------------------------------- //

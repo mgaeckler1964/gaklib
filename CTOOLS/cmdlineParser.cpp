@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			cmdlineParser.cpp
-		Description:	
+		Description:	the command line and parameter handling
 		Author:			Martin Gäckler
 		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -39,6 +39,7 @@
 // --------------------------------------------------------------------- //
 
 #include <gak/cmdlineParser.h>
+#include <gak/directory.h>
 #include <gak/logfile.h>
 
 // --------------------------------------------------------------------- //
@@ -164,23 +165,11 @@ static size_t searchOptionChar( char arg, const CommandLine::Options *opt )
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-// --------------------------------------------------------------------- //
-// ----- class protected ----------------------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- class virtuals ------------------------------------------------ //
-// --------------------------------------------------------------------- //
-   
-// --------------------------------------------------------------------- //
-// ----- class publics ------------------------------------------------- //
-// --------------------------------------------------------------------- //
-
 void CommandLine::parseCommandLine( const Options *opt, const char ** const iargv )
 {
 	const char ** argv = iargv + 1; // ignore program name
 	int argc = 1;
-	int flags = 0;
+	int flags = this->flags;
 
 	const char	**source = argv;
 	const char	**target = argv;
@@ -284,6 +273,45 @@ void CommandLine::parseCommandLine( const Options *opt, const char ** const iarg
 	this->argv = iargv;
 	this->flags = flags;
 }
+
+void CommandLine::readCommandFile( const Options *opt, const char *argv0 )
+{
+	F_STRING	prog;
+	fsplit( argv0, nullptr, &prog );
+#ifdef __WINDOWS__
+	if( prog.endsWith( ".exe") )
+		prog.cut( prog.size()-4) ;
+#endif
+	F_STRING cfgName = F_STRING('.') + prog + ".cfg";
+
+	if( !exists(cfgName) )
+	{
+		cfgName = getPersonalConfig() + DIRECTORY_DELIMITER + cfgName;
+	}
+	if( exists(cfgName) )
+	{
+		ArrayOfStrings			externConfig;
+		PODarray<const char *>	argv;
+
+		externConfig.addElement( argv0 );
+		externConfig.readFromFile( cfgName );
+		externConfig.addElement( nullptr );
+		externConfig.fillArgV( &argv );
+		parseCommandLine( opt, argv.getDataBuffer() );
+	}
+}
+
+// --------------------------------------------------------------------- //
+// ----- class protected ----------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class virtuals ------------------------------------------------ //
+// --------------------------------------------------------------------- //
+   
+// --------------------------------------------------------------------- //
+// ----- class publics ------------------------------------------------- //
+// --------------------------------------------------------------------- //
 
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //

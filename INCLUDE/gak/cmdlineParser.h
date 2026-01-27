@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			cmdlineParser.h
-		Description:	the command line processor
+		Description:	the command line and parameter handling
 		Author:			Martin Gäckler
 		Address:		HoFmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -151,6 +151,7 @@ struct CommandLine
 
 	private:
 	void parseCommandLine( const Options *opt, const char **argv );
+	void readCommandFile( const Options *opt, const char *argv0 );
 
 	public:
 	static const int	needArg		= 0x01;
@@ -162,10 +163,11 @@ struct CommandLine
 	int								argc;
 	const char						**argv;
 
-	CommandLine( const Options *opt=NULL, const char **argv=NULL ) : flags(0), argc(0), argv(argv)
+	CommandLine( const Options *opt=NULL, const char **argv=nullptr ) : flags(0), argc(0), argv(argv)
 	{
 		if( opt && argv )
 		{
+			readCommandFile( opt, *argv );
 			parseCommandLine( opt, argv );
 		}
 	}
