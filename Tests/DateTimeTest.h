@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			DateTimeTest.h
-		Description:	
+		Description:	Date and time handling class
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -80,7 +80,75 @@ class DateTimeTest : public UnitTest
 	{
 		return "DateTimeTest";
 	}
-	virtual void PerformTest( void )
+	void TestSummerWinterSunriseEquation()
+	{
+		DateTime	now;
+		{
+#ifndef __BORLANDC__
+			DateTime nextWinter = now.nextWinter();
+#else
+			DateTime nextWinter = DateTime(21,DateTime::DECEMBER,2026, 0,0,0);
+#endif
+			DateTime sunrise, sunset;
+			nextWinter.sunriseEquation( 15, 48, &sunrise, &sunset );
+			gak::uint64 winterDay = sunset.getUtcUnixSeconds() - sunrise.getUtcUnixSeconds();
+			std::cout << "Sunrise " << sunrise << ' ' << sunrise.getUtcUnixSeconds() << '\n';
+			std::cout << "Sunset  " << sunset << ' ' << sunset.getUtcUnixSeconds() << '\n';
+			std::cout << "day length " << winterDay << '\n'; 
+
+			DateTime nextWinterBefore = nextWinter; nextWinterBefore.decrement(2);
+			DateTime sunriseBefore, sunsetBefore;
+			nextWinterBefore.sunriseEquation( 15, 48, &sunriseBefore, &sunsetBefore );
+			gak::uint64 winterDayBefore = sunsetBefore.getUtcUnixSeconds() - sunriseBefore.getUtcUnixSeconds();
+			std::cout << "SunriseBefore " << sunriseBefore << ' ' << sunriseBefore.getUtcUnixSeconds() << '\n';
+			std::cout << "SunsetBefore  " << sunsetBefore << ' ' << sunsetBefore.getUtcUnixSeconds() << '\n';
+			std::cout << "day length " << winterDayBefore << '\n'; 
+
+			DateTime nextWinterAfter = nextWinter; nextWinterAfter.increment(2);
+			DateTime sunriseAfter, sunsetAfter;
+			nextWinterAfter.sunriseEquation( 15, 48, &sunriseAfter, &sunsetAfter );
+			gak::uint64 winterDayAfter = sunsetAfter.getUtcUnixSeconds() - sunriseAfter.getUtcUnixSeconds();
+			std::cout << "SunriseAfter " << sunriseAfter << ' ' << sunriseAfter.getUtcUnixSeconds() << '\n';
+			std::cout << "SunsetAfter  " << sunsetAfter << ' ' << sunsetAfter.getUtcUnixSeconds() << '\n';
+			std::cout << "day length " << winterDayAfter << '\n';
+
+			UT_ASSERT_LESS( winterDay, winterDayBefore );
+			UT_ASSERT_LESS( winterDay, winterDayAfter );
+		}
+		{
+#ifndef __BORLANDC__
+			DateTime nextSummer = now.nextSummer();
+#else
+			DateTime nextSummer = DateTime(21,DateTime::JUNE,2026, 0,0,0);
+#endif
+			DateTime sunrise, sunset;
+			nextSummer.sunriseEquation( 15, 48, &sunrise, &sunset );
+			gak::uint64 summerDay = sunset.getUtcUnixSeconds() - sunrise.getUtcUnixSeconds();
+			std::cout << "Sunrise" << sunrise << ' ' << sunrise.getUtcUnixSeconds() << '\n'; 
+			std::cout << "Sunset" << sunset << ' ' << sunset.getUtcUnixSeconds() << '\n'; 
+			std::cout << "day length " << summerDay << '\n'; 
+
+			DateTime nextSummerBefore = nextSummer; nextSummerBefore.decrement(2);
+			DateTime sunriseBefore, sunsetBefore;
+			nextSummerBefore.sunriseEquation( 15, 48, &sunriseBefore, &sunsetBefore );
+			gak::uint64 summerDayBefore = sunsetBefore.getUtcUnixSeconds() - sunriseBefore.getUtcUnixSeconds();
+			std::cout << "SunriseBefore " << sunriseBefore << ' ' << sunriseBefore.getUtcUnixSeconds() << '\n';
+			std::cout << "SunsetBefore  " << sunsetBefore << ' ' << sunsetBefore.getUtcUnixSeconds() << '\n';
+			std::cout << "day length " << summerDayBefore << '\n'; 
+
+			DateTime nextSummerAfter = nextSummer; nextSummerAfter.increment(2);
+			DateTime sunriseAfter, sunsetAfter;
+			nextSummerAfter.sunriseEquation( 15, 48, &sunriseAfter, &sunsetAfter );
+			gak::uint64 summerDayAfter = sunsetAfter.getUtcUnixSeconds() - sunriseAfter.getUtcUnixSeconds();
+			std::cout << "SunriseAfter " << sunriseAfter << ' ' << sunriseAfter.getUtcUnixSeconds() << '\n';
+			std::cout << "SunsetAfter  " << sunsetAfter << ' ' << sunsetAfter.getUtcUnixSeconds() << '\n';
+			std::cout << "day length " << summerDayAfter << '\n'; 
+
+			UT_ASSERT_GREATER( summerDay, summerDayBefore );
+			UT_ASSERT_GREATER( summerDay, summerDayAfter );
+		}
+	}
+	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "DateTimeTest::PerformTest");
 		TestScope scope( "PerformTest" );
@@ -169,6 +237,7 @@ class DateTimeTest : public UnitTest
 			theDate.sunriseEquation( longitude, latitude, &sunrise, &sunset );
 			std::cout << sunrise << ' ' << sunset << std::endl;
 		}
+		TestSummerWinterSunriseEquation();
 	}
 };
 

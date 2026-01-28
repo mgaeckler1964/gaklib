@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -454,7 +454,7 @@ class BasicDate
 		return isLeapYear( m_year );
 	}
 
-	void increment( unsigned days );
+	void increment( unsigned days=1 );
 	BasicDate operator + ( unsigned days ) const
 	{
 		BasicDate result = *this;
@@ -481,7 +481,7 @@ class BasicDate
 	}
 
 
-	void decrement( unsigned days );
+	void decrement( unsigned days=1 );
 	BasicDate operator - ( unsigned days ) const
 	{
 		BasicDate result = *this;

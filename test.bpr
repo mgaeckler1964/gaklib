@@ -117,7 +117,7 @@ Item2=..\..\object\
 DebugSourceDirs=.
 
 [Parameters]
-RunParams=OsmTest
+RunParams=DateTimeTest
 HostApplication=
 RemoteHost=
 RemotePath=
