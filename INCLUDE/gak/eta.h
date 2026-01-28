@@ -306,11 +306,11 @@ std::ostream & operator << ( std::ostream &out, Eta<COUNTER_T, ClockProvider_T> 
 		doLogValueEx( gakLogging::llDetail, ticks );
 		if( ticks > 0 )
 		{
-			out << std::setw(2) << std::setfill('0') << ticks / (24*60*60*CLOCKS_PER_SEC) << 'd';
-			ticks %= (24*60*60*CLOCKS_PER_SEC);
+			out << std::setw(2) << std::setfill('0') << ticks / (24LL*60*60*CLOCKS_PER_SEC) << 'd';
+			ticks %= (24LL*60*60*CLOCKS_PER_SEC);
 
-			out << std::setw(2) << std::setfill('0') << ticks / (60*60*CLOCKS_PER_SEC) << 'h';
-			ticks %= (60*60*CLOCKS_PER_SEC);
+			out << std::setw(2) << std::setfill('0') << ticks / (60LL*60*CLOCKS_PER_SEC) << 'h';
+			ticks %= (60LL*60*CLOCKS_PER_SEC);
 
 			out << std::setw(2) << std::setfill('0') << ticks / (60*CLOCKS_PER_SEC) << 'm';
 			ticks %= (60*CLOCKS_PER_SEC);

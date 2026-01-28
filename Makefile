@@ -88,6 +88,7 @@ OBJECTS=${OBJDIR}/acls.o \
 	${OBJDIR}/t_string.o \
 	${OBJDIR}/tokens.o \
 	${OBJDIR}/unitTest.o \
+	${OBJDIR}/uptime.o \
 	${OBJDIR}/wideChar.o \
 	${OBJDIR}/wideString.o \
 	${OBJDIR}/wsdlImporter.o \

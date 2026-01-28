@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -33,9 +33,14 @@
 /* ----- includes ------------------------------------------------------ */
 /* --------------------------------------------------------------------- */
 
-#include <Windows.h>
-
 #include <gak/gaklib.h>
+
+#ifdef __WINDOWS__
+#include <Windows.h>
+#endif
+#ifdef __GNUC__
+#include <sys/sysinfo.h>
+#endif
 
 /* --------------------------------------------------------------------- */
 /* ----- module switches ----------------------------------------------- */
@@ -55,8 +60,10 @@
 /* ----- type definitions ---------------------------------------------- */
 /* --------------------------------------------------------------------- */
 
+#ifdef __WINDOWS__
 typedef DWORD (*fpGetTickCount)();
 typedef ULONGLONG (*fpGetTickCount64)();
+#endif
 
 /* --------------------------------------------------------------------- */
 /* ----- macros -------------------------------------------------------- */
@@ -88,6 +95,7 @@ typedef ULONGLONG (*fpGetTickCount64)();
 
 unsigned long long uptime( void )
 {
+#ifdef __WINDOWS__
 	static HINSTANCE		kernel = NULL;
 	static fpGetTickCount64	GetTickCount64 = NULL;
 	static fpGetTickCount	GetTickCount = NULL;
@@ -107,7 +115,7 @@ unsigned long long uptime( void )
 	}
 	if( GetTickCount64 )
 	{
-/***/	return GetTickCount64();
+/***/	return GetTickCount64()/1000;
 	}
 
 	if( !GetTickCount )
@@ -117,8 +125,14 @@ unsigned long long uptime( void )
 
 	if( GetTickCount )
 	{
-/***/	return GetTickCount();
+/***/	return GetTickCount()/1000;
 	}
+#else
+	struct sysinfo info;
+
+    sysinfo(&info);
+    return info.uptime;
+#endif
 
 /*@*/return 0;
 }
