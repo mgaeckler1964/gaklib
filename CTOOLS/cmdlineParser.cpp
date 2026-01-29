@@ -3,7 +3,7 @@
 		Module:			cmdlineParser.cpp
 		Description:	the command line and parameter handling
 		Author:			Martin Gäckler
-		Address:		HoFmannsthalweg 14, A-4030 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
 		Copyright:		(c) 1988-2026 Martin Gäckler
@@ -282,12 +282,29 @@ void CommandLine::readCommandFile( const Options *opt, const char *argv0 )
 	if( prog.endsWith( ".exe") )
 		prog.cut( prog.size()-4) ;
 #endif
-	F_STRING cfgName = F_STRING('.') + prog + ".cfg";
+	F_STRING cfgBase = prog + ".cfg";
+	F_STRING cfgName = F_STRING('.') + cfgBase;							// ./.prog.cfg
+	F_STRING personalConfig, globalConfig;
 
-	if( !exists(cfgName) )
+	if( !exists(cfgName) )												// <persConfig>/.prog/prog.cfg
 	{
-		cfgName = getPersonalConfig() + DIRECTORY_DELIMITER + cfgName;
+		personalConfig = getPersonalConfig() + DIRECTORY_DELIMITER;
+		cfgName = personalConfig + '.' + prog + DIRECTORY_DELIMITER + cfgBase;
 	}
+	if( !exists(cfgName) )												// <persConfig>/.prog.cfg
+	{
+		cfgName = personalConfig + '.' + cfgBase;
+	}
+	if( !exists(cfgName) )												// <globConfig>/prog/prog.cfg
+	{
+		globalConfig = getGlobalConfig() + DIRECTORY_DELIMITER;
+		cfgName = globalConfig + prog + DIRECTORY_DELIMITER + cfgBase;
+	}
+	if( !exists(cfgName) )												// <globConfig>/.prog.cfg
+	{
+		cfgName = globalConfig + '.' + cfgBase;
+	}
+
 	if( exists(cfgName) )
 	{
 		ArrayOfStrings			externConfig;

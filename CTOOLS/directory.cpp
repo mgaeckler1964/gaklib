@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			directory.cpp
-		Description:	
+		Description:	Some useful directory management tools
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -42,7 +42,8 @@
 	#ifndef STRICT
 		#define STRICT 1
 	#endif
-	#include <windows.h>
+	#include <ShlObj.h>		// include before windows otherwise stupid borland
+	#include <windows.h>	// c++ builder won't compile
 #endif
 
 #ifdef __MACH__
@@ -142,6 +143,17 @@ static STRING getUserShellFolder( const char *name )
 
 	return result;
 }
+
+static STRING getGlobalShellFolder( int csid )
+{
+	char	buffer[MAX_PATH*2];
+	SHGetFolderPathA( nullptr, csid, nullptr, SHGFP_TYPE_CURRENT , buffer );
+	STRING	result = buffer;
+	if( result.endsWith( DIRECTORY_DELIMITER ) )
+		result.cut( result.strlen()-1 );
+
+	return result;
+}
 #endif
 
 // --------------------------------------------------------------------- //
@@ -176,7 +188,7 @@ static STRING getUserShellFolder( const char *name )
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-F_STRING getTempPath( void )
+F_STRING getTempPath()
 {
 	STRING	temp = getenv( "TEMP" );
 	if( temp.isEmpty() )
@@ -200,7 +212,7 @@ F_STRING getTempPath( void )
 	return temp;
 }
 
-F_STRING getPersonalHome( void )
+F_STRING getPersonalHome()
 {
 #if defined( __MACH__ ) || defined( __ELF__ )
 	STRING	home = getenv( "HOME" );
@@ -216,16 +228,21 @@ F_STRING getPersonalHome( void )
 }
 
 #if defined( _Windows )
-F_STRING getPersonalDocs( void )
+F_STRING getPersonalDocs()
 {
 	return getUserShellFolder( "Personal");
 }
 #endif
 
 #if defined( _Windows )
-F_STRING getPersonalConfig( void )
+F_STRING getPersonalConfig()
 {
 	return getUserShellFolder( "AppData");
+}
+
+F_STRING getGlobalConfig()
+{
+	return getGlobalShellFolder( CSIDL_COMMON_APPDATA);
 }
 #endif
 

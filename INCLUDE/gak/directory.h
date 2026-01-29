@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			directory.h
-		Description:
+		Description:	Some useful directory management tools
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -160,7 +160,7 @@ void makeDirectory( const STRING &dirName );
 int setcwd( const STRING &newPath );
 
 /* from getcwd.cpp */
-F_STRING getcwd( void );
+F_STRING getcwd();
 
 /* from relpath.cpp */
 F_STRING makeRelPath( const STRING &basePath, const STRING &destination );
@@ -205,20 +205,30 @@ inline F_STRING removeExtension( const F_STRING &complete )
 
 /* from directory.cpp */
 
-F_STRING getTempPath( void );
-F_STRING getPersonalHome( void );
+F_STRING getTempPath();
+F_STRING getPersonalHome();
 #if defined( _Windows )
-F_STRING getPersonalDocs( void );
+F_STRING getPersonalDocs();
 #elif defined( __MACH__ ) || defined( __ELF__ )
 #	define getPersonalDocs() getPersonalHome()
 #endif
 
 #if defined( _Windows )
-F_STRING getPersonalConfig( void );
+F_STRING getPersonalConfig();
 #elif defined( __MACH__ )
 #	define getPersonalConfig() (getPersonalHome() + DIRECTORY_DELIMITER_STRING "Library")
 #elif defined( __ELF__ )
 #	define getPersonalConfig() getPersonalHome()
+#endif
+
+#if defined( _Windows )
+F_STRING getGlobalConfig();
+#else
+inline F_STRING getGlobalConfig()
+{
+	/// TODO find a better solution for Mac OS X
+	return "/etc";
+}
 #endif
 
 void getUSBdrives( ArrayOfStrings *result );

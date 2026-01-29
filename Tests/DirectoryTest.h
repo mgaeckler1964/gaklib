@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			DirectoryTest.h
-		Description:	
+		Description:	Some useful directory management tools
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -88,19 +88,22 @@ class DirectoryTest : public UnitTest
 		TestScope scope( "PerformTest" );
 
 		F_STRING	tmp = getTempPath();
-		std::cout << tmp << '\n';
+		std::cout << "\nTemp:\t\t" << tmp << '\n';
 
 		F_STRING home = getPersonalHome();
-		std::cout << home << '\n';
+		std::cout << "Home:\t\t" << home << '\n';
 
 		F_STRING docs = getPersonalDocs();
-		std::cout << docs << '\n';
+		std::cout << "Docs:\t\t" << docs << '\n';
 
-		F_STRING config = getPersonalConfig();
-		std::cout << docs << '\n';
+		F_STRING pConfig = getPersonalConfig();
+		std::cout << "Pers. Config:\t" << pConfig << '\n';
+
+		F_STRING gConfig = getGlobalConfig();
+		std::cout << "Glop. Config:\t" << gConfig << '\n';
 
 		F_STRING	curDir = getcwd();
-		std::cout << curDir << '\n';
+		std::cout << "Current:\t" << curDir << '\n';
 
 		setcwd( tmp );
 		UT_ASSERT_EQUAL( getcwd(), tmp );
@@ -111,8 +114,11 @@ class DirectoryTest : public UnitTest
 		setcwd( docs );
 		UT_ASSERT_EQUAL( getcwd(), docs );
 
-		setcwd( config );
-		UT_ASSERT_EQUAL( getcwd(), config );
+		setcwd( pConfig );
+		UT_ASSERT_EQUAL( getcwd(), pConfig );
+
+		setcwd( gConfig );
+		UT_ASSERT_EQUAL( getcwd(), gConfig );
 
 		setcwd( curDir );
 		UT_ASSERT_EQUAL( getcwd(), curDir );
