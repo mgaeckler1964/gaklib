@@ -3,7 +3,7 @@
 		Module:			array.h
 		Description:	dynamic arrays
 		Author:			Martin Gäckler
-		Address:		HoFmannsthalweg 14, A-4030 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
 		Copyright:		(c) 1988-2026 Martin Gäckler
