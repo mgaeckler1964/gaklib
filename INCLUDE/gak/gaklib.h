@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -256,10 +256,8 @@ int		strcmpi( const char *s1, const char *s2 );
 int		strncmpi( const char *s1, const char *s2, size_t len );
 #endif
 
-
 #define mkTimeStamp( date, time ) \
 					( ((unsigned long)(date)<<16)|(unsigned long)(time) )
-
 
 #ifdef __BORLANDC__
 #define randomNumber( max ) random( max )
@@ -267,6 +265,10 @@ int		strncmpi( const char *s1, const char *s2, size_t len );
 int randomNumber( int max );
 #endif
 
+/******** mbox support *************************************************/
+
+int appendMail5(const char *mboxFile, const char *from, const char *to, const char *subject, const char *text);
+int appendMail2(const char *subject, const char *text);
 
 /******** Profile support *************************************************/
 

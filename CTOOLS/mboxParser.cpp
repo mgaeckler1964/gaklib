@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Austria, Linz ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -48,6 +48,7 @@
 #include <gak/textReader.h>
 #include <gak/t_string.h>
 #include <gak/stringStream.h>
+#include <gak/gaklib.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -612,6 +613,36 @@ void appendMail(const STRING &imboxFile, const STRING &ifrom, const STRING &ito,
 
 	out << '\n' << text << "\n\n";
 }
+
+extern "C" 
+{
+int appendMail5(const char *mboxFile, const char *from, const char *to, const char *subject, const char *text)
+{
+	try
+	{
+		appendMail(mboxFile, from, to, subject, text);
+	}
+	catch( ... )
+	{
+		return -1;
+	}
+	return 0;
+}
+
+int appendMail2(const char *subject, const char *text)
+{
+	try
+	{
+		appendMail(subject, text);
+	}
+	catch( ... )
+	{
+		return -1;
+	}
+	return 0;
+}
+
+}	// extern "C"
 
 }	// namespace mail
 }	// namespace gak
