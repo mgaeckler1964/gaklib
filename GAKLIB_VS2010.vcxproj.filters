@@ -312,6 +312,9 @@
     <ClCompile Include="CTOOLS\GpxUtils.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="CTOOLS\user.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INCLUDE\gak\aes.h">
@@ -696,6 +699,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="INCLUDE\gak\GpxUtils.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="INCLUDE\gak\user.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

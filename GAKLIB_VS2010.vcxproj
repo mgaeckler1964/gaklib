@@ -114,6 +114,7 @@
     <ClCompile Include="CTOOLS\t_string.cpp" />
     <ClCompile Include="CTOOLS\unitTest.cpp" />
     <ClCompile Include="CTOOLS\uptime.c" />
+    <ClCompile Include="CTOOLS\user.cpp" />
     <ClCompile Include="CTOOLS\utime.cpp" />
     <ClCompile Include="CTOOLS\waveFile.cpp" />
     <ClCompile Include="CTOOLS\wideChar.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="INCLUDE\gak\type_traits.h" />
     <ClInclude Include="INCLUDE\gak\t_string.h" />
     <ClInclude Include="INCLUDE\gak\unitTest.h" />
+    <ClInclude Include="INCLUDE\gak\user.h" />
     <ClInclude Include="INCLUDE\gak\utils.h" />
     <ClInclude Include="INCLUDE\gak\vcl_tools.h" />
     <ClInclude Include="INCLUDE\gak\wavefile.h" />
