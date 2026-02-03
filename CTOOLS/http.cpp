@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -271,7 +271,7 @@ size_t HTTPrequest::MakeRequest(
 		includeBody = false;
 	}
 
-	lastUrl = url;
+	m_lastUrl = url;
 
 	// remove protocl
 	if( isHttpProtocol( url ) )
@@ -351,24 +351,24 @@ size_t HTTPrequest::MakeRequest(
 		}
 	}
 
-	if( socketStream )
+	if( m_socketStream )
 	{
-		delete socketStream;
+		delete m_socketStream;
 	}
 #if USE_SSL
 	if( useSSL )
 	{
-		socketStream = new SSLsocketStreambuf( proxyServer, s_proxyPort, s_keyfile, s_password );
+		m_socketStream = new SSLsocketStreambuf( proxyServer, s_proxyPort, s_keyfile, s_password );
 	}
 	else
 #endif
 	{
-		socketStream = new SocketStreambuf;
+		m_socketStream = new SocketStreambuf;
 	}
 
-	HTTPclientResponse	&theResponse = responseCache[lastUrl];
+	HTTPclientResponse	&theResponse = m_responseCache[m_lastUrl];
 
-	if( !socketStream->connect( serverName, port, bufferSize ) )
+	if( !m_socketStream->connect( serverName, port, bufferSize ) )
 	{
 
 		STRING request = method;
@@ -379,7 +379,7 @@ size_t HTTPrequest::MakeRequest(
 		do not use HTTP 1.1 until transfer encoding is implemented
 		request += " HTTP/1.1\r\n";
 */
-		if( cookies.getNumFields() )
+		if( m_cookies.getNumFields() )
 		{
 			request += "Cookie: ";
 			request += getCookies();
@@ -389,25 +389,25 @@ size_t HTTPrequest::MakeRequest(
 		request += host;
 		request += "\r\n";
 
-		if( !referer.isEmpty() )
+		if( !m_referer.isEmpty() )
 		{
 			request += "Referer: ";
-			request += referer;
+			request += m_referer;
 			request += "\r\n";
 		}
 
 		request += "User-Agent: ";
-		if( !userAgent.isEmpty() )
-			request += userAgent;
+		if( !m_userAgent.isEmpty() )
+			request += m_userAgent;
 		else
 			request += "GAKLIB HTTP Client";
 
 		request += "\r\n";
 
-		if( !httpUsername.isEmpty() && !httpPassword.isEmpty() )
+		if( !m_httpUsername.isEmpty() && !m_httpPassword.isEmpty() )
 		{
 			request += "Authorization: Basic ";
-			STRING	credentials = httpUsername + ':' + httpPassword;
+			STRING	credentials = m_httpUsername + ':' + m_httpPassword;
 
 			request += encodeBase64( credentials );
 			request += "\r\n";
@@ -424,41 +424,41 @@ size_t HTTPrequest::MakeRequest(
 			request += formatNumber( numData );
 			request += "\r\n";
 		}
-		if( extraHeader[0U] )
+		if( m_extraHeader[0U] )
 		{
-			request += extraHeader;
+			request += m_extraHeader;
 			request += "\r\n";
-			extraHeader = "";
+			m_extraHeader = nullptr;
 		}
 
 		request += "Connection: close\r\n\r\n";
 
-		if( !socketStream->sendData( request, request.strlen() ) )
+		if( !m_socketStream->sendData( request, request.strlen() ) )
 		{
 			if( numData && data )
-				socketStream->sendData( data, numData );
+				m_socketStream->sendData( data, numData );
 
-			theResponse.readHttpResponse( socketStream, includeBody, bufferSize );
+			theResponse.readHttpResponse( m_socketStream, includeBody, bufferSize );
 			theResponse.incrFetchCount();
 		}
 
 		if( theResponse.getResponseSize() )
 			addCookies(theResponse.getCookies());
 		else
-			theResponse.setStatusText( (STRING)"socket: " + socketStream->getSocketError() );
+			theResponse.setStatusText( (STRING)"socket: " + m_socketStream->getSocketError() );
 
-		socketStream->disconnect();
+		m_socketStream->disconnect();
 	}
 	else
 	{
-		theResponse.setStatusText( (STRING)"socket: " + socketStream->getSocketError() );
+		theResponse.setStatusText( (STRING)"socket: " + m_socketStream->getSocketError() );
 	}
 
-	theResponse.setConnectTime( socketStream->getConnectTime() );
-	theResponse.setSendTime( socketStream->getSendTime() );
-	theResponse.setReceiveTime( socketStream->getReceiveTime() );
-	theResponse.setTotalTime( socketStream->getTotalTime() );
-	theResponse.setReferer( referer );
+	theResponse.setConnectTime( m_socketStream->getConnectTime() );
+	theResponse.setSendTime( m_socketStream->getSendTime() );
+	theResponse.setReceiveTime( m_socketStream->getReceiveTime() );
+	theResponse.setTotalTime( m_socketStream->getTotalTime() );
+	theResponse.setReferer( m_referer );
 
 	return theResponse.getResponseSize();
 }
@@ -627,7 +627,7 @@ void HTTPclientResponse::readHttpResponse( SocketStreambuf *theSocket, bool incl
 	m_responseSize = strlen( m_header ) + m_contentLength + 2;
 }
 
-bool HTTPclientResponse::isExpired( void ) const
+bool HTTPclientResponse::isExpired() const
 {
 	if( getNoCacheFlag() )
 	{
@@ -724,7 +724,7 @@ void HTTPrequest::addCookies( const FieldSet &cookies )
 
 		if( !name.isEmpty() && !value.isEmpty() )
 		{
-			this->cookies.updateField( name, value );
+			m_cookies.updateField( name, value );
 		}
 	}
 }
@@ -741,23 +741,23 @@ void HTTPrequest::addCookies( const STRING &cookies )
 
 		if( !name.isEmpty() && !value.isEmpty() )
 		{
-			this->cookies.updateField( name, value );
+			m_cookies.updateField( name, value );
 		}
 
 		theCookie = newCookies.getNextToken();
 	}
 }
 
-STRING HTTPrequest::getCookies( void )
+STRING HTTPrequest::getCookies()
 {
 	STRING	cookieString;
-	size_t	numCookies = cookies.getNumFields();
+	size_t	numCookies = m_cookies.getNumFields();
 
 	for( size_t i=0; i<numCookies; i++ )
 	{
-		cookieString += cookies[i].getKey();
+		cookieString += m_cookies[i].getKey();
 		cookieString += '=';
-		cookieString += STRING(cookies[i].getValue());
+		cookieString += STRING(m_cookies[i].getValue());
 		cookieString += "; ";
 	}
 
@@ -770,14 +770,14 @@ xml::Document *HTTPrequest::getXmlDocument( bool ignoreMimeType )
 
 	clock_t				parseTime = clock();
 	xml::Document		*theDoc = NULL;
-	HTTPclientResponse	&theResponse = responseCache[lastUrl];
+	HTTPclientResponse	&theResponse = m_responseCache[m_lastUrl];
 	STRING				contentType = theResponse.getContentType().leftString( 8 ).lowerCase();
 
 
 	if( theResponse.getBodySize() && (ignoreMimeType || contentType == "text/xml") )
 	{
 		iBinaryStream	theInputStream( theResponse.getBodyArray() );
-		xml::Parser		theXmlParser( &theInputStream, lastUrl );
+		xml::Parser		theXmlParser( &theInputStream, m_lastUrl );
 
 		theDoc = theXmlParser.readFile( false );
 		theResponse.setHtmlParserErrors( theXmlParser.getErrors() );
@@ -790,17 +790,17 @@ xml::Document *HTTPrequest::getXmlDocument( bool ignoreMimeType )
 	return theDoc;
 }
 
-html::Document *HTTPrequest::getHtmlDocument( void )
+html::Document *HTTPrequest::getHtmlDocument()
 {
 	clock_t			  	parseTime = clock();
 	html::Document		*theDoc = NULL;
-	HTTPclientResponse	&theResponse = responseCache[lastUrl];
+	HTTPclientResponse	&theResponse = m_responseCache[m_lastUrl];
 	STRING			  	contentType = theResponse.getContentType().leftString( 9 ).lowerCase();
 
 	if( theResponse.getBodySize() && contentType == "text/html" )
 	{
 		iBinaryStream	theInputStream( theResponse.getBodyArray() );
-		html::Parser	theHtmlParser( &theInputStream, lastUrl );
+		html::Parser	theHtmlParser( &theInputStream, m_lastUrl );
 
 		theDoc = theHtmlParser.readFile( false );
 		theResponse.setHtmlParserErrors( theHtmlParser.getErrors() );
@@ -817,16 +817,16 @@ void HTTPrequest::clearCache( bool expiredOnly )
 {
 	if( !expiredOnly )
 	{
-		responseCache.clear();
+		m_responseCache.clear();
 	}
 	else
 	{
 		size_t	i=0;
-		while( i<responseCache.size() )
+		while( i<m_responseCache.size() )
 		{
-			if( responseCache.getElementAt(i).isExpired() )
+			if( m_responseCache.getElementAt(i).isExpired() )
 			{
-				responseCache.removeElementAt( i );
+				m_responseCache.removeElementAt( i );
 			}
 			else
 			{

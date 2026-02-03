@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -114,14 +114,14 @@ class HTTPstatusError : public HTTPerror
 /// this is a simple HTTP client
 class HTTPrequest
 {
-	SocketStreambuf	*socketStream;
+	SocketStreambuf	*m_socketStream;
 
 	// input data
-	STRING		extraHeader;
-	FieldSet	cookies;
-	STRING		referer, userAgent;
+	STRING		m_extraHeader;
+	FieldSet	m_cookies;
+	STRING		m_referer, m_userAgent;
 
-	STRING		httpUsername, httpPassword;
+	STRING		m_httpUsername, m_httpPassword;
 
 	static STRING			s_proxy;
 	static unsigned short	s_proxyPort;
@@ -129,8 +129,8 @@ class HTTPrequest
 	static STRING			s_keyfile, s_password;
 
 	// response
-	STRING								lastUrl;
-	UnorderedMap<HTTPclientResponse>	responseCache;
+	STRING								m_lastUrl;
+	UnorderedMap<HTTPclientResponse>	m_responseCache;
 
 	private:
 	size_t MakeRequest(
@@ -148,13 +148,13 @@ class HTTPrequest
 	*/
 	void setExtraHeader( const char *headerName, const char *headerValue )
 	{
-		if( !extraHeader.isEmpty() )
+		if( !m_extraHeader.isEmpty() )
 		{
-			extraHeader += "\r\n";
+			m_extraHeader += "\r\n";
 		}
-		extraHeader += headerName;
-		extraHeader += ": ";
-		extraHeader += headerValue;
+		m_extraHeader += headerName;
+		m_extraHeader += ": ";
+		m_extraHeader += headerValue;
 	}
 
 	public:
@@ -185,14 +185,14 @@ class HTTPrequest
 	/// creates a new HTTP request object
 	HTTPrequest()
 	{
-		socketStream = NULL;
+		m_socketStream = NULL;
 	}
 	/// destroys the client and the connectioon
 	~HTTPrequest()
 	{
-		if( socketStream )
+		if( m_socketStream )
 		{
-			delete socketStream;
+			delete m_socketStream;
 		}
 	}
 	/**
@@ -229,7 +229,7 @@ class HTTPrequest
 	*/
 	void setCookies( const STRING &cookies )
 	{
-		this->cookies.clear();
+		m_cookies.clear();
 
 		addCookies( cookies );
 	}
@@ -244,32 +244,32 @@ class HTTPrequest
 	*/
 	void setCookies( const FieldSet &cookies )
 	{
-		this->cookies.clear();
+		m_cookies.clear();
 
 		addCookies( cookies );
 	}
 	///	returns all cookies in the form \<name\>=\<value\> [;\<name\>=\<value\>] ...
-	STRING getCookies( void );
+	STRING getCookies();
 
 	/// sets the referer field
 	void setReferer( const STRING &referer )
 	{
-		this->referer = referer;
+		m_referer = referer;
 	}
 	/// returns the referer field
-	const STRING &getReferer( void ) const
+	const STRING &getReferer() const
 	{
-		return referer;
+		return m_referer;
 	}
 	/// sets the user agent field
 	void setUserAgent( const STRING &userAgent )
 	{
-		this->userAgent = userAgent;
+		m_userAgent = userAgent;
 	}
 	/// returns the user agent field
-	const STRING &getUserAgent( void ) const
+	const STRING &getUserAgent() const
 	{
-		return userAgent;
+		return m_userAgent;
 	}
 	/**
 		@brief sets user name and password for basic authentication
@@ -278,8 +278,8 @@ class HTTPrequest
 	*/
 	void setCredentials( const STRING &username, const STRING &password )
 	{
-		httpUsername = username;
-		httpPassword = password;
+		m_httpUsername = username;
+		m_httpPassword = password;
 	}
 	/**
 		@brief establishes a connection to the server and performs a GET request
@@ -319,40 +319,40 @@ class HTTPrequest
 		return MakeRequest( "HEAD", url, buffersize );
 	}
 	/// returns the header field of the last request
-	STRING	getHeader( void ) const
+	STRING	getHeader() const
 	{
-		return responseCache[lastUrl].getHeader();
+		return m_responseCache[m_lastUrl].getHeader();
 	}
 	/// returns the content type of the last request
-	STRING	getContentType( void ) const
+	STRING	getContentType() const
 	{
-		return responseCache[lastUrl].getContentType();
+		return m_responseCache[m_lastUrl].getContentType();
 	}
 
 	/// returns the status code of the last request
-	int getHttpStatusCode( void ) const
+	int getHttpStatusCode() const
 	{
-		return responseCache[lastUrl].getStatusCode();
+		return m_responseCache[m_lastUrl].getStatusCode();
 	}
 	/// returns the status text of the last request
-	STRING getHttpStatusText( void ) const
+	STRING getHttpStatusText() const
 	{
-		return responseCache[lastUrl].getStatusText();
+		return m_responseCache[m_lastUrl].getStatusText();
 	}
 	/// returns the redirect URL of the last request
-	STRING getLocation( void ) const
+	STRING getLocation() const
 	{
-		return responseCache[lastUrl].getLocation();
+		return m_responseCache[m_lastUrl].getLocation();
 	}
 	/// returns the content of the last request (use for text data)
-	const char *getBody( void ) const
+	const char *getBody() const
 	{
-		return responseCache[lastUrl].getBody();
+		return m_responseCache[m_lastUrl].getBody();
 	}
 	/// returns the xml/html parser errors of the last request
-	STRING getHtmlErrors( void ) const
+	STRING getHtmlErrors() const
 	{
-		return responseCache[lastUrl].getHtmlParserErrors();
+		return m_responseCache[m_lastUrl].getHtmlParserErrors();
 	}
 
 	/**
@@ -365,36 +365,41 @@ class HTTPrequest
 		@brief parses the content of the last request
 		@return an HTML document created from the content NULL if there is an error
 	*/
-	html::Document	*getHtmlDocument( void );
+	html::Document	*getHtmlDocument();
 
 	/// returns the number of elements on the response cache
-	size_t getNumGets( void ) const
+	size_t getNumGets() const
 	{
-		return responseCache.size();
+		return m_responseCache.size();
 	}
 	/// returns an entry from the response cache by its index
 	const HTTPclientResponse &getHttpResponse( size_t i ) const
 	{
-		return responseCache.getElementAt( i );
+		return m_responseCache.getElementAt( i );
 	}
 	/// returns an entry from the response cache by its url
 	const HTTPclientResponse &getHttpResponse( const STRING &url ) const
 	{
-		return responseCache[url];
+		return m_responseCache[url];
+	}
+	/// returns an entry from the response cache by its url
+	HTTPclientResponse &getHttpResponse( const STRING &url )
+	{
+		return m_responseCache[url];
 	}
 	/// returns the response of the last request
-	const HTTPclientResponse &getHttpResponse( void ) const
+	const HTTPclientResponse &getHttpResponse() const
 	{
-		return responseCache[lastUrl];
+		return m_responseCache[m_lastUrl];
 	}
 	/// clears the entire response cache
 	void clearCache( bool expiredOnly );
 
 	/// returns the last socket error
-	STRING	getSocketError( void ) const
+	STRING	getSocketError() const
 	{
-		if( socketStream )
-			return socketStream->getSocketError();
+		if( m_socketStream )
+			return m_socketStream->getSocketError();
 		else
 			return "No socket";
 	}
@@ -402,7 +407,7 @@ class HTTPrequest
 	/// sets the last URL
 	void setLastUrl( const STRING &url )
 	{
-		lastUrl = url;
+		m_lastUrl = url;
 	}
 };
 
