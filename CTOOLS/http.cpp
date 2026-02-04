@@ -428,7 +428,7 @@ size_t HTTPrequest::MakeRequest(
 		{
 			request += m_extraHeader;
 			request += "\r\n";
-			m_extraHeader = nullptr;
+			m_extraHeader.release();
 		}
 
 		request += "Connection: close\r\n\r\n";
@@ -436,7 +436,9 @@ size_t HTTPrequest::MakeRequest(
 		if( !m_socketStream->sendData( request, request.strlen() ) )
 		{
 			if( numData && data )
+			{
 				m_socketStream->sendData( data, numData );
+			}
 
 			theResponse.readHttpResponse( m_socketStream, includeBody, bufferSize );
 			theResponse.incrFetchCount();

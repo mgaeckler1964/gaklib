@@ -184,7 +184,7 @@ class OsmTest : public UnitTest
 			}
 
 			writeToBinaryFile(
-				STRING(tmpName1),
+				tmpName1,
 				builder, OSM_MAGIC2, VERSION_MAGIC, owmOverwrite 
 			);
 		}
@@ -219,7 +219,7 @@ class OsmTest : public UnitTest
 			}
 
 			writeToBinaryFile(
-				STRING(tmpName2),
+				tmpName2,
 				builder, OSM_MAGIC2, VERSION_MAGIC, owmOverwrite 
 			);
 		}
@@ -228,7 +228,7 @@ class OsmTest : public UnitTest
 			OSMbuilder	builder1;
 
 			readFromBinaryFile(
-				STRING(tmpName1),
+				tmpName1,
 				&builder1, OSM_MAGIC2, VERSION_MAGIC, false 
 			);
 
@@ -254,7 +254,7 @@ class OsmTest : public UnitTest
 
 			OSMbuilder	builder2;
 			readFromBinaryFile(
-				STRING(tmpName2),
+				tmpName2,
 				&builder2, OSM_MAGIC2, VERSION_MAGIC, false 
 			);
 
@@ -271,7 +271,7 @@ class OsmTest : public UnitTest
 			OSMviewer	osmViewer;
 
 			readFromBinaryFile(
-				STRING(tmpName1),
+				tmpName1,
 				&osmViewer, OSM_MAGIC2, VERSION_MAGIC, true 
 			);
 
@@ -318,7 +318,7 @@ class OsmTest : public UnitTest
 
 			{
 				OSMviewer tmp;
-				osmViewer.mergeOsmTile( STRING(tmpName2), &tmp );
+				osmViewer.mergeOsmTile( tmpName2, &tmp );
 			}
 
 			{

@@ -288,7 +288,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 		)
 		{
 			const typename TileT::LinkInfo &link = it->getValue();
-			addLink(it->getKey(), link.m_link, link.m_startNodeID, link.m_endNodeID );
+			this->addLink(it->getKey(), link.m_link, link.m_startNodeID, link.m_endNodeID );
 		}
 
 		mergeIndex(m_lonIndex, tileMap.getLonIndex());
@@ -310,14 +310,14 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 			addNode(layerKey, nodeID, nInfo.m_node);
 			const link_key_types &outgoing = nInfo.m_outgoing;
 			for(
-				link_key_types::const_iterator itL = outgoing.cbegin(), endIT = outgoing.cend();
+				typename link_key_types::const_iterator itL = outgoing.cbegin(), endIT = outgoing.cend();
 				itL != endIT;
 				++itL
 			)
 			{
 				link_key_type linkID = *itL;
 				const typename TileT::LinkInfo &lInfo = srcMap.getLinkInfo(linkID);
-				addLink(linkID,lInfo.m_link, lInfo.m_startNodeID, lInfo.m_endNodeID );
+				this->addLink(linkID,lInfo.m_link, lInfo.m_startNodeID, lInfo.m_endNodeID );
 			}
 		}
 	}

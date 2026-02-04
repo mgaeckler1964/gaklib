@@ -87,7 +87,7 @@ class TempFileName
 		if( !m_filename.isEmpty() )
 		{
 			strRemove( m_filename );
-			m_filename = nullptr;
+			m_filename.release();
 		}
 	}
 
@@ -98,7 +98,7 @@ class TempFileName
 	}
 	public:
 	TempFileName( const STRING &tmpName=nullptr ) : m_filename(tmpName) {}
-	TempFileName( bool ) : m_filename(nullptr)
+	TempFileName( bool ) : m_filename()
 	{
 		buildUniqueName();
 	}
@@ -111,6 +111,14 @@ class TempFileName
 	operator const STRING &() const
 	{
 		return m_filename;
+	}
+	const STRING &get() const
+	{
+		return m_filename;
+	}
+	const char *c_str() const
+	{
+		return m_filename.c_str();
 	}
 	operator bool () const
 	{

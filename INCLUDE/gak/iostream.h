@@ -944,7 +944,7 @@ void writeToBinaryFile(
 	@see fromBinaryStream, writeToBinaryFile
 */
 template <class OBJ>
-void readFromBinaryFile( const char *fileName, OBJ *obj, uint32 magicRequired, uint16 versionRequired, bool ignoreSize )
+void readFromBinaryFile( const STRING &fileName, OBJ *obj, uint32 magicRequired, uint16 versionRequired, bool ignoreSize )
 {
 	std::ifstream	stream( fileName, std::ios_base::binary );
 	if( !stream )

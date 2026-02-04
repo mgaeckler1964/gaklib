@@ -145,7 +145,7 @@ class CmdlineTest : public UnitTest
 			TempFileName	cfg( STRING(".test.cfg") );
 			if( x&2 )
 			{
-				std::ofstream out = std::ofstream( STRING(cfg) );
+				std::ofstream out( cfg.c_str() );
 				out << "-D=fromConfig\n";
 			}
 			else

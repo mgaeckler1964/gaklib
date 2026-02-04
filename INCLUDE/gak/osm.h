@@ -74,6 +74,11 @@ const uint16 VERSION_MAGIC = 2;
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+inline STRING getTileFileName( const STRING &tilesPath, math::tileid_t tileID )
+{
+	return tilesPath + DIRECTORY_DELIMITER + formatNumber(tileID) + BINMAP_EXTENSION;
+}
+
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -257,7 +262,9 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 	typedef typename Super::node_key_type			node_key_type;
 	typedef typename Super::LinkInfo				LinkInfo;
 	typedef typename Super::layer_key_type			layer_key_type;
-	typedef Super::Layers							Layers;
+	typedef typename Super::Layer					Layer;
+	typedef typename Super::Layers					Layers;
+	typedef typename Super::PositionValue			PositionValue;
 
 	/*
 		------------------------------------------------------------------------------------------
@@ -275,7 +282,7 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 	void addPlace( OsmPlaceKeyT key, const OsmPlace &newPlace )
 	{
 		m_places[key] = newPlace;
-		expandBoundingBox(newPlace.pos.longitude,newPlace.pos.latitude);
+		this->expandBoundingBox(newPlace.pos.longitude,newPlace.pos.latitude);
 	}
 	public:
 	void addPlace( OsmPlaceKeyT key, OsmLayerKeyT layerKey, const OsmPlace &newPlace )
@@ -439,7 +446,7 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 			mapFileName,
 			tileMap, OSM_MAGIC2, VERSION_MAGIC, true 
 		);
-		mergeTile(*tileMap);
+		this->mergeTile(*tileMap);
 		const typename TileT::place_container_type &places = tileMap->getAllPlaces();
 		for(
 			typename TileT::place_container_type::const_iterator it = places.cbegin(), endIT = places.cend();
@@ -458,15 +465,15 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 		{
 			addArea(it->getKey(), it->getValue() );
 		}
-		mergeIndex(m_lonPlaceIndex, tileMap->getLonPlaceIndex());
-		mergeIndex(m_latPlaceIndex, tileMap->getLatPlaceIndex());
-		mergeIndex(m_lonAreaIndex, tileMap->getLonAreaIndex());
-		mergeIndex(m_latAreaIndex, tileMap->getLatAreaIndex());
+		this->mergeIndex(m_lonPlaceIndex, tileMap->getLonPlaceIndex());
+		this->mergeIndex(m_latPlaceIndex, tileMap->getLatPlaceIndex());
+		this->mergeIndex(m_lonAreaIndex, tileMap->getLonAreaIndex());
+		this->mergeIndex(m_latAreaIndex, tileMap->getLatAreaIndex());
 	}
 	template <class TileT>
 	void mergeOsmTile( math::tileid_t tileID, const STRING &path, TileT *tileMap )
 	{
-		if( !getTileIDs().hasElement(tileID) )
+		if( !this->getTileIDs().hasElement(tileID) )
 		{
 			STRING	mapFileName = getTileFileName( path, tileID );
 
@@ -481,13 +488,13 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 			mapFileName,
 			tileMap, OSM_MAGIC2, VERSION_MAGIC, true 
 		);
-		mergeLayer( minLayerKey, maxLayerKey, *tileMap );
+		this->mergeLayer( minLayerKey, maxLayerKey, *tileMap );
 	}
 
 	template <class TileT>
 	void mergeOsmLayer( layer_key_type minLayerKey, layer_key_type maxLayerKey, math::tileid_t tileID, const STRING &path, TileT *tileMap )
 	{
-		if( !getTileIDs().hasElement(tileID) )
+		if( !this->getTileIDs().hasElement(tileID) )
 		{
 			STRING	mapFileName = getTileFileName( path, tileID );
 
@@ -540,11 +547,6 @@ inline void fromBinaryStream( std::istream &stream, OSMviewer::PositionValue *va
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-inline STRING getTileFileName( const STRING &tilesPath, math::tileid_t tileID )
-{
-	return tilesPath + DIRECTORY_DELIMITER + formatNumber(tileID) + BINMAP_EXTENSION;
-}
 
 // --------------------------------------------------------------------- //
 // ----- class inlines ------------------------------------------------- //
@@ -599,7 +601,7 @@ void BasicOpenStreetMap<MapT, IndexT>::getPlaces(
 	{
 		assert( m_lonPlaceIndex[layerKey].size() == m_latPlaceIndex[layerKey].size() );
 
-		ConstIterable<Layer::const_iterator>	rangeValues =
+		ConstIterable<typename Layer::const_iterator>	rangeValues =
 		m_lonPlaceIndex[layerKey].getRange(
 			PositionValue(
 				float(region.topLeft.longitude)
@@ -610,7 +612,7 @@ void BasicOpenStreetMap<MapT, IndexT>::getPlaces(
 		);
 
 		for(
-			Layer::const_iterator	it = rangeValues.cbegin(),
+			typename Layer::const_iterator	it = rangeValues.cbegin(),
 				endIT = rangeValues.cend();
 			it != endIT;
 			++it
@@ -622,7 +624,7 @@ void BasicOpenStreetMap<MapT, IndexT>::getPlaces(
 
 	if( m_latPlaceIndex.hasElement(layerKey) )
 	{
-		ConstIterable<Layer::const_iterator>	rangeValues =
+		ConstIterable<typename Layer::const_iterator>	rangeValues =
 		m_latPlaceIndex[layerKey].getRange(
 			PositionValue(
 				float(region.bottomRight.latitude)
@@ -632,7 +634,7 @@ void BasicOpenStreetMap<MapT, IndexT>::getPlaces(
 			)
 		);
 		for(
-			Layer::const_iterator	it = rangeValues.cbegin(),
+			typename Layer::const_iterator	it = rangeValues.cbegin(),
 				endIT = rangeValues.cend();
 			it != endIT;
 			++it
@@ -665,7 +667,7 @@ void BasicOpenStreetMap<MapT, IndexT>::getAreas(
 	{
 		assert( m_lonAreaIndex[layerKey].size() == m_latAreaIndex[layerKey].size() );
 
-		ConstIterable<Layer::const_iterator>	rangeValues =
+		ConstIterable<typename Layer::const_iterator>	rangeValues =
 		m_lonAreaIndex[layerKey].getRange(
 			PositionValue(
 				float(region.topLeft.longitude)
@@ -676,7 +678,7 @@ void BasicOpenStreetMap<MapT, IndexT>::getAreas(
 		);
 
 		for(
-			Layer::const_iterator	it = rangeValues.cbegin(),
+			typename Layer::const_iterator	it = rangeValues.cbegin(),
 				endIT = rangeValues.cend();
 			it != endIT;
 			++it
@@ -688,7 +690,7 @@ void BasicOpenStreetMap<MapT, IndexT>::getAreas(
 
 	if( m_latAreaIndex.hasElement(layerKey) )
 	{
-		ConstIterable<Layer::const_iterator>	rangeValues =
+		ConstIterable<typename Layer::const_iterator>	rangeValues =
 		m_latAreaIndex[layerKey].getRange(
 			PositionValue(
 				float(region.bottomRight.latitude)
@@ -698,7 +700,7 @@ void BasicOpenStreetMap<MapT, IndexT>::getAreas(
 			)
 		);
 		for(
-			Layer::const_iterator	it = rangeValues.cbegin(),
+			typename Layer::const_iterator	it = rangeValues.cbegin(),
 				endIT = rangeValues.cend();
 			it != endIT;
 			++it
@@ -726,7 +728,7 @@ void BasicOpenStreetMap<MapT, IndexT>::addArea( OsmAreaKeyT key, OsmLayerKeyT la
 		float	 longitude = it->longitude;
 		float	 latitude = it->latitude;
 
-		expandBoundingBox(longitude,latitude);
+		this->expandBoundingBox(longitude,latitude);
 
 		m_lonAreaIndex[layerKey].addElement(
 			PositionValue( longitude, key )

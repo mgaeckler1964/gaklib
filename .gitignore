@@ -8,3 +8,5 @@ xholidays.dat
 *.suo
 *.user
 *.~*
+*.pem
+test

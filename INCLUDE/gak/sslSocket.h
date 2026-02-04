@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -89,14 +89,14 @@ enum SSL_LIB_ERROR
 class SSLsocketStreambuf : public SocketStreambuf
 {
 	private:
-	SSL_LIB_ERROR	sslLibraryError;
-	int				sslLayerError;
-	SSL_CTX			*ctx;
-	SSL				*ssl;
-	BIO				*sbio;
-	STRING			proxy;
-	int				proxyPort;
-	STRING			keyfile, password;
+	SSL_LIB_ERROR	m_sslLibraryError;
+	int				m_sslLayerError;
+	SSL_CTX			*m_ctx;
+	SSL				*m_ssl;
+	BIO				*m_sbio;
+	STRING			m_proxy;
+	int				m_proxyPort;
+	STRING			m_keyfile, m_password;
 
 	SSL_LIB_ERROR initialize_ctx();
 	virtual int underflow( void );
@@ -111,14 +111,14 @@ class SSLsocketStreambuf : public SocketStreambuf
 	*/
 	SSLsocketStreambuf( const STRING &proxy, int proxyPort, const STRING &keyfile, const STRING &password )
 	{
-		sslLayerError = 0;
-		this->proxy = proxy;
-		this->proxyPort = proxyPort;
-		this->keyfile = keyfile;
-		this->password = password;
-		ctx = NULL;
-		ssl = NULL;
-		sbio = NULL;
+		m_sslLayerError = 0;
+		m_proxy = proxy;
+		m_proxyPort = proxyPort;
+		m_keyfile = keyfile;
+		m_password = password;
+		m_ctx = nullptr;
+		m_ssl = nullptr;
+		m_sbio = nullptr;
 	}
 	virtual int connect( const char *server, int port, int buffersize=10240 );
 	virtual int sendData( const char *data, size_t numData);

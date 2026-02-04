@@ -81,7 +81,7 @@ using namespace net;
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-ArrayOfData	serverResult;
+static ArrayOfData	s_serverResult;
 
 class TestWebServer : public HTTPserverBase
 {
@@ -95,16 +95,44 @@ class HttpTest : public UnitTest
 	{
 		return "HttpTest";
 	}
-	virtual void PerformTest()
+	
+	void ClientTest()
 	{
-		doEnterFunctionEx(gakLogging::llInfo, "HttpTest::PerformTest");
-		TestScope scope( "PerformTest" );
+		doEnterFunctionEx(gakLogging::llInfo, "HttpTest::ClientTest");
+		TestScope scope( "ClientTest" );
+
+		HTTPrequest	myClient;
+
+		myClient.Get( "http://www.gaeckler.at/" );
+		const char *cp1 = myClient.getHttpResponse().getBody();
+		size_t size1 = myClient.getHttpResponse().getContentLength();
+		int status1 = myClient.getHttpResponse().getStatusCode();
+
+		UT_ASSERT_EQUAL( size1, strlen(cp1) );
+		UT_ASSERT_EQUAL( status1, 200 );
+
+		myClient.Get( "https://www.gaeckler.at/" );
+		const char *cp2 = myClient.getHttpResponse().getBody();
+		size_t size2 = myClient.getHttpResponse().getContentLength();
+		int status2 = myClient.getHttpResponse().getStatusCode();
+		STRING	socketError = myClient.getSocketError();
+		UT_ASSERT_EQUAL( socketError, EMPTY_STRING );
+
+		UT_ASSERT_EQUAL( size2, strlen(cp2) );
+		UT_ASSERT_EQUAL( status2, 200 );
+
+//		UT_ASSERT_EQUAL( size1, size2 );
+	}
+	void ServerTest()
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "HttpTest::ServerTest");
+		TestScope scope( "ServerTest" );
 
 		LockGuard		lock( s_testLocker );
 		SocketServer<TestWebServer>	myServer;
 
 		HTTPrequest	myClient;
-		STRING	   	url = "https://localhost:6666/" __FILE__;
+		STRING	   	url = "http://localhost:6666/" __FILE__;
 
 		/*
 			start server and client
@@ -127,25 +155,33 @@ class HttpTest : public UnitTest
 			/*
 				compare with server data
 			*/
-			UT_ASSERT_EQUAL( size, serverResult.size() );
+			UT_ASSERT_EQUAL( size, s_serverResult.size() );
 			int status = myClient.getHttpResponse().getStatusCode();
 			UT_ASSERT_EQUAL( status, 200 );
 
-			for( size_t i=0; i<serverResult.size(); i++ )
+			for( size_t i=0; i<s_serverResult.size(); i++ )
 			{
 				char c1 = cp[i];
-				char c2 = serverResult[i];
+				char c2 = s_serverResult[i];
 				UT_ASSERT_EQUAL( c1, c2 );
 				if( c1 != c2 )
 					break;
 			}
-			if( size > serverResult.size() )
+			if( size > s_serverResult.size() )
 			{
-				STRING	extra = cp + serverResult.size();
+				STRING	extra = cp + s_serverResult.size();
 				UT_ASSERT_EQUAL( extra, EMPTY_STRING );
 			}
 		}
 	}
+	virtual void PerformTest()
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "HttpTest::PerformTest");
+		TestScope scope( "PerformTest" );
+		ClientTest();
+		ServerTest();
+	}
+
 };
 
 // --------------------------------------------------------------------- //
@@ -203,10 +239,10 @@ int TestWebServer::handleGetRequest( const STRING &url )
 		STRING			file = url+size_t(1);		// ignore directory delimiter
 		DirectoryEntry	theFile( file );
 
-		readFromFile( &serverResult, file );
+		readFromFile( &s_serverResult, file );
 
 		response.setStatusCode( 200 );
-		sendResponse( serverResult );
+		sendResponse( s_serverResult );
 
 		return 0;
 	}

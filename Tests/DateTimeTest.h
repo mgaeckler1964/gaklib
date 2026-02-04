@@ -84,7 +84,7 @@ class DateTimeTest : public UnitTest
 	{
 		DateTime	now;
 		{
-#ifndef __BORLANDC__
+#if !NO_SEASON
 			DateTime nextWinter = now.nextWinter();
 #else
 			DateTime nextWinter = DateTime(21,DateTime::DECEMBER,2026, 0,0,0);
@@ -116,7 +116,7 @@ class DateTimeTest : public UnitTest
 			UT_ASSERT_LESS( winterDay, winterDayAfter );
 		}
 		{
-#ifndef __BORLANDC__
+#if !NO_SEASON
 			DateTime nextSummer = now.nextSummer();
 #else
 			DateTime nextSummer = DateTime(21,DateTime::JUNE,2026, 0,0,0);
@@ -155,7 +155,7 @@ class DateTimeTest : public UnitTest
 
 		DateTime	now;
 
-#ifndef __BORLANDC__
+#if !NO_SEASON
 		std::cout << "\nSPRINGYEAR" << SPRINGYEAR << ' ' << SPRINGYEAR - MEANYEAR << ' ' << SPRINGYEAR - SEASONYEAR << ' ' << SPRINGDURATION70 << ' ' << SPRINGDURATION22 << ' ' << SPRINGDURATION22-SPRINGDURATION70 << "\n"
 				<< "SUMMERYEAR" << SUMMERYEAR << ' ' << SUMMERYEAR - MEANYEAR << ' ' << SUMMERYEAR - SEASONYEAR << ' ' << SUMMERDURATION70 << ' ' << SUMMERDURATION22 << ' ' << SUMMERDURATION22-SUMMERDURATION70 << "\n"
 				<< "AUTUMNYEAR" << AUTUMNYEAR << ' ' << AUTUMNYEAR - MEANYEAR << ' ' << AUTUMNYEAR - SEASONYEAR << ' ' << AUTUMNDURATION70 << ' ' << AUTUMNDURATION22 << ' ' << AUTUMNDURATION22-AUTUMNDURATION70 << "\n"

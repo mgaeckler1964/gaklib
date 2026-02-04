@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -142,7 +142,7 @@ SSL_LIB_ERROR SSLsocketStreambuf::initialize_ctx( void )
 #else
 	strcpy( progPath, "." );
 #endif
-	sslLibraryError = SSL_NO_ERROR;	
+	m_sslLibraryError = SSL_NO_ERROR;	
 	/* Global system initialization*/	
 
 	if( first )
@@ -152,13 +152,13 @@ SSL_LIB_ERROR SSLsocketStreambuf::initialize_ctx( void )
 		first = false;
 	}
 	/* Create our context*/
-	ctx=SSL_CTX_new(SSLv23_method());
+	m_ctx=SSL_CTX_new(SSLv23_method());
 
 	/* Load our keys and certificates*/
-	if( !keyfile[0U] )
+	if( !m_keyfile[0U] )
 		kf = DEF_KEYFILE;
 	else
-		kf = keyfile;
+		kf = m_keyfile;
 
 	if( strAccess( kf, 00 ) )
 		theKeyfile = makeFullPath( progPath, kf );
@@ -169,30 +169,30 @@ SSL_LIB_ERROR SSLsocketStreambuf::initialize_ctx( void )
 	else
 		caFile = CA_LIST;
 
-	if( SSL_CTX_use_certificate_chain_file(ctx, theKeyfile) )
+	if( SSL_CTX_use_certificate_chain_file(m_ctx, theKeyfile) )
 	{
-		pass=password;
+		pass=m_password;
 
-		SSL_CTX_set_default_passwd_cb( ctx, password_cb );
-		if( SSL_CTX_use_PrivateKey_file( ctx, theKeyfile, SSL_FILETYPE_PEM ) )
+		SSL_CTX_set_default_passwd_cb( m_ctx, password_cb );
+		if( SSL_CTX_use_PrivateKey_file( m_ctx, theKeyfile, SSL_FILETYPE_PEM ) )
 		{
 			/* Load the CAs we trust*/
-			if( SSL_CTX_load_verify_locations(ctx, caFile,0) )
+			if( SSL_CTX_load_verify_locations(m_ctx, caFile,0) )
 			{
 #if (OPENSSL_VERSION_NUMBER < 0x00905100L)
 				SSL_CTX_set_verify_depth(ctx,1);
 #endif
 			}
 			else
-				sslLibraryError = BAD_CA_LIST;
+				m_sslLibraryError = BAD_CA_LIST;
 		}
 		else
-			sslLibraryError = BAD_KEY_FILE;
+			m_sslLibraryError = BAD_KEY_FILE;
 	}
 	else
-		sslLibraryError = BAD_CERT_FILE;
+		m_sslLibraryError = BAD_CERT_FILE;
 
-	return sslLibraryError;
+	return m_sslLibraryError;
 }
 
 // --------------------------------------------------------------------- //
@@ -211,10 +211,10 @@ int SSLsocketStreambuf::connect( const char *server, int port, int bufferSize )
 	STRING	proxyRequest;
 	int		sslStatus;
 
-	if( proxy[0U] && strcmpi( theServer, "localhost" ) )
+	if( m_proxy[0U] && strcmpi( theServer, "localhost" ) )
 	{
-		theServer = proxy;
-		thePort = proxyPort;
+		theServer = m_proxy;
+		thePort = m_proxyPort;
 		useProxy = true;
 		proxyRequest = "CONNECT ";
 		proxyRequest += server;
@@ -223,9 +223,13 @@ int SSLsocketStreambuf::connect( const char *server, int port, int bufferSize )
 		proxyRequest += " HTTP/1.1\r\n\r\n";
 	}
 
-	sslLibraryError = initialize_ctx();
+	m_sslLibraryError = initialize_ctx();
 
-	if( sslLibraryError == SSL_NO_ERROR )
+#ifndef NDEBUG
+	std::cout << __FILE__ << __LINE__ << ' ' << m_sslLibraryError << "==" << SSL_NO_ERROR << " SSL-Version: " << std::hex << OPENSSL_VERSION_NUMBER << std::dec << '?' << std::endl;
+#endif
+
+	if( m_sslLibraryError == SSL_NO_ERROR )
 	{
 		if( !SocketStreambuf::connect( theServer, thePort, bufferSize ) )
 		{
@@ -237,51 +241,64 @@ int SSLsocketStreambuf::connect( const char *server, int port, int bufferSize )
 				SocketStreambuf::getNextLine();
 				flush();
 			}
-			ssl=SSL_new( ctx );
-			sbio=BIO_new_socket( getSocket(), BIO_NOCLOSE );
-			SSL_set_bio( ssl, sbio, sbio );
-			if( (sslStatus = SSL_connect( ssl )) > 0 )
+			m_ssl=SSL_new( m_ctx );
+			m_sbio=BIO_new_socket( getSocket(), BIO_NOCLOSE );
+			SSL_set_bio( m_ssl, m_sbio, m_sbio );
+			if( (sslStatus = SSL_connect( m_ssl )) > 0 )
 			{
 //				if( require_server_auth )
 //				  check_cert( ssl, server );
 			}
 			else
 			{
-				sslLibraryError = SSL_LAYER_ERROR;
-				sslLayerError = sslStatus;
+				m_sslLibraryError = SSL_LAYER_ERROR;
+				m_sslLayerError = SSL_get_error(m_ssl,sslStatus);
 			}
 		}
 		else
 		{
-			sslLibraryError = SSL_SOCKET_ERROR;
+			m_sslLibraryError = SSL_SOCKET_ERROR;
 		}
 	}
-	if( sslLibraryError )
+#ifndef NDEBUG
+	if( m_sslLibraryError )
 	{
+		const char *file;
+		int line;
+		const char *data;
+		int flags;
+		unsigned long err = ERR_get_error_line_data(&file, &line, &data, &flags );
+        while( err )
+		{
+			std::cout << __FILE__ << __LINE__ << " Status: " << sslStatus << " LayerError: " << m_sslLayerError << " queue: " << std::hex << err << std::dec << 
+				' ' << file << ' ' << line << std::endl;
+			err = ERR_get_error_line_data(&file, &line, &data, &flags );
+		}
 		m_errorText = "Connect failed";
 	}
+#endif
 
-	return sslLibraryError;
+	return m_sslLibraryError;
 }
 
 int SSLsocketStreambuf::sendData( const char *data, size_t numData )
 {
-	if( ssl )
+	if( m_ssl )
 	{
 		clock_t			sendTime = clock();
 
-		sslLibraryError = SSL_NO_ERROR;
+		m_sslLibraryError = SSL_NO_ERROR;
 
 		while( numData )
 		{
 			int blockSize = numData > 1024*1024 ? 1024*1024 : int(numData);
 
-			int numSentData = SSL_write( ssl, data, blockSize );
+			int numSentData = SSL_write( m_ssl, data, blockSize );
 
 			if( numSentData <= 0 )
 			{
-				sslLayerError = SSL_get_error( ssl, numSentData );
-				sslLibraryError = SSL_LAYER_ERROR;
+				m_sslLayerError = SSL_get_error( m_ssl, numSentData );
+				m_sslLibraryError = SSL_LAYER_ERROR;
 				break;
 			}
 			numData -= numSentData;
@@ -289,20 +306,22 @@ int SSLsocketStreambuf::sendData( const char *data, size_t numData )
 		}
 
 		m_sendTime += clock()-sendTime;
-		if( sslLibraryError )
+		if( m_sslLibraryError )
 		{
 			m_errorText = "Send failed";
 		}
 
-		return sslLibraryError;
+		return m_sslLibraryError;
 	}
 	else
+	{
 		return SocketStreambuf::sendData( data, numData );
+	}
 }
 
 int SSLsocketStreambuf::underflow( void )
 {
-	if( !ssl )
+	if( !m_ssl )
 	{
 /***/	return SocketStreambuf::underflow();
 	}
@@ -314,7 +333,7 @@ int SSLsocketStreambuf::underflow( void )
 
 	if( isConnected() && base )
 	{
-		count=SSL_read( ssl, base, getBufferSize() );
+		count=SSL_read( m_ssl, base, getBufferSize() );
 		if( count >= 0 )
 		{
 			setg( base, base, base+count );
@@ -333,17 +352,17 @@ int SSLsocketStreambuf::underflow( void )
 
 void SSLsocketStreambuf::disconnect( void )
 {
-	if( ssl )
+	if( m_ssl )
 	{
-		SSL_shutdown(ssl);
-		SSL_free(ssl);
-		ssl = NULL;
+		SSL_shutdown(m_ssl);
+		SSL_free(m_ssl);
+		m_ssl = nullptr;
 	}
 
-	if( ctx )
+	if( m_ctx )
 	{
-		SSL_CTX_free(ctx);
-		ctx = NULL;
+		SSL_CTX_free(m_ctx);
+		m_ctx = nullptr;
 	}
 
 	SocketStreambuf::disconnect();
@@ -352,13 +371,17 @@ void SSLsocketStreambuf::disconnect( void )
 STRING SSLsocketStreambuf::getSocketError( void ) const
 {
 	STRING	error = m_errorText;
+	if( m_sslLibraryError )
+	{
+		char errorBuffer[10240];
 
-	error += " Lib Error ";
-	error += formatNumber( sslLibraryError );
-	error += ' ';
-	error += ERR_error_string( sslLayerError, NULL );
-	error += ' ';
-	error += SocketStreambuf::getSocketError();
+		error += " Lib Error ";
+		error += formatNumber( m_sslLibraryError );
+		error += ' ';
+		error += ERR_error_string( m_sslLayerError, errorBuffer );
+		error += ' ';
+		error += SocketStreambuf::getSocketError();
+	}
 
 	return error;
 }
