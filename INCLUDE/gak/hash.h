@@ -36,7 +36,7 @@
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#if defined( __WIN64__ ) || (defined( __MACH__) && !defined(__LP64__))
+#if (defined( __MACH__) && !defined(__LP64__))
 #	define	SHA_SUPPORT	0
 #else
 #	define	SHA_SUPPORT	1

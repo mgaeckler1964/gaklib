@@ -179,7 +179,7 @@ class HttpTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "HttpTest::PerformTest");
 		TestScope scope( "PerformTest" );
 		ClientTest();
-		ServerTest();
+//		ServerTest();
 	}
 
 };

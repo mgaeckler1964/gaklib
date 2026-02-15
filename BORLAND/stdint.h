@@ -1,7 +1,8 @@
 /*
 		Project:		GAKLIB
-		Module:			sslSocket.h
-		Description:
+		Module:			stdint.h
+		Description:	This is the part of stdint.h required for OpenSSL. 
+						My old Borland C++ builder does not have this file.
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -33,22 +34,13 @@
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#if 0
-	#define USE_SSL	0
-#else
-#	define USE_SSL	1
-#endif
-
-#if !defined( SSL_SOCKET_H ) && USE_SSL
-#define SSL_SOCKET_H
-
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <openssl/ssl.h>
-
-#include <gak/socketbuf.h>
+// --------------------------------------------------------------------- //
+// ----- imported datas ------------------------------------------------ //
+// --------------------------------------------------------------------- //
 
 // --------------------------------------------------------------------- //
 // ----- module switches ----------------------------------------------- //
@@ -61,11 +53,6 @@
 #	pragma option -pc
 #endif
 
-namespace gak
-{
-namespace net
-{
-
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -74,64 +61,26 @@ namespace net
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-enum SSL_LIB_ERROR
-{
-	SSL_NO_ERROR, BAD_CERT_FILE, BAD_KEY_FILE, BAD_CA_LIST,
-	SSL_SOCKET_ERROR,
-	SSL_INCOMPLETE, SSL_LAYER_ERROR
-};
+// --------------------------------------------------------------------- //
+// ----- type definitions ---------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+typedef signed __int64			int64_t;
+typedef unsigned __int64		uint64_t;
+
+typedef signed __int32			int32_t;
+typedef unsigned __int32		uint32_t;
+
+typedef signed short  			int16_t;
+typedef unsigned short			uint16_t;
+
+typedef signed char				int8_t;
+typedef unsigned char			uint8_t;
+
+typedef unsigned int			*uintptr_t;
 
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
-// --------------------------------------------------------------------- //
-
-/// Socket buffer that de/encrypts communication with SSL protocol 
-class SSLsocketStreambuf : public SocketStreambuf
-{
-	private:
-	SSL_LIB_ERROR	m_sslLibraryError;
-	int				m_sslLayerError;
-	SSL_CTX			*m_ctx;
-	SSL				*m_ssl;
-	BIO				*m_sbio;
-	STRING			m_proxy;
-	int				m_proxyPort;
-	STRING			m_keyfile, m_password;
-
-	SSL_LIB_ERROR initialize_ctx();
-	virtual int underflow( void );
-
-	public:
-	/**
-		@brief creates a new SSL buffer
-		@param [in] proxy hostname of proxy server
-		@param [in] proxyPort number of proxy server
-		@param [in] keyfile path to file containig your certificates
-		@param [in] password of your keyfile
-	*/
-	SSLsocketStreambuf( const STRING &proxy, int proxyPort, const STRING &keyfile, const STRING &password )
-	{
-		m_sslLayerError = 0;
-		m_proxy = proxy;
-		m_proxyPort = proxyPort;
-		m_keyfile = keyfile;
-		m_password = password;
-		m_ctx = nullptr;
-		m_ssl = nullptr;
-		m_sbio = nullptr;
-	}
-	virtual int connect( const char *server, int port, int buffersize=10240 );
-	virtual int sendData( const char *data, size_t numData);
-	virtual void disconnect( void );
-	virtual STRING	getSocketError( void ) const;
-};
-
-// --------------------------------------------------------------------- //
-// ----- module static data -------------------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- imported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
 // --------------------------------------------------------------------- //
@@ -186,14 +135,9 @@ class SSLsocketStreambuf : public SocketStreambuf
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-}	// namespace net
-}	// namespace gak
-
 #ifdef __BORLANDC__
 #	pragma option -RT.
 #	pragma option -b.
-#	pragma option -p.
 #	pragma option -a.
-#endif
-
+#	pragma option -p.
 #endif

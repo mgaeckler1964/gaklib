@@ -114,14 +114,14 @@
     <USERDEFINES value="_RWSTD_NO_EXCEPTIONS;NDEBUG"/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="gaklib_bcb.bpf"/>
-    <INCLUDEPATH value="BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;c:\openssl\include\;c:\Programme\openssl\include\;&quot;C:\Program Files (x86)\OpenSSL\include\&quot;"/>
+    <INCLUDEPATH value="BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;C:\OpenSSL\Win32\include\;c:\openssl\include\;c:\Programme\openssl\include\;&quot;C:\Program Files (x86)\OpenSSL\include\&quot;"/>
     <LIBPATH value="BORLAND;VCL_TOOLS;TOS;CTOOLS;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par"/>
     <LISTFILE value=""/>
   </MACROS>
   <OPTIONS>
     <IDLCFLAGS value="-IBORLAND -IVCL_TOOLS -ITOS -ICTOOLS -Iinclude -I$(BCB)\include 
-      -I$(BCB)\include\vcl -Ic:\openssl\include\. 
+      -I$(BCB)\include\vcl -IC:\OpenSSL\Win32\include\. -Ic:\openssl\include\. 
       -Ic:\Programme\openssl\include\. 
       -I&quot;C:\Program Files (x86)\OpenSSL\include\.&quot; -src_suffix cpp 
       -D_RWSTD_NO_EXCEPTIONS -DNDEBUG NDEBUG NDEBUG -boa"/>
@@ -165,18 +165,10 @@ ProductVersion=1.0.0.0
 Comments=
 
 [HistoryLists\hlIncludePath]
-Count=11
-Item0=BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;c:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
-Item1=BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;e:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
-Item2=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;e:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
-Item3=include;$(BCB)\include;$(BCB)\include\vcl;e:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
-Item4=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
-Item5=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include
-Item6=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\;${OpenSSL}\include
-Item7=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\;${OPEN_SSL}\include
-Item8=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\;${OPEN_SSL}\include\
-Item9=VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\
-Item10=include;$(BCB)\include;$(BCB)\include\vcl;g:\openssl\include\;c:\Programme\openssl\include\
+Count=3
+Item0=BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;C:\OpenSSL\Win32\include\;c:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
+Item1=BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;c:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\;C:\OpenSSL\Win32\include\
+Item2=BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;c:\openssl\include;c:\Programme\openssl\include;C:\Program Files (x86)\OpenSSL\include;C:\OpenSSL\Win32\include
 
 [HistoryLists\hlLibraryPath]
 Count=3

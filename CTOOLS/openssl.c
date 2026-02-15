@@ -1,12 +1,14 @@
 /*
 		Project:		GAKLIB
 		Module:			openssl.c
-		Description:
+		Description:	The open SSL loader for Borland C++
+						For other compilers I like to use the import 
+						libraries.
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +17,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -33,6 +35,8 @@
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+#ifdef __BORLANDC__
+
 #ifndef STRICT
 #define STRICT 1
 #endif
@@ -41,7 +45,7 @@
 /* ----- includes ------------------------------------------------------ */
 /* --------------------------------------------------------------------- */
 
-#if defined( __BORLANDC__ ) && __BORLANDC__ == 0x621
+#if defined( __BORLANDC__ ) // && __BORLANDC__ == 0x621
 // otherweise I get al lot of useless warnings about unused identifiers
 #pragma option -w-use
 #pragma option -w-pch
@@ -74,15 +78,19 @@
 /* --------------------------------------------------------------------- */
 
 typedef int (*fpSSL_library_init)(void);
+typedef int (*fpOPENSSL_init_ssl)(void);
+
 typedef void (*fpSSL_load_error_strings)(void);
 typedef SSL_METHOD * (*fpSSLv23_method)(void);
-typedef SSL_CTX *(*fpSSL_CTX_new)(SSL_METHOD *meth);
+typedef SSL_METHOD * (*fpTLS_method)(void);
+
+typedef SSL_CTX *(*fpSSL_CTX_new)(const SSL_METHOD *meth);
 typedef int	(*fpSSL_CTX_use_certificate_chain_file)(SSL_CTX *ctx, const char *file);
 typedef void (*fpSSL_CTX_set_default_passwd_cb)(SSL_CTX *ctx, pem_password_cb *cb);
 typedef int	(*fpSSL_CTX_use_PrivateKey_file)(SSL_CTX *ctx, const char *file, int type);
 typedef int (*fpSSL_CTX_load_verify_locations)(SSL_CTX *ctx, const char *CAfile,
 	const char *CApath);
-typedef SSL *(*fpSSL_new)(SSL_CTX *ctx);
+typedef SSL *(*fpSSL_new)(const SSL_CTX *ctx);
 typedef void (*fpSSL_set_bio)(SSL *s, BIO *rbio,BIO *wbio);
 typedef int (*fpSSL_connect)(SSL *ssl);
 typedef int (*fpSSL_write)(SSL *ssl,const void *buf,int num);
@@ -111,20 +119,22 @@ typedef char *(*fpERR_error_string)(unsigned long e,char *buf);
 /* ----- module statics ------------------------------------------------ */
 /* --------------------------------------------------------------------- */
 
-static HINSTANCE ssleay, libeay;
+static HINSTANCE s_ssleay = NULL, s_libeay = NULL;
 
 static fpSSL_library_init SSL_library_initPtr					= NULL;
+static fpOPENSSL_init_ssl OPENSSL_init_sslPtr					= NULL;
 
 static fpSSL_load_error_strings SSL_load_error_stringsPtr		= NULL;
 static fpSSLv23_method SSLv23_methodPtr							= NULL;
+static fpTLS_method TLS_methodPtr								= NULL;
 static fpSSL_CTX_new SSL_CTX_newPtr								= NULL;
-static fpSSL_CTX_use_certificate_chain_file 
+static fpSSL_CTX_use_certificate_chain_file
 	SSL_CTX_use_certificate_chain_filePtr						= NULL;
-static fpSSL_CTX_set_default_passwd_cb 
+static fpSSL_CTX_set_default_passwd_cb
 	SSL_CTX_set_default_passwd_cbPtr							= NULL;
-static fpSSL_CTX_use_PrivateKey_file 
+static fpSSL_CTX_use_PrivateKey_file
 	SSL_CTX_use_PrivateKey_filePtr								= NULL;
-static fpSSL_CTX_load_verify_locations 
+static fpSSL_CTX_load_verify_locations
 	SSL_CTX_load_verify_locationsPtr							= NULL;
 static fpSSL_new SSL_newPtr										= NULL;
 static fpSSL_set_bio SSL_set_bioPtr								= NULL;
@@ -148,52 +158,69 @@ static fpERR_error_string ERR_error_stringPtr					= NULL;
 /* ----- module functions ---------------------------------------------- */
 /* --------------------------------------------------------------------- */
 
+static void initFunctionPointers( void )
+{
+	if( s_ssleay )
+	{
+		SSL_library_initPtr = (fpSSL_library_init)GetProcAddress( s_ssleay, "SSL_library_init" );
+		OPENSSL_init_sslPtr = (fpOPENSSL_init_ssl)GetProcAddress( s_ssleay, "OPENSSL_init_ssl" );
+
+
+		SSL_load_error_stringsPtr = (fpSSL_load_error_strings)GetProcAddress( s_ssleay, "SSL_load_error_strings" );
+		SSLv23_methodPtr = (fpSSLv23_method)GetProcAddress( s_ssleay, "SSLv23_method" );
+		TLS_methodPtr = (fpTLS_method)GetProcAddress( s_ssleay, "TLS_method" );
+		SSL_CTX_newPtr = (fpSSL_CTX_new)GetProcAddress( s_ssleay, "SSL_CTX_new" );
+		SSL_CTX_use_certificate_chain_filePtr = (fpSSL_CTX_use_certificate_chain_file)GetProcAddress( s_ssleay, "SSL_CTX_use_certificate_chain_file" );
+		SSL_CTX_set_default_passwd_cbPtr = (fpSSL_CTX_set_default_passwd_cb)GetProcAddress( s_ssleay, "SSL_CTX_set_default_passwd_cb" );
+		SSL_CTX_use_PrivateKey_filePtr = (fpSSL_CTX_use_PrivateKey_file)GetProcAddress( s_ssleay, "SSL_CTX_use_PrivateKey_file" );
+		SSL_CTX_load_verify_locationsPtr = (fpSSL_CTX_load_verify_locations)GetProcAddress( s_ssleay, "SSL_CTX_load_verify_locations" );
+		SSL_newPtr = (fpSSL_new)GetProcAddress( s_ssleay, "SSL_new" );
+		SSL_set_bioPtr = (fpSSL_set_bio)GetProcAddress( s_ssleay, "SSL_set_bio" );
+		SSL_connectPtr = (fpSSL_connect)GetProcAddress( s_ssleay, "SSL_connect" );
+		SSL_writePtr = (fpSSL_write)GetProcAddress( s_ssleay, "SSL_write" );
+		SSL_readPtr = (fpSSL_read)GetProcAddress( s_ssleay, "SSL_read" );
+		SSL_get_errorPtr = (fpSSL_get_error)GetProcAddress( s_ssleay, "SSL_get_error" );
+		SSL_shutdownPtr = (fpSSL_shutdown)GetProcAddress( s_ssleay, "SSL_shutdown" );
+		SSL_CTX_freePtr = (fpSSL_CTX_free)GetProcAddress( s_ssleay, "SSL_CTX_free" );
+	}
+	if( s_libeay )
+	{
+		BIO_new_socketPtr = (fpBIO_new_socket)GetProcAddress( s_libeay, "BIO_new_socket" );
+		ERR_error_stringPtr = (fpERR_error_string)GetProcAddress( s_libeay, "ERR_error_string" );
+	}
+
+}
+
 /* --------------------------------------------------------------------- */
 /* ----- entry points -------------------------------------------------- */
 /* --------------------------------------------------------------------- */
 
-int SSL_library_init(void )
+#ifndef SSL_library_init
+int SSL_library_init( void )
 {
-	ssleay = LoadLibrary( "SSLEAY32.DLL" );
-	libeay = LoadLibrary( "LIBEAY32.DLL" );
-
-	if( ssleay )
+	if( !s_ssleay && !s_libeay )
 	{
-		SSL_library_initPtr = (fpSSL_library_init)GetProcAddress( ssleay, "SSL_library_init" );
-		SSL_load_error_stringsPtr = (fpSSL_load_error_strings)GetProcAddress( ssleay, "SSL_load_error_strings" );
-		SSLv23_methodPtr = (fpSSLv23_method)GetProcAddress( ssleay, "SSLv23_method" );
-		SSL_CTX_newPtr = (fpSSL_CTX_new)GetProcAddress( ssleay, "SSL_CTX_new" );
-		SSL_CTX_use_certificate_chain_filePtr = (fpSSL_CTX_use_certificate_chain_file)GetProcAddress( ssleay, "SSL_CTX_use_certificate_chain_file" );
-		SSL_CTX_set_default_passwd_cbPtr = (fpSSL_CTX_set_default_passwd_cb)GetProcAddress( ssleay, "SSL_CTX_set_default_passwd_cb" );
-		SSL_CTX_use_PrivateKey_filePtr = (fpSSL_CTX_use_PrivateKey_file)GetProcAddress( ssleay, "SSL_CTX_use_PrivateKey_file" );
-		SSL_CTX_load_verify_locationsPtr = (fpSSL_CTX_load_verify_locations)GetProcAddress( ssleay, "SSL_CTX_load_verify_locations" );
-		SSL_newPtr = (fpSSL_new)GetProcAddress( ssleay, "SSL_new" );
-		SSL_set_bioPtr = (fpSSL_set_bio)GetProcAddress( ssleay, "SSL_set_bio" );
-		SSL_connectPtr = (fpSSL_connect)GetProcAddress( ssleay, "SSL_connect" );
-		SSL_writePtr = (fpSSL_write)GetProcAddress( ssleay, "SSL_write" );
-		SSL_readPtr = (fpSSL_read)GetProcAddress( ssleay, "SSL_read" );
-		SSL_get_errorPtr = (fpSSL_get_error)GetProcAddress( ssleay, "SSL_get_error" );
-		SSL_shutdownPtr = (fpSSL_shutdown)GetProcAddress( ssleay, "SSL_shutdown" );
-		SSL_CTX_freePtr = (fpSSL_CTX_free)GetProcAddress( ssleay, "SSL_CTX_free" );
-	}
-	if( libeay )
-	{
-		BIO_new_socketPtr = (fpBIO_new_socket)GetProcAddress( libeay, "BIO_new_socket" );
-		ERR_error_stringPtr = (fpERR_error_string)GetProcAddress( libeay, "ERR_error_string" );
-	}
+		s_ssleay = LoadLibrary( "SSLEAY32.DLL" );
+		s_libeay = LoadLibrary( "LIBEAY32.DLL" );
 
+		initFunctionPointers();
+	}
 	if( SSL_library_initPtr )
 		return SSL_library_initPtr();
 	else
 		return -1;
 }
+#endif
 
+#ifndef SSL_load_error_strings
 void SSL_load_error_strings( void )
 {
 	if( SSL_load_error_stringsPtr )
 		SSL_load_error_stringsPtr();
 }
+#endif
 
+#ifndef SSLv23_method
 SSL_METHOD *SSLv23_method(void)
 {
 	if( SSLv23_methodPtr )
@@ -201,8 +228,9 @@ SSL_METHOD *SSLv23_method(void)
 	else
 		return NULL;
 }
+#endif
 
-SSL_CTX *SSL_CTX_new(SSL_METHOD *meth)
+SSL_CTX *SSL_CTX_new(const SSL_METHOD *meth)
 {
 	if( SSL_CTX_newPtr )
 		return SSL_CTX_newPtr( meth );
@@ -324,6 +352,140 @@ char *ERR_error_string(unsigned long e,char *buf)
 		return NULL;
 }
 
+#if OPENSSL_VERSION_MAJOR >= 3
+int OPENSSL_sk_num(const OPENSSL_STACK *stack)
+{
+}
+
+void *OPENSSL_sk_value(const OPENSSL_STACK *stack, int val)
+{
+}
+
+OPENSSL_STACK *OPENSSL_sk_new(OPENSSL_sk_compfunc cmp)
+{
+}
+
+OPENSSL_STACK *OPENSSL_sk_new_null(void)
+{
+}
+
+OPENSSL_STACK *OPENSSL_sk_new_reserve(OPENSSL_sk_compfunc c, int n)
+{
+}
+
+int OPENSSL_sk_reserve(OPENSSL_STACK *st, int n)
+{
+}
+
+void OPENSSL_sk_free(OPENSSL_STACK *stack)
+{
+}
+
+void *OPENSSL_sk_delete(OPENSSL_STACK *st, int loc)
+{
+}
+
+int OPENSSL_sk_push(OPENSSL_STACK *st, const void *data)
+{
+}
+
+void OPENSSL_sk_zero(OPENSSL_STACK *st)
+{
+}
+
+void OPENSSL_sk_pop_free(OPENSSL_STACK *st, OPENSSL_sk_freefunc func)
+{
+}
+
+void *OPENSSL_sk_delete_ptr(OPENSSL_STACK *st, const void *p)
+{
+}
+
+int OPENSSL_sk_unshift(OPENSSL_STACK *st, const void *data)
+{
+}
+
+void *OPENSSL_sk_shift(OPENSSL_STACK *st)
+{
+}
+
+void *OPENSSL_sk_pop(OPENSSL_STACK *st)
+{
+}
+
+void *OPENSSL_sk_set(OPENSSL_STACK *st, int i, const void *data)
+{
+}
+
+OPENSSL_STACK *OPENSSL_sk_set_thunks(OPENSSL_STACK *st, OPENSSL_sk_freefunc_thunk f_thunk)
+{
+}
+
+int OPENSSL_sk_insert(OPENSSL_STACK *sk, const void *data, int where)
+{
+}
+
+int OPENSSL_sk_find(OPENSSL_STACK *st, const void *data)
+{
+}
+
+int OPENSSL_sk_find_ex(OPENSSL_STACK *st, const void *data)
+{
+}
+
+int OPENSSL_sk_find_all(OPENSSL_STACK *st, const void *data, int *pnum)
+{
+}
+
+void OPENSSL_sk_sort(OPENSSL_STACK *st)
+{
+}
+
+OPENSSL_STACK *OPENSSL_sk_deep_copy(
+	const OPENSSL_STACK *s, OPENSSL_sk_copyfunc c, OPENSSL_sk_freefunc f
+)
+{
+}
+
+OPENSSL_sk_compfunc OPENSSL_sk_set_cmp_func(
+	OPENSSL_STACK *sk, OPENSSL_sk_compfunc cmp
+)
+{
+}
+
+OPENSSL_STACK *OPENSSL_sk_dup(const OPENSSL_STACK *st)
+{
+}
+
+int OPENSSL_sk_is_sorted(const OPENSSL_STACK *st)
+{
+}
+
+__owur const SSL_METHOD *TLS_method(void)
+{
+	if( TLS_methodPtr )
+		return TLS_methodPtr();
+	else
+		return NULL;
+}
+
+int OPENSSL_init_ssl(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings)
+{
+	if( !s_ssleay && !s_libeay )
+	{
+		s_ssleay = LoadLibrary( "libssl-3.dll" );
+		s_libeay = LoadLibrary( "libcrypto-3.DLL" );
+		initFunctionPointers();
+	}
+
+	if( OPENSSL_init_sslPtr )
+		return OPENSSL_init_sslPtr();
+	else
+		return -1;
+}
+
+#endif	// #if OPENSSL_VERSION_MAJOR >= 3
+
 #ifdef __BORLANDC__
 #	pragma option -RT.
 #	pragma option -a.
@@ -331,3 +493,4 @@ char *ERR_error_string(unsigned long e,char *buf)
 #endif
 
 
+#endif	// #ifdef __BORLANDC__

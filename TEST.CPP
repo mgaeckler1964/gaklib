@@ -140,10 +140,7 @@
 #	include "Tests/ExifTest.h"
 #endif
 
-#ifndef __WIN64__
-	// curently no support for 64-bit openSSL
-#	include "Tests/CryptoTest.h"
-#endif
+#include "Tests/CryptoTest.h"
 
 #	include "Tests/MboxParserTest.h"
 
@@ -416,3 +413,5 @@ int main( void )
 #	pragma option -a.
 #	pragma option -p.
 #endif
+
+

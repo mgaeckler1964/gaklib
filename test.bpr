@@ -26,15 +26,15 @@
     <USERDEFINES value="_DEBUG"/>
     <SYSDEFINES value="NO_STRICT;_VIS_NOLIB;_NO_VCL"/>
     <MAINSOURCE value="test.bpf"/>
-    <INCLUDEPATH value="BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include;c:\openssl\include\;&quot;C:\Program Files (x86)\OpenSSL\include\&quot;"/>
+    <INCLUDEPATH value="BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include;C:\OpenSSL\Win32\include\;C:\OpenSSL\include\;&quot;C:\Program Files (x86)\OpenSSL\include\&quot;"/>
     <LIBPATH value="BORLAND;CTOOLS;$(BCB)\lib_uk\obj;$(BCB)\lib_uk"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <WARNOPTSTR value=""/>
   </MACROS>
   <OPTIONS>
-    <IDLCFLAGS value="-src_suffix cpp -D_DEBUG -IBORLAND -ICTOOLS -I$(BCB)\include 
-      -I$(BCB)\include\vcl -I$(BCB)\ocx -IVCLcomp -Iinclude 
-      -Ic:\openssl\include\. -I&quot;C:\Program Files (x86)\OpenSSL\include\.&quot; -boa"/>
+    <IDLCFLAGS value="-IBORLAND -ICTOOLS -I$(BCB)\include -I$(BCB)\include\vcl -I$(BCB)\ocx 
+      -IVCLcomp -Iinclude -IC:\OpenSSL\Win32\include\. -IC:\OpenSSL\include\. 
+      -I&quot;C:\Program Files (x86)\OpenSSL\include\.&quot; -src_suffix cpp -D_DEBUG -boa"/>
     <CFLAG1 value="-Od -Q -w- -Vx -Ve -Tkh30000 -X- -r- -a8 -6 -b- -d -k -y -v -vi- -tWC -tWM 
       -c"/>
     <PFLAGS value="-N2..\..\object\gaklib\test\bcb -N0..\..\object\gaklib\test\bcb -$Y+ -$W 
@@ -55,7 +55,7 @@ AutoIncBuild=1
 MajorVer=1
 MinorVer=0
 Release=0
-Build=5
+Build=6
 Debug=0
 PreRelease=0
 Special=0
@@ -67,7 +67,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=CRESD GmbH
 FileDescription=
-FileVersion=1.0.0.5
+FileVersion=1.0.0.6
 InternalName=
 LegalCopyright=(c) 20xx by CRESD GmbH
 LegalTrademarks=
@@ -77,14 +77,8 @@ ProductVersion=1.0.0.0
 Comments=
 
 [HistoryLists\hlIncludePath]
-Count=7
-Item0=BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include;c:\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
-Item1=BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include;e:\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
-Item2=BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include;e:\openssl\include\
-Item3=BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include;e:\openssl\include
-Item4=BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include
-Item5=CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include
-Item6=$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include
+Count=1
+Item0=BORLAND;CTOOLS;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\ocx;VCLcomp;include;C:\OpenSSL\Win32\include\;C:\OpenSSL\include\;C:\Program Files (x86)\OpenSSL\include\
 
 [HistoryLists\hlLibraryPath]
 Count=3
@@ -101,23 +95,18 @@ Count=1
 Item0=_DEBUG
 
 [HistoryLists\hlIntOutputDir]
-Count=4
+Count=1
 Item0=..\..\object\gaklib\test\bcb
-Item1=..\..\object\gaklib\test
-Item2=..\..\object\gaklib\test\
-Item3=..\..\object\gaklib
 
 [HistoryLists\hlFinalOutputDir]
-Count=3
+Count=1
 Item0=..\..\object\gaklib\test\bcb\
-Item1=..\..\object\gaklib\test\bcb
-Item2=..\..\object\
 
 [Debugging]
 DebugSourceDirs=.
 
 [Parameters]
-RunParams=DateTimeTest
+RunParams=HttpTest
 HostApplication=
 RemoteHost=
 RemotePath=
@@ -132,10 +121,5 @@ LinkCGLIB=0
 AddServerUnit=1
 AddClientUnit=1
 PrecompiledHeaders=1
-
-[Language]
-ActiveLang=
-ProjectLang=
-RootDir=
   </IDEOPTIONS>
 </PROJECT>

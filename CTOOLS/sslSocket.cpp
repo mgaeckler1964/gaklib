@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			sslSocket.cpp
-		Description:
+		Description:	(open)SSL-Support for sockets
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
