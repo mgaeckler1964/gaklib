@@ -156,7 +156,7 @@ SSL_LIB_ERROR SSLsocketStreambuf::initialize_ctx( void )
 
 	/* Load our keys and certificates*/
 	if( !m_keyfile[0U] )
-		kf = DEF_KEYFILE;
+		kf = DEF_KEYFILE;	// client.pem
 	else
 		kf = m_keyfile;
 
@@ -167,7 +167,7 @@ SSL_LIB_ERROR SSLsocketStreambuf::initialize_ctx( void )
 	if( strAccess( CA_LIST, 00 ) )
 		caFile = makeFullPath( progPath, CA_LIST );
 	else
-		caFile = CA_LIST;
+		caFile = CA_LIST;	// root.pem
 
 	if( SSL_CTX_use_certificate_chain_file(m_ctx, theKeyfile) )
 	{
@@ -225,7 +225,7 @@ int SSLsocketStreambuf::connect( const char *server, int port, int bufferSize )
 
 	m_sslLibraryError = initialize_ctx();
 
-#ifndef NDEBUG
+#if !defined( NDEBUG ) || defined( _DEBUG )
 	std::cout << __FILE__ << __LINE__ << ' ' << m_sslLibraryError << "==" << SSL_NO_ERROR << " SSL-Version: " << std::hex << OPENSSL_VERSION_NUMBER << std::dec << '?' << std::endl;
 #endif
 
@@ -260,9 +260,12 @@ int SSLsocketStreambuf::connect( const char *server, int port, int bufferSize )
 			m_sslLibraryError = SSL_SOCKET_ERROR;
 		}
 	}
-#ifndef NDEBUG
+#if !defined( NDEBUG ) || defined( _DEBUG )
 	if( m_sslLibraryError )
 	{
+		char myDir[1024];
+		getcwd();
+		std::cout << getcwd() << std::endl;
 		const char *file;
 		int line;
 		const char *data;

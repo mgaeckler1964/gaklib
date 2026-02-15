@@ -111,11 +111,11 @@
     <PATHRC value=".;"/>
     <PATHASM value=".;"/>
     <LINKER value="TLib"/>
-    <USERDEFINES value="_RWSTD_NO_EXCEPTIONS;NDEBUG"/>
+    <USERDEFINES value="NDEBUG"/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="gaklib_bcb.bpf"/>
     <INCLUDEPATH value="BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;C:\OpenSSL\Win32\include\;c:\openssl\include\;c:\Programme\openssl\include\;&quot;C:\Program Files (x86)\OpenSSL\include\&quot;"/>
-    <LIBPATH value="BORLAND;VCL_TOOLS;TOS;CTOOLS;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <LIBPATH value="BORLAND;VCL_TOOLS;CTOOLS;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par"/>
     <LISTFILE value=""/>
   </MACROS>
@@ -123,8 +123,8 @@
     <IDLCFLAGS value="-IBORLAND -IVCL_TOOLS -ITOS -ICTOOLS -Iinclude -I$(BCB)\include 
       -I$(BCB)\include\vcl -IC:\OpenSSL\Win32\include\. -Ic:\openssl\include\. 
       -Ic:\Programme\openssl\include\. 
-      -I&quot;C:\Program Files (x86)\OpenSSL\include\.&quot; -src_suffix cpp 
-      -D_RWSTD_NO_EXCEPTIONS -DNDEBUG NDEBUG NDEBUG -boa"/>
+      -I&quot;C:\Program Files (x86)\OpenSSL\include\.&quot; -src_suffix cpp -DNDEBUG 
+      NDEBUG NDEBUG -boa"/>
     <CFLAG1 value="-O2 -H=..\..\Object\gaklib\win\bcb\gaklib_bcb.csm -Hc -w -Vx -Ve -X- -a8 
       -6 -b- -d -k- -vi -c -tW -tWM"/>
     <PFLAGS value="-N2..\..\Object\gaklib\win\bcb -N0..\..\Object\gaklib\win\bcb -$Y- -$L- 
@@ -165,27 +165,20 @@ ProductVersion=1.0.0.0
 Comments=
 
 [HistoryLists\hlIncludePath]
-Count=3
+Count=1
 Item0=BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;C:\OpenSSL\Win32\include\;c:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
-Item1=BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;c:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\;C:\OpenSSL\Win32\include\
-Item2=BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;c:\openssl\include;c:\Programme\openssl\include;C:\Program Files (x86)\OpenSSL\include;C:\OpenSSL\Win32\include
 
 [HistoryLists\hlLibraryPath]
-Count=3
-Item0=BORLAND;VCL_TOOLS;TOS;CTOOLS;$(BCB)\lib\obj;$(BCB)\lib
-Item1=VCL_TOOLS;TOS;CTOOLS;$(BCB)\lib\obj;$(BCB)\lib
-Item2=$(BCB)\lib\obj;$(BCB)\lib
+Count=1
+Item0=$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1
 Item0=$(BCB)\source\vcl
 
 [HistoryLists\hlConditionals]
-Count=4
-Item0=_RWSTD_NO_EXCEPTIONS;NDEBUG
-Item1=_RWSTD_NO_EXCEPTIONS;NDEBUG;_DEBUG
-Item2=_RWSTD_NO_EXCEPTIONS NDEBUG
-Item3=_RWSTD_NO_EXCEPTIONS
+Count=1
+Item0=NDEBUG
 
 [HistoryLists\hlIntOutputDir]
 Count=1
@@ -196,14 +189,8 @@ Count=1
 Item0=..\..\Object\gaklib\
 
 [HistoryLists\hlTlibPageSize]
-Count=7
+Count=1
 Item0=0x0200
-Item1=0x0100
-Item2=0x0080
-Item3=0x0040
-Item4=64
-Item5=0x0020
-Item6=0x0010
 
 [Debugging]
 DebugSourceDirs=$(BCB)\source\vcl

@@ -103,6 +103,8 @@ typedef void (*fpSSL_CTX_free)(SSL_CTX *ctx);
 typedef BIO *(*fpBIO_new_socket)(int sock, int close_flag);
 typedef char *(*fpERR_error_string)(unsigned long e,char *buf);
 
+typedef unsigned long (*fpERR_get_error_line_data)(const char **file, int *line, const char **data, int *flags);
+
 /* --------------------------------------------------------------------- */
 /* ----- macros -------------------------------------------------------- */
 /* --------------------------------------------------------------------- */
@@ -148,7 +150,7 @@ static fpSSL_CTX_free SSL_CTX_freePtr							= NULL;
 
 static fpBIO_new_socket BIO_new_socketPtr						= NULL;
 static fpERR_error_string ERR_error_stringPtr					= NULL;
-
+static fpERR_get_error_line_data ERR_get_error_line_dataPtr		= NULL;
 
 /* --------------------------------------------------------------------- */
 /* ----- exported datas ------------------------------------------------ */
@@ -187,8 +189,8 @@ static void initFunctionPointers( void )
 	{
 		BIO_new_socketPtr = (fpBIO_new_socket)GetProcAddress( s_libeay, "BIO_new_socket" );
 		ERR_error_stringPtr = (fpERR_error_string)GetProcAddress( s_libeay, "ERR_error_string" );
+		ERR_get_error_line_dataPtr = (fpERR_get_error_line_data)GetProcAddress( s_libeay, "ERR_get_error_line_data" );
 	}
-
 }
 
 /* --------------------------------------------------------------------- */
@@ -346,8 +348,17 @@ BIO *BIO_new_socket(int sock, int close_flag)
 
 char *ERR_error_string(unsigned long e,char *buf)
 {
-	if( BIO_new_socketPtr )
+	if( ERR_error_stringPtr )
 		return ERR_error_stringPtr( e, buf );
+	else
+		return NULL;
+}
+
+unsigned long ERR_get_error_line_data(const char **file, int *line,
+                                      const char **data, int *flags)
+{
+	if( ERR_get_error_line_dataPtr )
+		return ERR_get_error_line_dataPtr( file, line, data, flags );
 	else
 		return NULL;
 }
