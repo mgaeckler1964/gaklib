@@ -1,5 +1,5 @@
 Here are the properties files I use in my visual studio projects.
-These files are loaded from the root of my source tree where I store als my dev projetcs.
+These files are loaded from the root of my source tree where I store all my dev projetcs.
 
 For my Visual STUDIO projects I set an environment variable OPENSSL that points to the base
 of my OpenSSL installation. This is an old Open SSL that I'm still using for hash and 
