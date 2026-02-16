@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			CryptoTest.h
-		Description:	
+		Description:	Test de- and encryption
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -95,42 +95,49 @@ class CryptoTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "CryptoTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
-		CryptoSharedTest();
+		HashTest();
 		AesTest();
 		RsaTest();
-		HashTest();
+		CryptoSharedTest();
 	}
 
 	template <typename HASH_T>
-	void compareFiles( const STRING &srcName, const STRING &resultFile )
+	void compareFiles( const STRING &srcName, const STRING &resultFile, bool expectEqual )
 	{
 		HASH_T	sourceHash, destHash;
 		sourceHash.hash_file( srcName  );
 		destHash.hash_file( resultFile );
-		UT_ASSERT_EQUAL( sourceHash.getDigest(), destHash.getDigest() );
+		if( expectEqual )
+		{
+			UT_ASSERT_EQUAL( sourceHash.getDigest(), destHash.getDigest() );
+		}
+		else
+		{
+			UT_ASSERT_NOT_EQUAL( sourceHash.getDigest(), destHash.getDigest() );
+		}
 	}
 
-	void compare( const STRING &srcName, const STRING &resultFile )
+	void compare( const STRING &srcName, const STRING &resultFile, bool expectEqual )
 	{
 		{
 			TestScope scope( "MD5Hash" );
-			compareFiles<MD5Hash>(srcName, resultFile);
+			compareFiles<MD5Hash>(srcName, resultFile, expectEqual);
 		}
 		{
 			TestScope scope( "SHA224Hash" );
-			compareFiles<SHA224Hash>(srcName, resultFile);
+			compareFiles<SHA224Hash>(srcName, resultFile, expectEqual);
 		}
 		{
 			TestScope scope( "SHA256Hash" );
-			compareFiles<SHA256Hash>(srcName, resultFile);
+			compareFiles<SHA256Hash>(srcName, resultFile, expectEqual);
 		}
 		{
 			TestScope scope( "SHA384Hash" );
-			compareFiles<SHA384Hash>(srcName, resultFile);
+			compareFiles<SHA384Hash>(srcName, resultFile, expectEqual);
 		}
 		{
 			TestScope scope( "SHA512Hash" );
-			compareFiles<SHA512Hash>(srcName, resultFile);
+			compareFiles<SHA512Hash>(srcName, resultFile, expectEqual);
 		}
 	}
 	void HashTest()
@@ -183,13 +190,15 @@ class CryptoTest : public UnitTest
 			UT_ASSERT_EQUAL( hash, STRING("af 9e d2 de 70 04 33 b8 03 24 0a 55 2b 41 b5 a4 72 a6 ef 3f e1 43 1a 72 2b 20 63 c7 5e 9f 07 45 1f 67 a2 8e 37 d0 9c de 76 94 24 c9 6a ea 6f 89 71 38 9d b9 e1 99 3d 6c 56 5c 3c 71 b8 55 72 3c") );
 		}
 	}
-	void RsaTest( void )
+	void RsaTest()
 	{
 		STRING		plainText = "Hello world, the quick brown fox jumps over the lazy dog"; //key length : 2048
 		ArrayOfData	encrypted;
 		STRING		decrypted;
 
-		STRING		cypherName = getTempPath() + DIRECTORY_DELIMITER_STRING "rsaKey";
+		STRING			cypherName = getTempPath() + DIRECTORY_DELIMITER_STRING "rsaKey";
+		TempFileName	priv( cypherName + ".key_priv" );
+		TempFileName	pup( cypherName + ".key_pub" );
 /*
 	create the key if not exists
 */
@@ -209,25 +218,21 @@ class CryptoTest : public UnitTest
 		std::cout << "Decrypted Text =" << decrypted << '\n';
 
 		STRING	srcName = __FILE__;
-		STRING	secretFile = __FILE__ ".secret";
-		STRING	resultFile = __FILE__ ".txt";
+
+		TempFileName	secretFile( STRING(__FILE__ ".secret") );
+		TempFileName	resultFile( STRING(__FILE__ ".txt") );
 
 		myPublicRsaKey.encryptFile( srcName, secretFile );
 
 		myPrivateRsaKey.decryptFile( secretFile, resultFile );
 
-		compare(srcName, resultFile);
+		compare(srcName, resultFile, true);
+		compare(srcName, secretFile, false);
 
 		struct stat srcStat;
 		strStatE( srcName, &srcStat );
 		uint32 size = Crypto::getFileSize( secretFile );
 		UT_ASSERT_EQUAL( uint32(srcStat.st_size), size );
-
-		strRemoveE( secretFile );
-		strRemoveE( resultFile );
-
-		strRemoveE( cypherName + ".key_priv" );
-		strRemoveE( cypherName + ".key_pub" );
 	}
 
 	struct ArrayTEST
@@ -236,48 +241,40 @@ class CryptoTest : public UnitTest
 		char	buffer[32];
 	};
 
-	void AesTest( void )
+	void AesTest()
 	{
 		STRING	srcName = __FILE__;
 		STRING	cypher = "The Quick Brown Fox Jumps Over The Lazy DOG";
 
-		STRING	secretFile = __FILE__ ".secret";
-		STRING	resultFile = __FILE__ ".txt";
+		TempFileName	secretFile( STRING(__FILE__ ".secret") );
+		TempFileName	resultFile( STRING(__FILE__ ".txt") );
 
 		aesEncryptFile( cypher, srcName, secretFile );
 		aesDecryptFile( cypher, secretFile, resultFile );
 
-		compare(srcName, resultFile);
+		compare(srcName, resultFile, true);
 
 		aesEncryptFile( srcName, secretFile );
 		aesDecryptFile( secretFile, resultFile );
 
-		compare(srcName, resultFile);
+		compare(srcName, resultFile, true);
+		compare(srcName, secretFile, false);
 
 		struct stat srcStat;
 		strStatE( srcName, &srcStat );
 		uint32 size = Crypto::getFileSize( secretFile );
 		UT_ASSERT_EQUAL( size_t(srcStat.st_size), size_t(size) );
 
-		strRemoveE( secretFile );
-		strRemoveE( resultFile );
-
 		ArrayOfData	buffer;
 		aesEncryptString( cypher, cypher, &buffer );
 		STRING newCypher = aesDecryptString( cypher, buffer );
 		UT_ASSERT_EQUAL( cypher, newCypher );
-
-		Array<ArrayTEST>	myArray, decodedArray;
-		ArrayOfData			result;
-		for( size_t i=0; i<10; i++ )
-		{
-			ArrayTEST	&entry = myArray.createElement();
-			entry.number = i;
-			sprintf( entry.buffer, "buffer%d", (int)i );
-		}
 	}
-	void CryptoSharedTest( void )
+	void CryptoSharedTest()
 	{
+		static char supportEmail[] = "support@gaeckler.at";
+		static char rootEmail[] = "root@gaeckler.at";
+
 		CryptoShared	myEncryptor;
 		CryptoShared	myDecryptor;
 
@@ -292,32 +289,26 @@ class CryptoTest : public UnitTest
 		if( !myPrivateRsaKey.hasKey() )
 			myPrivateRsaKey.loadCryptedCypher( cypherName, "MyTxtCypher" );
 
-		STRING	srcName = __FILE__;
-		STRING	secretFile = __FILE__ ".secret";
-		STRING	resultFile = __FILE__ ".txt";
+		STRING			srcFile = __FILE__;
+		TempFileName	secretFile( STRING(__FILE__ ".secret") );
+		TempFileName	resultFile( STRING(__FILE__ ".txt") );
 
-		myEncryptor.encryptFile( srcName );
-		myEncryptor.addPublicKeyFromFile( "support@cresd.de",  cypherName );
-		myEncryptor.addPublicKeyFromFile( "root@cresd.de",  cypherName );
+		myEncryptor.encryptFile( srcFile );
+		myEncryptor.addPublicKeyFromFile( supportEmail ,  cypherName );
+		myEncryptor.addPublicKeyFromFile( rootEmail,  cypherName );
 
 		writeToBinaryFile( secretFile, myEncryptor, 0, 0, owmOverwrite );
 
 		readFromBinaryFile( secretFile, &myDecryptor, 0, 0, false );
 
-		myDecryptor.decryptFile( "support@cresd.de", myPrivateRsaKey, resultFile );
+		myDecryptor.decryptFile( supportEmail, myPrivateRsaKey, resultFile );
 
-		compare(srcName, resultFile);
-
-		struct stat srcStat;
-		strStatE( srcName, &srcStat );
-		uint32 size = Crypto::getFileSize( secretFile );
-
-		strRemoveE( secretFile );
-		strRemoveE( resultFile );
+		compare(srcFile, resultFile, true);
+		compare(srcFile, secretFile, false);
 
 		Array<STRING>	keys = myEncryptor.getKeyList();
 		UT_ASSERT_EQUAL( keys.size(), size_t(2) );
-		myEncryptor.removeKey( "root@cresd.de" );
+		myEncryptor.removeKey( rootEmail );
 		keys = myEncryptor.getKeyList();
 		UT_ASSERT_EQUAL( keys.size(), size_t(1) );
 	}

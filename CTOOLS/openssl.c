@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			openssl.c
-		Description:	The open SSL loader for Borland C++
+		Description:	The open SSL loader
 						For other compilers I like to use the import 
 						libraries.
 		Author:			Martin Gäckler
@@ -34,8 +34,6 @@
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
-
-#ifdef __BORLANDC__
 
 #ifndef STRICT
 #define STRICT 1
@@ -502,6 +500,3 @@ int OPENSSL_init_ssl(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings)
 #	pragma option -a.
 #	pragma option -p.
 #endif
-
-
-#endif	// #ifdef __BORLANDC__
