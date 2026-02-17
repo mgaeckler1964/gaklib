@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -164,7 +164,7 @@ class Buffer
 	/**
 		@brief Constructs a pointer object from an allocated memory.
 
-		The buffer should be allocated with std::malloc or std::calloc
+		The buffer should be allocated with std::malloc, std::calloc or std::strdup
 
 		@param [in] buffer the address of the memory buffer
 	*/
