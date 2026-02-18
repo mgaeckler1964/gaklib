@@ -11,4 +11,5 @@ ssl version does not work with newer SSL Servers.
 The newer Open SSLs are installed in /$(OPENSSL)/WIN32 and /$(OPENSSL)/X64
 
 I have changed the Open SSL path ../lib/$(PLATFORM)/.. because the plattform is
-allready encoded in the base. Therefore I moved all library files one level up.
+allready encoded in the base. Therefore I moved all library files one level up. This allows
+me to use the same configuration for my 32-bit and 64-bit compilation.
