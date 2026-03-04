@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			StatusFrm.cpp
-		Description:	
+		Description:	The StatusForm with StatusThread
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-202g Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -105,7 +105,7 @@ bool TStatusForm::pushStatus( const STRING &verb, const STRING &status )
 	return m_theThread ? m_theThread->terminated : false;
 }
 //---------------------------------------------------------------------------
-bool TStatusForm::restore( void )
+bool TStatusForm::restore()
 {
 	if( m_stack.size() )
 	{
@@ -134,7 +134,7 @@ void __fastcall TStatusForm::FormCloseQuery(TObject *,
 	CanClose = !m_theThread || !m_theThread->isRunning || m_theThread->m_threadFinished;
 }
 //---------------------------------------------------------------------------
-void StatusThread::ExecuteThread( void )
+void StatusThread::ExecuteThread()
 {
 	doEnterFunctionEx(gakLogging::llInfo, "StatusThread::ExecuteThread");
 	try

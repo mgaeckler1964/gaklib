@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			StatusFrm.h
-		Description:	
+		Description:	The StatusForm with StatusThread
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -43,6 +43,7 @@
 
 #include <gak/thread.h>
 #include <gak/Stack.h>
+#include <gak/fmtNumber.h>
 
 //---------------------------------------------------------------------------
 #pragma option -RT-
@@ -69,12 +70,14 @@ private:	// User declarations
 	gak::Stack<gak::STRING>					m_stack;
 	bool									m_confirm;
 	bool									m_hidden;
+	unsigned								m_counter;
+	AnsiString								m_caption;
 
 public:		// User declarations
 	bool setStatus( const gak::STRING &verb, const gak::STRING &status );
 	bool pushStatus( const gak::STRING &verb, const gak::STRING &status );
-	bool restore( void );
-	bool isTerminated( void );
+	bool restore();
+	bool isTerminated();
 	__fastcall TStatusForm(TComponent* Owner);
 	virtual __fastcall ~TStatusForm();
 
@@ -88,9 +91,24 @@ public:		// User declarations
 		m_theThread = theThread;
 		m_confirm = confirm;
 		m_hidden = hidden;
+		m_counter = 0;
+		m_caption = "";
+	}
+	void setCaption( const AnsiString &newCaption )
+	{
+		m_caption = newCaption;
+		Caption = m_caption;
+		StatusLabel->Caption = newCaption;
+	}
+	void incrementCounter()
+	{
+		++m_counter;
+		AnsiString newCaption = m_caption +
+			" (" + AnsiString(gak::formatNumber(m_counter)) + ')';
+		Caption = newCaption;
 	}
 
-	void stopThread( void );
+	void stopThread();
 	bool waitForUserSleep( unsigned long timeOut );
 };
 //---------------------------------------------------------------------------
@@ -103,17 +121,16 @@ class StatusThread : public gak::Thread
 	bool m_threadFinished;
 
 	private:
-	virtual void perform( void ) = 0;
-	virtual void ExecuteThread( void );
+	virtual void perform() = 0;
+	virtual void ExecuteThread();
 
 	public:
-	virtual const char *getTitle( void ) const = 0;
+	virtual const char *getTitle() const = 0;
 	void StartThread( bool confirm=true, bool hidden=false )
 	{
 		AnsiString newCaption = getTitle();
 		newCaption += " in progress...";
-		StatusForm->Caption = newCaption;
-		StatusForm->StatusLabel->Caption = newCaption;
+		StatusForm->setCaption( newCaption );
 
 		gak::Thread::StartThread();
 		StatusForm->setupWindow( this, confirm, hidden );
@@ -131,13 +148,13 @@ class StatusThread : public gak::Thread
 #pragma option -RT.
 
 //---------------------------------------------------------------------------
-inline bool TStatusForm::isTerminated( void )
+inline bool TStatusForm::isTerminated()
 {
 	doEnterFunctionEx(gakLogging::llDetail, "TStatusForm::isTerminated");
 	return m_theThread ? m_theThread->terminated : false;
 }
 //---------------------------------------------------------------------------
-inline void TStatusForm::stopThread( void )
+inline void TStatusForm::stopThread()
 {
 	doEnterFunction("TStatusForm::stopThread");
 
