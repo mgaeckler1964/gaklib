@@ -407,7 +407,6 @@ class StringTest : public UnitTest
 			UT_ASSERT_EQUAL( size_t(0), defaultString.strlen() );
 			UT_ASSERT_TRUE( defaultString.isNullPtr() );
 			UT_ASSERT_TRUE( defaultString.isEmpty() );
-			UT_ASSERT_TRUE( !defaultString );
 			UT_ASSERT_EQUAL( STRING(""), defaultString );
 		}
 		{
@@ -418,7 +417,6 @@ class StringTest : public UnitTest
 			UT_ASSERT_EQUAL( strlen(testText), testString1.strlen() );
 			UT_ASSERT_FALSE( testString1.isNullPtr() );
 			UT_ASSERT_FALSE( testString1.isEmpty() );
-			UT_ASSERT_FALSE( !testString1 );
 			UT_ASSERT_EQUAL( 0, ansiCompare( testText, testString1 ) );
 
 			STRING	testString2 = testString1;
@@ -435,7 +433,6 @@ class StringTest : public UnitTest
 			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
 			UT_ASSERT_FALSE( testString1.isNullPtr() );
 			UT_ASSERT_TRUE( testString1.isEmpty() );
-			UT_ASSERT_TRUE( !testString1 );
 
 		}
 		{
@@ -451,7 +448,6 @@ class StringTest : public UnitTest
 			UT_ASSERT_EQUAL( strlen(testText1), testString1.strlen() );
 			UT_ASSERT_FALSE( testString1.isNullPtr() );
 			UT_ASSERT_FALSE( testString1.isEmpty() );
-			UT_ASSERT_FALSE( !testString1 );
 			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
 
 			testString1 = testChar2;
@@ -470,7 +466,6 @@ class StringTest : public UnitTest
 			UT_ASSERT_EQUAL( strlen(testText), testString1.strlen() );
 			UT_ASSERT_FALSE( testString1.isNullPtr() );
 			UT_ASSERT_FALSE( testString1.isEmpty() );
-			UT_ASSERT_FALSE( !testString1 );
 			UT_ASSERT_EQUAL( 0, ansiCompare( testText, testString1 ) );
 
 			STRING	testString2 = testString1;

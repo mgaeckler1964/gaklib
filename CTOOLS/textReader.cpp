@@ -279,7 +279,7 @@ STRING TextReader::getErrors( void )
 	STRING	theErrors;
 	STRING	fileName = m_position.m_fileName;
 
-	if( !fileName )
+	if( !fileName.isEmpty() )
 	{
 		fileName += ' ';
 	}

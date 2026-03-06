@@ -1,7 +1,7 @@
 object StatusForm: TStatusForm
   Left = 382
   Top = 338
-  Width = 543
+  Width = 564
   Height = 106
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Status Form'
@@ -23,16 +23,16 @@ object StatusForm: TStatusForm
   object StatusLabel: TLabel
     Left = 0
     Top = 0
-    Width = 535
-    Height = 38
+    Width = 548
+    Height = 26
     Align = alClient
     AutoSize = False
     WordWrap = True
   end
   object Panel1: TPanel
     Left = 0
-    Top = 38
-    Width = 535
+    Top = 26
+    Width = 548
     Height = 41
     Align = alBottom
     BevelOuter = bvNone

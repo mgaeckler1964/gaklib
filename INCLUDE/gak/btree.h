@@ -376,23 +376,8 @@ class Btree : public Container
 	}
 
 	private:
-	void copyData(const Btree &src)
-	{
-		m_comparator = src.m_comparator;
-#if SAFER_BTREE
-		if( src.size() )	// some compiler may produce bad code
-#endif
-		{
-			for(
-				const_iterator it = src.cbegin(), endIT = src.cend();
-				it != endIT;
-				++it
-			)
-			{
-				addElement(*it);
-			}
-		}
-	}
+	void copyData(const Btree &src);
+
 	public:
 	/// copy constructor
 	Btree( const Btree &src )
@@ -1247,6 +1232,25 @@ void Btree<OBJ,Comparator, FACTOR, OFFSET>::removeElement( Node *node )
 	assert( node->m_next == nullptr );
 	delete node;
 	decNumElements();
+}
+
+template <class OBJ, class Comparator, int FACTOR, int OFFSET>
+void Btree<OBJ,Comparator, FACTOR, OFFSET>::copyData(const Btree &src)
+{
+	m_comparator = src.m_comparator;
+#if SAFER_BTREE
+	if( src.size() )	// some compiler may produce bad code
+#endif
+	{
+		for(
+			const_iterator it = src.cbegin(), endIT = src.cend();
+			it != endIT;
+			++it
+		)
+		{
+			addElement(*it);
+		}
+	}
 }
 
 // --------------------------------------------------------------------- //

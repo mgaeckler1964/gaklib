@@ -238,7 +238,7 @@ class STRING
 	}
 	STRING( const char *newText, size_t	maxLen = no_index)
 	{
-		text = NULL;
+		text = nullptr;
 		if( newText )
 		{
 			setText( newText, maxLen );
@@ -363,17 +363,12 @@ class STRING
 	public:
 	bool isNullPtr() const
 	{
-		return text == NULL;
+		return text == nullptr;
 	}
 	bool isEmpty() const
 	{
-		return text == NULL || text->actSize == 0;
+		return text == nullptr || text->actSize == 0;
 	}
-	bool operator ! () const
-	{
-		return isEmpty();
-	}
-
 	int compare( const char *string )						const;
 	int compare( const STRING &string )						const;
 	int compareI( const char *string )						const;
