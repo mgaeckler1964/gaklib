@@ -92,7 +92,6 @@ public:		// User declarations
 		m_confirm = confirm;
 		m_hidden = hidden;
 		m_counter = 0;
-		m_caption = "";
 	}
 	void setCaption( const AnsiString &newCaption )
 	{
