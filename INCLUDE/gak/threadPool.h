@@ -161,20 +161,7 @@ class PoolThread : public Thread
 		notify();
 	}
 
-	void process( const object_type &objectToProces, void *threadPool, void *mainData )
-	{
-		m_mode = tmProcessing;
-		m_dispatcher = nullptr;
-		try
-		{
-			m_objectProcessor.process( objectToProces, threadPool, mainData  );
-		}
-		catch( ... )
-		{
-			/// TODO better error handling
-		}
-		m_mode = tmIdle;
-	}
+	void process( const object_type &objectToProces, void *threadPool, void *mainData );
 
 	/// returns true, if this thread is currently waiting for the next item
 	bool isIdle() const
@@ -553,6 +540,24 @@ PoolState ThreadPool<ObjectT, ThreadT>::getCurrentState() const
 		}
 	}
 	return psIdle;
+}
+
+template <typename ProcessorT>
+void PoolThread<ProcessorT>::process(
+	const object_type &objectToProces, void *threadPool, void *mainData
+)
+{
+	m_mode = tmProcessing;
+	m_dispatcher = nullptr;
+	try
+	{
+		m_objectProcessor.process( objectToProces, threadPool, mainData  );
+	}
+	catch( ... )
+	{
+		/// TODO better error handling
+	}
+	m_mode = tmIdle;
 }
 
 // --------------------------------------------------------------------- //

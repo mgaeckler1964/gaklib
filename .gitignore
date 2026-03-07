@@ -9,4 +9,5 @@ xholidays.dat
 *.user
 *.~*
 *.pem
+*.jpr.local
 test

@@ -2,7 +2,7 @@
 		Project:		GAKLIB
 		Module:			openssl.c
 		Description:	The open SSL loader
-						For other compilers I like to use the import 
+						For other compilers I like to use the import
 						libraries.
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
@@ -10,11 +10,11 @@
 
 		Copyright:		(c) 1988-2026 Martin Gäckler
 
-		This program is free software: you can redistribute it and/or modify  
-		it under the terms of the GNU General Public License as published by  
+		This program is free software: you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
 		the Free Software Foundation, version 3.
 
-		You should have received a copy of the GNU General Public License 
+		You should have received a copy of the GNU General Public License
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
@@ -43,14 +43,6 @@
 /* ----- includes ------------------------------------------------------ */
 /* --------------------------------------------------------------------- */
 
-#if defined( __BORLANDC__ ) // && __BORLANDC__ == 0x621
-// otherweise I get al lot of useless warnings about unused identifiers
-#pragma option -w-use
-#pragma option -w-pch
-#pragma option -w-eff
-#pragma option -w-8005
-#endif
-
 #include <windows.h>
 
 #include <openssl/ssl.h>
@@ -64,12 +56,29 @@
 #	pragma option -RT-
 #	pragma option -a4
 #	pragma option -pc
+
+// otherweise I get al lot of useless warnings about unused identifiers
+#	pragma option -w-use		// xxx declared but never used
+#	pragma option -w-par		// parameter xxx never used
+
+#	if __BORLANDC__ == 0x621
+#		pragma option -w-pch
+#		pragma option -w-eff
+#		pragma option -w-8005
+#	endif
 #endif
 
+#ifdef _MSC_VER
+
+#	pragma warning( disable: 4100 )	// 'xxx': Unreferenzierter formaler Parameter
+
+#endif
 
 /* --------------------------------------------------------------------- */
 /* ----- constants ----------------------------------------------------- */
 /* --------------------------------------------------------------------- */
+
+#define nullptr ((void *)0)
 
 /* --------------------------------------------------------------------- */
 /* ----- type definitions ---------------------------------------------- */
@@ -358,32 +367,38 @@ unsigned long ERR_get_error_line_data(const char **file, int *line,
 	if( ERR_get_error_line_dataPtr )
 		return ERR_get_error_line_dataPtr( file, line, data, flags );
 	else
-		return NULL;
+		return 0;
 }
 
 #if OPENSSL_VERSION_MAJOR >= 3
 int OPENSSL_sk_num(const OPENSSL_STACK *stack)
 {
+	return 0;
 }
 
 void *OPENSSL_sk_value(const OPENSSL_STACK *stack, int val)
 {
+	return nullptr;
 }
 
 OPENSSL_STACK *OPENSSL_sk_new(OPENSSL_sk_compfunc cmp)
 {
+	return nullptr;
 }
 
 OPENSSL_STACK *OPENSSL_sk_new_null(void)
 {
+	return nullptr;
 }
 
 OPENSSL_STACK *OPENSSL_sk_new_reserve(OPENSSL_sk_compfunc c, int n)
 {
+	return nullptr;
 }
 
 int OPENSSL_sk_reserve(OPENSSL_STACK *st, int n)
 {
+	return 0;
 }
 
 void OPENSSL_sk_free(OPENSSL_STACK *stack)
@@ -392,10 +407,12 @@ void OPENSSL_sk_free(OPENSSL_STACK *stack)
 
 void *OPENSSL_sk_delete(OPENSSL_STACK *st, int loc)
 {
+	return nullptr;
 }
 
 int OPENSSL_sk_push(OPENSSL_STACK *st, const void *data)
 {
+	return 0;
 }
 
 void OPENSSL_sk_zero(OPENSSL_STACK *st)
@@ -408,42 +425,52 @@ void OPENSSL_sk_pop_free(OPENSSL_STACK *st, OPENSSL_sk_freefunc func)
 
 void *OPENSSL_sk_delete_ptr(OPENSSL_STACK *st, const void *p)
 {
+	return nullptr;
 }
 
 int OPENSSL_sk_unshift(OPENSSL_STACK *st, const void *data)
 {
+	return 0;
 }
 
 void *OPENSSL_sk_shift(OPENSSL_STACK *st)
 {
+	return nullptr;
 }
 
 void *OPENSSL_sk_pop(OPENSSL_STACK *st)
 {
+	return nullptr;
 }
 
 void *OPENSSL_sk_set(OPENSSL_STACK *st, int i, const void *data)
 {
+	return nullptr;
 }
 
 OPENSSL_STACK *OPENSSL_sk_set_thunks(OPENSSL_STACK *st, OPENSSL_sk_freefunc_thunk f_thunk)
 {
+	return nullptr;
 }
 
 int OPENSSL_sk_insert(OPENSSL_STACK *sk, const void *data, int where)
 {
+	return 0;
 }
 
 int OPENSSL_sk_find(OPENSSL_STACK *st, const void *data)
 {
+	return 0;
 }
 
 int OPENSSL_sk_find_ex(OPENSSL_STACK *st, const void *data)
 {
+	return 0;
 }
 
 int OPENSSL_sk_find_all(OPENSSL_STACK *st, const void *data, int *pnum)
 {
+	return 0;
 }
 
 void OPENSSL_sk_sort(OPENSSL_STACK *st)
@@ -454,20 +481,24 @@ OPENSSL_STACK *OPENSSL_sk_deep_copy(
 	const OPENSSL_STACK *s, OPENSSL_sk_copyfunc c, OPENSSL_sk_freefunc f
 )
 {
+	return nullptr;
 }
 
 OPENSSL_sk_compfunc OPENSSL_sk_set_cmp_func(
 	OPENSSL_STACK *sk, OPENSSL_sk_compfunc cmp
 )
 {
+	return nullptr;
 }
 
 OPENSSL_STACK *OPENSSL_sk_dup(const OPENSSL_STACK *st)
 {
+	return nullptr;
 }
 
 int OPENSSL_sk_is_sorted(const OPENSSL_STACK *st)
 {
+	return 0;
 }
 
 __owur const SSL_METHOD *TLS_method(void)
@@ -475,7 +506,7 @@ __owur const SSL_METHOD *TLS_method(void)
 	if( TLS_methodPtr )
 		return TLS_methodPtr();
 	else
-		return NULL;
+		return nullptr;
 }
 
 int OPENSSL_init_ssl(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings)
