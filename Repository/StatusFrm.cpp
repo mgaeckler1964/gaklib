@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-202g Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -239,7 +239,7 @@ bool TStatusForm::waitForUserSleep( unsigned long timeOut )
 		while( lastInput < timeOut && !result)
 		{
 			IdleLabel->Caption = gak::STRING("Wait for system idle ") + gak::formatNumber((timeOut - lastInput + 500)/1000) + 's';
-			result = m_theThread->waitForUserSleep( 1000 );
+			result = m_theThread->waitForUserSleep( 1000, timeOut );
 			lastInput = gak::Thread::GetLastInputTime();
 		}
 		IdleLabel->Caption = "";

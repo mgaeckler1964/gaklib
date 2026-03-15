@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			conditional.h
-		Description:	
+		Description:	Conditional variables
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -127,7 +127,9 @@ class Conditional
 	bool wait( unsigned long timeOut = WAIT_FOREVER )
 	{
 #if defined( _Windows )
-		return WaitForSingleObject( m_eventHandle.get(), timeOut ) == WAIT_OBJECT_0;
+		bool result = WaitForSingleObject( m_eventHandle.get(), timeOut ) == WAIT_OBJECT_0;
+		reset();
+		return result;
 #elif defined( __MACH__ ) || defined( __unix__ )
 		bool result;
 		if( m_notified )
@@ -166,6 +168,12 @@ class Conditional
 #elif defined( __MACH__ ) || defined( __unix__ )
 		m_notified = true;
 		pthread_cond_signal(&m_conditional);  
+#endif
+	}
+	void reset()
+	{
+#if defined( _Windows )
+		ResetEvent( m_eventHandle.get() );
 #endif
 	}
 };

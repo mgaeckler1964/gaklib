@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -755,6 +755,21 @@ void LoggingThread::logLine( const LogLine &line )
 /* --------------------------------------------------------------------- */
 /* ----- entry points -------------------------------------------------- */
 /* --------------------------------------------------------------------- */
+
+void quickLog( const char *file, int line, void *ptr, const char *marker )
+{
+	static std::ofstream	ofs;
+
+	if( !ofs.is_open() )
+	{
+		gak::STRING	fileName = getenv("TMP");
+		fileName.condAppend( DIRECTORY_DELIMITER );
+		fileName += "quicklog.txt";
+		ofs.open( fileName, std::ios_base::app );
+	}
+
+	ofs <<  file << line << ' ' << clock() << ' ' << ptr << ' ' << (marker?marker:"") << '\n';
+}
 
 /*
 ---------------------------------------------------------------------------

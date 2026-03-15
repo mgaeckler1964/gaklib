@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -40,6 +40,7 @@
 #include <time.h>
 
 #include <gak/thread.h>
+#include <gak/stopWatch.h>
 
 // --------------------------------------------------------------------- //
 // ----- module switches ----------------------------------------------- //
@@ -346,22 +347,26 @@ void Thread::StopThread( bool stopImmediately )
 }
 
 #ifdef _Windows
-bool Thread::waitForUserSleep( unsigned long timeOut )
+bool Thread::waitForUserSleep( unsigned long timeOut, unsigned long userSleepTime )
 {
 	bool			ok;
 	LASTINPUTINFO	lastInputInfo;
 	unsigned long	lastPeriod;
+	StopWatch		sw(true);
 
 	lastInputInfo.cbSize = sizeof( lastInputInfo );
 	while( !terminated )
 	{
+		clock_t	tim = sw.getMillis();
+		if( tim >= timeOut )
+/*v*/		break;
 		ok = GetLastInputInfo( &lastInputInfo );
 		if( ok )
 		{
 			lastPeriod = GetTickCount()-lastInputInfo.dwTime;
-			if( lastPeriod > timeOut )
+			if( lastPeriod > userSleepTime  )
 /*v*/			break;
-			Sleep( timeOut - lastPeriod );
+			Sleep( math::min(timeOut-tim, userSleepTime - lastPeriod ) );
 		}
 		else
 			Sleep( 1000 );
