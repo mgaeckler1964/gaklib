@@ -1,0 +1,87 @@
+﻿Ausschluß
+=========
+
+Mitarbeiter folgender Unternehmnen, die sich als respektlos gegenüber 
+Bewerber:innen erwiesen haben, sind von der Benutzung meiner Quellen 
+ausgeschloßen:
+
+3 Banken IT
+Actief Jobmade
+Active Solution
+Admiral (Sportwetten)
+Atikon EDV & Marketing GmbH
+avanti GmbH
+Axians ICT Austria GmbH
+Barbaric
+Bechtle
+Beko
+Bundesrechenzentrum (BRZ)
+CADS
+Cancom
+CGM
+Count IT
+DECOM
+DGR
+Doka
+DS Automation
+ebcont
+efinio IT&Engineering
+Energie AG
+epunkt
+ESA
+Eurofunk
+EV Group
+Ferchau
+Fröling
+Fronius
+FONDS SOZIALES WIEN
+HAINZL INDUSTRIESYSTEME GMBH
+HITZINGER Power Solutions GmbH
+INFO-DATA GmbH
+IU Internationale Hochschule
+IT:U
+IVM TECHNICAL CONSULTANTS WIEN GES.M.B.H. 
+KEBA Group AG 
+KERN engineering careers
+LISEC Holding GmbH
+LIWEST Kabelmedien GmbH 
+LOXONE 
+M-TEC Energy Systems GmbH
+MIKKA GmbH 
+Nexus Elastomer Systems GmbH
+Nora Cares GmbH
+Oberbank
+Österreichische Gesundheitskasse
+opta data Österreich GmbH 
+Porsche Holding Gesellschaft m.b.H
+PRO-FILE - Management Consulting
+RAITEC GmbH 
+Raiffeisen Software GmbH
+Rosenbauer International AG
+Schachermayer GmbH
+Schmachtl GmbH
+Schwarz & Schwarz EDV GmbH
+Senacor Technologies AG
+sequality
+Siemens
+Silicon Austria Labs GmbH
+SIWA Online GmbH
+SobIT
+solvistas GmbH
+SPAR Österreichische Warenhandels AG
+Storyblok GmbH
+STRABAG AG
+SWIETELSKY AG
+TeamViewer
+TGW Logistic
+Track Machines Connected Gesellschaft m.b.H.
+Tractive GmbH
+Vesterling AG
+voestalpine
+Wacker Neuson Linz GmbH
+WIENER NETZE GmbH
+Stadt Wien - Wiener Wohnen 
+
+
+
+
