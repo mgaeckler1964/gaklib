@@ -37,6 +37,7 @@ Fronius
 FONDS SOZIALES WIEN
 HAINZL INDUSTRIESYSTEME GMBH
 HITZINGER Power Solutions GmbH
+Hueck Folien
 INFO-DATA GmbH
 IU Internationale Hochschule
 IT:U
@@ -57,6 +58,8 @@ Porsche Holding Gesellschaft m.b.H
 PRO-FILE - Management Consulting
 RAITEC GmbH 
 Raiffeisen Software GmbH
+Ratbacher
+ReqPOOL
 Rosenbauer International AG
 Schachermayer GmbH
 Schmachtl GmbH
@@ -66,6 +69,7 @@ sequality
 Siemens
 Silicon Austria Labs GmbH
 SIWA Online GmbH
+STIWA
 SobIT
 solvistas GmbH
 SPAR Österreichische Warenhandels AG
@@ -76,6 +80,7 @@ TeamViewer
 TGW Logistic
 Track Machines Connected Gesellschaft m.b.H.
 Tractive GmbH
+VACE
 Vesterling AG
 voestalpine
 Wacker Neuson Linz GmbH
