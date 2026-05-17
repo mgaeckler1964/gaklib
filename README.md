@@ -1,4 +1,4 @@
-GAKLIB (c) 1988 - 2025 by Martin Gäckler
+﻿GAKLIB (c) 1988 - 2026 by Martin Gäckler
 ========================================
 
 Funktionsbibliothek mit vielen nützlichen Funktionen.
@@ -21,9 +21,13 @@ kann auch leider kein neuerer C++ Standard eingesetzt werden. Ich bin froh,
 daß wenigstens Ansi C++ 1.0 einigermassen funktioniert. Borland C++ (ohne 
 Builder) habe ich deswegen vor ein paar Jahren gestrichen, da er keine 
 Defaultargumente für Templateparameter konnte obwohl er nur ein paar Monate 
-alter wie der C++ Builder ist. Auf den Rechnern, die seit 2020 bei mir im 
-Einsatz sind, habe ich Borland C++ nicht mehr installiert. *Funfact:* Seitdem 
-kann ich auch keine 16 Bit Windowsanwendungen mehr bauen.
+älter wie der C++ Builder ist. Da ich aber keine neuen Projekte mit dem C++ 
+Builder plane, werden neue Module mit neueren Standards erstellt, solange diese 
+nicht mit dem C++ Builder übersetzt werden müssen.
+
+Auf den Rechnern, die seit 2020 bei mir im Einsatz sind, habe ich Borland C++ 
+nicht mehr installiert. *Funfact:* Seitdem kann ich auch keine 16 Bit 
+Windowsanwendungen mehr bauen.
 
 Die KI-Funktionen sind natürlich noch sehr experimentel. Ziel ist aber eine 
 vernünftige Intelligenz zu bauen nicht so eine künstliche Dummheit wie Google 
