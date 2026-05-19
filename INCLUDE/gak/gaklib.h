@@ -207,7 +207,7 @@ inline unsigned getConsoleHeight( void )
 	return ConsoleSize().height;
 }
 
-}
+}	// namespace gak
 #endif
 
 /******** micelaneous ****************************************************/
@@ -282,13 +282,22 @@ void RemoveProfileEntry( const char *iniFile, const char *section, const char *e
 #endif
 
 #ifdef __cplusplus
-template <typename TYPE>
-inline void swap(TYPE *val1, TYPE *val2)
+namespace gak
 {
-	TYPE tmp = *val1;
-	*val1 = *val2;
-	*val2 = tmp;
-}
+	template <typename TYPE>
+	inline void swap(TYPE *val1, TYPE *val2)
+	{
+		TYPE tmp = *val1;
+		*val1 = *val2;
+		*val2 = tmp;
+	}
+
+	template <typename TYPE>
+	inline const TYPE &nvl( const TYPE &val, const TYPE &nullVal )
+	{
+		return val ? val : nullVal;
+	}
+}	// namespace gak
 #endif
 
 #ifdef __BORLANDC__
