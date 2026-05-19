@@ -417,21 +417,11 @@ inline void assertEqual<double>(
 }
 
 template <>
-inline void assertEqual<const char *>(
+void assertEqual<const char *>(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
 	const char * const &i1, const char * const &i2
-)
-{
-	STRING			log;
-	oSTRINGstream	logStream( log );
-	bool			success = i1 == i2 || !strcmp(nvl(i1, (const char *)"NULL"), nvl(i2, (const char *)"NULL"));
-
-	logStream << nvl(i1, (const char *)"NULL") << " != " << nvl(i2, (const char *)"NULL");
-	logStream.flush();
-
-	UnitTest::AddResult( className, fileName, line, testItem, log, success );
-}
+);
 
 template <class ITEM> 
 void assertNotEqual(
@@ -451,21 +441,11 @@ void assertNotEqual(
 }
 
 template <> 
-inline void assertNotEqual(
+void assertNotEqual(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
 	const char * const &i1, const char * const &i2
-)
-{
-	STRING			log;
-	oSTRINGstream	logStream( log );
-	bool			success = i1 != i2 && strcmp(nvl(i1, (const char *)"NULL"), nvl(i2, (const char *)"NULL"));
-
-	logStream << i1 << " == " << i2;
-	logStream.flush();
-
-	UnitTest::AddResult( className, fileName, line, testItem, log, success );
-}
+);
 
 template <class ITEM> 
 void assertLess(

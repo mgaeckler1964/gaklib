@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -682,6 +682,40 @@ void UnitTest::ThreadTest( SortedArray<const char*> &testsToPerform, bool checkT
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+template <>
+void assertEqual<const char *>(
+	const char *className, const char *fileName, int line,
+	const char *testItem,
+	const char * const &i1, const char * const &i2
+)
+{
+	STRING			log;
+	oSTRINGstream	logStream( log );
+	bool			success = i1 == i2 || !strcmp(nvl(i1, (const char *)"NULL"), nvl(i2, (const char *)"NULL"));
+
+	logStream << nvl(i1, (const char *)"NULL") << " != " << nvl(i2, (const char *)"NULL");
+	logStream.flush();
+
+	UnitTest::AddResult( className, fileName, line, testItem, log, success );
+}
+
+template <> 
+void assertNotEqual(
+	const char *className, const char *fileName, int line,
+	const char *testItem,
+	const char * const &i1, const char * const &i2
+)
+{
+	STRING			log;
+	oSTRINGstream	logStream( log );
+	bool			success = i1 != i2 && strcmp(nvl(i1, (const char *)"NULL"), nvl(i2, (const char *)"NULL"));
+
+	logStream << i1 << " == " << i2;
+	logStream.flush();
+
+	UnitTest::AddResult( className, fileName, line, testItem, log, success );
+}
 
 }	// namespace gak
 
