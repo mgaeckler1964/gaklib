@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -121,11 +121,11 @@ void Board::addPromoteMoves( Movements &moves, const Movement &moveTemplate ) co
 	{
 		Figure::ftQueen, Figure::ftRook, Figure::ftKnight, Figure::ftBishop
 	};
-	FOR_EACH(i,promoTypes)
+	FOR_EACH(i,promoTypes,
 	{
 		Movement &move = moves.addElement(moveTemplate);
 		move.promotionType = promoTypes[i];
-	}
+	});
 }
 
 // --------------------------------------------------------------------- //
@@ -170,14 +170,14 @@ Figure::Attack Figure::searchAttack(unsigned maxStep, const Position &ignore, co
 		{ &Position::moveSWestNorth,	1 },
 		{ &Position::moveSNorthWest,	1 }
 	};
-	FOR_EACH(i,moves)
+	FOR_EACH(i,moves,
 	{
 		Attack attack = searchAttack(m_pos, moves[i].move, ignore, stop, moves[i].maxDistance );
 		if( !isOK(attack, maxStep) )
 		{
 			return attack;
 		}
-	}
+	});
 
 	return Attack();
 }
@@ -264,14 +264,14 @@ std::ostream &operator << (std::ostream &stream, Position::MoveFunc func )
 		{ &Position::moveSWestNorth,	"Position::moveSWestNorth" },
 		{ &Position::moveSNorthWest,	"Position::moveSNorthWest" }
 	};
-	FOR_EACH(i,moves)
+	FOR_EACH(i,moves,
 	{
 		if(moves[i].move == func)
 		{
 			name = moves[i].name;
 			break;
 		}
-	}
+	});
 
 	return stream << name;
 }
