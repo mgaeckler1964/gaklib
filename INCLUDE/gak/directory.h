@@ -165,6 +165,7 @@ F_STRING getcwd();
 /* from relpath.cpp */
 F_STRING makeRelPath( const STRING &basePath, const STRING &destination );
 F_STRING makeFullPath( const STRING &basePath, const STRING &destination );
+F_STRING makeFullPath( const STRING &destination );
 
 /* from dirlist.cpp */
 FStype fileType( const wchar_t *fileName );
