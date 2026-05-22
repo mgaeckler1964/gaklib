@@ -351,9 +351,9 @@ class STRING
 		 the counter parts can be found in fmtNumber.h
 	*/
 	template <typename NUMERIC>
-	NUMERIC getValueE(unsigned base=10) const;
+	NUMERIC getValueE(unsigned base=10, char decPoint='.', char thousand=0) const;
 	template <typename NUMERIC>
-	NUMERIC getValueN(unsigned base=10) const;
+	NUMERIC getValueN(unsigned base=10, char decPoint='.', char thousand=0) const;
 
 	/*
 		-----------------------------------------------------------------------

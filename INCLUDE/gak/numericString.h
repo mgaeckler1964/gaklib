@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-206 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -66,6 +66,11 @@
 #undef min
 #undef max
 
+#ifdef _MSC_VER
+#	pragma warning ( push )
+#	pragma warning ( disable: 4804 )	// unsichere Verwendung the Typs bool
+#endif
+
 namespace gak
 {
 
@@ -115,80 +120,10 @@ namespace internal
 #endif
 
 /**
-	parse string, return integer and bad position
+	parse string, return integer or throw exception or return bad position
 */
 template <typename NUMERIC>
-NUMERIC getIntegerValue( const char *cp, unsigned base, const char **end )
-{
-	bool		isNegative = false;
-	NUMERIC		result = 0;
-
-	if( cp && *cp )
-	{
-		unsigned		digit;
-		unsigned char	c;
-
-		if( std::numeric_limits<NUMERIC>::is_signed )
-		{
-			c = *cp;
-			if( c == '+' )
-			{
-				cp++;
-			}
-			else if( c == '-' )
-			{
-				isNegative = true;
-				cp++;
-			}
-		}
-		while( (c = *cp) != 0 )
-		{
-			if( c >= '0' && c <= '9' )
-			{
-				digit = c - '0';
-			}
-			else
-			{
-				c = static_cast<unsigned char>(ansiToUpper( c ));
-				if( c >= 'A' && c <= 'Z' )
-				{
-					digit = c - 'A' + 10;
-				}
-				else
-				{
-/*v*/				break;
-				}
-			}
-			if( digit >= base )
-			{
-/*v*/			break;
-			}
-
-			result *= NUMERIC(base);
-			if( isNegative )
-			{
-				result -= NUMERIC(digit);
-			}
-			else
-			{
-				result += NUMERIC(digit);
-			}
-			cp++;
-		}
-	}
-
-	if( end )
-	{
-		*end = cp;
-	}
-	return result;
-}
-
-/**
-	parse string, return integer or throw exception
-*/
-template <typename NUMERIC>
-NUMERIC getIntegerValue( const char *cp, unsigned base )
+NUMERIC getIntegerValue( const char *cp, unsigned base, char thousand, const char **end )
 {
 #ifdef __BORLANDC__
 	typedef uint32	BaseT;
@@ -217,10 +152,16 @@ NUMERIC getIntegerValue( const char *cp, unsigned base )
 		}
 		else
 		{
-/*@*/		throw BadNumericFormatError( start );
+			if( end )
+			{
+				*end = cp;
+/*@*/			return NUMERIC(result);
+			}
+			else
+/*@*/			throw BadNumericFormatError( start );
 		}
 	}
-	while( (c = *cp++) != 0 )
+	while( (c = *cp) != 0 )
 	{
 		 if( c >= '0' && c <= '9' )
 		 {
@@ -231,47 +172,84 @@ NUMERIC getIntegerValue( const char *cp, unsigned base )
 			c = static_cast<unsigned char>(ansiToUpper( c ));
 			if( c >= 'A' && c <= 'Z' )
 				digit = c - 'A' + 10;
+			else if( c==thousand )	// skip thousend marker
+			{
+				cp++;
+				continue;
+			}
 			else
 			{
-/*@*/			throw BadNumericFormatError( start );
+				if( end )
+				{
+					*end = cp;
+/*v*/				break;
+				}
+				else
+/*@*/				throw BadNumericFormatError( start );
 			}
 		}
 		if( digit >= base )
 		{
-/*@*/		throw BadNumericFormatError( start );
+			if( end )
+			{
+				*end = cp;
+/*v*/			break;
+			}
+			else
+/*@*/			throw BadNumericFormatError( start );
 		}
 
 		result *= base;
 		result += digit;
+		++cp;
 	}
 
 	if( !isNegative
 	&&  result > BaseT(std::numeric_limits<NUMERIC>::max()) )
 	{
-/*@*/	throw IntegerOverflowError( start );
-	}
-
-	if( std::numeric_limits<NUMERIC>::is_signed )
-	{
-		if( isNegative )
+		if( end )
 		{
-			if( SignedBaseT(result*(-1)) < SignedBaseT(std::numeric_limits<NUMERIC>::min()) )
-			{
-/*@*/			throw IntegerUnderflowError( start );
-			}
-			return NUMERIC(result*(-1));
+			*end = cp;
+/*@*/		return NUMERIC(result);
 		}
+		else
+/*@*/		throw IntegerOverflowError( start );
 	}
 
+	if( std::numeric_limits<NUMERIC>::is_signed && isNegative )
+	{
+		if( SignedBaseT(result*(-1)) < SignedBaseT(std::numeric_limits<NUMERIC>::min()) )
+		{
+			if( end )
+			{
+				*end = cp;
+/*@*/			return NUMERIC(result*(-1));
+			}
+			else
+/*@*/			throw IntegerUnderflowError( start );
+		}
+		if( end )
+		{
+			*end = cp;
+		}
+		return NUMERIC(result*(-1));
+	}
+
+	if( end )
+	{
+		*end = cp;
+	}
 	return NUMERIC(result);
 }
 
 /**
-	parse string, return float and bad position
+	parse string, return float and bad position or throw exception
 */
 template <typename NUMERIC>
-NUMERIC getFloatValue( const char *cp, const char **end )
+NUMERIC getFloatValue( const char *cp, char decPoint, char thousand, const char **end )
 {
+	const char * const start = cp;
+
 	bool			isNegative = false;
 	NUMERIC			result = 0;
 	NUMERIC			digit;
@@ -287,14 +265,21 @@ NUMERIC getFloatValue( const char *cp, const char **end )
 		cp++;
 	}
 
-	while( (c = *cp) != 0 && c != '.' && c != ',' && ansiToUpper( c ) != 'E' )
+	while( (c = *cp) != 0 && c != decPoint && ansiToUpper( c ) != 'E' )
 	{
 		 if( c >= '0' && c <= '9' )
 		 {
 			digit = NUMERIC(c - '0');
 		}
+		else if( c==thousand )
+		{
+			cp++;
+			continue;
+		}
 		else
 		{
+			if( !end )
+/*@*/			throw BadNumericFormatError( start );
 /*v*/		break;
 		}
 
@@ -303,7 +288,7 @@ NUMERIC getFloatValue( const char *cp, const char **end )
 		cp++;
 	}
 
-	if( c == '.' || c == ',' )
+	if( c == decPoint )
 	{
 		cp++;
 		NUMERIC factor = 1;
@@ -315,7 +300,9 @@ NUMERIC getFloatValue( const char *cp, const char **end )
 			}
 			else
 			{
-/*@*/			break;
+				if( !end )
+/*@*/				throw BadNumericFormatError( start );
+/*v*/			break;
 			}
 
 			factor /= NUMERIC(10);
@@ -327,14 +314,43 @@ NUMERIC getFloatValue( const char *cp, const char **end )
 	if( ansiToUpper( c ) == 'E' )
 	{
 		cp++;
-		int exponent = getIntegerValue<int>( cp, 10, &cp );
+		int exponent = getIntegerValue<int>( cp, 10, 0, &cp );
+
+		if( !end )
+		{
+			if( exponent > std::numeric_limits<NUMERIC>::max_exponent10 )
+			{
+/*@*/			throw ExponentOverflowError( start );
+			}
+			if( exponent < std::numeric_limits<NUMERIC>::min_exponent10 )
+			{
+/*@*/			throw ExponentUnderflowError( start );
+			}
+		}
+
+
 		if( exponent )
 		{
 			result *= NUMERIC(pow( 10.0, exponent ));
 		}
 	}
 
-	*end = cp;
+	if( !end )
+	{
+		if( result > std::numeric_limits<NUMERIC>::max() )
+		{
+			if( !isNegative )
+			{
+/*@*/			throw FloatOverflowError( start );
+			}
+			else
+			{
+/*@*/			throw FloatUnderflowError( start );
+			}
+		}
+	}
+	else
+		*end = cp;
 	if( !isNegative )
 	{
 		return result;
@@ -346,106 +362,11 @@ NUMERIC getFloatValue( const char *cp, const char **end )
 }
 
 /**
-	parse string, return float or throw exception
+	parse string, return integer, float and bad position
 */
 template <typename NUMERIC>
-NUMERIC getFloatValue( const char *cp )
+inline NUMERIC getValue( const char *cp, char decPoint, char thousand, unsigned base, const char **end )
 {
-	const char * const start = cp;
-	bool			isNegative = false;
-	long double		result = 0;
-	unsigned		digit;
-	unsigned char	c = *cp;
-
-	if( c == '+' )
-	{
-		cp++;
-	}
-	else if( c == '-' )
-	{
-		isNegative = true;
-		cp++;
-	}
-	while( (c = *cp++) != 0 && c != '.' && c != ',' && ansiToUpper( c ) != 'E' )
-	{
-		 if( c >= '0' && c <= '9' )
-		 {
-			digit = c - '0';
-		}
-		else
-		{
-/*@*/		throw BadNumericFormatError( start );
-		}
-
-		result *= 10.0;
-		result += digit;
-	}
-
-	if( c == '.' || c == ',' )
-	{
-		double factor = 1;
-		while( (c = *cp++) != 0 && ansiToUpper( c ) != 'E' )
-		{
-			 if( c >= '0' && c <= '9' )
-			 {
-				digit = c - '0';
-			}
-			else
-			{
-/*@*/			throw BadNumericFormatError( start );
-			}
-
-			factor /= 10.0;
-			result += digit * factor;
-		}
-	}
-
-	if( ansiToUpper( c ) == 'E' )
-	{
-		int exponent = getIntegerValue<int>( cp, 10 );
-		if( exponent > std::numeric_limits<NUMERIC>::max_exponent10 )
-		{
-/*@*/		throw ExponentOverflowError( start );
-		}
-		if( exponent < std::numeric_limits<NUMERIC>::min_exponent10 )
-		{
-/*@*/		throw ExponentUnderflowError( start );
-		}
-
-		result *= pow( 10.0, exponent );
-	}
-	#pragma warning ( suppress: 4804 )	// unsichere Verwendung the Typs bool
-	if( result > std::numeric_limits<NUMERIC>::max() )
-	{
-		if( !isNegative )
-		{
-/*@*/		throw FloatOverflowError( start );
-		}
-		else
-		{
-/*@*/		throw FloatUnderflowError( start );
-		}
-	}
-
-	if( !isNegative )
-	{
-		return NUMERIC(result);
-	}
-	else
-	{
-		return NUMERIC(-result);
-	}
-}
-
-/**
-	parse string, return integer, bool or float or throw exception
-*/
-template <typename NUMERIC>
-inline NUMERIC getValue( const char *cp, unsigned base )
-{
-	assert( cp );
-	assert( *cp );
-
 	if( std::numeric_limits<NUMERIC>::is_integer && std::numeric_limits<NUMERIC>::digits == 1 )
 	{
 		if( !strcmpi( cp, "T" ) || !strcmpi( cp, "TRUE" ) )
@@ -456,35 +377,15 @@ inline NUMERIC getValue( const char *cp, unsigned base )
 		{
 			return false;
 		}
-		return NUMERIC( getValue<int>(cp,base) );
+		return NUMERIC( getValue<int>(cp, decPoint, thousand, base, end) );
 	}
 	else if( std::numeric_limits<NUMERIC>::max_exponent10 )
 	{
-		return getFloatValue<NUMERIC>( cp );
+		return internal::getFloatValue<NUMERIC>( cp, decPoint, thousand, end );
 	}
 	else if( std::numeric_limits<NUMERIC>::is_integer )
 	{
-		return getIntegerValue<NUMERIC>( cp, base );
-	}
-	else
-	{
-		throw InvalidConversionError();
-	}
-}
-
-/**
-	parse string, return integer, float and bad position
-*/
-template <typename NUMERIC>
-inline NUMERIC getValue( const char *cp, unsigned base, const char **end )
-{
-	if( std::numeric_limits<NUMERIC>::max_exponent10 )
-	{
-		return internal::getFloatValue<NUMERIC>( cp, end );
-	}
-	else if( std::numeric_limits<NUMERIC>::is_integer )
-	{
-		return internal::getIntegerValue<NUMERIC>( cp, base, end );
+		return internal::getIntegerValue<NUMERIC>( cp, base, thousand, end );
 	}
 	else
 	{
@@ -540,7 +441,7 @@ inline NUMERIC getValue( const char *cp, unsigned base, const char **end )
 	@see getValueN
 */
 template <typename NUMERIC>
-inline NUMERIC getValueE( const char *cp, unsigned base=10 )
+inline NUMERIC getValueE( const char *cp, unsigned base=10, char decPoint='.', char thousand=0 )
 {
 	if( !cp )
 	{
@@ -551,7 +452,7 @@ inline NUMERIC getValueE( const char *cp, unsigned base=10 )
 /*@*/	throw BadNumericFormatError( LibraryException::EMPTY_STRING_ERROR );
 	}
 
-	return internal::getValue<NUMERIC>( cp, base );
+	return internal::getValue<NUMERIC>( cp, decPoint, thousand, base, nullptr );
 }
 
 /**
@@ -565,14 +466,14 @@ inline NUMERIC getValueE( const char *cp, unsigned base=10 )
 	@see getValueE
 */
 template <typename NUMERIC>
-inline NUMERIC getValueN( const char *cp, unsigned base=10 )
+inline NUMERIC getValueN( const char *cp, const char **end, unsigned base=10, char decPoint='.', char thousand=0 )
 {
 	if( !cp || !*cp )
 	{
 		return NUMERIC(0);
 	}
 
-	return internal::getValue<NUMERIC>( cp, base );
+	return internal::getValue<NUMERIC>( cp, decPoint, thousand, base, end );
 }
 
 /**
@@ -585,9 +486,9 @@ inline NUMERIC getValueN( const char *cp, unsigned base=10 )
 	@exception InvalidConversionError if the type is not a numeric type
 */
 template <typename NUMERIC>
-inline NUMERIC getValue( const char *cp, unsigned base=10, const char **end=NULL )
+inline NUMERIC getValue( const char *cp, unsigned base=10, const char **end=nullptr, char decPoint='.', char thousand=0  )
 {
-	return internal::getValue<NUMERIC>( cp, base, end );
+	return internal::getValue<NUMERIC>( cp, decPoint, thousand, base, end );
 }
 
 /**
@@ -599,9 +500,9 @@ inline NUMERIC getValue( const char *cp, unsigned base=10, const char **end=NULL
 	@exception InvalidConversionError if the type is not a numeric type
 */
 template <typename NUMERIC>
-inline NUMERIC getValue( const char *cp, const char **end )
+inline NUMERIC getValue( const char *cp, const char **end, char decPoint='.', char thousand=0 )
 {
-	return getValue<NUMERIC>( cp, 10, end );
+	return internal::getValue<NUMERIC>( cp, decPoint, thousand, 10, end );
 }
 
 // --------------------------------------------------------------------- //
@@ -609,15 +510,16 @@ inline NUMERIC getValue( const char *cp, const char **end )
 // --------------------------------------------------------------------- //
 
 template <typename NUMERIC>
-inline NUMERIC STRING::getValueE(unsigned base) const
+inline NUMERIC STRING::getValueE(unsigned base, char decPoint, char thousand ) const
 {
-	return gak::getValueE<NUMERIC>(*this, base);
+	return gak::getValueE<NUMERIC>(c_str(), base, decPoint, thousand);
 }
 
 template <typename NUMERIC>
-inline NUMERIC STRING::getValueN(unsigned base) const
+inline NUMERIC STRING::getValueN(unsigned base, char decPoint, char thousand) const
 {
-	return gak::getValueN<NUMERIC>(*this, base);
+	const  char *dummy;
+	return gak::getValueN<NUMERIC>(c_str(), &dummy, base, decPoint, thousand);
 }
 
 
@@ -629,6 +531,10 @@ inline NUMERIC STRING::getValueN(unsigned base) const
 #	pragma option -b.
 #	pragma option -a.
 #	pragma option -p.
+#endif
+
+#ifdef _MSC_VER
+#	pragma warning ( pop )
 #endif
 
 #endif

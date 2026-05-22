@@ -353,6 +353,10 @@ class StringTest : public UnitTest
 		}
 
 		{
+			STRING		text = "127";
+			UT_ASSERT_EQUAL(127, text.getValueN<char>());
+		}
+		{
 			STRING		text = "true";
 			UT_ASSERT_TRUE(text.getValueN<bool>());
 		}
@@ -366,11 +370,16 @@ class StringTest : public UnitTest
 		}
 		{
 			STRING		text = "3,14";
-			UT_ASSERT_EQUAL(3.14, text.getValueN<double>());
+			UT_ASSERT_EQUAL(3.14, text.getValueN<double>(10,','));
+		}
+		{
+			STRING text = "-9 913,56X";
+			double result = text.getValueN<double>(10, ',', ' ');
+			UT_ASSERT_EQUAL( result, -9913.56 );
 		}
 		{
 			STRING		text = "1,798e308";
-			UT_ASSERT_EXCEPTION( text.getValueE<double>(), FloatOverflowError );
+			UT_ASSERT_EXCEPTION( text.getValueE<double>(10, ','), FloatOverflowError );
 		}
 		{
 			STRING		text = "1e" + formatNumber(std::numeric_limits<double>::max_exponent10+1);
@@ -817,6 +826,18 @@ class StringTest : public UnitTest
 			double result = getValue<double>( "-13.56E1\xFF", &end );
 			UT_ASSERT_EQUAL( result, -135.6 );
 			UT_ASSERT_EQUAL( *end, '\xFF' );
+		}
+		{
+			const char *end;
+			double result = getValue<double>( "-13,56X", &end, ',' );
+			UT_ASSERT_EQUAL( result, -13.56 );
+			UT_ASSERT_EQUAL( *end, 'X' );
+		}
+		{
+			const char *end;
+			double result = getValue<double>( "-9 913,56X", &end, ',', ' ' );
+			UT_ASSERT_EQUAL( result, -9913.56 );
+			UT_ASSERT_EQUAL( *end, 'X' );
 		}
 		{
 			STRING	test = STRING('a');
