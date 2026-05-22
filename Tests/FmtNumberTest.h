@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			FmtNumberTest.h
-		Description:	
+		Description:	format numbers
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -153,8 +153,8 @@ class FmtNumberTest : public UnitTest
 		UT_ASSERT_EQUAL( STRING("   0.00500"), formatFloat(  0.005, 10, 5 ) );
 		UT_ASSERT_EQUAL( STRING("  -0.00500"), formatFloat( -0.005, 10, 5 ) );
 
-		UT_ASSERT_EQUAL( STRING("    9 999.9900"), formatFloat( 9999.99, 14, 4, ' ' ) );
-		UT_ASSERT_EQUAL( STRING("   -9 999.9900"), formatFloat( -9999.99, 14, 4, ' ' ) );
+		UT_ASSERT_EQUAL( STRING("    9 999,9900"), formatFloat( 9999.99, 14, 4, ' ', ',' ) );
+		UT_ASSERT_EQUAL( STRING("   -9 999,9900"), formatFloat( -9999.99, 14, 4, ' ', ',' ) );
 
 		{
 			TestScope scope("min");

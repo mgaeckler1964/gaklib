@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -98,7 +98,7 @@ namespace gak
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-STRING formatFloat( double value, int fieldLength=0, int precision=-1, char thousand=0 );
+STRING formatFloat( double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.' );
 STRING formatBool( bool value );
 
 // --------------------------------------------------------------------- //
@@ -155,7 +155,9 @@ namespace internal
 		}
 		while( tmp.size() )
 		{
-			result += tmp.pop();
+			char c = tmp.pop();
+			if( c && (c != thousand || result.size()) )
+				result += c;
 		}
 
 		return result;
@@ -163,7 +165,7 @@ namespace internal
 
 	template <class NUMBER_T>
 	STRING formatNumber(
-		NUMBER_T value, int fieldLength=0, char filler='0', char thousand=0
+		NUMBER_T value, int fieldLength=0, char filler='0', char thousand=0, char ='.'
 	)
 	{
 	#if defined( __BORLANDC__ )
@@ -209,7 +211,7 @@ namespace internal
 	}
 
 	template <class NUMBER_T>
-	STRING formatFraction( NUMBER_T value, int precision )
+	STRING formatFraction( NUMBER_T value, int precision, char decPoint )
 	{
 		assert( precision != 0 );
 
@@ -223,7 +225,7 @@ namespace internal
 		value = math::normalize( value, &exponent );
 		if( value )
 		{
-			result = '.';
+			result = decPoint;
 			int		numZeros = -exponent -1;
 
 			if( precision < 0 )
@@ -333,15 +335,15 @@ inline STRING formatBinary<void*>(
 
 template <class NUMBER_T>
 inline STRING formatNumber(
-	NUMBER_T value, int fieldLength=0, char filler='0', char thousand=0
+	NUMBER_T value, int fieldLength=0, char filler='0', char thousand=0, char decPoint='.'
 )
 {
-	return internal::formatNumber( value, fieldLength, filler, thousand );
+	return internal::formatNumber( value, fieldLength, filler, thousand, decPoint );
 }
 
 template <>
 inline STRING formatNumber(
-	bool value, int fieldLength, char filler, char thousand
+	bool value, int fieldLength, char filler, char thousand, char /* decPoint */
 )
 {
 	return internal::formatUnsigned( value ? 1U : 0U, fieldLength, filler, thousand );
@@ -349,7 +351,7 @@ inline STRING formatNumber(
 
 template <>
 inline STRING formatNumber<>(
-	void *value, int fieldLength, char filler, char /* thousand */
+	void *value, int fieldLength, char filler, char /* thousand */, char /* decPoint */
 )
 {
 #if defined( __BORLANDC__ )
@@ -363,26 +365,26 @@ inline STRING formatNumber<>(
 
 template <>
 inline STRING formatNumber<>(
-	float value, int fieldLength, char /* filler */, char /* thousand */
+	float value, int fieldLength, char /* filler */, char thousand, char decPoint
 )
 {
-	return formatFloat( value, fieldLength );
+	return formatFloat( value, fieldLength, -1, thousand, decPoint );
 }
 
 template <>
 inline STRING formatNumber<>(
-	double value, int fieldLength, char /* filler */, char /* thousand */
+	double value, int fieldLength, char /* filler */, char thousand, char decPoint
 )
 {
-	return formatFloat( value, fieldLength );
+	return formatFloat( value, fieldLength, -1, thousand, decPoint );
 }
 
 template <>
 inline STRING formatNumber<>(
-	long double value, int fieldLength, char /* filler */, char /* thousand */
+	long double value, int fieldLength, char /* filler */, char thousand, char decPoint
 )
 {
-	return formatFloat( double(value), fieldLength );
+	return formatFloat( double(value), fieldLength, -1, thousand, decPoint );
 }
 
 // --------------------------------------------------------------------- //
