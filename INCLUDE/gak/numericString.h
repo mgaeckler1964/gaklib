@@ -44,6 +44,7 @@
 #include <cassert>
 #include <math.h>		// otherwise i will loose isnan on Mac
 
+#include <gak/gaklib.h>
 #include <gak/string.h>
 #include <gak/exception.h>
 #include <gak/ansiChar.h>
@@ -468,13 +469,14 @@ inline NUMERIC getValueE( const char *cp, unsigned base=10, char decPoint='.', c
 	@see getValueE
 */
 template <typename NUMERIC>
-inline NUMERIC getValueN( const char *cp, const char **end, unsigned base=10, char decPoint='.', char thousand=0 )
+inline NUMERIC getValueN( const char *cp, const char **end=nullptr, unsigned base=10, char decPoint='.', char thousand=0 )
 {
+	const char *dummy;
 	if( !cp || !*cp )
 	{
 		return NUMERIC(0);
 	}
-
+	end = nvl( end, &dummy );
 	return internal::getValue<NUMERIC>( cp, decPoint, thousand, base, end );
 }
 
@@ -520,8 +522,7 @@ inline NUMERIC STRING::getValueE(unsigned base, char decPoint, char thousand ) c
 template <typename NUMERIC>
 inline NUMERIC STRING::getValueN(unsigned base, char decPoint, char thousand) const
 {
-	const  char *dummy;
-	return gak::getValueN<NUMERIC>(c_str(), &dummy, base, decPoint, thousand);
+	return gak::getValueN<NUMERIC>(c_str(), nullptr, base, decPoint, thousand);
 }
 
 
