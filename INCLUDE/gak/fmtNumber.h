@@ -63,6 +63,11 @@
 #	pragma option -pc
 #endif
 
+#ifdef _MSC_VER
+#	pragma warning ( push )
+#	pragma warning ( disable: 4127 )	// Bedingter Ausdruck ist konstant
+#endif
+
 namespace gak
 {
 
@@ -420,6 +425,10 @@ inline STRING formatNumber<>(
 // --------------------------------------------------------------------- //
 
 }	// namespace gak
+
+#ifdef _MSC_VER
+#	pragma warning ( pop )
+#endif
 
 #ifdef __BORLANDC__
 #	pragma option -RT.

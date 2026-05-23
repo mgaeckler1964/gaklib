@@ -69,6 +69,8 @@
 #ifdef _MSC_VER
 #	pragma warning ( push )
 #	pragma warning ( disable: 4804 )	// unsichere Verwendung the Typs bool
+#	pragma warning ( disable: 4127 )	// Bedingter Ausdruck ist konstant
+#	pragma warning ( disable: 4996 )	// 'strcmpi': The POSIX name for this item is deprecated. 
 #endif
 
 namespace gak

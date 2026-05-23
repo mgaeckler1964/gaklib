@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
-		Module:			arrayBase.H
-		Description:
+		Module:			arrayBase.h
+		Description:	The base for my vector
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -66,6 +66,11 @@
 #	pragma warn -8092		//  ‘type’ argument ‘specifier’ passed to 'function' is not an iterator: ‘type’ iterator required
 #	pragma warn -ccc		// condition is allways true/false
 #	pragma warn -rch		// code never reached
+#endif
+
+#ifdef _MSC_VER
+#	pragma warning ( push )
+#	pragma warning ( disable: 4127 )	// Bedingter Ausdruck ist konstant
 #endif
 
 namespace gak
@@ -1446,6 +1451,10 @@ template <class OBJ> std::istream &operator >> ( std::istream &source, ArrayBase
 #endif
 
 }	// namespace gak
+
+#ifdef _MSC_VER
+#	pragma warning ( pop )
+#endif
 
 #ifdef __BORLANDC__
 #	pragma option -x.

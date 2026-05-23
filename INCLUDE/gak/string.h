@@ -620,6 +620,14 @@ class STRING
 		text = ::replaceText( text, startPos, len, newText );
 		text->usageCount = 1;
 	}
+	size_t searchNreplace( const char *searchFor, const char *newText, size_t startPos=0, bool wholeWord=false, bool matchCase=true, bool downSearch=true  )
+	{
+		std::size_t pos = ::searchText( text, searchFor, startPos, (cBool)wholeWord, (cBool)matchCase, (cBool)downSearch );
+		if( pos != no_index )
+			replaceText(pos,::strlen(searchFor),newText);
+
+		return pos;
+	}
 
 	char &operator [] ( size_t index );
 	const char &operator [] ( size_t index ) const;
