@@ -96,11 +96,22 @@ class TempFileName
 		deleteFile();
 		m_filename = tmpName;
 	}
+	static STRING buildUniqueName( bool inTmpPath )
+	{
+		static size_t counter = 0;
+		STRING tmpName = inTmpPath ? getenv("TMP") : nullptr;
+		if( !tmpName.isEmpty() )
+			tmpName.condAppend(DIRECTORY_DELIMITER);
+		tmpName += "TMP";
+		tmpName += formatNumber(GetCurrentProcessId()) + '_' + formatNumber(Locker::GetCurrentThreadID()) + '_' + formatNumber(++counter) + ".TMP";
+
+		return tmpName;
+	}
+
 	public:
 	TempFileName( const STRING &tmpName=nullptr ) : m_filename(tmpName) {}
-	TempFileName( bool ) : m_filename()
+	TempFileName( bool inTmpPath ) : m_filename(buildUniqueName( inTmpPath ))
 	{
-		buildUniqueName();
 	}
 
 	TempFileName &operator = ( const STRING &tmpName )
@@ -126,9 +137,7 @@ class TempFileName
 	}
 	void buildUniqueName()
 	{
-		static size_t counter = 0;
-		STRING tmpName = STRING("TMP") + formatNumber(GetCurrentProcessId()) + '_' + formatNumber(Locker::GetCurrentThreadID()) + '_' + formatNumber(++counter) + ".TMP";
-		assign( tmpName );
+		assign( buildUniqueName(false) );
 	}
 
 	~TempFileName()
