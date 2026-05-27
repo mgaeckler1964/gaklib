@@ -165,7 +165,19 @@
 #	endif
 #endif
 
-#define arraySize( array )				(sizeof( array ) / sizeof( array[0] ))
+#define cArraySize( array )	(sizeof( array ) / sizeof( array[0] ))
+#if defined( __cplusplus )
+namespace gak 
+{
+	template <typename T, size_t N>
+	size_t cppArraySize(T (&)[N]) {
+		return N;
+	}
+}
+#define arraySize( array )	gak::cppArraySize(array)
+#else
+#define arraySize( array )	(cArraySize( array ))
+#endif
 #define FOR_EACH(idx, array, body)		for( size_t idx=0; idx<arraySize( array ); ++idx ) { body }
 
 #if defined( _WIN32 ) && defined( _MSC_VER )

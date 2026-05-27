@@ -106,7 +106,7 @@ Item0=..\..\object\gaklib\test\bcb\
 DebugSourceDirs=.
 
 [Parameters]
-RunParams=HttpTest
+RunParams=BtreeTest
 HostApplication=
 RemoteHost=
 RemotePath=
