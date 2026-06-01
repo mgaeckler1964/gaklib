@@ -64,12 +64,12 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static const double minVal = -5;
-static const double maxVal = 5;
-static const double increment = 0.1;
+static const double s_minVal = -5;
+static const double s_maxVal = 5;
+static const double s_increment = 0.1;
 
-static const double searchM = -2.6;
-static const double searchD = 1.8;
+static const double s_searchM = -2.6;
+static const double s_searchD = 1.8;
 
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
@@ -96,26 +96,26 @@ class MLprocessor<double, MyVariableType, double>
 	public:
 	MyVariableType getFirstValue()
 	{
-		m_curVal = MyVariableType(minVal,minVal);
+		m_curVal = MyVariableType(s_minVal,s_minVal);
 		return m_curVal;
 	}
 	MyVariableType getNextValue()
 	{
-		m_curVal.val2 += increment;
-		if( m_curVal.val2 > maxVal )
+		m_curVal.val2 += s_increment;
+		if( m_curVal.val2 > s_maxVal )
 		{
-			m_curVal.val1 += increment;
-			m_curVal.val2 = minVal;
+			m_curVal.val1 += s_increment;
+			m_curVal.val2 = s_minVal;
 		}
 		return m_curVal;
 	}
 	MyVariableType getLastValue()
 	{
-		return MyVariableType(maxVal,maxVal);
+		return MyVariableType(s_maxVal,s_maxVal);
 	}
-	double evaluate(double expected, double actual )
+	double loss(double expected, double actual )
 	{
-		return -gak::math::abs(expected - actual);
+		return gak::math::abs(expected - actual);
 	}
 	double process(double input, const MyVariableType &var )
 	{
@@ -141,10 +141,10 @@ class MachineLearningTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "MachineLearningTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
-		m_m = searchM;
-		m_d = searchD;
+		m_m = s_searchM;
+		m_d = s_searchD;
 
-		ai::MachineLearning<double, MyVariableType, double>		mlSchool;
+		ai::SupervisedLearning<double, MyVariableType, double>		mlSchool;
 
 		size_t expectedLessonCount = 0;
 		double inp = -60;
@@ -167,15 +167,15 @@ class MachineLearningTest : public UnitTest
 		mlSchool.learnLesson( inp, out );
 		++expectedLessonCount;
 
-		size_t	expectedVaiableCount = size_t((maxVal - minVal)/increment + 1);
+		size_t	expectedVariableCount = size_t((s_maxVal - s_minVal)/s_increment + 1);
 		size_t	lessonsCount, variableCount;
-		expectedVaiableCount *= expectedVaiableCount;
+		expectedVariableCount *= expectedVariableCount;
 		MyVariableType	best = mlSchool.getBest( &lessonsCount, &variableCount );
 
 		UT_ASSERT_EQUAL( best.val1, m_m );
 		UT_ASSERT_EQUAL( best.val2, m_d );
 		UT_ASSERT_EQUAL( lessonsCount, expectedLessonCount );
-		UT_ASSERT_EQUAL( variableCount, expectedVaiableCount );
+		UT_ASSERT_EQUAL( variableCount, expectedVariableCount );
 	}
 };
 

@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -93,7 +93,7 @@ class MLprocessor
 	{
 		return VariableT();
 	}
-	double evaluate(const OutputT &expected, const OutputT &actual )
+	double loss(const OutputT &expected, const OutputT &actual )
 	{
 		return 0;
 	}
@@ -104,12 +104,12 @@ class MLprocessor
 };
 
 template <class InputT, class VariableT, class OutputT, class ProcessorT=MLprocessor<InputT, VariableT, OutputT> >
-class MachineLearning
+class SupervisedLearning
 {
-	typedef PairMap<VariableT, math::Mean<double> >		EvalStorageT;
+	typedef PairMap<VariableT, math::Mean<double> >		LossStorageT;
 
 	ProcessorT		m_processor;
-	EvalStorageT	m_evals;
+	LossStorageT	m_loss;
 
 	public:
 	void learnLesson( const InputT &input, const OutputT &expected )
@@ -119,28 +119,28 @@ class MachineLearning
 		do
 		{
 			OutputT actual = m_processor.process(input, var);
-			double eval = m_processor.evaluate( expected, actual );
-			m_evals[var].add( eval );
+			double loss = m_processor.loss( expected, actual );
+			m_loss[var].add( loss );
 			var = m_processor.getNextValue();
 		} while( var < last );
 	}
 	VariableT getBest( std::size_t *lessonsCount=nullptr, std::size_t *variableCount=nullptr )
 	{
-		double		bestMean;
+		double		bestLoss;
 		VariableT	bestVariable;
 		bool		first=true;
 		if( variableCount )
 			*variableCount = 0;
 		for( 
-			typename EvalStorageT::const_iterator it = m_evals.cbegin(), endIT = m_evals.cend();
+			typename LossStorageT::const_iterator it = m_loss.cbegin(), endIT = m_loss.cend();
 			it != endIT;
 			++it
 		)
 		{
-			double curMean = it->getValue().getMean();
-			if( first || curMean > bestMean )
+			double curLoss = it->getValue().getMean();
+			if( first || curLoss < bestLoss )
 			{
-				bestMean = curMean;
+				bestLoss = curLoss;
 				bestVariable = it->getKey();
 				first = false;
 				if( lessonsCount )
