@@ -453,11 +453,16 @@ class ArrayBase : public Container
 		if( m_data )
 		{
 			ALLOCATOR::release( m_data );
-			m_data = NULL;
+			m_data = nullptr;
 
 			m_capacity = 0;
 			Container::clear();
 		}
+	}
+	/// removes all items but does not free memory
+	void empty()
+	{
+		Container::clear();
 	}
 	/// returns the size of an item
 	size_t getElementSize() const

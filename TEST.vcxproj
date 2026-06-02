@@ -176,6 +176,7 @@
     <ClInclude Include="Tests\MapTest.h" />
     <ClInclude Include="Tests\MathTest.h" />
     <ClInclude Include="Tests\MatrixTest.h" />
+    <ClInclude Include="Tests\NeuronTest.h" />
     <ClInclude Include="Tests\OptionalTest.h" />
     <ClInclude Include="Tests\OsmTest.h" />
     <ClInclude Include="Tests\PathTest.h" />

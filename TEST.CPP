@@ -58,6 +58,8 @@
 #include <gak/unitTest.h>
 #include <gak/directory.h>
 
+#include "Tests/NeuronTest.h"
+
 #include "Tests/strcmpiTest.h"
 #include "Tests/TemporaryTest.h"
 
