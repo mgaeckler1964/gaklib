@@ -355,7 +355,7 @@ class ArrayBase : public Container
 	{
 		if( &source != this )
 		{
-			clear();
+			empty();
 			m_chunkSize = source.m_chunkSize;
 			addElements( source );
 		}

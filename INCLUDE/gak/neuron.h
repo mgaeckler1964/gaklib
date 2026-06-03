@@ -110,7 +110,6 @@ class Neuron
 	BaseValues	m_weights;
 	base_t		m_bias;
 	double		m_delta;
-	bool		m_calcDelta;
 
 	void fixInputSize(const BaseValues &inputs)
 	{
@@ -120,7 +119,7 @@ class Neuron
 		}
 	}
 	public:
-	Neuron( base_t bias=0 ) : m_bias(bias), m_calcDelta(true)
+	Neuron( base_t bias=0 ) : m_lastResult(0), m_bias(bias), m_delta(0)
 	{
 	}
 	base_t calculate( const BaseValues &inputs )
@@ -165,10 +164,7 @@ class Neuron
 		base_t	diff = actual - expected;
 		setDelta(diff * (1.0- m_lastResult*m_lastResult));
 	}
-	base_t getWeight( size_t index ) const
-	{
-		return m_weights[index];
-	}
+
 	void nextStep( double step )
 	{
 		double delta = getDelta();
@@ -182,6 +178,10 @@ class Neuron
 		}
 	}
 
+	base_t getWeight( size_t index ) const
+	{
+		return m_weights[index];
+	}
 	void setWeights( const BaseValues &weights )
 	{
 		m_weights = weights;
@@ -196,6 +196,7 @@ class Neuron
 	{
 		m_weights[index] = weight;
 	}
+
 	base_t setBias( base_t bias )
 	{
 		base_t oldBias = m_bias;
@@ -206,6 +207,7 @@ class Neuron
 	{
 		m_bias += change;
 	}
+
 	void initNeuron( std::size_t numWeights )
 	{
 		if( m_weights.size() < numWeights )
@@ -277,8 +279,14 @@ class NeuronLayer : public Array<Neuron<ACTIVATION_T>>
 			it->nextStep( step );
 		}
 	}
-	void calcDelta( const BaseValues &output, const BaseValues &expected )
+	/*
+		this is for the last layer of the network
+	*/
+	void calcDeltas( const BaseValues &output, const BaseValues &expected )
 	{
+		assert( output.size() == expected.size() );
+		assert( size() == expected.size() );
+
 		BaseValues::const_iterator oIT = output.cbegin();
 		BaseValues::const_iterator eIT = expected.cbegin();
 		for(
@@ -290,6 +298,9 @@ class NeuronLayer : public Array<Neuron<ACTIVATION_T>>
 			it->calcDelta( *oIT, *eIT );
 		}
 	}
+	/*
+		this is for the hidden and the input layer of the network
+	*/
 	void calculateHiddenDeltas( const SelfT &nextLayer )
 	{
 		size_t	idx=0;
@@ -399,6 +410,9 @@ class NeuronNetwork : public Array<NeuronLayer<ACTIVATION_T>>
 		}
 	}
 
+	/*
+		Here are sone learning algorythms
+	*/
 	double HillClimping(const BaseValues &input, const BaseValues &expected, double step)
 	{
 		BaseValues cur, tmpResult;
@@ -479,6 +493,9 @@ class NeuronNetwork : public Array<NeuronLayer<ACTIVATION_T>>
 		initNetwork(input.size());
 		return HillClimping(input, expected, step);
 	}
+	/*
+		this is the most common
+	*/
 	void GradientDescent(const BaseValues &input, const BaseValues &expected, double step )
 	{
 		reverse_iterator layer = rbegin(), endLayer = rend();
@@ -488,7 +505,7 @@ class NeuronNetwork : public Array<NeuronLayer<ACTIVATION_T>>
 		BaseValues cur, tmpResult;
 		calculate( input, &cur );
 
-		layer->calcDelta( cur, expected );
+		layer->calcDeltas( cur, expected );
 		reverse_iterator	previous = layer;
 		++layer;
 		for( ; layer != endLayer; ++layer )
