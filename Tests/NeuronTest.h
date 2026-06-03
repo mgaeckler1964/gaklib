@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			NeuronTest.h
-		Description:	one single neuron for a network
+		Description:	a learning neuron network 
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/

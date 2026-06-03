@@ -1,7 +1,7 @@
 /*
 		Project:		gaklib
 		Module:			neuron.h
-		Description:	one single neuron for a network
+		Description:	a learning neuron network 
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -88,10 +88,18 @@ typedef PODarray<base_t>	BaseValues;
 
 struct TanhActivation {
     static base_t activate(base_t x) { return std::tanh(x); }
+    static base_t derivation(base_t y) { return 1.0f - y*y; }
 };
 
 struct ReLUActivation {
     static base_t activate(base_t x) { return std::max(0.0f, x); }
+    static base_t derivation(base_t y) { return y>0 ? 1 : 0; }
+};
+
+struct ActivationSigmoid {
+	static double activate(base_t x) { return 1.0 / (1.0 + std::exp(-x)); }
+    // Die Ableitung von Sigmoid basierend auf dem Ausgang y ist: y * (1 - y)
+	static double derivation(double y) { return y * (1.0 - y); }
 };
 
 inline double getRandomInRange( double range )
@@ -162,7 +170,7 @@ class Neuron
 	void calcDelta( base_t actual, base_t expected )
 	{
 		base_t	diff = actual - expected;
-		setDelta(diff * (1.0- m_lastResult*m_lastResult));
+		setDelta(diff * ACTIVATION_T::derivation(m_lastResult));
 	}
 
 	void nextStep( double step )
@@ -200,15 +208,9 @@ class Neuron
 		m_weights[index] = weight;
 	}
 
-	base_t setBias( base_t bias )
+	void setBias( base_t bias )	// for testing
 	{
-		base_t oldBias = m_bias;
 		m_bias = bias;
-		return oldBias;
-	}
-	void modifyBias( base_t change )
-	{
-		m_bias += change;
 	}
 
 	void initNeuron( std::size_t numWeights )
@@ -323,7 +325,7 @@ class NeuronLayer : public Array<Neuron<ACTIVATION_T>>
 				neuronErrorSum += itn->getDelta() * itn->getWeight(idx);
 			}
 			double currentCur = it->getLastOutput();
-			double delta = neuronErrorSum * (1.0 - currentCur * currentCur); // Für tanh	
+			double delta = neuronErrorSum * ACTIVATION_T::derivation(currentCur);
 			it->setDelta(delta);
 		}
 	}
@@ -414,90 +416,7 @@ class NeuronNetwork : public Array<NeuronLayer<ACTIVATION_T>>
 	}
 
 	/*
-		Here are sone learning algorythms
-	*/
-	double HillClimping(const BaseValues &input, const BaseValues &expected, double step)
-	{
-		BaseValues cur, tmpResult;
-		calculate( input, &cur );
-		double loss = getLoss(cur, expected);
-		
-		while( loss )
-		{
-			for(
-				iterator layer = begin(), endLayer = end();
-				layer != endLayer && loss;
-				++layer
-			)
-			{
-				for(
-					NeuronLayer<ACTIVATION_T>::iterator neuronIT = layer->begin(), endNeuron = layer->end();
-					neuronIT != endNeuron && loss;
-					++neuronIT
-				)
-				{
-					Neuron<ACTIVATION_T>	&neuron = *neuronIT;
-					while( loss )
-					{
-						neuron.modifyBias(step);
-						calculate( input, &tmpResult );
-						double tmpLoss = getLoss(tmpResult, expected);
-						if( tmpLoss > loss )		// worse
-						{
-							if( step > 0 )
-							{
-								step = -step;
-								neuron.modifyBias(step);
-/*^*/							continue;
-							}
-							else
-/*v*/							break;
-						}
-						else if(tmpLoss == loss)	// no change
-/*v*/						break;
-						loss = tmpLoss;
-					}
-					for(
-						BaseValues::iterator weight = neuron.begin(), endIT = neuron.end();
-						weight != endIT && loss;
-						++weight
-					)
-					{
-						step = abs(step);
-						while( loss )
-						{
-							*weight += step;
-							calculate( input, &tmpResult );
-							double tmpLoss = getLoss(tmpResult, expected);
-							if( tmpLoss > loss )		// worse
-							{
-								if( step > 0 )
-								{
-									step = -step;
-									*weight += step;
-/*^*/								continue;
-								}
-								else
-/*v*/								break;
-							}
-							else if(tmpLoss == loss)	// no change
-/*v*/							break;
-							loss = tmpLoss;
-						}
-					}
-				}
-			}
-		}
-
-		return loss;
-	}
-	double StartHillClimping(const BaseValues &input, const BaseValues &expected, double step )
-	{
-		initNetwork(input.size());
-		return HillClimping(input, expected, step);
-	}
-	/*
-		this is the most common
+		Here is the most common learning algorithm
 	*/
 	void GradientDescent(const BaseValues &input, const BaseValues &expected, double step )
 	{
@@ -514,6 +433,7 @@ class NeuronNetwork : public Array<NeuronLayer<ACTIVATION_T>>
 		for( ; layer != endLayer; ++layer )
 		{
 			layer->calculateHiddenDeltas( *previous );
+			previous = layer;
 		}
 
 		for(
