@@ -167,6 +167,9 @@ class Neuron
 
 	void nextStep( double step )
 	{
+		// Gradientenabstieg: Wir subtrahieren den Gradienten, weil wir uns ENTGEGEN 
+		// der Steigung bewegen wollen, um den Fehler (Loss) zu minimieren. 
+		// Der Gradient zeigt nach "oben" (Fehler wird größer), das Minus führt uns nach "unten".
 		double delta = getDelta();
 		m_bias -= step * delta; 
 
