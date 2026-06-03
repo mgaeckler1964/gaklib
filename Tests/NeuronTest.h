@@ -120,6 +120,18 @@ class NeuronTest : public UnitTest
 		UT_ASSERT_EQUAL( output[0], tanh(0.5f) );
 		UT_ASSERT_EQUAL( output[1], tanh(1.0f) );
 	}
+	ai::NeuronNetwork<> createNetwork()
+	{
+		PODarray<std::size_t>	numNeuronsPerLayer;
+		numNeuronsPerLayer[0] = 1;
+		numNeuronsPerLayer[1] = 2;
+		numNeuronsPerLayer[2] = 1;
+
+		ai::NeuronNetwork<>	netWork(numNeuronsPerLayer);
+
+		return netWork;
+	}
+
 	void networkTest()
 	{
 		ai::BaseValues	input, output;
@@ -136,20 +148,47 @@ class NeuronTest : public UnitTest
 		UT_ASSERT_EQUAL( 1, output.size() ); 
 		UT_ASSERT_EQUAL( output[0], 0 );				// by default the neurons are off
 
-		ai::BaseValues	wheights1, wheights2;
-		wheights1[0] = 1;
+		ai::BaseValues	weights1, weights2;
+		weights1[0] = 1;
 
-		wheights2[0] = 2;
-		wheights2[1] = 0;
+		weights2[0] = 2;
+		weights2[1] = 0;
 
-		netWork.setWeights( 0, 0, wheights1 );
-		netWork.setWeights( 1, 0, wheights1 );
-		netWork.setWeights( 1, 1, wheights1 );
-		netWork.setWeights( 2, 0, wheights2 );
+		netWork.setWeights( 0, 0, weights1 );
+		netWork.setWeights( 1, 0, weights1 );
+		netWork.setWeights( 1, 1, weights1 );
+		netWork.setWeights( 2, 0, weights2 );
 
 		netWork.calculate( input, &output );
 		UT_ASSERT_EQUAL( 1, output.size() ); 
-		UT_ASSERT_EQUAL( output[0], tanh(wheights2[0]*tanh(tanh(0.5f))) );
+		UT_ASSERT_EQUAL( output[0], tanh(weights2[0]*tanh(tanh(0.5f))) );
+	}
+
+	void GradientTest()
+	{
+		ai::NeuronNetwork<>	netWork = createNetwork();
+		netWork.initNetwork(1);
+
+		ai::BaseValues	input, output, expected;
+		input[0] = 0.5;
+		expected[0] = 0.9;
+
+		netWork.calculate( input, &output );
+		double loss1 = netWork.getLoss(output, expected);
+
+		netWork.GradientDescent(output, expected, 0.1);
+
+		netWork.calculate( input, &output );
+		double loss2 = netWork.getLoss(output, expected);
+
+		UT_ASSERT_LESS(loss2, loss1);
+
+		for( int i=0; i<10; ++i )
+			netWork.GradientDescent(input, expected, 0.1);
+
+		netWork.calculate( input, &output );
+		double loss3 = netWork.getLoss(output, expected);
+		UT_ASSERT_LESS(loss3, loss1);
 	}
 
 	virtual void PerformTest()
@@ -159,6 +198,7 @@ class NeuronTest : public UnitTest
 		neuronTest();
 		layerTest();
 		networkTest();
+		GradientTest();
 	}
 };
 

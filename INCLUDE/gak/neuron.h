@@ -40,6 +40,8 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+#include <limits>
+
 #include <gak/array.h>
 
 // --------------------------------------------------------------------- //
@@ -66,6 +68,9 @@ namespace ai
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+static const double RANDOM_WEIGHT_RANGE	= 0.1;
+static const double RANDOM_BIAS_RANGE	= 1;
+
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -89,11 +94,23 @@ struct ReLUActivation {
     static base_t activate(base_t x) { return std::max(0.0f, x); }
 };
 
+inline double getRandomInRange( double range )
+{
+	int intRange = std::numeric_limits<int>::max()/2;
+	int intRand = randomNumber( std::numeric_limits<int>::max() ) - intRange;
+
+	return (range * intRand)/intRange;
+};
+
 template <typename ACTIVATION_T=TanhActivation>
 class Neuron
 {
+	BaseValues	m_lastInputs;
+	base_t		m_lastResult;
 	BaseValues	m_weights;
 	base_t		m_bias;
+	double		m_delta;
+	bool		m_calcDelta;
 
 	void fixInputSize(const BaseValues &inputs)
 	{
@@ -103,30 +120,66 @@ class Neuron
 		}
 	}
 	public:
-	Neuron( base_t bias=0 ) : m_bias(bias)
+	Neuron( base_t bias=0 ) : m_bias(bias), m_calcDelta(true)
 	{
 	}
 	base_t calculate( const BaseValues &inputs )
 	{
 		fixInputSize(inputs);
+		m_lastInputs = inputs;
 
 		base_t	result = 0;
 		for( BaseValues::const_iterator inp = inputs.cbegin(),
-			wheight = m_weights.cbegin(),
+			weight = m_weights.cbegin(),
 			endIT = inputs.cend();
 			inp != endIT;
-			++inp, ++wheight
+			++inp, ++weight
 		)
 		{
-			result += *inp * *wheight;
+			result += *inp * *weight;
 		}
-		return ACTIVATION_T::activate( result + m_bias );
+		m_lastResult = ACTIVATION_T::activate( result + m_bias );
+		return m_lastResult;
 	}
 	base_t calculate( base_t input )
 	{
 		BaseValues	inputs(1);
 		inputs[0] = input;
 		return calculate(inputs);
+	}
+
+	base_t getLastOutput() const
+	{
+		return m_lastResult;
+	}
+	double getDelta() const
+	{
+		return m_delta;
+	}
+	void setDelta(double delta) 
+	{
+		m_delta = delta;
+	}
+	void calcDelta( base_t actual, base_t expected )
+	{
+		base_t	diff = actual - expected;
+		setDelta(diff * (1.0- m_lastResult*m_lastResult));
+	}
+	base_t getWeight( size_t index ) const
+	{
+		return m_weights[index];
+	}
+	void nextStep( double step )
+	{
+		double delta = getDelta();
+		m_bias -= step * delta; 
+
+		// Alle Gewichte korrigieren
+		for(size_t i = 0; i < m_weights.size(); ++i) 
+		{
+			double gradient_w = delta * m_lastInputs[i]; // <--- Hier nutzen wir die Vergangenheit!
+			m_weights[i] -= step * gradient_w;
+		}
 	}
 
 	void setWeights( const BaseValues &weights )
@@ -149,27 +202,115 @@ class Neuron
 		m_bias = bias;
 		return oldBias;
 	}
+	void modifyBias( base_t change )
+	{
+		m_bias += change;
+	}
+	void initNeuron( std::size_t numWeights )
+	{
+		if( m_weights.size() < numWeights )
+		{
+			m_weights.setSize(numWeights);
+		}
+
+		m_bias = getRandomInRange(RANDOM_BIAS_RANGE);
+		for(
+			BaseValues::iterator it = m_weights.begin(), endIT = m_weights.end();
+			it != endIT;
+			++it
+		)
+		{
+			*it = getRandomInRange(RANDOM_WEIGHT_RANGE);
+		}
+	}
+	BaseValues::iterator begin()
+	{
+		return m_weights.begin();
+	}
+	BaseValues::iterator end()
+	{
+		return m_weights.end();
+	}
 };
 
 template <typename ACTIVATION_T=TanhActivation>
 class NeuronLayer : public Array<Neuron<ACTIVATION_T>> 
 {
 	public:
-	typedef Neuron<ACTIVATION_T>	MY_NYRON_T;
+	typedef NeuronLayer<typename ACTIVATION_T>	SelfT;
+	typedef Neuron<ACTIVATION_T>				MY_NEURON_T;
 
-	NeuronLayer( std::size_t numNeurons=0 ) : Array<MY_NYRON_T>(numNeurons) {
+	NeuronLayer( std::size_t numNeurons=0 ) : Array<MY_NEURON_T>(numNeurons) {
 	}
 	void calculate( const BaseValues &input, BaseValues *output )
 	{
 		output->empty();
 		output->setCapacity( size(), false );
 		for(
-			Array<MY_NYRON_T>::iterator it = begin(), endIT = end();
+			Array<MY_NEURON_T>::iterator it = begin(), endIT = end();
 			it != endIT;
 			++it
 		)
 		{
 			output->push_back( it->calculate(input) );
+		}
+	}
+	void initNeurons( std::size_t numWeights )
+	{
+		for(
+			Array<MY_NEURON_T>::iterator it = begin(), endIT = end();
+			it != endIT;
+			++it
+		)
+		{
+			it->initNeuron(numWeights);
+		}
+	}
+	void nextStep( double step )
+	{
+		for(
+			Array<MY_NEURON_T>::reverse_iterator it = rbegin(), endIT = rend();
+			it != endIT;
+			++it
+		)
+		{
+			it->nextStep( step );
+		}
+	}
+	void calcDelta( const BaseValues &output, const BaseValues &expected )
+	{
+		BaseValues::const_iterator oIT = output.cbegin();
+		BaseValues::const_iterator eIT = expected.cbegin();
+		for(
+			Array<MY_NEURON_T>::iterator it = begin(), endIT = end();
+			it != endIT;
+			++it, ++oIT, ++eIT
+		)
+		{
+			it->calcDelta( *oIT, *eIT );
+		}
+	}
+	void calculateHiddenDeltas( const SelfT &nextLayer )
+	{
+		size_t	idx=0;
+		for(
+			Array<MY_NEURON_T>::iterator it = begin(), endIT = end();
+			it != endIT;
+			++it, ++idx
+		)
+		{
+			double neuronErrorSum = 0;
+			for(
+				Array<MY_NEURON_T>::const_iterator itn = nextLayer.cbegin(), endITn = nextLayer.cend();
+				itn != endITn;
+				++itn
+			)
+			{
+				neuronErrorSum += itn->getDelta() * itn->getWeight(idx);
+			}
+			double currentCur = it->getLastOutput();
+			double delta = neuronErrorSum * (1.0 - currentCur * currentCur); // Für tanh	
+			it->setDelta(delta);
 		}
 	}
 };
@@ -189,6 +330,37 @@ class NeuronNetwork : public Array<NeuronLayer<ACTIVATION_T>>
 		{
 			myIT->setSize(*it);
 		}
+	}
+	double getLoss(const BaseValues &actual, const BaseValues &expected)
+	{
+		double loss = 0;
+		BaseValues::const_iterator	aIt = actual.cbegin(),
+									aEnd = actual.cend(),
+									eIt = expected.cbegin(),
+									eEnd = expected.cend();
+		while(aIt != aEnd && eIt != eEnd)
+		{
+			double diff = *aIt - *eIt;
+			double square = diff*diff;
+			loss += square;
+			++aIt;
+			++eIt;
+		}
+		while(aIt != aEnd)
+		{
+			double diff = *aIt;
+			double square = diff*diff;
+			loss += square;
+			++aIt;
+		}
+		while(eIt != eEnd)
+		{
+			double diff = *eIt;
+			double square = diff*diff;
+			loss += square;
+			++eIt;
+		}
+		return loss;
 	}
 	void calculate( const BaseValues &input, BaseValues *output )
 	{
@@ -212,6 +384,126 @@ class NeuronNetwork : public Array<NeuronLayer<ACTIVATION_T>>
 	void setWeights( std::size_t layer, std::size_t neuron, const BaseValues &weights )
 	{
 		getOrCreateElementAt(layer)[neuron].setWeights( weights );
+	}
+
+	void initNetwork(std::size_t numInputData)
+	{
+		for(
+			iterator it = begin(), endIT = end();
+			it != endIT;
+			++it
+		)
+		{
+			it->initNeurons(numInputData);
+			numInputData = it->size();
+		}
+	}
+
+	double HillClimping(const BaseValues &input, const BaseValues &expected, double step)
+	{
+		BaseValues cur, tmpResult;
+		calculate( input, &cur );
+		double loss = getLoss(cur, expected);
+		
+		while( loss )
+		{
+			for(
+				iterator layer = begin(), endLayer = end();
+				layer != endLayer && loss;
+				++layer
+			)
+			{
+				for(
+					NeuronLayer<ACTIVATION_T>::iterator neuronIT = layer->begin(), endNeuron = layer->end();
+					neuronIT != endNeuron && loss;
+					++neuronIT
+				)
+				{
+					Neuron<ACTIVATION_T>	&neuron = *neuronIT;
+					while( loss )
+					{
+						neuron.modifyBias(step);
+						calculate( input, &tmpResult );
+						double tmpLoss = getLoss(tmpResult, expected);
+						if( tmpLoss > loss )		// worse
+						{
+							if( step > 0 )
+							{
+								step = -step;
+								neuron.modifyBias(step);
+/*^*/							continue;
+							}
+							else
+/*v*/							break;
+						}
+						else if(tmpLoss == loss)	// no change
+/*v*/						break;
+						loss = tmpLoss;
+					}
+					for(
+						BaseValues::iterator weight = neuron.begin(), endIT = neuron.end();
+						weight != endIT && loss;
+						++weight
+					)
+					{
+						step = abs(step);
+						while( loss )
+						{
+							*weight += step;
+							calculate( input, &tmpResult );
+							double tmpLoss = getLoss(tmpResult, expected);
+							if( tmpLoss > loss )		// worse
+							{
+								if( step > 0 )
+								{
+									step = -step;
+									*weight += step;
+/*^*/								continue;
+								}
+								else
+/*v*/								break;
+							}
+							else if(tmpLoss == loss)	// no change
+/*v*/							break;
+							loss = tmpLoss;
+						}
+					}
+				}
+			}
+		}
+
+		return loss;
+	}
+	double StartHillClimping(const BaseValues &input, const BaseValues &expected, double step )
+	{
+		initNetwork(input.size());
+		return HillClimping(input, expected, step);
+	}
+	void GradientDescent(const BaseValues &input, const BaseValues &expected, double step )
+	{
+		reverse_iterator layer = rbegin(), endLayer = rend();
+		if( layer == endLayer )
+			return;
+
+		BaseValues cur, tmpResult;
+		calculate( input, &cur );
+
+		layer->calcDelta( cur, expected );
+		reverse_iterator	previous = layer;
+		++layer;
+		for( ; layer != endLayer; ++layer )
+		{
+			layer->calculateHiddenDeltas( *previous );
+		}
+
+		for(
+			reverse_iterator layer = rbegin(), endLayer = rend();
+			layer != endLayer;
+			++layer
+		)
+		{
+			layer->nextStep( step );
+		}
 	}
 };
 
