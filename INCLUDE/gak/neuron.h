@@ -88,18 +88,18 @@ typedef PODarray<base_t>	BaseValues;
 
 struct TanhActivation {
     static base_t activate(base_t x) { return std::tanh(x); }
-    static base_t derivation(base_t y) { return 1.0f - y*y; }
+    static base_t derivation(base_t y) { return base_t(1.0 - y*y); }
 };
 
 struct ReLUActivation {
     static base_t activate(base_t x) { return std::max(0.0f, x); }
-    static base_t derivation(base_t y) { return y>0 ? 1 : 0; }
+    static base_t derivation(base_t y) { return base_t(y>0 ? 1.0 : 0.0); }
 };
 
 struct ActivationSigmoid {
-	static double activate(base_t x) { return 1.0 / (1.0 + std::exp(-x)); }
+	static base_t activate(base_t x) { return base_t(1.0 / (1.0 + std::exp(-x))); }
     // Die Ableitung von Sigmoid basierend auf dem Ausgang y ist: y * (1 - y)
-	static double derivation(double y) { return y * (1.0 - y); }
+	static base_t derivation(base_t y) { return base_t(y * (1.0 - y)); }
 };
 
 inline double getRandomInRange( double range )
@@ -179,13 +179,13 @@ class Neuron
 		// der Steigung bewegen wollen, um den Fehler (Loss) zu minimieren. 
 		// Der Gradient zeigt nach "oben" (Fehler wird größer), das Minus führt uns nach "unten".
 		double delta = getDelta();
-		m_bias -= step * delta; 
+		m_bias -= base_t(step * delta);
 
 		// Alle Gewichte korrigieren
 		for(size_t i = 0; i < m_weights.size(); ++i) 
 		{
 			double gradient_w = delta * m_lastInputs[i]; // <--- Hier nutzen wir die Vergangenheit!
-			m_weights[i] -= step * gradient_w;
+			m_weights[i] -= base_t(step * gradient_w);
 		}
 	}
 
@@ -220,14 +220,14 @@ class Neuron
 			m_weights.setSize(numWeights);
 		}
 
-		m_bias = getRandomInRange(RANDOM_BIAS_RANGE);
+		m_bias = base_t(getRandomInRange(RANDOM_BIAS_RANGE));
 		for(
 			BaseValues::iterator it = m_weights.begin(), endIT = m_weights.end();
 			it != endIT;
 			++it
 		)
 		{
-			*it = getRandomInRange(RANDOM_WEIGHT_RANGE);
+			*it = base_t(getRandomInRange(RANDOM_WEIGHT_RANGE));
 		}
 	}
 	BaseValues::iterator begin()
@@ -309,6 +309,7 @@ class NeuronLayer : public Array<Neuron<ACTIVATION_T>>
 	void calculateHiddenDeltas( const SelfT &nextLayer )
 	{
 		size_t	idx=0;
+		// iterate through all my neurons and find their index
 		for(
 			Array<MY_NEURON_T>::iterator it = begin(), endIT = end();
 			it != endIT;
@@ -316,6 +317,7 @@ class NeuronLayer : public Array<Neuron<ACTIVATION_T>>
 		)
 		{
 			double neuronErrorSum = 0;
+			// iterate through all neurons of the next layer and use my own index for their weights
 			for(
 				Array<MY_NEURON_T>::const_iterator itn = nextLayer.cbegin(), endITn = nextLayer.cend();
 				itn != endITn;
@@ -324,7 +326,7 @@ class NeuronLayer : public Array<Neuron<ACTIVATION_T>>
 			{
 				neuronErrorSum += itn->getDelta() * itn->getWeight(idx);
 			}
-			double currentCur = it->getLastOutput();
+			base_t currentCur = it->getLastOutput();
 			double delta = neuronErrorSum * ACTIVATION_T::derivation(currentCur);
 			it->setDelta(delta);
 		}
@@ -418,6 +420,7 @@ class NeuronNetwork : public Array<NeuronLayer<ACTIVATION_T>>
 	/*
 		Here is the most common learning algorithm
 	*/
+	///	TODO: implement Batch Training
 	void GradientDescent(const BaseValues &input, const BaseValues &expected, double step )
 	{
 		reverse_iterator layer = rbegin(), endLayer = rend();

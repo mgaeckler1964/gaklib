@@ -103,6 +103,9 @@ namespace gak
 #define UT_ASSERT_GREATEREQ( i1, i2 )		\
 	gak::assertGreaterEqual( GetClassName(), __FILE__, __LINE__, #i1 ">=" #i2, i1, i2 )
 
+#define UT_ASSERT_EQUAL_FLT( i1, i2, maxDev )		\
+	gak::assertEqualFloat( GetClassName(), __FILE__, __LINE__, #i1 "==" #i2, i1, i2, maxDev )
+
 #define UT_ASSERT_EXCEPTION( expr, Except )	\
 { \
 	bool	exFound = false; \
@@ -370,13 +373,14 @@ template <class ITEM>
 void assertEqualFloat(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	ITEM i1, ITEM i2
+	ITEM i1, ITEM i2,
+	double iMaxDelata
 )
 {
 	const double	myDeltaFactor = 50;
 	int				exponent = math::getExponent(i1);
 	int				maxExp = exponent - std::numeric_limits<ITEM>::digits10;
-	double			maxDelta = myDeltaFactor * pow( 10.0, maxExp );
+	double			maxDelta = iMaxDelata ? iMaxDelata : myDeltaFactor * pow( 10.0, maxExp );
 
 	STRING			log;
 	oSTRINGstream	logStream( log );
@@ -413,7 +417,7 @@ inline void assertEqual<double>(
 	const double &i1, const double &i2
 )
 {
-	assertEqualFloat( className, fileName, line, testItem, i1, i2 );
+	assertEqualFloat( className, fileName, line, testItem, i1, i2, 0 );
 }
 
 template <>
