@@ -149,22 +149,22 @@ class MachineLearningTest : public UnitTest
 		size_t expectedLessonCount = 0;
 		double inp = -60;
 		double out = linearFunc( inp );
-		mlSchool.learnLesson( inp, out );
+		mlSchool.gridSearchLesson( inp, out );
 		++expectedLessonCount;
 
 		inp = -50;
 		out = linearFunc( inp );
-		mlSchool.learnLesson( inp, out );
+		mlSchool.gridSearchLesson( inp, out );
 		++expectedLessonCount;
 
 		inp = 100;
 		out = linearFunc( inp );
-		mlSchool.learnLesson( inp, out );
+		mlSchool.gridSearchLesson( inp, out );
 		++expectedLessonCount;
 
 		inp = 10;
 		out = linearFunc( inp );
-		mlSchool.learnLesson( inp, out );
+		mlSchool.gridSearchLesson( inp, out );
 		++expectedLessonCount;
 
 		size_t	expectedVariableCount = size_t((s_maxVal - s_minVal)/s_increment + 1);

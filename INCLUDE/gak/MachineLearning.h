@@ -112,7 +112,7 @@ class SupervisedLearning
 	LossStorageT	m_loss;
 
 	public:
-	void learnLesson( const InputT &input, const OutputT &expected )
+	void gridSearchLesson( const InputT &input, const OutputT &expected )
 	{
 		VariableT var = m_processor.getFirstValue();
 		VariableT last = m_processor.getLastValue();
