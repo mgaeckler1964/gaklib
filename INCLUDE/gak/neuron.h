@@ -86,17 +86,20 @@ typedef PODarray<base_t>	BaseValues;
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-struct TanhActivation {
+struct TanhActivation
+{
     static base_t activate(base_t x) { return std::tanh(x); }
     static base_t derivation(base_t y) { return base_t(1.0 - y*y); }
 };
 
-struct ReLUActivation {
+struct ReLUActivation
+{
     static base_t activate(base_t x) { return std::max(0.0f, x); }
     static base_t derivation(base_t y) { return base_t(y>0 ? 1.0 : 0.0); }
 };
 
-struct ActivationSigmoid {
+struct SigmoidActivation
+{
 	static base_t activate(base_t x) { return base_t(1.0 / (1.0 + std::exp(-x))); }
     // Die Ableitung von Sigmoid basierend auf dem Ausgang y ist: y * (1 - y)
 	static base_t derivation(base_t y) { return base_t(y * (1.0 - y)); }
@@ -241,14 +244,14 @@ class Neuron
 };
 
 template <typename ACTIVATION_T=TanhActivation>
-class NeuronLayer : public Array<Neuron<ACTIVATION_T>> 
+class NeuronLayer : public Array< Neuron<ACTIVATION_T> > 
 {
 	public:
 	typedef NeuronLayer<typename ACTIVATION_T>	SelfT;
 	typedef Neuron<ACTIVATION_T>				MY_NEURON_T;
 
-	NeuronLayer( std::size_t numNeurons=0 ) : Array<MY_NEURON_T>(numNeurons) {
-	}
+	NeuronLayer( std::size_t numNeurons=0 ) : Array<MY_NEURON_T>(numNeurons) 
+	{}
 	void calculate( const BaseValues &input, BaseValues *output )
 	{
 		output->empty();
@@ -334,10 +337,10 @@ class NeuronLayer : public Array<Neuron<ACTIVATION_T>>
 };
 
 template <typename ACTIVATION_T=TanhActivation>
-class NeuronNetwork : public Array<NeuronLayer<ACTIVATION_T>>
+class NeuronNetwork : public Array< NeuronLayer<ACTIVATION_T> >
 {
 	public:
-	NeuronNetwork( const PODarray<std::size_t> &numNeurons ) : Array<NeuronLayer<ACTIVATION_T>>(numNeurons.size()) 
+	NeuronNetwork( const PODarray<std::size_t> &numNeurons ) : Array< NeuronLayer<ACTIVATION_T> >(numNeurons.size()) 
 	{
 		iterator myIT = begin();
 		for(

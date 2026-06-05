@@ -197,16 +197,16 @@ class NeuronTest : public UnitTest
 		const double step = 0.01;
 
 		ai::base_t tmp1[] = {zero, zero};
-		input1.addElements( tmp1, arraySize(tmp1) );
+		input1.addCArray( tmp1 );
 
 		ai::base_t tmp2[] = {one, zero};
-		input2.addElements( tmp2, arraySize(tmp2) );
+		input2.addCArray( tmp2 );
 
 		ai::base_t tmp3[] = {zero, one};
-		input3.addElements( tmp3, arraySize(tmp3) );
+		input3.addCArray( tmp3 );
 
 		ai::base_t tmp4[] = {one, one};
-		input4.addElements( tmp4, arraySize(tmp4) );
+		input4.addCArray( tmp4 );
 
 		expected0[0] = zero;
 		expected1[0] = one;

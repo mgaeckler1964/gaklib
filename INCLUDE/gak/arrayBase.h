@@ -570,6 +570,13 @@ class ArrayBase : public Container
 	*/
 	SelfT &addElements( const OBJ *elem, size_t size );
 
+	template <typename T, size_t N>
+	SelfT &addCArray(T (&arr)[N])
+	{
+		return addElements( arr, N );
+	}
+
+
 	/**
 		@brief add items to the buffer
 		@param [in] source the source container
