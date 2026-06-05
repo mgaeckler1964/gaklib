@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			mathExpression.cpp
-		Description:	
+		Description:	Evaluate math expressions
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -38,8 +38,8 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+#include <cmath>
 #include <csignal>
-// #include <float.h>
 
 #include <gak/expressionEvaluator.h>
 #include <gak/numericString.h>
@@ -151,82 +151,100 @@ double MathExpression::evaluateFunction( const STRING &funcName, const Array<dou
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
-		result = sin( funcParam );
+		result = std::sin( funcParam );
+	}
+	else if( myName == "sinh" )
+	{
+		if( parameterList.size() != 1 )
+			throw IllegalNumberOfParamsError();
+		result = std::sinh( funcParam );
 	}
 	else if( myName == "asin" )
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
-		result = asin( funcParam );
+		result = std::asin( funcParam );
 	}
 	else if( myName == "cos" )
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
-		result = cos( funcParam );
+		result = std::cos( funcParam );
+	}
+	else if( myName == "cosh" )
+	{
+		if( parameterList.size() != 1 )
+			throw IllegalNumberOfParamsError();
+		result = std::cosh( funcParam );
 	}
 	else if( myName == "acos" )
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
-		result = acos( funcParam );
+		result = std::acos( funcParam );
 	}
 	else if( myName == "tan" )
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
-		result = tan( funcParam );
+		result = std::tan( funcParam );
+	}
+	else if( myName == "tanh" )
+	{
+		if( parameterList.size() != 1 )
+			throw IllegalNumberOfParamsError();
+		result = std::tanh( funcParam );
 	}
 	else if( myName == "atan" )
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
-		result = atan( funcParam );
+		result = std::atan( funcParam );
 	}
 	else if( myName == "ln" )
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
-		result = log( funcParam );
+		result = std::log( funcParam );
 	}
 	else if( myName == "log" )
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
-		result = log10( funcParam );
+		result = std::log10( funcParam );
 	}
 	else if( myName == "ceil" )
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
-		result = ceil( funcParam );
+		result = std::ceil( funcParam );
 	}
 	else if( myName == "floor" )
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
-		result = floor( funcParam );
+		result = std::floor( funcParam );
 	}
 	else if( myName == "round" )
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
 		if( funcParam >= 0 )
-			result = floor( funcParam + 0.5 );
+			result = std::floor( funcParam + 0.5 );
 		else
-			result = ceil( funcParam - 0.5 );
+			result = std::ceil( funcParam - 0.5 );
 	}
 	else if( myName == "sqrt" )
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
-		result = sqrt( funcParam );
+		result = std::sqrt( funcParam );
 	}
 	else if( myName == "abs" )
 	{
 		if( parameterList.size() != 1 )
 			throw IllegalNumberOfParamsError();
-		result = fabs( funcParam );
+		result = std::fabs( funcParam );
 	}
 	else if( myName == "pi" )
 	{

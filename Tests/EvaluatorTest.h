@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			EvaluatorTest.h
-		Description:	
+		Description:	Evaluate math expressions
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -118,6 +118,10 @@ class EvaluatorTest : public UnitTest
 		std::cout << result << std::endl;
 		UT_ASSERT_EQUAL( result, -1.0 );
 
+		result = evaluator.evaluate( "tanh(x)", 0 );
+		std::cout << result << std::endl;
+		UT_ASSERT_EQUAL( result, 0 );
+
 		result = evaluator.evaluate( "x^2 + x*x", 5 );
 		std::cout << result << std::endl;
 		UT_ASSERT_EQUAL( result, 50.0 );
@@ -126,42 +130,9 @@ class EvaluatorTest : public UnitTest
 		std::cout << result << std::endl;
 		UT_ASSERT_EQUAL( result, 145.0 );
 
-		bool exceptionFound = false;
-
-		try
-		{
-			result = evaluator.evaluate( "1:x", 0 );
-			std::cout << result << std::endl;
-		}
-		catch( DivisionByZeroError & )
-		{
-			exceptionFound = true;
-		}
-		UT_ASSERT_EQUAL( exceptionFound, true );
-
-		exceptionFound = false;
-		try
-		{
-			result = evaluator.evaluate( "sqrt(x)", -5 );
-			std::cout << result << std::endl;
-		}
-		catch( InvalidResultError & )
-		{
-			exceptionFound = true;
-		}
-		UT_ASSERT_EQUAL( exceptionFound, true );
-		exceptionFound = false;
-		try
-		{
-			result = evaluator.evaluate( "x!", 1000 );
-			std::cout << result << std::endl;
-		}
-		catch( InvalidResultError & )
-		{
-			exceptionFound = true;
-		}
-		UT_ASSERT_EQUAL( exceptionFound, true );
-
+		UT_ASSERT_EXCEPTION( evaluator.evaluate( "1:x", 0 ), DivisionByZeroError );
+		UT_ASSERT_EXCEPTION( evaluator.evaluate( "sqrt(x)", -5 ), InvalidResultError );
+		UT_ASSERT_EXCEPTION( evaluator.evaluate( "x!", 1000 ), InvalidResultError );
 	}
 };
 
