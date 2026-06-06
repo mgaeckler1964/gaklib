@@ -166,7 +166,11 @@
 #endif
 
 #define cArraySize( array )	(sizeof( array ) / sizeof( array[0] ))
-#if defined( __cplusplus )
+/*
+	the old gnu c++ does not compile since the standard does not alow to use unnamed, local types
+	as template parameter
+*/
+#if defined( __cplusplus ) && (!defined(__GNUC__) || __GNUC__>4)
 namespace gak 
 {
 	template <typename T, size_t N>
