@@ -134,13 +134,13 @@ namespace gak
 template<class OBJ>
 PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t numCluster )
 {
-	typedef Array< Array<const OBJ *> >			MyCuster;
-	typedef PairMap< OBJ, Array<const OBJ *> >	MapCuster;
+	typedef Array< Array<const OBJ *> >			MyCluster;	// indexed for current work
+	typedef PairMap< OBJ, Array<const OBJ *> >	MapCluster;	// maped for the result
 
 	std::cout << "Container:"; printContainer(std::cout, src, ',') << '\n';
 	Array<OBJ>	curMeans, newMeans;
 	size_t		cIdx=0, nIdx=0;
-	MyCuster	allCluster;
+	MyCluster	allCluster;
 
 	if( numCluster > 0 && src.size() >= numCluster )
 	{
@@ -259,7 +259,7 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 			nIdx=0;
 			newMeans.empty();
 			for(
-				MyCuster::const_iterator it1 = allCluster.cbegin(), endIT1 = allCluster.cend();
+				MyCluster::const_iterator it1 = allCluster.cbegin(), endIT1 = allCluster.cend();
 				it1 != endIT1;
 				++it1
 			)
@@ -309,7 +309,7 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 		}
 	}
 
-	MapCuster	result;
+	MapCluster	result;
 	for( size_t i=0; i<numCluster; ++i )
 	{
 		result[curMeans[i]].moveFrom( allCluster[i] );
