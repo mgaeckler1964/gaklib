@@ -993,6 +993,20 @@ void readFromBinaryFile( const STRING &fileName, OBJ *obj, uint32 magicRequired,
 	human readable stream io
 */
 
+template <typename ElementT>
+inline std::ostream &printElement( std::ostream &stream, const ElementT &elem )
+{
+	stream << elem;
+	return stream;
+}
+
+template <typename ElementT>
+inline std::ostream &printElement( std::ostream &stream, const ElementT *elem )
+{
+	stream << *elem;
+	return stream;
+}
+
 /**
 	@brief Prints the content of a container to an output stream
 
@@ -1004,7 +1018,7 @@ void readFromBinaryFile( const STRING &fileName, OBJ *obj, uint32 magicRequired,
 	@tparam ContainerT The container class.
 */
 template <typename ContainerT>
-void printContainer( std::ostream &stream, const ContainerT &container )
+std::ostream &printContainer( std::ostream &stream, const ContainerT &container, char separator='\n' )
 {
 	for(
 		typename ContainerT::const_iterator it = container.cbegin(), endIT = container.cend();
@@ -1012,8 +1026,9 @@ void printContainer( std::ostream &stream, const ContainerT &container )
 		++it
 	)
 	{
-		stream << *it << '\n';
+		printElement(stream, *it) << separator;
 	}
+	return stream;
 }
 
 }	// namespace gak

@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			MathTest.h
-		Description:	Some math functions and classes
+		Module:			KmeansTest.h
+		Description:	K-Means is used to cluster any amount of any data
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -40,7 +40,8 @@
 #include <iostream>
 #include <gak/unitTest.h>
 
-#include <gak/math.h>
+#include <gak/kmeans.h>
+#include <gak/map.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -60,121 +61,6 @@
 namespace gak
 {
 
-class MathTest : public UnitTest
-{
-	virtual const char *GetClassName() const
-	{
-		return "MathTest";
-	}
-	virtual void PerformTest()
-	{
-		doEnterFunctionEx(gakLogging::llInfo, "MathTest::PerformTest");
-		TestScope scope( "PerformTest" );
-
-		UT_ASSERT_EQUAL( 2, math::getExponent( 999.9999 ) );
-		UT_ASSERT_EQUAL( 2, math::getExponent( 100.0 ) );
-		UT_ASSERT_EQUAL( 2, math::getExponent( -100.0 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( 99.99999 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( 10.0 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( -10.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( 9.999999 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( 1.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( -1.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( .0 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( 0.9999999 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( 0.1 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( -0.1 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( 0.09999999 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( 0.01 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( -0.01 ) );
-
-		int exponent;
-		double value;
-
-		value = math::normalize( 999.9999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 2, exponent );
-		value = math::normalize( 99.99999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 1, exponent );
-		value = math::normalize( 9.999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 0, exponent );
-		value = math::normalize( .9999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( -1, exponent );
-		value = math::normalize( .09999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( -2, exponent );
-
-		value = math::normalize( -999.9999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 2, exponent );
-		value = math::normalize( -99.99999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 1, exponent );
-		value = math::normalize( -9.999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 0, exponent );
-		value = math::normalize( -0.9999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( -1, exponent );
-		value = math::normalize( -0.09999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( -2, exponent );
-
-		math::MinMax<int>	minMax;
-
-		UT_ASSERT_LESS( 0, minMax.getMin() );
-		UT_ASSERT_GREATER( 0, minMax.getMax() );
-
-		minMax.test( 5 );
-
-		UT_ASSERT_EQUAL( 5, minMax.getMin() );
-		UT_ASSERT_EQUAL( 5, minMax.getMax() );
-
-		minMax.test( 10 );
-		minMax.test( 3 );
-
-		UT_ASSERT_EQUAL( 3, minMax.getMin() );
-		UT_ASSERT_EQUAL( 10, minMax.getMax() );
-
-		math::MinMax<double>	minMaxD;
-
-		minMaxD.test( -4 );
-		minMaxD.test( -8 );
-		UT_ASSERT_EQUAL( -8, minMaxD.getMin() );
-		UT_ASSERT_EQUAL( -4, minMaxD.getMax() );
-
-		math::Mean<double>	mean;
-		mean.add( 8.0 );
-		UT_ASSERT_EQUAL( 8.0, mean.getMean() );
-		mean.add( 8.0 );
-		UT_ASSERT_EQUAL( 8.0, mean.getMean() );
-		mean.add( 0.0 );
-		mean.add( 0.0 );
-		UT_ASSERT_EQUAL( 4.0, mean.getMean() );
-		UT_ASSERT_EQUAL( 4, mean.getCount() );
-
-		{
-			int tmp[] = { 3,16,8 };
-			Array<int>	datas;
-			datas.addCArray( tmp );
-
-			math::MinMax<int>	minMax( datas.cbegin(), datas.cend() );
-			math::Mean<int>		mean( datas.cbegin(), datas.cend() );
-
-			UT_ASSERT_EQUAL(minMax.getMin(), 3);
-			UT_ASSERT_EQUAL(minMax.getMax(), 16);
-			UT_ASSERT_EQUAL(minMax.getRange(), 13);
-			UT_ASSERT_EQUAL(minMax.getMidRange(), 6);
-
-			UT_ASSERT_EQUAL(mean.getCount(), 3);
-			UT_ASSERT_EQUAL(mean.getMean(), 9);
-		}
-	}
-};
-
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -191,6 +77,69 @@ class MathTest : public UnitTest
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+class KmeansTest : public UnitTest
+{
+	virtual const char *GetClassName() const
+	{
+		return "KmeansTest";
+	}
+	void RandomTest()
+	{
+		int test[] = {
+			100, 2, 22, 500, 1, 9, 600, 3, 5, 505, 17, 555, 8, 666, 8, 99, 601, 114, 98
+		};
+		// sorted
+		// 1, 2, 3, 5, 8, 8, 9, 17, 22, 98, 99, 100, 114, 500, 505, 555, 600, 601, 666
+		gak::Array<int>		testData;
+		testData.addCArray( test );
+
+		gak::PairMap< int, gak::Array<const int*> >	theCluster = kMeans(testData, 3);
+		UT_ASSERT_EQUAL( theCluster.size(), 3);
+		UT_ASSERT_EQUAL( theCluster.getKeyAt(0), 8);
+		UT_ASSERT_EQUAL( theCluster.getKeyAt(1), 102);
+		UT_ASSERT_EQUAL( theCluster.getKeyAt(2), 571);
+		UT_ASSERT_EQUAL( theCluster.getValueAt(0).size(), 9);
+		UT_ASSERT_EQUAL( theCluster.getValueAt(1).size(), 4);
+		UT_ASSERT_EQUAL( theCluster.getValueAt(2).size(), 6);
+	}
+	void MeanTest()
+	{
+		int test[] = {
+			100, 2, 22, 500, 1, 9, 600, 3, 5, 505, 17, 555, 8, 666, 8, 99, 601, 114, 98
+		};
+		gak::Array<int>		testData;
+		testData.addCArray( test );
+
+		math::Mean<int>	mean( testData.cbegin(), testData.cend() );
+
+		gak::PairMap< int, gak::Array<const int*> >	theCluster = kMeans(testData, 1);
+		UT_ASSERT_EQUAL( theCluster.size(), 1);
+		UT_ASSERT_EQUAL( theCluster.getKeyAt(0), mean.getMean());
+		UT_ASSERT_EQUAL( theCluster.getValueAt(0).size(), testData.size());
+	}
+	void EqualTest()
+	{
+		int test[] = {
+			5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
+		};
+		gak::Array<int>		testData;
+		testData.addCArray( test );
+
+		gak::PairMap< int, gak::Array<const int*> >	theCluster = kMeans(testData, 3);
+		UT_ASSERT_EQUAL( theCluster.size(), 1);
+		UT_ASSERT_EQUAL( theCluster.getKeyAt(0), 5);
+		UT_ASSERT_EQUAL( theCluster.getValueAt(0).size(), testData.size());
+	}
+	virtual void PerformTest()
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "KmeansTest::PerformTest");
+		TestScope scope( "PerformTest" );
+		RandomTest();
+		MeanTest();
+		EqualTest();
+	}
+};
+
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -199,7 +148,7 @@ class MathTest : public UnitTest
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static MathTest	myMathTest;
+static KmeansTest myKmeansTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -253,4 +202,3 @@ static MathTest	myMathTest;
 #	pragma option -a.
 #	pragma option -p.
 #endif
-

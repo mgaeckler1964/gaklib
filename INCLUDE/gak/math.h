@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			math.h
-		Description:	
+		Description:	Some math functions and classes
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -107,6 +107,12 @@ inline T abs( T a )
 #if defined _MSC_VER
 	#	pragma warning ( default: 4146 )
 #endif
+}
+
+template<typename T>
+inline T distance( T a, T b )
+{
+	return abs( a-b );
 }
 
 template<typename T>
@@ -299,6 +305,14 @@ struct MinMax : private Duo<NUMBER,NUMBER>
 {
 	MinMax(NUMBER first) : Duo<NUMBER,NUMBER>(first, first) {}
 	MinMax() : Duo<NUMBER,NUMBER>(std::numeric_limits<NUMBER>::max(), limits<NUMBER>::lowest() ) {}
+	template <class ITERATOR>
+	MinMax( ITERATOR it, ITERATOR endIT ) : Duo<NUMBER,NUMBER>(std::numeric_limits<NUMBER>::max(), limits<NUMBER>::lowest() )
+	{
+		for( ; it != endIT; ++it )
+		{
+			test(*it);
+		}
+	}
 
 	void test( NUMBER val )
 	{
@@ -324,11 +338,26 @@ struct MinMax : private Duo<NUMBER,NUMBER>
 	{
 		return getMax() - getMin();
 	}
+	NUMBER getMidRange() const
+	{
+		return (getMax() - getMin())/2;
+	}
 };
 
 template <typename NUMBER>
 struct Mean : private Duo<NUMBER, std::size_t>
 {
+	Mean() {}
+
+	template <class ITERATOR>
+	Mean( ITERATOR it, ITERATOR endIT )
+	{
+		for( ; it != endIT; ++it )
+		{
+			add(*it);
+		}
+	}
+
 	void add( NUMBER val )
 	{
 		this->val1 += val;

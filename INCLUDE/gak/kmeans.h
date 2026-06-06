@@ -1,7 +1,7 @@
 /*
-		Project:		GAKLIB
-		Module:			MathTest.h
-		Description:	Some math functions and classes
+		Project:		gaklib
+		Module:			kmeans.h
+		Description:	K-Means is used to cluster any amount of any data
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -29,6 +29,9 @@
 		SUCH DAMAGE.
 */
 
+#ifndef K_MEANS_H
+#define K_MEANS_H
+
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -37,10 +40,10 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <iostream>
-#include <gak/unitTest.h>
-
+#include <gak/arrayBase.h>
+#include <gak/map.h>
 #include <gak/math.h>
+#include <gak/logfile.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -59,121 +62,6 @@
 
 namespace gak
 {
-
-class MathTest : public UnitTest
-{
-	virtual const char *GetClassName() const
-	{
-		return "MathTest";
-	}
-	virtual void PerformTest()
-	{
-		doEnterFunctionEx(gakLogging::llInfo, "MathTest::PerformTest");
-		TestScope scope( "PerformTest" );
-
-		UT_ASSERT_EQUAL( 2, math::getExponent( 999.9999 ) );
-		UT_ASSERT_EQUAL( 2, math::getExponent( 100.0 ) );
-		UT_ASSERT_EQUAL( 2, math::getExponent( -100.0 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( 99.99999 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( 10.0 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( -10.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( 9.999999 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( 1.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( -1.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( .0 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( 0.9999999 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( 0.1 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( -0.1 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( 0.09999999 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( 0.01 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( -0.01 ) );
-
-		int exponent;
-		double value;
-
-		value = math::normalize( 999.9999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 2, exponent );
-		value = math::normalize( 99.99999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 1, exponent );
-		value = math::normalize( 9.999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 0, exponent );
-		value = math::normalize( .9999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( -1, exponent );
-		value = math::normalize( .09999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( -2, exponent );
-
-		value = math::normalize( -999.9999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 2, exponent );
-		value = math::normalize( -99.99999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 1, exponent );
-		value = math::normalize( -9.999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 0, exponent );
-		value = math::normalize( -0.9999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( -1, exponent );
-		value = math::normalize( -0.09999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( -2, exponent );
-
-		math::MinMax<int>	minMax;
-
-		UT_ASSERT_LESS( 0, minMax.getMin() );
-		UT_ASSERT_GREATER( 0, minMax.getMax() );
-
-		minMax.test( 5 );
-
-		UT_ASSERT_EQUAL( 5, minMax.getMin() );
-		UT_ASSERT_EQUAL( 5, minMax.getMax() );
-
-		minMax.test( 10 );
-		minMax.test( 3 );
-
-		UT_ASSERT_EQUAL( 3, minMax.getMin() );
-		UT_ASSERT_EQUAL( 10, minMax.getMax() );
-
-		math::MinMax<double>	minMaxD;
-
-		minMaxD.test( -4 );
-		minMaxD.test( -8 );
-		UT_ASSERT_EQUAL( -8, minMaxD.getMin() );
-		UT_ASSERT_EQUAL( -4, minMaxD.getMax() );
-
-		math::Mean<double>	mean;
-		mean.add( 8.0 );
-		UT_ASSERT_EQUAL( 8.0, mean.getMean() );
-		mean.add( 8.0 );
-		UT_ASSERT_EQUAL( 8.0, mean.getMean() );
-		mean.add( 0.0 );
-		mean.add( 0.0 );
-		UT_ASSERT_EQUAL( 4.0, mean.getMean() );
-		UT_ASSERT_EQUAL( 4, mean.getCount() );
-
-		{
-			int tmp[] = { 3,16,8 };
-			Array<int>	datas;
-			datas.addCArray( tmp );
-
-			math::MinMax<int>	minMax( datas.cbegin(), datas.cend() );
-			math::Mean<int>		mean( datas.cbegin(), datas.cend() );
-
-			UT_ASSERT_EQUAL(minMax.getMin(), 3);
-			UT_ASSERT_EQUAL(minMax.getMax(), 16);
-			UT_ASSERT_EQUAL(minMax.getRange(), 13);
-			UT_ASSERT_EQUAL(minMax.getMidRange(), 6);
-
-			UT_ASSERT_EQUAL(mean.getCount(), 3);
-			UT_ASSERT_EQUAL(mean.getMean(), 9);
-		}
-	}
-};
 
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
@@ -198,8 +86,6 @@ class MathTest : public UnitTest
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-static MathTest	myMathTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -245,6 +131,192 @@ static MathTest	myMathTest;
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+template<class OBJ>
+PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t numCluster )
+{
+	typedef Array< Array<const OBJ *> >			MyCuster;
+	typedef PairMap< OBJ, Array<const OBJ *> >	MapCuster;
+
+	std::cout << "Container:"; printContainer(std::cout, src, ',') << '\n';
+	Array<OBJ>	curMeans, newMeans;
+	size_t		cIdx=0, nIdx=0;
+	MyCuster	allCluster;
+
+	if( numCluster > 0 && src.size() >= numCluster )
+	{
+/*
+	this is a simple method to select n cluster 
+	it can produce poor results if the cluster center are too close
+
+		std::size_t clusterSize = src.size()/numCluster;
+		std::size_t cur = clusterSize/2;
+		while( cur < src.size() )
+		{
+			curMeans.push_back(src[cur]);
+			allCluster.createElement().empty();
+			cur += clusterSize;
+		}
+*/
+		curMeans.push_back( *src.cbegin() );
+		while( curMeans.size() < numCluster )
+		{
+			// we are searching for the second farest entry
+			bool nextCenter1OK = false, nextCenter2OK = false;
+			OBJ nextCenter1, nextCenter2;
+			OBJ maxDistance1 = std::numeric_limits<OBJ>::min();
+			OBJ maxDistance2 = std::numeric_limits<OBJ>::min();
+			for(
+				ArrayBase<OBJ>::const_iterator it1 = src.cbegin(), endIT1 = src.cend();
+				it1 != endIT1;
+				++it1
+			)
+			{
+				// determine the distance to the closest center
+				OBJ minDistance = std::numeric_limits<OBJ>::max();
+				bool skipped = false;
+				for(
+					ArrayBase<OBJ>::const_iterator it2 = curMeans.cbegin(), endIT2 = curMeans.cend();
+					it2 != endIT2 && (skipped = *it1 == *it2) == false;		// do not use that point if it is already a center
+					++it2
+				)
+				{
+					OBJ	dist = math::distance( *it2, *it1 );
+					if( dist < minDistance )
+					{
+						minDistance = dist;
+						// If current point is closer than the current second 
+						// it cannot become neither second nor first
+						if( dist < maxDistance2 && nextCenter2OK )
+						{
+							skipped = true;
+							break;
+						}
+					}
+				}
+				if( skipped ) 
+/*^*/				continue;
+				if( minDistance > maxDistance1 )	// current point beats the first
+				{
+					if( nextCenter1OK )				// last first is now the second
+					{
+						maxDistance2 = maxDistance1;
+						nextCenter2 = nextCenter1;
+						nextCenter2OK = true;
+					}
+
+					maxDistance1 = minDistance;
+					nextCenter1 = *it1;
+					nextCenter1OK = true;
+				}
+				else if( minDistance > maxDistance2 )	// current point beats the second
+				{
+					maxDistance2 = minDistance;
+					nextCenter2 = *it1;
+					nextCenter2OK = true;				
+				}
+			}
+			if( nextCenter2OK )
+				curMeans.push_back( nextCenter2 );
+			else if( nextCenter1OK )
+				curMeans.push_back( nextCenter1 );
+			else
+			{
+				// if the data does not allow the required number of cluster
+				numCluster = curMeans.size();
+				break;
+			}
+		}
+
+		bool inProgress = true;
+		while( true )
+		{
+			// distribute all nodes to the cluster
+			for(
+				ArrayBase<OBJ>::const_iterator it = src.cbegin(), endIT = src.cend();
+				it != endIT;
+				++it
+			)
+			{
+				size_t	nearest = 0;
+				if(numCluster>1)
+				{
+					// search for the closest cluster center
+					math::MinMax<OBJ>	minDistance(math::distance( curMeans[0], *it ));
+					for( size_t i=1; i<numCluster; ++i )
+					{
+						OBJ	dist = math::distance( curMeans[i], *it );
+						minDistance.test(dist);
+						if( minDistance.getMin() == dist )
+							nearest = i;
+					}
+				}
+				allCluster[nearest].push_back( it );
+			}
+
+			std::cout << '\n'; printContainer( std::cout, curMeans, ',' ) << std::endl;
+
+			// calculate the mean of each cluster
+			nIdx=0;
+			newMeans.empty();
+			for(
+				MyCuster::const_iterator it1 = allCluster.cbegin(), endIT1 = allCluster.cend();
+				it1 != endIT1;
+				++it1
+			)
+			{
+				printContainer( std::cout, *it1, ',' ) << std::endl;
+
+				math::Mean<OBJ>	mean;
+				for(
+					Array<const OBJ*>::const_iterator it2 = it1->cbegin(), endIT2 = it1->cend();
+					it2 != endIT2;
+					++it2
+				)
+				{
+					mean.add(**it2);
+				}
+				if( mean.getCount() )
+				{
+					std::cout << "Mittel: " << mean.getMean() << '\n';
+					newMeans.push_back(mean.getMean());
+				}
+				else
+				{
+					newMeans[nIdx] = curMeans[nIdx];
+					nIdx++;
+				}
+			}
+
+			// check whether a mean has changed
+			std::cout << "Neue Mittelwerte: "; printContainer( std::cout, newMeans, ',' ) << std::endl;
+			inProgress = false;
+			for( size_t i=0; i<numCluster; ++i )
+			{
+				if( curMeans[i] != newMeans[i] )
+				{
+					inProgress = true;	// yes, there is a new center
+					curMeans[i] = newMeans[i];
+				}
+			}
+			if( !inProgress )	// no new center -> break
+/*v*/			break;
+
+			// clear all center before continuing
+			for( size_t i=0; i<numCluster; ++i )
+			{
+				allCluster[i].empty();
+			}
+		}
+	}
+
+	MapCuster	result;
+	for( size_t i=0; i<numCluster; ++i )
+	{
+		result[curMeans[i]].moveFrom( allCluster[i] );
+	}
+	return result;
+}
+
 }	// namespace gak
 
 #ifdef __BORLANDC__
@@ -254,3 +326,4 @@ static MathTest	myMathTest;
 #	pragma option -p.
 #endif
 
+#endif	// K_MEANS_H

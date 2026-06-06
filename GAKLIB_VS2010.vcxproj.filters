@@ -707,5 +707,8 @@
     <ClInclude Include="INCLUDE\gak\CopyProtection.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="INCLUDE\gak\kmeans.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
