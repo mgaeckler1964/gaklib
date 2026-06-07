@@ -107,7 +107,7 @@ Item0=..\..\object\gaklib\test\bcb\
 DebugSourceDirs=.
 
 [Parameters]
-RunParams=NeuronTest EvaluatorTest
+RunParams=NeuronTest EvaluatorTest KmeansTest MathTest
 HostApplication=
 RemoteHost=
 RemotePath=

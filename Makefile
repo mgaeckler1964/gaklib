@@ -136,7 +136,7 @@ dotest: test
 	#			-showIO		allway show console I/O
 	#			-exclude	exclude tests
 	#			-ct			check tests (do not repeat passed tests)
-	./test HttpTest
+	./test GpsTest RoutingTest NeuronTest EvaluatorTest KmeansTest MathTest
 	# rm test
 
 vtest: test

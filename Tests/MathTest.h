@@ -66,6 +66,53 @@ class MathTest : public UnitTest
 	{
 		return "MathTest";
 	}
+
+	template <typename GeoT>
+	void GeoTest()
+	{
+		GeoT	point1( 15, 48 );
+		GeoT	point2( 10, 48 );
+
+		double dist1 = math::distance( point1, point2 );		// the template
+		double dist2 = math::getDistance( point1, point2 );		// my original
+		UT_ASSERT_EQUAL( dist1, dist2 );
+		UT_ASSERT_EQUAL_FLT( dist1, 372023.20, 0.1 );
+
+		GeoT	point3( 10.5, 48 ),
+				point4( 5, 48 );
+		gak::Array<GeoT>	testData;
+		testData.push_back(point1);
+		testData.push_back(point2);
+		testData.push_back(point3);
+		testData.push_back(point4);
+
+		math::Mean< GeoT > mean(testData.cbegin(), testData.cend());
+
+		UT_ASSERT_EQUAL(mean.getMean().longitude, 10.125 );
+		UT_ASSERT_EQUAL(mean.getMean().latitude, 48 );
+	}
+
+	void AllGeoTests()
+	{
+		math::GeoPosition<float>	point1( 15, 48 ),
+									point2( 10, 48 );
+
+		math::GpsPosition<float>	point3( 15, 48 ),
+									point4( 10, 48 );
+
+		double dist1 = math::distance( point1, point2 );
+		double dist2 = math::distance( point3, point4 );
+		UT_ASSERT_EQUAL(dist1, dist2);
+
+		{
+			TestScope scope( "GeoPosition<float>" );
+			GeoTest< math::GeoPosition<float> >();
+		}
+		{
+			TestScope scope( "GpsPosition<float>" );
+			GeoTest< math::GpsPosition<float> >();
+		}
+	}
 	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "MathTest::PerformTest");
@@ -172,6 +219,8 @@ class MathTest : public UnitTest
 			UT_ASSERT_EQUAL(mean.getCount(), 3);
 			UT_ASSERT_EQUAL(mean.getMean(), 9);
 		}
+
+		AllGeoTests();
 	}
 };
 

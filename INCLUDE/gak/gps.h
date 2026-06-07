@@ -181,11 +181,7 @@ struct GeoPosition
 		return getTileID( longitude, latitude );
 	}
 
-	GeoPosition()
-	{
-	}
-
-	GeoPosition( ScalarT longitude, ScalarT latitude) 
+	GeoPosition( ScalarT longitude=0, ScalarT latitude=0) 
 	: longitude(longitude), latitude(latitude)
 	{
 //		assert( longitude >= -180 && longitude <= 180 ) ;
@@ -229,6 +225,16 @@ struct GeoPosition
 		gak::fromBinaryStream( stream, &longitude );
 		gak::fromBinaryStream( stream, &latitude );
 	}
+
+	template <typename ScalarT2>
+	int compare( const GeoPosition<ScalarT2> &other ) const
+	{
+		int result = gak::compare( longitude, other.longitude );
+		if( !result )
+			result = gak::compare( latitude, other.latitude );
+
+		return result;
+	}
 };
 	
 /// @brief struct storing a GPS position
@@ -240,18 +246,24 @@ struct GpsPosition : public GeoPosition<ScalarT>
 	/// the height above sea level in meters
 	ScalarT	height;
 
-	GpsPosition()
-	{
-	}
 	/**
 		@brief creates a new GpsPosition
 		@param [in] longitude the longitude in degrees
 		@param [in] latitude the latitude in degrees
 		@param [in] height the height above sea level in meters
 	*/
-	GpsPosition( double longitude, double latitude, double height=0 )
+	GpsPosition( double longitude=0, double latitude=0, double height=0 )
 	: Super(longitude, latitude), height(height)
 	{
+	}
+	template <typename ScalarT2>
+	int compare( const GpsPosition<ScalarT2> &other ) const
+	{
+		int result = Super::compare( other );
+		if( !result )
+			result = gak::compare( height, other.height );
+
+		return result;
 	}
 };
 
@@ -385,9 +397,14 @@ inline double getHeightDistance(
 	@see GpsPosition
 */
 template <typename ScalarT1, typename ScalarT2>
-double getDistance(
+double getGeoDistance(
 	const GeoPosition<ScalarT1> &start, const GeoPosition<ScalarT2> &end,
-	const double theRadius = EARTH_RADIUS
+	const double theRadius
+);
+
+template <typename ScalarT1, typename ScalarT2>
+double getDistance(
+	const GeoPosition<ScalarT1> &start, const GeoPosition<ScalarT2> &end
 );
 
 // --------------------------------------------------------------------- //
@@ -512,7 +529,7 @@ void GpsProjector<ViewPointT>::getViewPoints(
 	@see GpsPosition
 */
 template <typename ScalarT1, typename ScalarT2>
-double getDistance(
+double getGeoDistance(
 	const GeoPosition<ScalarT1> &start, const GeoPosition<ScalarT2> &end,
 	const double theRadius
 )
@@ -536,6 +553,21 @@ double getDistance(
 	return distance;
 }
 
+template <typename ScalarT1, typename ScalarT2>
+double getDistance(
+	const GeoPosition<ScalarT1> &start, const GeoPosition<ScalarT2> &end
+)
+{
+	// find the radius of the erath to use. Note: does not return a correct value,
+	// if line crosses the equator.
+	const double startRadius = MIN_EARTH_RADIUS + cos( degree2radians(start.latitude) ) * (MAX_EARTH_RADIUS-MIN_EARTH_RADIUS);
+	const double endRadius   = MIN_EARTH_RADIUS + cos( degree2radians(  end.latitude) ) * (MAX_EARTH_RADIUS-MIN_EARTH_RADIUS);
+	const double theRadius = medium(startRadius, endRadius);
+
+	return getGeoDistance( start, end, theRadius );
+}
+
+
 /**
 	@brief Returns the distance of two GPS positions on the earth sphere
 	@param [in] start the first position
@@ -554,7 +586,7 @@ double getSphereDistance(
 	const double endRadius   = MIN_EARTH_RADIUS + cos( degree2radians(  end.latitude) ) * (MAX_EARTH_RADIUS-MIN_EARTH_RADIUS) +   end.height;
 	const double theRadius = medium(startRadius, endRadius);
 
-	return getDistance( start, end, theRadius );
+	return getGeoDistance( start, end, theRadius );
 }
 
 
@@ -664,6 +696,54 @@ inline void moveRectangle( Rectangle< GpsPosition<ScalarT> > *rect, const PointT
 	moveGeoRectangle( rect, point );
 }
 
+
+template <typename ScalarT>
+struct DistanceType< GeoPosition<ScalarT> >
+{
+	typedef double ResultType;
+
+	static ResultType compute( const GeoPosition<ScalarT> &a, const GeoPosition<ScalarT> &b)
+	{
+		return getDistance( a, b );
+	}
+
+};
+
+template <typename ScalarT>
+struct DistanceType< GpsPosition<ScalarT> >
+{
+	typedef double ResultType;
+
+	static ResultType compute( const GpsPosition<ScalarT> &a, const GpsPosition<ScalarT> &b)
+	{
+		return getDistance( a, b );
+	}
+
+};
+
+template <typename ScalarT>
+inline std::ostream &operator << ( std::ostream &out, const GeoPosition<ScalarT> &pos )
+{
+	return out << '(' << pos.longitude << ',' << pos.latitude << ')';
+}
+
+template <typename ScalarT>
+inline std::ostream &operator << ( std::ostream &out, const GpsPosition<ScalarT> &pos )
+{
+	return out << '(' << pos.longitude << ',' << pos.latitude << ',' << pos.height << ')';
+}
+
+template <typename ScalarT>
+inline GeoPosition<ScalarT> operator / ( const GeoPosition<ScalarT> &pos, std::size_t num )
+{
+	return GeoPosition<ScalarT>(pos.longitude/num, pos.latitude/num);
+}
+
+template <typename ScalarT>
+inline GpsPosition<ScalarT> operator / ( const GpsPosition<ScalarT> &pos, std::size_t num )
+{
+	return GpsPosition<ScalarT>(pos.longitude/num, pos.latitude/num, pos.height/num);
+}
 
 }	// namespace math
 }	// namespace gak

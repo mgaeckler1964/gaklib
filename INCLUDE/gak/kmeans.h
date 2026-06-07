@@ -136,10 +136,12 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 {
 	typedef Array< Array<const OBJ *> >			MyCluster;	// indexed for current work
 	typedef PairMap< OBJ, Array<const OBJ *> >	MapCluster;	// maped for the result
+	typedef typename math::DistanceType<OBJ>::ResultType	DistType;	// the distance
 
+#ifndef NDEBUG
 	std::cout << "Container:"; printContainer(std::cout, src, ',') << '\n';
+#endif
 	Array<OBJ>	curMeans, newMeans;
-	size_t		cIdx=0, nIdx=0;
 	MyCluster	allCluster;
 
 	if( numCluster > 0 && src.size() >= numCluster )
@@ -161,10 +163,10 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 		while( curMeans.size() < numCluster )
 		{
 			// we are searching for the second farest entry
-			bool nextCenter1OK = false, nextCenter2OK = false;
-			OBJ nextCenter1, nextCenter2;
-			OBJ maxDistance1 = std::numeric_limits<OBJ>::min();
-			OBJ maxDistance2 = std::numeric_limits<OBJ>::min();
+			bool		nextCenter1OK = false, nextCenter2OK = false;
+			OBJ			nextCenter1, nextCenter2;
+			DistType	maxDistance1 = std::numeric_limits<DistType>::min();
+			DistType	maxDistance2 = std::numeric_limits<DistType>::min();
 			for(
 				typename ArrayBase<OBJ>::const_iterator it1 = src.cbegin(), endIT1 = src.cend();
 				it1 != endIT1;
@@ -172,7 +174,7 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 			)
 			{
 				// determine the distance to the closest center
-				OBJ minDistance = std::numeric_limits<OBJ>::max();
+				DistType minDistance = std::numeric_limits<DistType>::max();
 				bool skipped = false;
 				for(
 					typename ArrayBase<OBJ>::const_iterator it2 = curMeans.cbegin(), endIT2 = curMeans.cend();
@@ -180,7 +182,7 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 					++it2
 				)
 				{
-					OBJ	dist = math::distance( *it2, *it1 );
+					DistType	dist = math::distance( *it2, *it1 );
 					if( dist < minDistance )
 					{
 						minDistance = dist;
@@ -241,22 +243,36 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 				if(numCluster>1)
 				{
 					// search for the closest cluster center
-					math::MinMax<OBJ>	minDistance(math::distance( curMeans[0], *it ));
+					math::MinMax<DistType>	minDistance(math::distance( curMeans[0], *it ));
+#ifndef NDEBUG
+					std::cout << "Distance " << minDistance.getMin() << ' ' << *it << '-' << curMeans[0] << '\n';
+#endif
 					for( size_t i=1; i<numCluster; ++i )
 					{
-						OBJ	dist = math::distance( curMeans[i], *it );
+						DistType	dist = math::distance( curMeans[i], *it );
+#ifndef NDEBUG
+						std::cout << "Distance " << minDistance.getMin() << ' ' << *it << '-' << curMeans[i] << '\n';
+#endif
 						minDistance.test(dist);
 						if( minDistance.getMin() == dist )
+						{
 							nearest = i;
+						}
 					}
+#ifndef NDEBUG
+					std::cout << nearest << ' ' << minDistance.getMin() << ' ' << *it << '-' << curMeans[nearest] << '\n';
+#endif
 				}
+
 				allCluster[nearest].push_back( it );
 			}
 
-			std::cout << '\n'; printContainer( std::cout, curMeans, ',' ) << std::endl;
+#ifndef NDEBUG
+			std::cout << "\nZentren: "; printContainer( std::cout, curMeans, ',' ) << std::endl;
+#endif
 
 			// calculate the mean of each cluster
-			nIdx=0;
+			size_t nIdx=0;
 			newMeans.empty();
 			for(
 				typename MyCluster::const_iterator it1 = allCluster.cbegin(), endIT1 = allCluster.cend();
@@ -264,8 +280,9 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 				++it1
 			)
 			{
-				printContainer( std::cout, *it1, ',' ) << std::endl;
-
+#ifndef NDEBUG
+				std::cout << "Cluster: "; printContainer( std::cout, *it1, ',' ) << std::endl;
+#endif
 				math::Mean<OBJ>	mean;
 				for(
 					typename Array<const OBJ*>::const_iterator it2 = it1->cbegin(), endIT2 = it1->cend();
@@ -277,7 +294,9 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 				}
 				if( mean.getCount() )
 				{
+#ifndef NDEBUG
 					std::cout << "Mittel: " << mean.getMean() << '\n';
+#endif
 					newMeans.push_back(mean.getMean());
 				}
 				else
@@ -288,7 +307,9 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 			}
 
 			// check whether a mean has changed
+#ifndef NDEBUG
 			std::cout << "Neue Mittelwerte: "; printContainer( std::cout, newMeans, ',' ) << std::endl;
+#endif
 			inProgress = false;
 			for( size_t i=0; i<numCluster; ++i )
 			{

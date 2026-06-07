@@ -92,11 +92,11 @@ class NeuronTest : public UnitTest
 		neuron.setWeight( 1 );
 
 		result = neuron.calculate( 0.5 );
-		UT_ASSERT_EQUAL( result, tanh(0.5f) );
+		UT_ASSERT_EQUAL( result, float(tanh(0.5f)) );
 
 		neuron.setBias( 1 );
 		result = neuron.calculate( 0.5 );
-		UT_ASSERT_EQUAL( result, tanh(1.5f) );
+		UT_ASSERT_EQUAL( result, float(tanh(1.5f)) );
 	}
 	void layerTest()
 	{
@@ -112,13 +112,13 @@ class NeuronTest : public UnitTest
 
 		layer[0].setWeight( 1 );
 		layer.calculate( input, &output );
-		UT_ASSERT_EQUAL( output[0], tanh(0.5f) );
+		UT_ASSERT_EQUAL( output[0], float(tanh(0.5f)) );
 		UT_ASSERT_EQUAL( output[1], 0 );
 
 		layer[1].setBias( 1 );
 		layer.calculate( input, &output );
-		UT_ASSERT_EQUAL( output[0], tanh(0.5f) );
-		UT_ASSERT_EQUAL( output[1], tanh(1.0f) );
+		UT_ASSERT_EQUAL( output[0], float(tanh(0.5f)) );
+		UT_ASSERT_EQUAL( output[1], float(tanh(1.0f)) );
 	}
 	ai::NeuronNetwork<> createNetwork()
 	{
@@ -156,7 +156,7 @@ class NeuronTest : public UnitTest
 
 		netWork.calculate( input, &output );
 		UT_ASSERT_EQUAL( 1, output.size() ); 
-		UT_ASSERT_EQUAL( output[0], tanh(weights2[0]*tanh(tanh(0.5f))) );
+		UT_ASSERT_EQUAL( output[0], float(tanh(weights2[0]*tanh(tanh(0.5f)))) );
 	}
 
 	void GradientTest()

@@ -42,6 +42,7 @@
 
 #include <gak/kmeans.h>
 #include <gak/map.h>
+#include <gak/gps.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -130,6 +131,22 @@ class KmeansTest : public UnitTest
 		UT_ASSERT_EQUAL( theCluster.getKeyAt(0), 5);
 		UT_ASSERT_EQUAL( theCluster.getValueAt(0).size(), testData.size());
 	}
+	template <typename GeoT>
+	void GeoTest()
+	{
+		GeoT	point1( 15, 48 ),
+				point2( 10, 48 ),
+				point3( 10.5, 48 );
+		gak::Array<GeoT>	testData;
+		testData.push_back(point1);
+		testData.push_back(point2);
+		testData.push_back(point3);
+
+		gak::PairMap< GeoT, gak::Array<const GeoT*> >	theCluster = kMeans(testData, 2);
+		UT_ASSERT_EQUAL( theCluster.size(), 2);
+		UT_ASSERT_EQUAL( theCluster.getValueAt(0).size(), 2);
+		UT_ASSERT_EQUAL( theCluster.getValueAt(1).size(), 1);
+	}
 	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "KmeansTest::PerformTest");
@@ -137,6 +154,14 @@ class KmeansTest : public UnitTest
 		RandomTest();
 		MeanTest();
 		EqualTest();
+		{
+			doEnterFunctionEx(gakLogging::llInfo, "GeoTest< math::GeoPosition<float> >");
+			GeoTest< math::GeoPosition<float> >();
+		}
+		{
+			doEnterFunctionEx(gakLogging::llInfo, "GeoTest< math::GpsPosition<float> >");
+			GeoTest< math::GpsPosition<float> >();
+		}
 	}
 };
 

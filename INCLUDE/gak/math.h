@@ -113,12 +113,16 @@ template<typename T>
 struct DistanceType
 {
 	typedef T ResultType;
+	static ResultType compute(const T &a, const T &b)
+	{
+		return abs( a-b );
+	}
 };
 
 template<typename T>
-inline typename DistanceType<T>::ResultType distance( T a, T b )
+inline typename DistanceType<T>::ResultType distance( const T &a, const T &b )
 {
-	return abs( a-b );
+	return DistanceType<T>::compute( a, b );
 }
 
 template<typename T>
@@ -371,7 +375,7 @@ struct Mean : private Duo<NUMBER, std::size_t>
 	}
 	NUMBER getMean() const
 	{
-		return this->val1 / this->val2;
+		return NUMBER(this->val1 / this->val2);
 	}
 	std::size_t getCount() const
 	{
