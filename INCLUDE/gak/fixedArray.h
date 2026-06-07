@@ -91,6 +91,10 @@ namespace gak
 template <typename OBJ, size_t SIZE>
 class FixedArray
 {
+	public:
+	typedef OBJ	value_type;
+
+	private:
 	OBJ	m_data[SIZE];
 
 	public:

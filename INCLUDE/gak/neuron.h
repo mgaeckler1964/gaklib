@@ -41,6 +41,7 @@
 // --------------------------------------------------------------------- //
 
 #include <limits>
+#include <cmath>
 
 #include <gak/array.h>
 
@@ -247,17 +248,17 @@ template <typename ACTIVATION_T=TanhActivation>
 class NeuronLayer : public Array< Neuron<ACTIVATION_T> > 
 {
 	public:
-	typedef NeuronLayer<typename ACTIVATION_T>	SelfT;
-	typedef Neuron<ACTIVATION_T>				MY_NEURON_T;
+	typedef NeuronLayer<ACTIVATION_T>	SelfT;
+	typedef Neuron<ACTIVATION_T>		MY_NEURON_T;
 
 	NeuronLayer( std::size_t numNeurons=0 ) : Array<MY_NEURON_T>(numNeurons) 
 	{}
 	void calculate( const BaseValues &input, BaseValues *output )
 	{
 		output->empty();
-		output->setCapacity( size(), false );
+		output->setCapacity( this->size(), false );
 		for(
-			Array<MY_NEURON_T>::iterator it = begin(), endIT = end();
+			typename Array<MY_NEURON_T>::iterator it = this->begin(), endIT = this->end();
 			it != endIT;
 			++it
 		)
@@ -268,7 +269,7 @@ class NeuronLayer : public Array< Neuron<ACTIVATION_T> >
 	void initNeurons( std::size_t numWeights )
 	{
 		for(
-			Array<MY_NEURON_T>::iterator it = begin(), endIT = end();
+			typename Array<MY_NEURON_T>::iterator it = this->begin(), endIT = this->end();
 			it != endIT;
 			++it
 		)
@@ -279,7 +280,7 @@ class NeuronLayer : public Array< Neuron<ACTIVATION_T> >
 	void nextStep( double step )
 	{
 		for(
-			Array<MY_NEURON_T>::reverse_iterator it = rbegin(), endIT = rend();
+			typename Array<MY_NEURON_T>::reverse_iterator it = this->rbegin(), endIT = this->rend();
 			it != endIT;
 			++it
 		)
@@ -298,7 +299,7 @@ class NeuronLayer : public Array< Neuron<ACTIVATION_T> >
 		BaseValues::const_iterator oIT = output.cbegin();
 		BaseValues::const_iterator eIT = expected.cbegin();
 		for(
-			Array<MY_NEURON_T>::iterator it = begin(), endIT = end();
+			typename Array<MY_NEURON_T>::iterator it = this->begin(), endIT = this->end();
 			it != endIT;
 			++it, ++oIT, ++eIT
 		)
@@ -314,7 +315,7 @@ class NeuronLayer : public Array< Neuron<ACTIVATION_T> >
 		size_t	idx=0;
 		// iterate through all my neurons and find their index
 		for(
-			Array<MY_NEURON_T>::iterator it = begin(), endIT = end();
+			typename Array<MY_NEURON_T>::iterator it = this->begin(), endIT = this->end();
 			it != endIT;
 			++it, ++idx
 		)
@@ -322,7 +323,7 @@ class NeuronLayer : public Array< Neuron<ACTIVATION_T> >
 			double neuronErrorSum = 0;
 			// iterate through all neurons of the next layer and use my own index for their weights
 			for(
-				Array<MY_NEURON_T>::const_iterator itn = nextLayer.cbegin(), endITn = nextLayer.cend();
+				typename Array<MY_NEURON_T>::const_iterator itn = nextLayer.cbegin(), endITn = nextLayer.cend();
 				itn != endITn;
 				++itn
 			)
@@ -339,12 +340,13 @@ class NeuronLayer : public Array< Neuron<ACTIVATION_T> >
 template <typename ACTIVATION_T=TanhActivation>
 class NeuronNetwork : public Array< NeuronLayer<ACTIVATION_T> >
 {
+	typedef Array< NeuronLayer<ACTIVATION_T> >	BaseT;
 	public:
 	NeuronNetwork( const PODarray<std::size_t> &numNeurons ) : Array< NeuronLayer<ACTIVATION_T> >(numNeurons.size()) 
 	{
-		iterator myIT = begin();
+		typename BaseT::iterator myIT = this->begin();
 		for(
-			Array<std::size_t>::const_iterator it = numNeurons.cbegin(), endIT = numNeurons.cend();
+			typename Array<std::size_t>::const_iterator it = numNeurons.cbegin(), endIT = numNeurons.cend();
 			it != endIT;
 			++it, ++myIT
 		)
@@ -389,7 +391,7 @@ class NeuronNetwork : public Array< NeuronLayer<ACTIVATION_T> >
 
 		*output = input;
 		for(
-			iterator it = begin(), endIT = end();
+			typename BaseT::iterator it = this->begin(), endIT = this->end();
 			it != endIT;
 			++it
 		)
@@ -400,17 +402,17 @@ class NeuronNetwork : public Array< NeuronLayer<ACTIVATION_T> >
 	}
 	void setBias( std::size_t layer, std::size_t neuron, base_t bias )
 	{
-		getOrCreateElementAt(layer)[neuron].setBias( bias );
+		this->getOrCreateElementAt(layer)[neuron].setBias( bias );
 	}
 	void setWeights( std::size_t layer, std::size_t neuron, const BaseValues &weights )
 	{
-		getOrCreateElementAt(layer)[neuron].setWeights( weights );
+		this->getOrCreateElementAt(layer)[neuron].setWeights( weights );
 	}
 
 	void initNetwork(std::size_t numInputData)
 	{
 		for(
-			iterator it = begin(), endIT = end();
+			typename BaseT::iterator it = this->begin(), endIT = this->end();
 			it != endIT;
 			++it
 		)
@@ -426,7 +428,7 @@ class NeuronNetwork : public Array< NeuronLayer<ACTIVATION_T> >
 	///	TODO: implement Batch Training
 	void GradientDescent(const BaseValues &input, const BaseValues &expected, double step )
 	{
-		reverse_iterator layer = rbegin(), endLayer = rend();
+		typename BaseT::reverse_iterator layer = this->rbegin(), endLayer = this->rend();
 		if( layer == endLayer )
 			return;
 
@@ -434,7 +436,7 @@ class NeuronNetwork : public Array< NeuronLayer<ACTIVATION_T> >
 		calculate( input, &cur );
 
 		layer->calcDeltas( cur, expected );
-		reverse_iterator	previous = layer;
+		typename BaseT::reverse_iterator	previous = layer;
 		++layer;
 		for( ; layer != endLayer; ++layer )
 		{
@@ -443,7 +445,7 @@ class NeuronNetwork : public Array< NeuronLayer<ACTIVATION_T> >
 		}
 
 		for(
-			reverse_iterator layer = rbegin(), endLayer = rend();
+			typename BaseT::reverse_iterator layer = this->rbegin(), endLayer = this->rend();
 			layer != endLayer;
 			++layer
 		)

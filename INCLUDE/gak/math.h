@@ -110,7 +110,13 @@ inline T abs( T a )
 }
 
 template<typename T>
-inline T distance( T a, T b )
+struct DistanceType
+{
+	typedef T ResultType;
+};
+
+template<typename T>
+inline typename DistanceType<T>::ResultType distance( T a, T b )
 {
 	return abs( a-b );
 }

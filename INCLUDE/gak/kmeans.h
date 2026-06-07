@@ -166,7 +166,7 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 			OBJ maxDistance1 = std::numeric_limits<OBJ>::min();
 			OBJ maxDistance2 = std::numeric_limits<OBJ>::min();
 			for(
-				ArrayBase<OBJ>::const_iterator it1 = src.cbegin(), endIT1 = src.cend();
+				typename ArrayBase<OBJ>::const_iterator it1 = src.cbegin(), endIT1 = src.cend();
 				it1 != endIT1;
 				++it1
 			)
@@ -175,7 +175,7 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 				OBJ minDistance = std::numeric_limits<OBJ>::max();
 				bool skipped = false;
 				for(
-					ArrayBase<OBJ>::const_iterator it2 = curMeans.cbegin(), endIT2 = curMeans.cend();
+					typename ArrayBase<OBJ>::const_iterator it2 = curMeans.cbegin(), endIT2 = curMeans.cend();
 					it2 != endIT2 && (skipped = *it1 == *it2) == false;		// do not use that point if it is already a center
 					++it2
 				)
@@ -232,7 +232,7 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 		{
 			// distribute all nodes to the cluster
 			for(
-				ArrayBase<OBJ>::const_iterator it = src.cbegin(), endIT = src.cend();
+				typename ArrayBase<OBJ>::const_iterator it = src.cbegin(), endIT = src.cend();
 				it != endIT;
 				++it
 			)
@@ -259,7 +259,7 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 			nIdx=0;
 			newMeans.empty();
 			for(
-				MyCluster::const_iterator it1 = allCluster.cbegin(), endIT1 = allCluster.cend();
+				typename MyCluster::const_iterator it1 = allCluster.cbegin(), endIT1 = allCluster.cend();
 				it1 != endIT1;
 				++it1
 			)
@@ -268,7 +268,7 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 
 				math::Mean<OBJ>	mean;
 				for(
-					Array<const OBJ*>::const_iterator it2 = it1->cbegin(), endIT2 = it1->cend();
+					typename Array<const OBJ*>::const_iterator it2 = it1->cbegin(), endIT2 = it1->cend();
 					it2 != endIT2;
 					++it2
 				)

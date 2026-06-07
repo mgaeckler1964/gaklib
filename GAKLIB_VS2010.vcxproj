@@ -206,6 +206,7 @@
     <ClInclude Include="INCLUDE\gak\mboxParser.h" />
     <ClInclude Include="INCLUDE\gak\md5.h" />
     <ClInclude Include="INCLUDE\gak\memoryStream.h" />
+    <ClInclude Include="INCLUDE\gak\neuron.h" />
     <ClInclude Include="INCLUDE\gak\nullStream.h" />
     <ClInclude Include="INCLUDE\gak\numericString.h" />
     <ClInclude Include="INCLUDE\gak\operators.h" />

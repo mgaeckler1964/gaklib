@@ -994,18 +994,28 @@ void readFromBinaryFile( const STRING &fileName, OBJ *obj, uint32 magicRequired,
 */
 
 template <typename ElementT>
-inline std::ostream &printElement( std::ostream &stream, const ElementT &elem )
+struct ElementPrinter
 {
-	stream << elem;
-	return stream;
-}
+	inline static std::ostream &printElement( std::ostream &stream, const ElementT &elem )
+	{
+		stream << elem;
+		return stream;
+	}
+};
 
 template <typename ElementT>
-inline std::ostream &printElement( std::ostream &stream, const ElementT *elem )
+struct ElementPrinter<ElementT*>
 {
-	stream << *elem;
-	return stream;
-}
+	inline static std::ostream &printElement( std::ostream &stream, const ElementT *elem )
+	{
+		if( elem )
+			stream << *elem;
+		else
+			stream << "<NULL>";
+
+		return stream;
+	}
+};
 
 /**
 	@brief Prints the content of a container to an output stream
@@ -1026,7 +1036,7 @@ std::ostream &printContainer( std::ostream &stream, const ContainerT &container,
 		++it
 	)
 	{
-		printElement(stream, *it) << separator;
+		ElementPrinter<typename ContainerT::value_type>::printElement(stream, *it) << separator;
 	}
 	return stream;
 }
