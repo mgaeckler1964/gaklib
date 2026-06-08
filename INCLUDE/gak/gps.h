@@ -388,20 +388,6 @@ inline double getHeightDistance(
 	return verticalDistance;
 }
 
-/**
-	@brief Returns the distance of two GPS positions
-	@param [in] start the first position
-	@param [in] end the second position
-	@param [in] theRadius the earth radius in meters to use
-	@return the distance in meters
-	@see GpsPosition
-*/
-template <typename ScalarT1, typename ScalarT2>
-double getGeoDistance(
-	const GeoPosition<ScalarT1> &start, const GeoPosition<ScalarT2> &end,
-	const double theRadius
-);
-
 template <typename ScalarT1, typename ScalarT2>
 double getDistance(
 	const GeoPosition<ScalarT1> &start, const GeoPosition<ScalarT2> &end
@@ -410,6 +396,34 @@ double getDistance(
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+namespace internal
+{
+	template <typename ScalarT1, typename ScalarT2>
+	double getGeoDistance(
+		const GeoPosition<ScalarT1> &start, const GeoPosition<ScalarT2> &end,
+		const double theRadius
+	)
+	{
+		// calculate the distance of one degree of the latidute circles
+		const double distancePerDegree = theRadius*(M_PI/180.0);
+
+		// calculate the difference of the two longitude values. We must check
+		// whether the line crosses the 180 degree longitude
+		double longitudeDifference = abs(start.longitude-end.longitude);
+		if( longitudeDifference > 180 )
+			longitudeDifference = 360 - longitudeDifference;
+
+		// calculate the east<->west distance and the north<->south distance
+		const double latiduteDistance = abs(start.latitude-end.latitude)*distancePerDegree;
+		const double longitudeDistance = longitudeDifference*distancePerDegree*cos(degree2radians((start.latitude+end.latitude)/2));
+
+		// let's use phytagoras, this is OK for small distances
+		const double distance = getHypotenuse( latiduteDistance, longitudeDistance );
+
+		return distance;
+	}
+}
 
 // --------------------------------------------------------------------- //
 // ----- class inlines ------------------------------------------------- //
@@ -520,39 +534,6 @@ void GpsProjector<ViewPointT>::getViewPoints(
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-/**
-	@brief Returns the distance of two GPS positions
-	@param [in] start the first position
-	@param [in] end the second position
-	@param [in] theRadius the earth radius in meters to use
-	@return the distance in meters
-	@see GpsPosition
-*/
-template <typename ScalarT1, typename ScalarT2>
-double getGeoDistance(
-	const GeoPosition<ScalarT1> &start, const GeoPosition<ScalarT2> &end,
-	const double theRadius
-)
-{
-	// calculate the distance of one degree of the latidute circles
-	const double distancePerDegree = theRadius*(M_PI/180.0);
-
-	// calculate the difference of the two longitude values. We must check
-	// whether the line crosses the 180 degree longitude
-	double longitudeDifference = abs(start.longitude-end.longitude);
-	if( longitudeDifference > 180 )
-		longitudeDifference = 360 - longitudeDifference;
-
-	// calculate the east<->west distance and the north<->south distance
-	const double latiduteDistance = abs(start.latitude-end.latitude)*distancePerDegree;
-	const double longitudeDistance = longitudeDifference*distancePerDegree*cos(degree2radians((start.latitude+end.latitude)/2));
-
-	// let's use phytagoras, this is OK for small distances
-	const double distance = getHypotenuse( latiduteDistance, longitudeDistance );
-
-	return distance;
-}
-
 template <typename ScalarT1, typename ScalarT2>
 double getDistance(
 	const GeoPosition<ScalarT1> &start, const GeoPosition<ScalarT2> &end
@@ -564,7 +545,7 @@ double getDistance(
 	const double endRadius   = MIN_EARTH_RADIUS + cos( degree2radians(  end.latitude) ) * (MAX_EARTH_RADIUS-MIN_EARTH_RADIUS);
 	const double theRadius = medium(startRadius, endRadius);
 
-	return getGeoDistance( start, end, theRadius );
+	return internal::getGeoDistance( start, end, theRadius );
 }
 
 
@@ -586,7 +567,7 @@ double getSphereDistance(
 	const double endRadius   = MIN_EARTH_RADIUS + cos( degree2radians(  end.latitude) ) * (MAX_EARTH_RADIUS-MIN_EARTH_RADIUS) +   end.height;
 	const double theRadius = medium(startRadius, endRadius);
 
-	return getGeoDistance( start, end, theRadius );
+	return internal::getGeoDistance( start, end, theRadius );
 }
 
 
