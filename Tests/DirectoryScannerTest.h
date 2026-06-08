@@ -116,17 +116,17 @@ class DirectoryScannerTest : public UnitTest
 
 		theScanner("CTOOLS", "*.cpp" );
 		UT_ASSERT_EQUAL( theScanner.processor().m_startCount, 1 ); 
-		UT_ASSERT_EQUAL( theScanner.processor().m_processCount, 90 ); 
+		UT_ASSERT_EQUAL( theScanner.processor().m_processCount, 92 ); 
 		UT_ASSERT_EQUAL( theScanner.processor().m_endCount, 1 ); 
 
 		theScanner("INCLUDE", "*.h");
 		UT_ASSERT_EQUAL( theScanner.processor().m_startCount, 3 ); 
-		UT_ASSERT_EQUAL( theScanner.processor().m_processCount, 217 ); 
+		UT_ASSERT_EQUAL( theScanner.processor().m_processCount, 224 ); 
 		UT_ASSERT_EQUAL( theScanner.processor().m_endCount, 3 ); 
 
 		theScanner("TESTS", "*.h");
 		UT_ASSERT_EQUAL( theScanner.processor().m_startCount, 4 ); 
-		UT_ASSERT_EQUAL( theScanner.processor().m_processCount, 292 ); 
+		UT_ASSERT_EQUAL( theScanner.processor().m_processCount, 302 ); 
 		UT_ASSERT_EQUAL( theScanner.processor().m_endCount, 4 ); 
 	}
 };

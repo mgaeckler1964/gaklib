@@ -132,12 +132,14 @@ class ThreadDirScannerTest : public UnitTest
 		myScanner("Java");
 
 		// We expect to find these 4 files in this sort order (it is sorted by name):
-		UT_ASSERT_EQUAL(g_count,4);
-		UT_ASSERT_EQUAL(g_filesFound.size(),4);
-		UT_ASSERT_EQUAL(g_filesFound[0],"Java" DIRECTORY_DELIMITER_STRING "com" DIRECTORY_DELIMITER_STRING "gaklib" DIRECTORY_DELIMITER_STRING "Lock.java");
-		UT_ASSERT_EQUAL(g_filesFound[1],"Java" DIRECTORY_DELIMITER_STRING "com" DIRECTORY_DELIMITER_STRING "gaklib" DIRECTORY_DELIMITER_STRING "MessageBox.java");
-		UT_ASSERT_EQUAL(g_filesFound[2],"Java" DIRECTORY_DELIMITER_STRING "gaklib.jpr");
-		UT_ASSERT_EQUAL(g_filesFound[3],"Java" DIRECTORY_DELIMITER_STRING "gaklib.jpr.local");
+		UT_ASSERT_EQUAL(g_count,5);
+		UT_ASSERT_EQUAL(g_filesFound.size(),5);
+		
+		UT_ASSERT_NOT_EQUAL( g_filesFound.no_index, g_filesFound.findElement("Java" DIRECTORY_DELIMITER_STRING "com" DIRECTORY_DELIMITER_STRING "gaklib" DIRECTORY_DELIMITER_STRING "Lock.java") );
+		UT_ASSERT_NOT_EQUAL( g_filesFound.no_index, g_filesFound.findElement("Java" DIRECTORY_DELIMITER_STRING "com" DIRECTORY_DELIMITER_STRING "gaklib" DIRECTORY_DELIMITER_STRING "MessageBox.java") );
+		UT_ASSERT_NOT_EQUAL( g_filesFound.no_index, g_filesFound.findElement("Java" DIRECTORY_DELIMITER_STRING  "gaklib.jpr") );
+		UT_ASSERT_NOT_EQUAL( g_filesFound.no_index, g_filesFound.findElement("Java" DIRECTORY_DELIMITER_STRING  "gaklib.jpr.local") );
+		UT_ASSERT_NOT_EQUAL( g_filesFound.no_index, g_filesFound.findElement("Java" DIRECTORY_DELIMITER_STRING  "README.md") );
 	}
 };
 

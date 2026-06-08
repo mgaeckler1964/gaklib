@@ -272,12 +272,20 @@ void UnitTest::PerformTests( const char *argv[] )
 			}
 		}
 	}
-	if( tm == tmTest )
-		PerformTests( testsToPerform, catchCout, checkTested );
-	else if( tm == tmStress )
-		StressTests( testsToPerform, checkTested );
+
+	if( checkTested && alreadyTested.size() && !testsToPerform.size() )
+	{
+		std::cout << "No more tests! Remove control file '.tested'" << std::endl;
+	}
 	else
-		ThreadTest( testsToPerform, checkTested );
+	{
+		if( tm == tmTest )
+			PerformTests( testsToPerform, catchCout, checkTested );
+		else if( tm == tmStress )
+			StressTests( testsToPerform, checkTested );
+		else
+			ThreadTest( testsToPerform, checkTested );
+	}
 }
 
 void UnitTest::ShowNotFound( const SortedArray<const char*> &testsToPerform )
@@ -363,7 +371,7 @@ bool UnitTest::PerformTest( UnitTest *theTest, bool catchCout )
 void UnitTest::PerformTests( SortedArray<const char*> &testsToPerform, bool catchCout, bool checkTested )
 {
 	doEnterFunctionEx(gakLogging::llInfo, "UnitTest::PerformTests");
-
+	std::cout << (catchCout ? "Catching std::cout" : "Showing std::cout") << std::endl;
 	std::size_t				i=1;
 	std::size_t				testFilter = testsToPerform.size();
 	const Array<UnitTest*>	&theTestItems = getTheTestItems();

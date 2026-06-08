@@ -77,6 +77,11 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
+#ifdef _Wndows
+	#define EXE_NAME	"test.EXE"
+#else
+	#define EXE_NAME	"test"
+#endif
 
 class CmdlineTest : public UnitTest
 {
@@ -116,7 +121,7 @@ class CmdlineTest : public UnitTest
 
 			const char *argv[] =
 			{
-				"test.EXE",
+				EXE_NAME,
 				"otherParam1",
 				"-D=optCharWithParam",
 				"otherParam2",
@@ -138,7 +143,7 @@ class CmdlineTest : public UnitTest
 			};
 			const char *noargv[] =
 			{
-				"test.EXE",
+				EXE_NAME,
 				NULL
 			};
 
@@ -152,7 +157,6 @@ class CmdlineTest : public UnitTest
 				strRemove(STRING(".test.cfg"));
 
 			CommandLine	cmdLine( options, x & 1 ? argv : noargv );
-
 			if( x )
 			{
 				UT_ASSERT_EQUAL( cmdLine.flags & optionPresent, optionPresent );
@@ -196,7 +200,7 @@ class CmdlineTest : public UnitTest
 			if( x&1 )
 			{
 				UT_ASSERT_EQUAL( cmdLine.argc, 10 );
-				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[0], (const char *)"test.EXE" );
+				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[0], (const char *)EXE_NAME );
 				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[1], (const char *)"otherParam1" );
 				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[2], (const char *)"otherParam2" );
 				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[3], (const char *)"otherParam3" );
