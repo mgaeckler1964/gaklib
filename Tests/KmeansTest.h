@@ -94,7 +94,7 @@ class KmeansTest : public UnitTest
 		gak::Array<int>		testData;
 		testData.addCArray( test );
 
-		gak::PairMap< int, gak::Array<const int*> >	theCluster = kMeans(testData, 3);
+		gak::PairMap< int, gak::Array<const int*> >	theCluster = ai::kMeans(testData, 3);
 		UT_ASSERT_EQUAL( theCluster.size(), 3);
 		UT_ASSERT_EQUAL( theCluster.getKeyAt(0), 8);
 		UT_ASSERT_EQUAL( theCluster.getKeyAt(1), 102);
@@ -113,7 +113,7 @@ class KmeansTest : public UnitTest
 
 		math::Mean<int>	mean( testData.cbegin(), testData.cend() );
 
-		gak::PairMap< int, gak::Array<const int*> >	theCluster = kMeans(testData, 1);
+		gak::PairMap< int, gak::Array<const int*> >	theCluster = ai::kMeans(testData, 1);
 		UT_ASSERT_EQUAL( theCluster.size(), 1);
 		UT_ASSERT_EQUAL( theCluster.getKeyAt(0), mean.getMean());
 		UT_ASSERT_EQUAL( theCluster.getValueAt(0).size(), testData.size());
@@ -126,7 +126,7 @@ class KmeansTest : public UnitTest
 		gak::Array<int>		testData;
 		testData.addCArray( test );
 
-		gak::PairMap< int, gak::Array<const int*> >	theCluster = kMeans(testData, 3);
+		gak::PairMap< int, gak::Array<const int*> >	theCluster = ai::kMeans(testData, 3);
 		UT_ASSERT_EQUAL( theCluster.size(), 1);
 		UT_ASSERT_EQUAL( theCluster.getKeyAt(0), 5);
 		UT_ASSERT_EQUAL( theCluster.getValueAt(0).size(), testData.size());
@@ -142,7 +142,7 @@ class KmeansTest : public UnitTest
 		testData.push_back(point2);
 		testData.push_back(point3);
 
-		gak::PairMap< GeoT, gak::Array<const GeoT*> >	theCluster = kMeans(testData, 2);
+		gak::PairMap< GeoT, gak::Array<const GeoT*> >	theCluster = ai::kMeans(testData, 2);
 		UT_ASSERT_EQUAL( theCluster.size(), 2);
 		UT_ASSERT_EQUAL( theCluster.getValueAt(0).size(), 2);
 		UT_ASSERT_EQUAL( theCluster.getValueAt(1).size(), 1);

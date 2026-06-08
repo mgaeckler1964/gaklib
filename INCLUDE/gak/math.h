@@ -83,13 +83,13 @@ template <class T>
 inline T max(T x, T y)
 {
 	return (x > y) ? x : y;
-};
+}
 
 template <class T>	
 inline T min(T x, T y)
 {
 	return (x < y) ? x : y;
-};
+}
 
 template<typename T>
 inline T medium( T a, T b )
@@ -382,6 +382,7 @@ struct Mean : private Duo<NUMBER, std::size_t>
 		return this->val2;
 	}
 };
+
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //

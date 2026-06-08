@@ -62,6 +62,8 @@
 
 namespace gak
 {
+namespace ai
+{
 
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
@@ -165,8 +167,8 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 			// we are searching for the second farest entry
 			bool		nextCenter1OK = false, nextCenter2OK = false;
 			OBJ			nextCenter1, nextCenter2;
-			DistType	maxDistance1 = std::numeric_limits<DistType>::min();
-			DistType	maxDistance2 = std::numeric_limits<DistType>::min();
+			DistType	maxDistance1 = math::limits<DistType>::lowest();
+			DistType	maxDistance2 = math::limits<DistType>::lowest();
 			for(
 				typename ArrayBase<OBJ>::const_iterator it1 = src.cbegin(), endIT1 = src.cend();
 				it1 != endIT1;
@@ -338,6 +340,7 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 	return result;
 }
 
+}	// namespace ai
 }	// namespace gak
 
 #ifdef __BORLANDC__
