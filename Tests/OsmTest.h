@@ -65,8 +65,9 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+#ifdef _Windows		// sorry not for linux
 const STRING osmPath = "C:\\Cache\\OSM";
-
+#endif
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -91,7 +92,9 @@ class OsmTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "OsmTest::PerformTest");
 		TestScope scope( "PerformTest" );
 		SyntheticTest();
+#ifdef _Windows		// sorry not for linux
 		AndorraTest();
+#endif
 	}
 	static Area getDefaultArea()
 	{
@@ -369,6 +372,7 @@ class OsmTest : public UnitTest
 			}
 		}
 	}
+#ifdef _Windows		// sorry not for linux
 	void AndorraTest()
 	{
 		OSMbuilder	openStreetMap;
@@ -382,6 +386,7 @@ class OsmTest : public UnitTest
 		OSMviewer	layer;
 		openStreetMap.mergeOsmLayer( OsmLink::minWayType, OsmLink::unclassified, 199104, osmPath, &layer );
 	}
+#endif
 };
 
 // --------------------------------------------------------------------- //

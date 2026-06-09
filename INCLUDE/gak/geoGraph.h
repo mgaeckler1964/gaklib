@@ -115,7 +115,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 
 	typedef LayerKeyT							layer_key_type;
 
-#ifdef _MSC_VER
+#if defined( _MSC_VER ) || defined( __GNUC__ )
 #	pragma pack(push, 2)
 #endif
 	struct PositionValue
@@ -148,7 +148,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 			gak::fromBinaryStream( stream, &nodeID );
 		}
 	};
-#ifdef _MSC_VER
+#if defined( _MSC_VER ) || defined( __GNUC__ )
 #	pragma pack( pop )
 #endif
 	typedef IndexT<PositionValue>		Layer;

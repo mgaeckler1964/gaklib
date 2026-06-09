@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -86,12 +86,27 @@ class IOstreamTest : public UnitTest
 	{
 		return "IOstreamTest";
 	}
+
+	template <typename DST_OBJ, typename SRC_OBJ>
+	void doCompatTest( const SRC_OBJ &source, DST_OBJ *dest )
+	{
+		const uint32	magic = 0x12345678;
+		const uint16	version = 666;
+		TempFileName	fileName(true);
+		DST_OBJ			target;
+
+		writeToBinaryFile( fileName, source, magic, version, owmOverwrite );
+
+		readFromBinaryFile( fileName, dest, magic, version, true );
+		UT_ASSERT_EQUAL( source.size(), dest->size() );
+	}
+
 	template <typename OBJ>
 	void doTest( const OBJ &source )
 	{
 		const uint32	magic = 0x12345678;
 		const uint16	version = 666;
-		const F_STRING	fileName = "testFile.dmp";
+		TempFileName	fileName(true);
 		OBJ				target;
 
 		writeToBinaryFile( fileName, source, magic, version, owmOverwrite );
@@ -242,6 +257,24 @@ class IOstreamTest : public UnitTest
 			array[1] = "2.71";
 
 			doTest( array );
+		}
+		{
+			TreeMap<int, STRING>	myTree;
+			PairMap<int, STRING>	myPair;
+
+			myTree[1] = "one";
+			myTree[2] = "two";
+			myTree[3] = "three";
+			doCompatTest( myTree, &myPair );
+			UT_ASSERT_EQUAL( myTree[1], myPair[1] );
+			UT_ASSERT_EQUAL( myTree[2], myPair[2] );
+			UT_ASSERT_EQUAL( myTree[3], myPair[3] );
+
+			myTree.clear();
+			doCompatTest( myPair, &myTree );
+			UT_ASSERT_EQUAL( myTree[1], myPair[1] );
+			UT_ASSERT_EQUAL( myTree[2], myPair[2] );
+			UT_ASSERT_EQUAL( myTree[3], myPair[3] );
 		}
 	}
 };
