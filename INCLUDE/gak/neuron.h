@@ -294,7 +294,7 @@ class NeuronLayer : public Array< Neuron<ACTIVATION_T> >
 	void calcDeltas( const BaseValues &output, const BaseValues &expected )
 	{
 		assert( output.size() == expected.size() );
-		assert( size() == expected.size() );
+		assert( this->size() == expected.size() );
 
 		BaseValues::const_iterator oIT = output.cbegin();
 		BaseValues::const_iterator eIT = expected.cbegin();
