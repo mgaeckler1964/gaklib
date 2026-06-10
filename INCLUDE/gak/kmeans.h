@@ -40,6 +40,7 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+#include <gak/operators.h>
 #include <gak/arrayBase.h>
 #include <gak/map.h>
 #include <gak/math.h>
@@ -64,6 +65,8 @@ namespace gak
 {
 namespace ai
 {
+using gak::operator==;
+using gak::operator!=;
 
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
@@ -180,7 +183,7 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 				bool skipped = false;
 				for(
 					typename ArrayBase<OBJ>::const_iterator it2 = curMeans.cbegin(), endIT2 = curMeans.cend();
-					it2 != endIT2 && (skipped = *it1 == *it2) == false;		// do not use that point if it is already a center
+					it2 != endIT2 && (skipped = (*it1==*it2)) == false;		// do not use that point if it is already a center
 					++it2
 				)
 				{

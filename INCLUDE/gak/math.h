@@ -302,11 +302,7 @@ struct limits
 {
 	static NUMBER lowest()
 	{
-#if __cplusplus < 199711
-		return std::numeric_limits<NUMBER>::min() > 0 ? -std::numeric_limits<NUMBER>::max() : std::numeric_limits<NUMBER>::min();
-#else
-		return std::numeric_limits<NUMBER>::lowest();
-#endif
+		return std::numeric_limits<NUMBER>::is_integer ? std::numeric_limits<NUMBER>::min() : -std::numeric_limits<NUMBER>::max();
 	}
 };
 

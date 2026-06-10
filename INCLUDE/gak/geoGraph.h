@@ -116,7 +116,7 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 	typedef LayerKeyT							layer_key_type;
 
 #if defined( _MSC_VER ) || defined( __GNUC__ )
-#	pragma pack(push, 2)
+#	pragma pack(push, 2)	// disable alignment bytes
 #endif
 	struct PositionValue
 	{
@@ -126,6 +126,9 @@ class GeoGraph : public Graph<NodeT, LinkT, MapT, NodeKeyT, LinkKeyT>
 		PositionValue( float circleDegree = 0, NodeKeyT nodeID = NodeKeyT() )
 		: circleDegree(circleDegree), nodeID(nodeID)
 		{
+			/*
+				check we can write each entry alone and read an array with one function call, only
+			*/
 			assert( sizeof(*this) == sizeof(float) + sizeof(NodeKeyT));
 		}
 		int compare( const PositionValue &other ) const
