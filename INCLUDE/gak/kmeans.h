@@ -149,7 +149,11 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 	Array<OBJ>	curMeans, newMeans;
 	MyCluster	allCluster;
 
-	if( numCluster > 0 && src.size() >= numCluster )
+	if( !numCluster || numCluster > src.size() )
+	{
+		numCluster = 0;
+	}
+	else 
 	{
 /*
 	this is a simple method to select n cluster 

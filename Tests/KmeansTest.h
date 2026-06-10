@@ -131,6 +131,29 @@ class KmeansTest : public UnitTest
 		UT_ASSERT_EQUAL( theCluster.getKeyAt(0), 5);
 		UT_ASSERT_EQUAL( theCluster.getValueAt(0).size(), testData.size());
 	}
+	void xClusterTest()
+	{
+		int test[] = {
+			1,2,3,4,5
+		};
+		gak::Array<int>		testData;
+		testData.addCArray( test );
+
+		// too many cluster 
+		gak::PairMap< int, gak::Array<const int*> >	theCluster = ai::kMeans(testData, 6);
+		UT_ASSERT_EQUAL( theCluster.size(), 0);
+
+		// exact cluster count
+		theCluster = ai::kMeans(testData, 5);
+		UT_ASSERT_EQUAL( theCluster.size(), 5);
+
+		// duplicate value
+		testData.push_back( 1 );
+		theCluster = ai::kMeans(testData, 6);			// we want 6 cluster
+		UT_ASSERT_EQUAL( theCluster.size(), 5);			// but get 5, only
+		UT_ASSERT_EQUAL( theCluster[1].size(), 2);
+	}
+
 	template <typename GeoT>
 	void GeoTest()
 	{
@@ -147,13 +170,16 @@ class KmeansTest : public UnitTest
 		UT_ASSERT_EQUAL( theCluster.getValueAt(0).size(), 2);
 		UT_ASSERT_EQUAL( theCluster.getValueAt(1).size(), 1);
 	}
+
 	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "KmeansTest::PerformTest");
 		TestScope scope( "PerformTest" );
+
 		RandomTest();
 		MeanTest();
 		EqualTest();
+		xClusterTest();
 		{
 			doEnterFunctionEx(gakLogging::llInfo, "GeoTest< math::GeoPosition<float> >");
 			GeoTest< math::GeoPosition<float> >();
