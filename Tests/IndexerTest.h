@@ -206,10 +206,10 @@ class IndexerTest : public UnitTest
 		{
 			static Critical	section;
 			CriticalScope	scope(section);
+			TempFileName	tmpFile( "indexer.tmp" );
 
-			writeToBinaryFile("indexer.tmp", globalIndex, 123, 1, owmOverwrite );
-			readFromBinaryFile("indexer.tmp", &globalIndex, 123, 1, false );
-			strRemoveE("indexer.tmp");
+			writeToBinaryFile(tmpFile, globalIndex, 123, 1, owmOverwrite );
+			readFromBinaryFile(tmpFile, &globalIndex, 123, 1, false );
 		}
 	}
 

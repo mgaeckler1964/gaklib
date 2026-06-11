@@ -86,27 +86,19 @@ class ArrayStreamTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "StreamsTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
-		STRING tmpName = "_temp.gak";
 		ArrayOfStrings	myData1, myData2;
 
 		myData1[0] = "Hello World";
 		myData1[1] = "The quick brown fox jumps over the lazy dog";
 
-		try
-		{
+		TempFileName tmpName(false);
 
-			myData1.writeToFile(tmpName);
-			myData2.readFromFile(tmpName);
-			strRemove( tmpName );
-			UT_ASSERT_EQUAL(myData1.size(), myData2.size());
-			UT_ASSERT_EQUAL(myData1[0], myData2[0]);
-			UT_ASSERT_EQUAL(myData1[1], myData2[1]);
-		}
-		catch ( ... )
-		{
-			strRemove( tmpName );
-			throw;
-		}
+		myData1.writeToFile(tmpName);
+		myData2.readFromFile(tmpName);
+
+		UT_ASSERT_EQUAL(myData1.size(), myData2.size());
+		UT_ASSERT_EQUAL(myData1[0], myData2[0]);
+		UT_ASSERT_EQUAL(myData1[1], myData2[1]);
 	}
 };
 

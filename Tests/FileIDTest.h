@@ -43,6 +43,7 @@
 #include <gak/fileID.h>
 #include <gak/directory.h>
 #include <gak/fcopy.h>
+#include <gak/tmpfile.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -98,6 +99,10 @@ class FileIDTest : public UnitTest
 		}
 
 		const char *dest = __FILE__ ".gak";
+		TempFileName _(dest);
+
+		UT_ASSERT_EXCEPTION( getFileID( dest ), LibraryException );
+
 		flink( __FILE__, dest );
 		FileID	srcID = getFileID( __FILE__ );
 		FileID	destID = getFileID( dest );
@@ -113,18 +118,6 @@ class FileIDTest : public UnitTest
 		fcopy( __FILE__, dest );
 		destID = getFileID( dest );
 		UT_ASSERT_NOT_EQUAL( srcID, destID );
-		strRemoveE( dest );
-
-		bool exceptionFnd = false;
-		try
-		{
-			getFileID( __FILE__ ".gak" );
-		}
-		catch( LibraryException )
-		{
-			exceptionFnd = true;
-		}
-		UT_ASSERT_TRUE( exceptionFnd );
 	}
 };
 

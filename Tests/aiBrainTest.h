@@ -41,6 +41,7 @@
 #include <gak/unitTest.h>
 
 #include <gak/aiBrain.h>
+#include <gak/tmpfile.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -142,9 +143,9 @@ class AiBrainTest : public UnitTest
 			static Critical	section;
 			CriticalScope	scope(section);
 
+			TempFileName _(BRAINFILE);
 			writeToBinaryFile(BRAINFILE, theBrain, BRAINMAGIC, BRAINVERSION, owmOverwrite);
 			readFromBinaryFile(BRAINFILE, &cloneBrain, BRAINMAGIC, BRAINVERSION, false);
-			strRemoveE(BRAINFILE);
 		}
 
 		UT_ASSERT_EQUAL(cloneBrain.size(), 1UL);

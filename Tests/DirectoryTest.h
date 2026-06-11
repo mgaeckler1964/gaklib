@@ -130,20 +130,23 @@ class DirectoryTest : public UnitTest
 			std::cout << usbDrives[i] << std::endl;
 		}
 
-		STRING	myFile = tmp + DIRECTORY_DELIMITER_STRING "xxyyzäüöß.xxx";
-
-		STDfile fp( myFile, "wb" );
-		UT_ASSERT_NOT_NULL( fp );
-		if( fp )
+		STRING	myFile;
 		{
-			fp.close();
-			int result = strAccess( myFile, 06 );
-			UT_ASSERT_EQUAL( result, 0 );
-			myFile = myFile.convertToCharset( STR_UTF8 );
-			result = strAccess( myFile, 06 );
-			UT_ASSERT_EQUAL( result, 0 );
+			myFile = tmp + DIRECTORY_DELIMITER_STRING "xxyyzäüöß.xxx";
+			TempFileName	_( myFile );
+		
+			STDfile fp( myFile, "wb" );
+			UT_ASSERT_NOT_NULL( fp );
+			if( fp )
+			{
+				fp.close();
+				int result = strAccess( myFile, 06 );
+				UT_ASSERT_EQUAL( result, 0 );
+				myFile = myFile.convertToCharset( STR_UTF8 );
+				result = strAccess( myFile, 06 );
+				UT_ASSERT_EQUAL( result, 0 );
+			}
 		}
-		strRemoveE( myFile );
 
 		myFile = "LICENSE"; // "TCGAKLIB.PRJ";
 		int result = strAccess( myFile, 06 );

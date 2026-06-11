@@ -148,8 +148,6 @@ class IOstreamTest : public UnitTest
 		}
 		readFromBinaryFile( fileName, &target, magic, version, false );
 		UT_ASSERT_EQUAL( source, target );
-
-		strRemoveE( fileName );
 	}
 
 	virtual void PerformTest()

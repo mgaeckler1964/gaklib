@@ -42,6 +42,7 @@
 #include <gak/unitTest.h>
 
 #include <gak/streams.h>
+#include <gak/tmpfile.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -136,7 +137,7 @@ class StreamsTest : public UnitTest
 	}
 	void FileTest()
 	{
-		static const STRING FILE_NAME = "fileStream.sink";
+		static const TempFileName FILE_NAME( "fileStream.sink" );
 		{
 			doLogValue( "Creating ContainerStream1" );
 			streams::Stream<STRING>	strStream1 = streams::makeContainerStream( myStrings1 );
@@ -180,7 +181,6 @@ class StreamsTest : public UnitTest
 			UT_ASSERT_EQUAL( resultArray.size(), array1Size );
 			UT_ASSERT_EQUAL( resultArray, myStrings1 );
 		}
-		strRemoveE( FILE_NAME );
 	}
 	void ContainerTest()
 	{

@@ -154,7 +154,7 @@ class CmdlineTest : public UnitTest
 				out << "-D=fromConfig\n";
 			}
 			else
-				strRemove(STRING(".test.cfg"));
+				strRemove(cfg);
 
 			CommandLine	cmdLine( options, x & 1 ? argv : noargv );
 			if( x )

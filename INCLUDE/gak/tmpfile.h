@@ -109,7 +109,8 @@ class TempFileName
 	}
 
 	public:
-	TempFileName( const STRING &tmpName=nullptr ) : m_filename(tmpName) {}
+	TempFileName( const STRING &tmpName ) : m_filename(tmpName) {}
+	TempFileName( const char *tmpName=nullptr ) : m_filename(tmpName) {}
 	TempFileName( bool inTmpPath ) : m_filename(buildUniqueName( inTmpPath ))
 	{
 	}
