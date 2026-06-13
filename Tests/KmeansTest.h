@@ -91,8 +91,7 @@ class KmeansTest : public UnitTest
 		};
 		// sorted
 		// 1, 2, 3, 5, 8, 8, 9, 17, 22, 98, 99, 100, 114, 500, 505, 555, 600, 601, 666
-		gak::Array<int>		testData;
-		testData.addCArray( test );
+		gak::Array<int>		testData( test );
 
 		gak::PairMap< int, gak::Array<const int*> >	theCluster = ai::kMeans(testData, 3);
 		UT_ASSERT_EQUAL( theCluster.size(), 3);
@@ -108,8 +107,7 @@ class KmeansTest : public UnitTest
 		int test[] = {
 			100, 2, 22, 500, 1, 9, 600, 3, 5, 505, 17, 555, 8, 666, 8, 99, 601, 114, 98
 		};
-		gak::Array<int>		testData;
-		testData.addCArray( test );
+		gak::Array<int>		testData(test);
 
 		math::Mean<int>	mean( testData.cbegin(), testData.cend() );
 
@@ -123,8 +121,7 @@ class KmeansTest : public UnitTest
 		int test[] = {
 			5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
 		};
-		gak::Array<int>		testData;
-		testData.addCArray( test );
+		gak::Array<int>		testData( test );
 
 		gak::PairMap< int, gak::Array<const int*> >	theCluster = ai::kMeans(testData, 3);
 		UT_ASSERT_EQUAL( theCluster.size(), 1);
@@ -136,8 +133,7 @@ class KmeansTest : public UnitTest
 		int test[] = {
 			1,2,3,4,5
 		};
-		gak::Array<int>		testData;
-		testData.addCArray( test );
+		gak::Array<int>		testData( test );
 
 		// too many cluster 
 		gak::PairMap< int, gak::Array<const int*> >	theCluster = ai::kMeans(testData, 6);

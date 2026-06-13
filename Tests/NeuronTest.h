@@ -190,23 +190,23 @@ class NeuronTest : public UnitTest
 		ai::NeuronNetwork<>	netWork = createNetwork();
 		netWork.initNetwork(2);
 
-		ai::BaseValues	input1, input2, input3, input4, output, expected0, expected1;
+		ai::BaseValues	output, expected0, expected1;
 		const ai::base_t zero = -1.0f;
 		const ai::base_t one = 1.0f;
 		const double initStep = 0.1;
 		const double step = 0.01;
 
 		ai::base_t tmp1[] = {zero, zero};
-		input1.addCArray( tmp1 );
+		ai::BaseValues	input1( tmp1 );
 
 		ai::base_t tmp2[] = {one, zero};
-		input2.addCArray( tmp2 );
+		ai::BaseValues	input2( tmp2 );
 
 		ai::base_t tmp3[] = {zero, one};
-		input3.addCArray( tmp3 );
+		ai::BaseValues	input3( tmp3 );
 
 		ai::base_t tmp4[] = {one, one};
-		input4.addCArray( tmp4 );
+		ai::BaseValues	input4( tmp4 );
 
 		expected0[0] = zero;
 		expected1[0] = one;

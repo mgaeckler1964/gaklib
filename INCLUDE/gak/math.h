@@ -467,6 +467,40 @@ inline std::ostream &operator << ( std::ostream &out, const MixedFraction &x )
 	return out;
 }
 
+template <typename VectorT1, typename VectorT2>
+double scalarProduct( const VectorT1 &vec1, const VectorT2 &vec2 )
+{
+	double result = 0;
+	typename VectorT1::const_iterator it1 = vec1.cbegin(), endIT1=vec1.cend();
+	typename VectorT2::const_iterator it2 = vec2.cbegin(), endIT2=vec2.cend();
+	for( ; it1 != endIT1 && it2 != endIT2; ++it1, ++it2 )
+	{
+		result += *it1 * *it2;
+	}
+	return result;
+}
+
+template <typename VectorT1, typename VectorT2>
+VectorT1 vectorSum( const VectorT1 &vec1, const VectorT2 &vec2 )
+{
+	VectorT1 result;
+	typename VectorT1::const_iterator it1 = vec1.cbegin(), endIT1=vec1.cend();
+	typename VectorT2::const_iterator it2 = vec2.cbegin(), endIT2=vec2.cend();
+	for( ; it1 != endIT1 && it2 != endIT2; ++it1, ++it2 )
+	{
+		result.push_back(*it1 + *it2 );
+	}
+	for( ; it1 != endIT1; ++it1 )
+	{
+		result.push_back(*it1 );
+	}
+	for( ; it2 != endIT2; ++it2 )
+	{
+		result.push_back(*it2 );
+	}
+	return result;
+}
+
 }	// namespace math
 }	// namespace gak
 

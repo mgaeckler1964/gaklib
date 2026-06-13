@@ -338,6 +338,16 @@ class ArrayBase : public Container
 		createElements( initialSize );
 	}
 	/**
+		@brief creates a new array 
+		@param [in] arr  the C-Array to use for initialisation of the array
+	*/
+	template <typename T, size_t N>
+	ArrayBase(T (&arr)[N])
+	{
+		forget();
+		addElements( arr, N );
+	}
+	/**
 		@brief copy contructor
 		@param [in] source the source to copy from
 	*/
@@ -383,7 +393,7 @@ class ArrayBase : public Container
 	/// forget any data without freeing it @see move
 	void forget()
 	{
-		m_data = NULL;
+		m_data = nullptr;
 		m_capacity = 0;
 		m_chunkSize = 32;
 		Container::clear();

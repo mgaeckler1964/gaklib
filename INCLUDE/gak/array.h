@@ -90,6 +90,7 @@ namespace gak
 template <class OBJ, class ALLOCATOR=Allocator<OBJ> >
 class Array : public ArrayBase<OBJ, ALLOCATOR>
 {
+	typedef ArrayBase<OBJ, ALLOCATOR> Super;
 	public:
 	/// creates an empty array
 	Array() : ArrayBase<OBJ, ALLOCATOR>()
@@ -99,14 +100,22 @@ class Array : public ArrayBase<OBJ, ALLOCATOR>
 		@brief creates a new array
 		@param [in] initialSize the number of items to create immediately
 	*/
-	Array( size_t initialSize ) : ArrayBase<OBJ, ALLOCATOR>( initialSize )
+	Array( size_t initialSize ) : Super( initialSize )
 	{
 	}
 	/**
 		@brief copy contructor
 		@param [in] source the source to copy from
 	*/
-	Array( const Array<OBJ, ALLOCATOR> &source ) : ArrayBase<OBJ, ALLOCATOR>( source )
+	Array( const Array<OBJ, ALLOCATOR> &source ) : Super( source )
+	{
+	}
+	/**
+		@brief creates a new array 
+		@param [in] arr  the C-Array to use for initialisation of the array
+	*/
+	template <typename T, size_t N>
+	Array(T (&arr)[N]) : Super(arr)
 	{
 	}
 
@@ -186,12 +195,22 @@ class Array : public ArrayBase<OBJ, ALLOCATOR>
 template <class OBJ>
 class PODarray : public Array< OBJ, PODallocator<OBJ> >
 {
+	typedef Array< OBJ, PODallocator<OBJ> > Super;
+
 	public:
 	/**
 		@brief creates a new array
 		@param [in] initialSize the number of items to create immediately
 	*/
 	PODarray( size_t initialSize=0 ) : Array<OBJ, PODallocator<OBJ> >( initialSize )
+	{
+	}
+	/**
+		@brief creates a new array 
+		@param [in] arr  the C-Array to use for initialisation of the array
+	*/
+	template <typename T, size_t N>
+	PODarray(T (&arr)[N]) : Super(arr)
 	{
 	}
 };

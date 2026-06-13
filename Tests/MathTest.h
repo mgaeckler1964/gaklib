@@ -113,11 +113,8 @@ class MathTest : public UnitTest
 			GeoTest< math::GpsPosition<float> >();
 		}
 	}
-	virtual void PerformTest()
+	void getExponentTest()
 	{
-		doEnterFunctionEx(gakLogging::llInfo, "MathTest::PerformTest");
-		TestScope scope( "PerformTest" );
-
 		UT_ASSERT_EQUAL( 2, math::getExponent( 999.9999 ) );
 		UT_ASSERT_EQUAL( 2, math::getExponent( 100.0 ) );
 		UT_ASSERT_EQUAL( 2, math::getExponent( -100.0 ) );
@@ -134,7 +131,9 @@ class MathTest : public UnitTest
 		UT_ASSERT_EQUAL( -2, math::getExponent( 0.09999999 ) );
 		UT_ASSERT_EQUAL( -2, math::getExponent( 0.01 ) );
 		UT_ASSERT_EQUAL( -2, math::getExponent( -0.01 ) );
-
+	}
+	void normalizeTest()
+	{
 		int exponent;
 		double value;
 
@@ -169,7 +168,9 @@ class MathTest : public UnitTest
 		value = math::normalize( -0.09999999, &exponent );
 		UT_ASSERT_EQUAL( -9.999999, value );
 		UT_ASSERT_EQUAL( -2, exponent );
-
+	}
+	void minMaxMeanTest()
+	{
 		math::MinMax<int>	minMax;
 
 		UT_ASSERT_LESS( 0, minMax.getMin() );
@@ -205,8 +206,7 @@ class MathTest : public UnitTest
 
 		{
 			int tmp[] = { 3,16,8 };
-			Array<int>	datas;
-			datas.addCArray( tmp );
+			Array<int>	datas(tmp);
 
 			math::MinMax<int>	minMax( datas.cbegin(), datas.cend() );
 			math::Mean<int>		mean( datas.cbegin(), datas.cend() );
@@ -219,6 +219,42 @@ class MathTest : public UnitTest
 			UT_ASSERT_EQUAL(mean.getCount(), 3);
 			UT_ASSERT_EQUAL(mean.getMean(), 9);
 		}
+	}
+	void scalarProductTest()
+	{
+		double tmp1[] = { 1,2,0,3,666 };
+		double tmp2[] = { 0,2,33,4 };
+		Array<double> vec1( tmp1 );
+		Array<double> vec2( tmp2 );
+		double result = math::scalarProduct( vec1, vec2 );
+		UT_ASSERT_EQUAL(result, 16);
+	}
+	void vectorSumTest()
+	{
+		int tmp1[] = { 1,2,666 };
+		int tmp2[] = { 0,2 };
+		Array<int> vec1( tmp1 );
+		Array<int> vec2( tmp2 );
+		Array<int> result1 = math::vectorSum( vec1, vec2 );
+		UT_ASSERT_EQUAL(result1[0], 1);
+		UT_ASSERT_EQUAL(result1[1], 4);
+		UT_ASSERT_EQUAL(result1[2], 666);
+		Array<int> result2 = math::vectorSum( vec2, vec1 );
+		UT_ASSERT_EQUAL(result1[0], result2[0]);
+		UT_ASSERT_EQUAL(result1[1], result2[1]);
+		UT_ASSERT_EQUAL(result1[2], result2[2]);
+	}
+
+	virtual void PerformTest()
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "MathTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
+		getExponentTest();
+		normalizeTest();
+		minMaxMeanTest();
+		scalarProductTest();
+		vectorSumTest();
 
 		AllGeoTests();
 	}
