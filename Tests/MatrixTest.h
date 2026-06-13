@@ -83,6 +83,26 @@ class MatrixTest : public UnitTest
 	{
 		return "MatrixTest";
 	}
+	void MatrixProductTest()
+	{
+		{
+			PODmatrix<int>	mat1(3,5), mat2(4,3);
+			PODmatrix<int>	result = matrixProduct( mat1, mat2 );
+
+			UT_ASSERT_EQUAL(result.getNumCols(), 4);
+			UT_ASSERT_EQUAL(result.getNumRows(), 5);
+		}
+		{
+			PODmatrix<int>	mat1(3,1), mat2(1,3);
+			mat1(0,0) = 1;
+			mat2(0,0) = 1;
+			PODmatrix<int>	result = matrixProduct( mat1, mat2 );
+			UT_ASSERT_EQUAL(result.getNumCols(), 1);
+			UT_ASSERT_EQUAL(result.getNumRows(), 1);
+			UT_ASSERT_EQUAL(result(0,0), 1);
+		}
+	}
+
 	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "MatrixTest::PerformTest");
@@ -186,6 +206,8 @@ class MatrixTest : public UnitTest
 				UT_ASSERT_EQUAL( xmatrix[col][row], matrix[col][row] );
 			}
 		}
+
+		MatrixProductTest();
 
 		/* TODO 1 -ogak -cTest : Add assertions */
 		xmatrix.removeRow( xmatrix.getNumRows()/2 );

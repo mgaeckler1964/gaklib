@@ -80,7 +80,8 @@ template <typename OBJ, typename ALLOCATOR=Allocator<OBJ> >
 class Matrix
 {
 	public:
-	typedef Array<OBJ, ALLOCATOR>	ArrayType;
+	typedef Array<OBJ, ALLOCATOR>			ArrayType;
+	typedef typename ArrayType::value_type	value_type;
 
 	private:
 	ArrayType	m_data;
@@ -196,10 +197,12 @@ class Matrix
 template<typename  OBJ>
 class PODmatrix : public Matrix<OBJ, PODallocator<OBJ> >
 {
+	typedef Matrix<OBJ, PODallocator<OBJ> >	Super;
 	public:
 	PODmatrix( std::size_t numCols=0, std::size_t numRows=0 )
 	: Matrix<OBJ, PODallocator<OBJ> >( numCols, numRows )
 	{}
+	PODmatrix( const Matrix<OBJ, PODallocator<OBJ>> &src ) : Super(src) {}
 
 };
 
@@ -443,6 +446,28 @@ template<typename OBJ>
 inline void moveAssign( PODmatrix<OBJ> &target, PODmatrix<OBJ> &source )
 {
 	target.moveFrom( source );
+}
+
+template <typename MatrixT>
+MatrixT matrixProduct(  const MatrixT &mat1, const MatrixT &mat2 )
+{
+	const size_t maxIndex = math::min( mat1.getNumCols(), mat2.getNumRows() );
+
+	MatrixT	result( mat2.getNumCols(), mat1.getNumRows() );
+	for( size_t col=0; col<result.getNumCols(); ++col )
+	{
+		for( size_t row=0; row<result.getNumRows(); ++row )
+		{
+			// Warning: Old compiler like Boland C++ Builder 5 may produce bad code
+			typename MatrixT::value_type sum = MatrixT::value_type();
+			for( size_t i=0; i<maxIndex; ++i )
+			{
+				sum += mat1(i,row)*mat2(col,i);
+			}
+			result(col, row) = sum;
+		}
+	}
+	return result;
 }
 
 }	// namespace gak
