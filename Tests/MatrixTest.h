@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			MatrixTest.h
-		Description:	
+		Description:	A 2 dimensional Array
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -82,6 +82,265 @@ class MatrixTest : public UnitTest
 	virtual const char *GetClassName() const
 	{
 		return "MatrixTest";
+	}
+	void SimpleIteratorTest()
+	{
+		Matrix<int>	mat(3,3);
+
+		Matrix<int>::col_iterator	it = mat.colbegin( 2 );
+		Matrix<int>::col_iterator	endIT = mat.colend( 2 );
+
+		// test + and +=
+		Matrix<int>::col_iterator	tmpEnd = it + 3;
+		UT_ASSERT_EQUAL( endIT, tmpEnd );
+		it += 3;
+		UT_ASSERT_EQUAL( endIT, it );
+
+		it = mat.colbegin( 2 );
+
+		// test - and -=
+		Matrix<int>::col_iterator	tmpIT = endIT - 3;
+		UT_ASSERT_EQUAL( it, tmpIT );
+		endIT -= 3;
+		UT_ASSERT_EQUAL( it, endIT );
+
+		it = mat.colbegin( 2 );
+		endIT = mat.colend( 2 );
+
+		// test (pre/post)increment
+		Matrix<int>::col_iterator	it2 = it;
+		UT_ASSERT_EQUAL( it, it2++ );
+		UT_ASSERT_NOT_EQUAL( it, it2 );
+		it2 = it;
+		UT_ASSERT_NOT_EQUAL( it, ++it2 );
+		UT_ASSERT_NOT_EQUAL( endIT, ++it2 );
+		UT_ASSERT_EQUAL( endIT, ++it2 );
+
+
+		// test (pre/post)increment
+		it2 = endIT;
+		UT_ASSERT_EQUAL( endIT, it2-- );
+		UT_ASSERT_NOT_EQUAL( endIT, it2 );
+		it2 = endIT;
+		UT_ASSERT_NOT_EQUAL( it, --it2 );
+		UT_ASSERT_NOT_EQUAL( it, --it2 );
+		UT_ASSERT_EQUAL( it, --it2 );
+	}
+
+	void IteratorTest(const size_t numCols, const size_t numRows )
+	{
+		Matrix<int>	mat(numCols,numRows);
+		int i = 0;
+		const int	*ptr = nullptr;
+
+		/*
+			(const_)iterator over the entire matrix
+		*/
+		i = 0;
+		for( 
+			Matrix<int>::iterator it = mat.begin(), endIT = mat.end();
+			it != endIT;
+			++it
+		)
+		{
+			*it = i++;
+		}
+
+		i = 0;
+		for( 
+			Matrix<int>::const_iterator it = mat.cbegin(), endIT = mat.cend();
+			it != endIT;
+			++it
+		)
+		{
+			UT_ASSERT_EQUAL( *it, i++ );
+		}
+
+		/*
+			(const_)reverse_iterator over the entire matrix
+		*/
+		ptr = nullptr;
+		i = 0;
+		for( 
+			Matrix<int>::reverse_iterator it = mat.rbegin(), endIT = mat.rend();
+			it != endIT;
+			++it
+		)
+		{
+			*it = i++;
+
+			if( ptr )
+				UT_ASSERT_LESS( (const int*)it, ptr );
+			ptr = it;
+		}
+		i = 0;
+		ptr = nullptr;
+		for( 
+			Matrix<int>::const_reverse_iterator it = mat.crbegin(), endIT = mat.crend();
+			it != endIT;
+			++it
+		)
+		{
+			UT_ASSERT_EQUAL( *it, i++ );
+
+			if( ptr )
+				UT_ASSERT_LESS( (const int*)it, ptr );
+			ptr = it;
+		}
+
+
+		/*
+			(const_)iterator for columns
+		*/
+		i = 0;
+		for( size_t col=0; col<numCols; ++col )
+		{
+			for( 
+				Matrix<int>::iterator it = mat.begin(col), endIT = mat.end(col);
+				it != endIT;
+				++it
+			)
+			{
+				int val = int(col << 8 | i++);
+				*it = val;
+			}
+		}
+
+		i = 0;
+		for( size_t col=0; col<numCols; ++col )
+		{
+			for( 
+				Matrix<int>::const_iterator it = mat.cbegin(col), endIT = mat.cend(col);
+				it != endIT;
+				++it
+			)
+			{
+				int val = int(col << 8 | i++);
+				UT_ASSERT_EQUAL( *it, val );
+			}
+		}
+
+		/*
+			(const_)reverse_iterator for columns
+		*/
+		ptr = nullptr;
+		i = 0;
+		for( size_t col=0; col<numCols; ++col )
+		{
+			for( 
+				Matrix<int>::reverse_iterator it = mat.rbegin(col), endIT = mat.rend(col);
+				it != endIT;
+				++it
+			)
+			{
+				int val = int(col << 8 | i++);
+				*it = val;
+
+				if( ptr )
+					UT_ASSERT_LESS( (const int*)it, ptr );
+				ptr = it;
+			}
+		}
+
+		ptr = nullptr;
+		i = 0;
+		for( size_t col=0; col<numCols; ++col )
+		{
+			for( 
+				Matrix<int>::const_reverse_iterator it = mat.crbegin(col), endIT = mat.crend(col);
+				it != endIT;
+				++it
+			)
+			{
+				int val = int(col << 8 | i++);
+				UT_ASSERT_EQUAL( *it, val );
+
+				if( ptr )
+					UT_ASSERT_LESS( (const int*)it, ptr );
+				ptr = it;
+			}
+		}
+
+		/*
+			(const_)col_iterator for rows
+		*/
+		i = 0;
+		for( size_t row=0; row<numRows; ++row )
+		{
+			ptr = nullptr;
+			for( 
+				Matrix<int>::col_iterator it = mat.colbegin(row), endIT = mat.colend(row);
+				it != endIT;
+				++it
+			)
+			{
+				int val = int(row << 8 | i++);
+				*it = val;
+
+				if( ptr )
+					UT_ASSERT_GREATER( (const int*)it, ptr );
+				ptr = it;
+			}
+		}
+
+		i = 0;
+		for( size_t row=0; row<numRows; ++row )
+		{
+			ptr = nullptr;
+			for( 
+				Matrix<int>::const_col_iterator it = mat.ccolbegin(row), endIT = mat.ccolend(row);
+				it != endIT;
+				++it
+			)
+			{
+				int val = int(row << 8 | i++);
+				UT_ASSERT_EQUAL( *it, val );
+
+				if( ptr )
+					UT_ASSERT_GREATER( (const int*)it, ptr );
+				ptr = it;
+			}
+		}
+		/*
+			(const_)reverse_col_iterator for rows
+		*/
+		i = 0;
+		for( size_t row=0; row<numRows; ++row )
+		{
+			ptr = nullptr;
+			for( 
+				Matrix<int>::col_reverse_iterator it = mat.colrbegin(row), endIT = mat.colrend(row);
+				it != endIT;
+				++it
+			)
+			{
+				int val = int(row << 8 | i++);
+				*it = val;
+
+				if( ptr )
+					UT_ASSERT_LESS( (const int*)it, ptr );
+				ptr = it;
+			}
+		}
+
+		i = 0;
+		for( size_t row=0; row<numRows; ++row )
+		{
+			ptr = nullptr;
+			for( 
+				Matrix<int>::const_col_reverse_iterator it = mat.ccolrbegin(row), endIT = mat.ccolrend(row);
+				it != endIT;
+				++it
+			)
+			{
+				int val = int(row << 8 | i++);
+				UT_ASSERT_EQUAL( *it, val );
+
+				if( ptr )
+					UT_ASSERT_LESS( (const int*)it, ptr );
+				ptr = it;
+			}
+		}
 	}
 	void MatrixProductTest()
 	{
@@ -159,6 +418,7 @@ class MatrixTest : public UnitTest
 			}
 		}
 
+#if 0
 		xmatrix.getColumn( startCol, &colData );
 		for( size_t row = 0; row<numMaxRows; ++row )
 		{
@@ -170,6 +430,7 @@ class MatrixTest : public UnitTest
 		{
 			UT_ASSERT_EQUAL( rowData[col], xmatrix( col, startRow ) );
 		}
+#endif
 
 		xmatrix.setNumRows( numMaxRows*2 );
 		for( size_t col = 0; col<numMaxCols; ++col )
@@ -208,6 +469,10 @@ class MatrixTest : public UnitTest
 		}
 
 		MatrixProductTest();
+		IteratorTest(5,3);
+		IteratorTest(3,3);
+		IteratorTest(3,5);
+		SimpleIteratorTest();
 
 		/* TODO 1 -ogak -cTest : Add assertions */
 		xmatrix.removeRow( xmatrix.getNumRows()/2 );

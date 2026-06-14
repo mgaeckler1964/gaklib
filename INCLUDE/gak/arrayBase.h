@@ -188,77 +188,77 @@ class ReverseIterator : public std::iterator<std::random_access_iterator_tag, ty
 	typedef typename Container::size_type		size_type;
 	typedef typename Container::difference_type	difference_type;
 
-	private:
-	pointer		theData;
+	protected:
+	pointer		m_data;
 
 	public:
-	ReverseIterator( pointer startValue ) : theData( startValue )
+	ReverseIterator( pointer startValue ) : m_data( startValue )
 	{
 	}
-	ReverseIterator( const ReverseIterator &src ) : theData( src.theData )
+	ReverseIterator( const ReverseIterator &src ) : m_data( src.m_data )
 	{
 	}
 	const ReverseIterator & operator = ( const ReverseIterator &src )
 	{
-		theData = src.theData;
+		m_data = src.m_data;
 		return *this;
 	}
 
 	operator pointer () const
 	{
-		return theData;
+		return m_data;
 	}
 	pointer operator -> () const
 	{
-		return theData;
+		return m_data;
 	}
 	reference operator * () const
 	{
-		return *theData;
+		return *m_data;
 	}
 	const ReverseIterator &operator ++()				// pre inkrement
 	{
-		--theData;
+		--m_data;
 		return *this;
 	}
 	ReverseIterator operator ++( int )					// post inkrement
 	{
 		ReverseIterator		tmp( *this );
-		theData--;
+		m_data--;
 		return tmp;
 	}
 	const ReverseIterator &operator += ( difference_type offset )	// inkrement
 	{
-		theData -= offset;
+		m_data -= offset;
 		return *this;
 	}
 	ReverseIterator operator + ( difference_type offset )			// inkrement
 	{
-		return ReverseIterator<ReferenceT>( this->theData - offset );
+		return ReverseIterator<ReferenceT>( this->m_data - offset );
 	}
 	const ReverseIterator &operator --()				// pre dekrement
 	{
-		++theData;
+		++m_data;
 		return *this;
 	}
 	ReverseIterator operator --( int )					// post dekrement
 	{
 		ReverseIterator		temp = *this;
-		theData++;
+		m_data++;
 		return temp;
 	}
 	const ReverseIterator &operator -= ( difference_type offset )	// dekrement
 	{
-		theData += offset;
+		m_data += offset;
 		return *this;
 	}
 	ReverseIterator operator - ( difference_type offset ) const		// dekrement
 	{
-		return ReverseIterator<ReferenceT>( this->theData + offset );
+		return ReverseIterator<ReferenceT>( this->m_data + offset );
 	}
 	difference_type operator - ( const ReverseIterator &oper ) const
 	{
-		return oper.theData - this->theData;
+		return oper.m_data - this->m_data;
 	}
 
 	reference operator [] ( size_type index ) const
@@ -266,6 +266,8 @@ class ReverseIterator : public std::iterator<std::random_access_iterator_tag, ty
 		return theData[index];
 	}
 
+#if 0
+	/// TODO check we can delete that no longer used stuff
 	bool operator == (const ReverseIterator &oper) const
 	{
 		return oper.theData == this->theData;
@@ -291,7 +293,16 @@ class ReverseIterator : public std::iterator<std::random_access_iterator_tag, ty
 	{
 		return oper.theData > this->theData;
 	}
-
+#endif
+	int compare( const ReverseIterator &oper) const
+	{
+		if( m_data < oper.m_data )
+			return -1;
+		else if( m_data == oper.m_data )
+			return 0;
+		else
+			return 1;
+	}
 };
 
 }	// namespace internal

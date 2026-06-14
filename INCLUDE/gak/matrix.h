@@ -3,10 +3,10 @@
 		Module:			matrix.h
 		Description:	A 2 dimensional Array
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -76,12 +76,79 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+namespace internal
+{
+/***
+	the ColIterator iterates throug all columns of a row
+*/
+template <class ReferenceT>
+class ColIterator : public ReverseIterator<ReferenceT>
+{
+	typedef ReverseIterator<ReferenceT> Super;
+	typedef typename Super::pointer	pointer;
+
+	long m_numRows;
+	public:
+	ColIterator( pointer startValue, long numRows ) : Super( startValue ), m_numRows(numRows)
+	{}
+
+	const ColIterator &operator ++()				// pre inkrement
+	{
+		m_data += m_numRows;
+		return *this;
+	}
+	ColIterator operator ++( int )					// post inkrement
+	{
+		ColIterator		tmp( *this );
+		m_data += m_numRows;
+		return tmp;
+	}
+
+	ColIterator operator + ( int offset ) const
+	{
+		ColIterator res = *this;
+		res.m_data += offset*m_numRows;
+		return res;
+	}
+	const ColIterator &operator += ( int offset )
+	{
+		m_data += offset*m_numRows;
+		return *this;
+	}
+
+
+	const ColIterator &operator --()				// pre dekrement
+	{
+		m_data -= m_numRows;
+		return *this;
+	}
+	ColIterator operator --( int )					// post dekrement
+	{
+		ColIterator		tmp( *this );
+		m_data -= m_numRows;
+		return tmp;
+	}
+	ColIterator operator - ( int offset ) const
+	{
+		ColIterator res = *this;
+		res.m_data -= offset*m_numRows;
+		return res;
+	}
+	const ColIterator &operator -= ( int offset )
+	{
+		m_data -= offset*m_numRows;
+		return *this;
+	}
+};
+
+}
+
 template <typename OBJ, typename ALLOCATOR=Allocator<OBJ> >
 class Matrix
 {
 	public:
-	typedef Array<OBJ, ALLOCATOR>			ArrayType;
-	typedef typename ArrayType::value_type	value_type;
+	typedef Array<OBJ, ALLOCATOR>						ArrayType;
+	typedef typename ArrayType::value_type				value_type;
 
 	private:
 	ArrayType	m_data;
@@ -90,13 +157,32 @@ class Matrix
 	private:
 	std::size_t index( std::size_t col, std::size_t row ) const
 	{
-		return row + col*m_numRows;
+		return col*m_numRows + row;
 	}
 
 	void forget()
 	{
 		m_numCols = m_numRows = 0;
 	}
+
+	const OBJ *getColumn( std::size_t col ) const
+	{
+		if( col >= m_numCols )
+		{
+			throw IndexError();
+		}
+		return m_data.getDataBuffer() + index( col, 0 );
+	}
+	OBJ *getColumn( std::size_t col )
+	{
+		if( col >= m_numCols )
+		{
+			throw IndexError();
+		}
+		return m_data.getDataBuffer() + index( col, 0 );
+	}
+
+
 	public:
 	Matrix( std::size_t numCols=0, std::size_t numRows=0 )
 	: m_numCols(numCols), m_numRows(numRows), m_data( numRows*numCols )
@@ -162,22 +248,7 @@ class Matrix
 		Matrix<OBJ,ALLOCATOR> *result 
 	);
 
-	const OBJ *getColumn( std::size_t col ) const
-	{
-		if( col >= m_numCols )
-		{
-			throw IndexError();
-		}
-		return m_data.getDataBuffer() + index( col, 0 );
-	}
-	OBJ *getColumn( std::size_t col )
-	{
-		if( col >= m_numCols )
-		{
-			throw IndexError();
-		}
-		return m_data.getDataBuffer() + index( col, 0 );
-	}
+
 	const OBJ * operator [] ( std::size_t col ) const
 	{
 		return getColumn( col );
@@ -186,11 +257,142 @@ class Matrix
 	{
 		return getColumn( col );
 	}
+#if 1	/// TODO: use the iterators instead
 	void getColumn( std::size_t col, ArrayType *colData );
 	void getRow( std::size_t row, ArrayType *colData );
-	const ArrayType &getArray( void ) const
+#endif
+	const ArrayType &getArray() const
 	{
 		return m_data;
+	}
+	/***************************************************************
+		iterators
+	****************************************************************/
+	typedef typename ArrayType::iterator				iterator;
+	iterator begin() { return m_data.begin(); }
+	iterator end() { return m_data.end(); }
+	iterator begin( size_t col ) { return getColumn( col ); }
+	iterator end( size_t col ) { return getColumn( col ) + index( 1, 0 ); }
+
+	typedef typename ArrayType::const_iterator			const_iterator;
+	const_iterator cbegin() const { return m_data.cbegin(); }
+	const_iterator cend() const { return m_data.cend(); }
+	const_iterator cbegin( size_t col ) const { return getColumn( col ); }
+	const_iterator cend( size_t col ) const { return getColumn( col ) + index( 1, 0 ); }
+
+	typedef typename ArrayType::reverse_iterator		reverse_iterator;
+	reverse_iterator rbegin() { return m_data.rbegin(); }
+	reverse_iterator rend() { return m_data.rend(); }
+	reverse_iterator rbegin( size_t col ) 
+	{
+		if( col >= m_numCols )
+		{
+			throw IndexError();
+		}
+		return reverse_iterator( m_data.getDataBuffer() + index( m_numCols-col-1, m_numRows-1) );
+	}
+	reverse_iterator rend( size_t col )
+	{
+		if( col >= m_numCols )
+		{
+			throw IndexError();
+		}
+		return reverse_iterator( m_data.getDataBuffer() + index( m_numCols-col-1, size_t(-1) ) );
+	}
+
+	typedef typename ArrayType::const_reverse_iterator	const_reverse_iterator;
+	const_reverse_iterator crbegin() const { return m_data.crbegin(); }
+	const_reverse_iterator crend() const { return m_data.crend(); }
+	const_reverse_iterator crbegin( size_t col ) const
+	{
+		if( col >= m_numCols )
+		{
+			throw IndexError();
+		}
+		return const_reverse_iterator( m_data.getDataBuffer() + index(m_numCols-col-1, m_numRows-1) );
+	}
+
+	const_reverse_iterator crend( size_t col ) const
+	{
+		if( col >= m_numCols )
+		{
+			throw IndexError();
+		}
+		return const_reverse_iterator( m_data.getDataBuffer() + index(m_numCols-col-1, size_t(-1)) );
+	}
+
+
+	typedef internal::ColIterator< internal::Reference< OBJ > >			
+						col_iterator;
+	col_iterator colbegin( size_t row ) 
+	{ 
+		if( row >= m_numRows )
+		{
+			throw IndexError();
+		}
+		return col_iterator( m_data.begin() + index( 0, row ), long(m_numRows) ); 
+	}
+	col_iterator colend(size_t row) 
+	{ 
+		if( row >= m_numRows )
+		{
+			throw IndexError();
+		}
+		return col_iterator( m_data.begin() + index( m_numCols, row ), long(m_numRows) ); 
+	}
+
+	typedef internal::ColIterator< internal::ConstReference< OBJ > >	
+						const_col_iterator;
+	const_col_iterator ccolbegin( size_t row ) 
+	{ 
+		if( row >= m_numRows )
+		{
+			throw IndexError();
+		}
+		return const_col_iterator( m_data.begin() + index( 0, row ), long(m_numRows) ); 
+	}
+	const_col_iterator ccolend(size_t row) 
+	{ 
+		if( row >= m_numRows )
+		{
+			throw IndexError();
+		}
+		return const_col_iterator( m_data.begin() + index( m_numCols, row ), long(m_numRows) ); 
+	}
+
+	typedef col_iterator	col_reverse_iterator;
+	col_reverse_iterator colrbegin( size_t row ) 
+	{ 
+		if( row >= m_numRows )
+		{
+			throw IndexError();
+		}
+		return col_reverse_iterator( m_data.begin() + index( m_numCols-1, m_numRows-row-1 ), long(0UL-m_numRows) ); 
+	}
+	col_reverse_iterator colrend(size_t row) 
+	{ 
+		if( row >= m_numRows )
+		{
+			throw IndexError();
+		}
+		return col_reverse_iterator( m_data.begin() + index( size_t(-1), m_numRows-row-1 ), long(0UL-m_numRows) ); 
+	}
+	typedef const_col_iterator	const_col_reverse_iterator;
+	const_col_reverse_iterator ccolrbegin( size_t row ) 
+	{ 
+		if( row >= m_numRows )
+		{
+			throw IndexError();
+		}
+		return const_col_reverse_iterator( m_data.begin() + index( m_numCols-1, m_numRows-row-1 ), long(0UL-m_numRows) ); 
+	}
+	const_col_reverse_iterator ccolrend(size_t row) 
+	{ 
+		if( row >= m_numRows )
+		{
+			throw IndexError();
+		}
+		return const_col_reverse_iterator( m_data.begin() + index( size_t(-1), m_numRows-row-1 ), long(0UL-m_numRows) ); 
 	}
 };
 
@@ -202,7 +404,7 @@ class PODmatrix : public Matrix<OBJ, PODallocator<OBJ> >
 	PODmatrix( std::size_t numCols=0, std::size_t numRows=0 )
 	: Matrix<OBJ, PODallocator<OBJ> >( numCols, numRows )
 	{}
-	PODmatrix( const Matrix<OBJ, PODallocator<OBJ>> &src ) : Super(src) {}
+	PODmatrix( const Super &src ) : Super(src) {}
 
 };
 
@@ -389,6 +591,7 @@ void Matrix<OBJ, ALLOCATOR>::extract(
 	}
 }
 
+#if 1	/// TODO: use the iterators instead
 template <typename OBJ, typename ALLOCATOR>
 void Matrix<OBJ, ALLOCATOR>::getColumn( std::size_t col, ArrayType *colData )
 {
@@ -431,6 +634,7 @@ void Matrix<OBJ, ALLOCATOR>::getRow( std::size_t row, ArrayType *rowData )
 		throw IndexError();
 	}
 }
+#endif
 
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
