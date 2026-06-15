@@ -79,62 +79,62 @@ namespace gak
 namespace internal
 {
 /***
-	the ColIterator iterates throug all columns of a row
+	the RowIterator iterates throug all columns of a row
 */
 template <class ReferenceT>
-class ColIterator : public ReverseIterator<ReferenceT>
+class RowIterator : public ReverseIterator<ReferenceT>
 {
 	typedef ReverseIterator<ReferenceT> Super;
 	typedef typename Super::pointer	pointer;
 
 	long m_numRows;
 	public:
-	ColIterator( pointer startValue, long numRows ) : Super( startValue ), m_numRows(numRows)
+	RowIterator( pointer startValue, long numRows ) : Super( startValue ), m_numRows(numRows)
 	{}
 
-	const ColIterator &operator ++()				// pre inkrement
+	const RowIterator &operator ++()				// pre inkrement
 	{
 		m_data += m_numRows;
 		return *this;
 	}
-	ColIterator operator ++( int )					// post inkrement
+	RowIterator operator ++( int )					// post inkrement
 	{
-		ColIterator		tmp( *this );
+		RowIterator		tmp( *this );
 		m_data += m_numRows;
 		return tmp;
 	}
 
-	ColIterator operator + ( int offset ) const
+	RowIterator operator + ( int offset ) const
 	{
-		ColIterator res = *this;
+		RowIterator res = *this;
 		res.m_data += offset*m_numRows;
 		return res;
 	}
-	const ColIterator &operator += ( int offset )
+	const RowIterator &operator += ( int offset )
 	{
 		m_data += offset*m_numRows;
 		return *this;
 	}
 
 
-	const ColIterator &operator --()				// pre dekrement
+	const RowIterator &operator --()				// pre dekrement
 	{
 		m_data -= m_numRows;
 		return *this;
 	}
-	ColIterator operator --( int )					// post dekrement
+	RowIterator operator --( int )					// post dekrement
 	{
-		ColIterator		tmp( *this );
+		RowIterator		tmp( *this );
 		m_data -= m_numRows;
 		return tmp;
 	}
-	ColIterator operator - ( int offset ) const
+	RowIterator operator - ( int offset ) const
 	{
-		ColIterator res = *this;
+		RowIterator res = *this;
 		res.m_data -= offset*m_numRows;
 		return res;
 	}
-	const ColIterator &operator -= ( int offset )
+	const RowIterator &operator -= ( int offset )
 	{
 		m_data -= offset*m_numRows;
 		return *this;
@@ -322,77 +322,77 @@ class Matrix
 	}
 
 
-	typedef internal::ColIterator< internal::Reference< OBJ > >			
-						col_iterator;
-	col_iterator colbegin( size_t row ) 
+	typedef internal::RowIterator< internal::Reference< OBJ > >			
+						row_iterator;
+	row_iterator rowbegin( size_t row ) 
 	{ 
 		if( row >= m_numRows )
 		{
 			throw IndexError();
 		}
-		return col_iterator( m_data.begin() + index( 0, row ), long(m_numRows) ); 
+		return row_iterator( m_data.begin() + index( 0, row ), long(m_numRows) ); 
 	}
-	col_iterator colend(size_t row) 
+	row_iterator rowend(size_t row) 
 	{ 
 		if( row >= m_numRows )
 		{
 			throw IndexError();
 		}
-		return col_iterator( m_data.begin() + index( m_numCols, row ), long(m_numRows) ); 
-	}
-
-	typedef internal::ColIterator< internal::ConstReference< OBJ > >	
-						const_col_iterator;
-	const_col_iterator ccolbegin( size_t row ) 
-	{ 
-		if( row >= m_numRows )
-		{
-			throw IndexError();
-		}
-		return const_col_iterator( m_data.begin() + index( 0, row ), long(m_numRows) ); 
-	}
-	const_col_iterator ccolend(size_t row) 
-	{ 
-		if( row >= m_numRows )
-		{
-			throw IndexError();
-		}
-		return const_col_iterator( m_data.begin() + index( m_numCols, row ), long(m_numRows) ); 
+		return row_iterator( m_data.begin() + index( m_numCols, row ), long(m_numRows) ); 
 	}
 
-	typedef col_iterator	col_reverse_iterator;
-	col_reverse_iterator colrbegin( size_t row ) 
+	typedef internal::RowIterator< internal::ConstReference< OBJ > >	
+						const_row_iterator;
+	const_row_iterator crowbegin( size_t row ) 
 	{ 
 		if( row >= m_numRows )
 		{
 			throw IndexError();
 		}
-		return col_reverse_iterator( m_data.begin() + index( m_numCols-1, m_numRows-row-1 ), long(0UL-m_numRows) ); 
+		return const_row_iterator( m_data.begin() + index( 0, row ), long(m_numRows) ); 
 	}
-	col_reverse_iterator colrend(size_t row) 
+	const_row_iterator crowend(size_t row) 
 	{ 
 		if( row >= m_numRows )
 		{
 			throw IndexError();
 		}
-		return col_reverse_iterator( m_data.begin() + index( size_t(-1), m_numRows-row-1 ), long(0UL-m_numRows) ); 
+		return const_row_iterator( m_data.begin() + index( m_numCols, row ), long(m_numRows) ); 
 	}
-	typedef const_col_iterator	const_col_reverse_iterator;
-	const_col_reverse_iterator ccolrbegin( size_t row ) 
+
+	typedef row_iterator	row_reverse_iterator;
+	row_reverse_iterator rowrbegin( size_t row ) 
 	{ 
 		if( row >= m_numRows )
 		{
 			throw IndexError();
 		}
-		return const_col_reverse_iterator( m_data.begin() + index( m_numCols-1, m_numRows-row-1 ), long(0UL-m_numRows) ); 
+		return row_reverse_iterator( m_data.begin() + index( m_numCols-1, m_numRows-row-1 ), long(0UL-m_numRows) ); 
 	}
-	const_col_reverse_iterator ccolrend(size_t row) 
+	row_reverse_iterator rowrend(size_t row) 
 	{ 
 		if( row >= m_numRows )
 		{
 			throw IndexError();
 		}
-		return const_col_reverse_iterator( m_data.begin() + index( size_t(-1), m_numRows-row-1 ), long(0UL-m_numRows) ); 
+		return row_reverse_iterator( m_data.begin() + index( size_t(-1), m_numRows-row-1 ), long(0UL-m_numRows) ); 
+	}
+	typedef const_row_iterator	const_row_reverse_iterator;
+	const_row_reverse_iterator crowrbegin( size_t row ) 
+	{ 
+		if( row >= m_numRows )
+		{
+			throw IndexError();
+		}
+		return const_row_reverse_iterator( m_data.begin() + index( m_numCols-1, m_numRows-row-1 ), long(0UL-m_numRows) ); 
+	}
+	const_row_reverse_iterator crowrend(size_t row) 
+	{ 
+		if( row >= m_numRows )
+		{
+			throw IndexError();
+		}
+		return const_row_reverse_iterator( m_data.begin() + index( size_t(-1), m_numRows-row-1 ), long(0UL-m_numRows) ); 
 	}
 };
 

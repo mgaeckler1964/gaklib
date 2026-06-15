@@ -87,28 +87,28 @@ class MatrixTest : public UnitTest
 	{
 		Matrix<int>	mat(3,3);
 
-		Matrix<int>::col_iterator	it = mat.colbegin( 2 );
-		Matrix<int>::col_iterator	endIT = mat.colend( 2 );
+		Matrix<int>::row_iterator	it = mat.rowbegin( 2 );
+		Matrix<int>::row_iterator	endIT = mat.rowend( 2 );
 
 		// test + and +=
-		Matrix<int>::col_iterator	tmpEnd = it + 3;
+		Matrix<int>::row_iterator	tmpEnd = it + 3;
 		UT_ASSERT_EQUAL( endIT, tmpEnd );
 		it += 3;
 		UT_ASSERT_EQUAL( endIT, it );
 
-		it = mat.colbegin( 2 );
+		it = mat.rowbegin( 2 );
 
 		// test - and -=
-		Matrix<int>::col_iterator	tmpIT = endIT - 3;
+		Matrix<int>::row_iterator	tmpIT = endIT - 3;
 		UT_ASSERT_EQUAL( it, tmpIT );
 		endIT -= 3;
 		UT_ASSERT_EQUAL( it, endIT );
 
-		it = mat.colbegin( 2 );
-		endIT = mat.colend( 2 );
+		it = mat.rowbegin( 2 );
+		endIT = mat.rowend( 2 );
 
 		// test (pre/post)increment
-		Matrix<int>::col_iterator	it2 = it;
+		Matrix<int>::row_iterator	it2 = it;
 		UT_ASSERT_EQUAL( it, it2++ );
 		UT_ASSERT_NOT_EQUAL( it, it2 );
 		it2 = it;
@@ -262,14 +262,14 @@ class MatrixTest : public UnitTest
 		}
 
 		/*
-			(const_)col_iterator for rows
+			(const_)row_iterator for rows
 		*/
 		i = 0;
 		for( size_t row=0; row<numRows; ++row )
 		{
 			ptr = nullptr;
 			for( 
-				Matrix<int>::col_iterator it = mat.colbegin(row), endIT = mat.colend(row);
+				Matrix<int>::row_iterator it = mat.rowbegin(row), endIT = mat.rowend(row);
 				it != endIT;
 				++it
 			)
@@ -288,7 +288,7 @@ class MatrixTest : public UnitTest
 		{
 			ptr = nullptr;
 			for( 
-				Matrix<int>::const_col_iterator it = mat.ccolbegin(row), endIT = mat.ccolend(row);
+				Matrix<int>::const_row_iterator it = mat.crowbegin(row), endIT = mat.crowend(row);
 				it != endIT;
 				++it
 			)
@@ -302,14 +302,14 @@ class MatrixTest : public UnitTest
 			}
 		}
 		/*
-			(const_)reverse_col_iterator for rows
+			(const_)row_reverse_iterator for rows
 		*/
 		i = 0;
 		for( size_t row=0; row<numRows; ++row )
 		{
 			ptr = nullptr;
 			for( 
-				Matrix<int>::col_reverse_iterator it = mat.colrbegin(row), endIT = mat.colrend(row);
+				Matrix<int>::row_reverse_iterator it = mat.rowrbegin(row), endIT = mat.rowrend(row);
 				it != endIT;
 				++it
 			)
@@ -328,7 +328,7 @@ class MatrixTest : public UnitTest
 		{
 			ptr = nullptr;
 			for( 
-				Matrix<int>::const_col_reverse_iterator it = mat.ccolrbegin(row), endIT = mat.ccolrend(row);
+				Matrix<int>::const_row_reverse_iterator it = mat.crowrbegin(row), endIT = mat.crowrend(row);
 				it != endIT;
 				++it
 			)
