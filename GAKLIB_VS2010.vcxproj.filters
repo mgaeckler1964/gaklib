@@ -323,9 +323,6 @@
     <ClInclude Include="INCLUDE\gak\array.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="INCLUDE\gak\BC_OBSOL.H">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="INCLUDE\gak\bitfield.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>

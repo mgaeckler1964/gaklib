@@ -54,6 +54,11 @@
 // ----- module switches ----------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+#ifdef _MSC_VER
+#	pragma warning( push )
+#	pragma warning( disable: 4996 ) // 'xxx': This function or variable may be unsafe. Consider using xxx instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+#endif
+
 #ifdef __BORLANDC__
 #	pragma option -RT-
 #	pragma option -b
@@ -921,6 +926,10 @@ inline JulianDate gregorian2JulianDate( const Date &gregorianDate )
 #	pragma option -p.
 
 #	pragma warn +inl
+#endif
+
+#ifdef _MSC_VER
+#	pragma warning( pop )
 #endif
 
 #endif

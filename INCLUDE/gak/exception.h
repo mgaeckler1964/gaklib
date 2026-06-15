@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			exception.h
-		Description:	
+		Description:	The new library exceptions
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -53,6 +53,11 @@
 // --------------------------------------------------------------------- //
 // ----- module switches ----------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+#ifdef _MSC_VER
+#	pragma warning( push )
+#	pragma warning( disable: 4996 ) // 'xxx': This function or variable may be unsafe. Consider using xxx instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+#endif
 
 #ifdef __BORLANDC__
 #	pragma option -RT-
@@ -733,6 +738,10 @@ namespace Internal
 #	pragma option -b.
 #	pragma option -a.
 #	pragma option -p.
+#endif
+
+#ifdef _MSC_VER
+#	pragma warning( pop )
 #endif
 
 #endif	// GAK_EXCEPTIONS_H

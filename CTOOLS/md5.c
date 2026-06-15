@@ -23,6 +23,8 @@
  *  http://www.ietf.org/rfc/rfc1321.txt
  */
 
+#define _CRT_SECURE_NO_WARNINGS 1
+
 #include <gak/md5.h>
 
 #include <string.h>

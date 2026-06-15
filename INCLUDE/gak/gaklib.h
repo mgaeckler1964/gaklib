@@ -93,7 +93,6 @@
 //#	pragma warning( disable: 996 4514 4710 4711 4820  )
 //#	pragma warning( disable: 4355 4365  4625 4626 )
 
-#	pragma warning( disable: 4996 ) // 'xxx': This function or variable may be unsafe. Consider using xxx instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
 #	pragma warning( disable: 4800 ) // 'xxx': Variable wird auf booleschen Wert ('True' oder 'False') gesetzt (Auswirkungen auf Leistungsverhalten möglich)	
 #	pragma warning( disable: 4512 )	// 'xxx': Zuweisungsoperator konnte nicht generiert werden
 #	pragma warning( disable: 4127 )	// bedingter Ausdruck ist konstant
@@ -270,6 +269,14 @@ int		strcmpi( const char *s1, const char *s2 );
 #endif
 #if !defined( __BORLANDC__ )
 int		strncmpi( const char *s1, const char *s2, size_t len );
+#endif
+
+#if defined( _MSC_VER )
+#define strcmpi( a, b )				_strcmpi( a, b )
+#define chdir( newPath )			_chdir( newPath )
+#define creat( filename, mode )		_creat( filename, mode )
+#define mkdir( destination )		_mkdir( destination )
+#define rmdir( destination )		_rmdir( destination )
 #endif
 
 #define mkTimeStamp( date, time ) \

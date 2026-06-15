@@ -136,7 +136,6 @@
     <ClInclude Include="INCLUDE\gak\array.h" />
     <ClInclude Include="INCLUDE\gak\arrayBase.h" />
     <ClInclude Include="INCLUDE\gak\arrayFile.h" />
-    <ClInclude Include="INCLUDE\gak\BC_OBSOL.H" />
     <ClInclude Include="INCLUDE\gak\bitfield.h" />
     <ClInclude Include="INCLUDE\gak\blockedQueue.h" />
     <ClInclude Include="INCLUDE\gak\blockedRingBuffer.h" />
