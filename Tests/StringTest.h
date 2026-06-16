@@ -846,7 +846,7 @@ class StringTest : public UnitTest
 
 			test.insChar( 0, 'b', 5 );
 			UT_ASSERT_EQUAL( test, STRING("bbbbba") );
-			test.addCharStr( 'c', 5 );
+			test.add( 'c', 5 );
 			UT_ASSERT_EQUAL( test, STRING("bbbbbaccccc") );
 			test.insChar( 5, 'd', 5 );
 			UT_ASSERT_EQUAL( test, STRING("bbbbbdddddaccccc") );

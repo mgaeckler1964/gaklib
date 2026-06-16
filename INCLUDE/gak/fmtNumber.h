@@ -208,7 +208,7 @@ namespace internal
 		result.setMinSize( math::max<int>(tmpBuffer.size(), fieldLength ) );
 		if( count>0 )
 		{
-			result.addCharStr( filler, count );
+			result.add( filler, count );
 		}
 		result += tmpBuffer.c_str();
 

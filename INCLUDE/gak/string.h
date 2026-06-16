@@ -257,7 +257,7 @@ class STRING
 
 	explicit STRING( char first, size_t count=1 )
 	{
-		text = NULL;
+		text = nullptr;
 		setText( first, count );
 	}
 	STRING &operator = ( char first )
@@ -268,7 +268,7 @@ class STRING
 
 	STRING( const STRING &source )
 	{
-		text = NULL;
+		text = nullptr;
 		setText( source );
 	}
 	STRING &operator = ( const STRING &source )
@@ -278,7 +278,7 @@ class STRING
 	}
 	STRING( const DynamicVar &source )
 	{
-		text = NULL;
+		text = nullptr;
 		setText( source );
 	}
 	STRING &operator = ( const DynamicVar &source )
@@ -449,19 +449,27 @@ class STRING
 		adding
 		-----------------------------------------------------------------------
 	*/
-	void addCharStr( char c, std::size_t count );
-	STRING &operator += ( const char *source );
+	STRING &add( char c, std::size_t count=1 );
+	STRING &add( const char *source );
+	STRING &add( const STRING &source );
+	STRING &operator += ( const char *source )
+	{
+		return add( source );
+	}
 	STRING &operator += ( char c )
 	{
-		addCharStr( c, 1 );
+		add( c, 1 );
 		return *this;
 	}
 	STRING &operator += ( int c )
 	{
-		addCharStr( char(c), 1 );
+		add( char(c), 1 );
 		return *this;
 	}
-	STRING &operator += ( const STRING &source );
+	STRING &operator += ( const STRING &source )
+	{
+		return add(source);
+	}
 
 	STRING operator + ( const char *source ) const
 	{
@@ -791,7 +799,7 @@ class STRING
 	{
 		if( lastChar() != c )
 		{
-			addCharStr( c, 1 );
+			add( c, 1 );
 		}
 		return *this;
 	}

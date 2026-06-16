@@ -130,7 +130,7 @@ void STRING::setText( const char *newText, size_t maxLen )
 
 	if( newText )
 	{
-		text = addStr( NULL, newText );
+		text = addStr( nullptr, newText );
 		if( text && maxLen != MAX_LEN )
 		{
 			text = resizeStr( text, maxLen, cFalse );
@@ -177,7 +177,7 @@ void STRING::setText( char first, size_t count )
 {
 	release();
 
-	text = ::addCharStr( NULL, first, count );
+	text = ::addCharStr( nullptr, first, count );
 
 	if( text )
 	{
@@ -378,7 +378,7 @@ int STRING::comparenI( const STRING &string, size_t len ) const
 
 
 // adding
-STRING &STRING::operator += ( const char *source )
+STRING &STRING::add( const char *source )
 {
 	char	c;
 
@@ -410,7 +410,7 @@ STRING &STRING::operator += ( const char *source )
 	}
 	else
 	{
-		text = addStr( text, source );
+		text = ::addStr( text, source );
 		if( text
 		&& (text->charset == STR_CS_UNKNOWN || text->charset == STR_ASCII ) )
 		{
@@ -426,7 +426,7 @@ STRING &STRING::operator += ( const char *source )
 	return *this;
 }
 
-void STRING::addCharStr( char c, std::size_t count )
+STRING &STRING::add( char c, std::size_t count )
 {
 	if( c && count )
 	{
@@ -470,9 +470,10 @@ void STRING::addCharStr( char c, std::size_t count )
 			text->usageCount = 1;
 		}
 	}
+	return *this;
 }
 
-STRING &STRING::operator += ( const STRING &iSource )
+STRING &STRING::add( const STRING &iSource )
 {
 	STRING		source = iSource;
 	STR_CHARSET	myCharset = getCharSet();
@@ -520,7 +521,7 @@ STRING &STRING::operator += ( size_t offset )
 	}
 	else
 	{
-		setText( static_cast<const char *>(NULL), MAX_LEN );
+		setText( nullptr, MAX_LEN );
 	}
 	return *this;
 }
@@ -567,14 +568,14 @@ void STRING::fromBinaryStream( std::istream &stream )
 {
 	uint64 newSize;
 	binaryFromBinaryStream( stream, &newSize );
-	setText( static_cast<const char *>(NULL), MAX_LEN );
+	setText( nullptr, MAX_LEN );
 	if( newSize > std::numeric_limits<std::size_t>::max() )
 	{
 		throw AllocError();
 	}
 	if( newSize )
 	{
-		text = resizeStr( NULL, std::size_t(newSize), cTrue );
+		text = resizeStr( nullptr, std::size_t(newSize), cTrue );
 		fixedArrayFromBinaryStream( stream, text->string, std::size_t(newSize) );
 		text->string[std::size_t(newSize)] = 0;
 		text->actSize = std::size_t(newSize);
@@ -594,7 +595,7 @@ void STRING::readLine( std::istream &theStream )
 			free( text );
 		}
 
-		text = NULL;
+		text = nullptr;
 	}
 
 	while( theStream.good() )
@@ -650,7 +651,7 @@ STRING STRING::simplify() const
 		{ 'u', "שתûü" },
 	};
 
-	const char *cp = text ? text->string : NULL;
+	const char *cp = text ? text->string : nullptr;
 	if( !cp )
 	{
 /*@*/	return NULL_STRING;
@@ -836,7 +837,7 @@ STRING STRING::convertToCharset( STR_CHARSET charset ) const
 	return *this;
 }
 
-STRING STRING::deCanonical( void ) const
+STRING STRING::deCanonical() const
 {
 	if( text && text->charset == STR_UTF8 )
 	{
