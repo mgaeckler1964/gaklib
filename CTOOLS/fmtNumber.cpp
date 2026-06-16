@@ -140,14 +140,14 @@ STRING formatFloat( double value, int fieldLength, int precision, char thousand,
 		}
 	}
 
-	STRING	result = internal::formatNumber( value, 0, 0, thousand );
+	STRING	result = internal::formatNumber2( value, 0, 0, thousand );
 
 	if( precision != 0 )
 	{
 		result += internal::formatFraction( value, precision, decPoint );
 	}
 
-	while( result.strlen() < fieldLength )
+	while( int(result.strlen()) < fieldLength )
 	{
 		result = STRING( ' ' ) + result;
 	}

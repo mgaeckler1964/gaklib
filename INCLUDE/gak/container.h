@@ -36,8 +36,6 @@
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#define GET_NUM_ELEMENTS 0
-
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -119,12 +117,12 @@ class Container
 	}
 
 	/// decrements and returns the number of elements in this buffer
-	size_type decNumElements( void )
+	size_type decNumElements()
 	{
 		return --m_numElems;
 	}
 	/// increments and returns the number of elements in this buffer
-	size_type incNumElements( void )
+	size_type incNumElements()
 	{
 		return ++m_numElems;
 	}
@@ -137,22 +135,14 @@ class Container
 		m_numElems = numElements;
 	}
 	/// sets the number of elements to 0
-	void clear( void )
+	void clear()
 	{
 		m_numElems = 0;
 	}
 
 	public:
-#if GET_NUM_ELEMENTS
 	/// returns the number of items currently stored in this buffer
-	/// @todo remove
-	size_type	getNumElements( void ) const
-	{
-		return m_numElems;
-	}
-#endif
-	/// returns the number of items currently stored in this buffer
-	size_type size( void ) const
+	size_type size() const
 	{
 		return m_numElems;
 	}

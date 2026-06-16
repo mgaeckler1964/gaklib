@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			queue.h
-		Description:	
+		Description:	A queue (FIFO, first in/first out)
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -110,25 +110,17 @@ class Queue : private List<OBJ>
 
 		@return the next item in the Queue
 	*/
-	OBJ pop( void );
+	OBJ pop();
 	/// deletes all items in this Queue
-	void clear( void )
+	void clear()
 	{
 		Super::clear();
 	}
 	/// @return the number of elements in this Queue
-	size_t size( void ) const
+	size_t size() const
 	{
 		return Super::size();
 	}
-	/// @copydoc Container::size
-	/// @todo remove
-#if GET_NUM_ELEMENTS
-	size_t	getNumElements( void ) const
-	{
-		return size();
-	}
-#endif
 	void moveFrom( Queue<OBJ> &source )
 	{
 		Super::moveFrom( source );
@@ -184,7 +176,7 @@ class Queue : private List<OBJ>
 // --------------------------------------------------------------------- //
 
 template <typename OBJ>
-OBJ Queue<OBJ>::pop( void )
+OBJ Queue<OBJ>::pop()
 {
 	typedef typename List<OBJ>::ListItem	ListItem;
 

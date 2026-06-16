@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			stack.h
-		Description:	
+		Description:	A Stack (LIFO, last in/first out)
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -76,15 +76,51 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+template <typename OBJ, size_t SIZE>
+class Fixed4Stack : public FixedArray<OBJ, SIZE>
+{
+	size_t	m_pos;
+	public:
+	Fixed4Stack() : m_pos(0) {}
+	OBJ &addElement( const OBJ &src )
+	{
+		OBJ	*result = begin();
+		(*this)[m_pos++] = src;
+		return *result;
+	}
+	void removeElementAt( size_t pos )
+	{
+		assert( pos == m_pos-1 );
+		m_pos = pos;
+	}
+	OBJ &getMutableElementAt( size_t pos )
+	{
+		assert( pos == m_pos-1 );
+		return (*this)[pos];
+	}
+	const OBJ &getConstElementAt( size_t pos ) const
+	{
+		assert( pos == m_pos-1 );
+		return (*this)[pos];
+	}
+	void clear()
+	{
+		m_pos = 0;
+	}
+	size_t size() const
+	{
+		return m_pos;
+	}
+};
+
 /**
 	@brief implements a LIFO buffer
 	@tparam OBJ the type to store in the buffer
 */
-template <class OBJ>
-class Stack : private Array<OBJ>
+template <class OBJ, class SuperT=Array<OBJ> >
+class Stack : private SuperT
 {
-	typedef Array<OBJ>	Super;
-
+	typedef SuperT Super;
 	public:
 	/// @copydoc ArrayBase::addElement
 	OBJ &push( const OBJ &item )
@@ -92,12 +128,12 @@ class Stack : private Array<OBJ>
 		return Super::addElement( item );
 	}
 	/// @copydoc ArrayBase::createElement
-	OBJ &createElement( void )
+	OBJ &createElement()
 	{
-		return Super::createElement();
+		return SUPER_T::createElement();
 	}
 	/// removes the latest element from the buffer
-	void removeTop( void )
+	void removeTop()
 	{
 		size_t	numItems = size();
 		if( numItems )
@@ -111,7 +147,7 @@ class Stack : private Array<OBJ>
 	}
 
 	/// returns the latest element in the buffer
-	OBJ &top( void )
+	OBJ &top()
 	{
 		size_t	numItems = size();
 		if( !numItems )
@@ -121,7 +157,7 @@ class Stack : private Array<OBJ>
 		return this->getMutableElementAt( --numItems );
 	}
 	/// returns the latest element in the buffer
-	const OBJ &top( void ) const
+	const OBJ &top() const
 	{
 		size_t	numItems = size();
 		if( !numItems )
@@ -131,7 +167,7 @@ class Stack : private Array<OBJ>
 		return this->getConstElementAt( --numItems );
 	}
 	/// returns and removes the latest element in the buffer
-	OBJ pop( void )
+	OBJ pop()
 	{
 		OBJ	obj = top();
 		removeTop();
@@ -146,24 +182,16 @@ class Stack : private Array<OBJ>
 	}
 
 	/// @copydoc ArrayBase::clear
-	void clear( void )
+	void clear()
 	{
 		Super::clear();
 	}
 
 	/// @copydoc Container::size
-	size_t	size( void ) const
+	size_t	size() const
 	{
 		return Super::size();
 	}
-	/// @copydoc Container::size
-	/// @todo remove
-#if GET_NUM_ELEMENTS
-	size_t	getNumElements( void ) const
-	{
-		return size();
-	}
-#endif
 	/**
 		@copydoc ArrayBase::moveFrom
 	*/

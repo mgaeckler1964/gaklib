@@ -96,10 +96,22 @@ class FmtNumberTest : public UnitTest
 			UT_ASSERT_EQUAL( value1, value2 );
 		}
 	}
+	void numberBufferTest()
+	{
+		NumberBuffer	buffer;
+
+		formatNumberFast( &buffer, 1000, 10, ' ', '.' );
+		UT_ASSERT_EQUAL( buffer.c_str(), (const char *)"     1.000" );
+
+		formatNumberFast( &buffer, -1000, 10, ' ', '.' );
+		UT_ASSERT_EQUAL( buffer.c_str(), (const char *)"-    1.000" );
+	}
+
 	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "FmtNumberTest::PerformTest");
 		TestScope scope( "PerformTest" );
+		numberBufferTest();
 
 		UT_ASSERT_EQUAL( STRING("999.999990000000025"), formatNumber( 999.999990000000025 ) );
 		UT_ASSERT_EQUAL( STRING("99.999999000000003"), formatNumber( 99.999999000000003 ) );

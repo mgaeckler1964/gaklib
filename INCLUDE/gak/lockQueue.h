@@ -119,7 +119,7 @@ class LockQueue
 
 		@return the next item in the Queue
 	*/
-	OBJ pop( void )
+	OBJ pop()
 	{
 		LockGuard	lock( m_lock );
 		if( lock )
@@ -130,7 +130,7 @@ class LockQueue
 		return OBJ();
 	}
 	/// deletes all items in this Queue
-	void clear( void )
+	void clear()
 	{
 		LockGuard	lock( m_lock );
 		if( lock )
@@ -139,33 +139,25 @@ class LockQueue
 		}
 	}
 	/// @return the locker
-	Locker &getLocker( void )
+	Locker &getLocker()
 	{
 		return m_lock;
 	}
 	/// @return the locker
-	const Locker &getLocker( void ) const
+	const Locker &getLocker() const
 	{
 		return m_lock;
 	}
 	/// @return the number of elements ever pushed in this Queue
-	size_t total( void ) const
+	size_t total() const
 	{
 		return m_total;
 	}
 	/// @return the number of elements in this Queue
-	size_t size( void ) const
+	size_t size() const
 	{
 		return m_queue.size();
 	}
-	/// @copydoc Container::size
-	/// @todo remove
-#if GET_NUM_ELEMENTS
-	size_t	getNumElements( void ) const
-	{
-		return size();
-	}
-#endif
 };
 
 // --------------------------------------------------------------------- //

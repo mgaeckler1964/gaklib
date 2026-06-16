@@ -3,10 +3,10 @@
 		Module:			XML.H
 		Description:	XML-Generator
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -126,36 +126,36 @@ class XmlArray : public PODarray<ElementPtr>
 	size_t	currentPos;
 
 	public:
-	size_t	position( void ) const
+	size_t	position() const
 	{
 		return currentPos+1;
 	}
-	size_t last( void ) const
+	size_t last() const
 	{
 		return size();
 	}
 
-	ElementPtr current( void ) const
+	ElementPtr current() const
 	{
 		return currentPos < size() ? getConstElementAt( currentPos ) : NULL;
 	}
-	ElementPtr first( void )
+	ElementPtr first()
 	{
 		currentPos = 0;
 		return current();
 	}
-	ElementPtr next( void )
+	ElementPtr next()
 	{
 		currentPos++;
 		return current();
 	}
-	ElementPtr prev( void )
+	ElementPtr prev()
 	{
 		if( currentPos )
 			currentPos--;
 		return current();
 	}
-	ElementPtr removeCurrent( void )
+	ElementPtr removeCurrent()
 	{
 		removeElementAt( currentPos );
 		return current();
@@ -195,16 +195,16 @@ class Element
 	public:
 	virtual ~Element();
 
-	virtual STRING getTag( void ) const = 0;
+	virtual STRING getTag() const = 0;
 	virtual void setTag( const STRING &tag );
 	STRING getPath( bool includeIndex=true );
 
 	virtual STRING getValue( GeneratorMode mode ) const = 0;
 	virtual void setValue( const STRING &newValue );
-	virtual bool isInline( void ) = 0;
-	virtual bool isBlock( void ) = 0;
-	virtual bool isSimpleTag( void ) const = 0;		// for HTML Generation
-	virtual bool isVisual( void );
+	virtual bool isInline() = 0;
+	virtual bool isBlock() = 0;
+	virtual bool isSimpleTag() const = 0;		// for HTML Generation
+	virtual bool isVisual();
 	virtual STRING generate( GeneratorMode mode ) const;
 	STRING generateDoc(
 		const STRING &dtd = NULL_STRING, const STRING &xslt=NULL_STRING
@@ -213,8 +213,8 @@ class Element
 	/*
 		copying
 	*/
-	virtual Element *createNew( void ) = 0;
-	virtual Element *copy( void );
+	virtual Element *createNew() = 0;
+	virtual Element *copy();
 	virtual void transferData( Element *target );
 
 	/*
@@ -225,7 +225,7 @@ class Element
 	Validator *getValidator( const STRING &prefix ) const;
 
 	public:
-	Validator *getValidator( void ) const
+	Validator *getValidator() const
 	{
 		/*
 			if there is no parent and no validator,
@@ -242,7 +242,7 @@ class Element
 	}
 
 
-	Element	*getComplexType( void ) const
+	Element	*getComplexType() const
 	{
 		return theComplexType;
 	}
@@ -253,7 +253,7 @@ class Element
 		theComplexType = complexType;
 		theSimpleType = NULL;
 	}
-	Element	*getSimpleType( void ) const
+	Element	*getSimpleType() const
 	{
 		return theSimpleType;
 	}
@@ -269,11 +269,11 @@ class Element
 	{
 		type = newType;
 	}
-	const STRING &getType( void ) const
+	const STRING &getType() const
 	{
 		return type;
 	}
-	void clearTypes( void );
+	void clearTypes();
 
 	/*
 		attribute handling functions
@@ -314,19 +314,19 @@ class Element
 	STRING 				getInheritedAttribute( const STRING &attr ) const;
 	virtual STRING		getAttribute( size_t i ) const;
 	virtual STRING		getAttributeName( size_t i ) const;
-	virtual size_t		getNumAttributes( void ) const;
+	virtual size_t		getNumAttributes() const;
 
-	virtual bool		isCaseSensitive( void ) const;
+	virtual bool		isCaseSensitive() const;
 
-	STRING getClass( void )
+	STRING getClass()
 	{
 		return getAttribute( "class" );
 	}
-	STRING getId( void )
+	STRING getId()
 	{
 		return getAttribute( "id" );
 	}
-	STRING getStyle( void )
+	STRING getStyle()
 	{
 		return getAttribute( "style" );
 	}
@@ -334,7 +334,7 @@ class Element
 	/*
 		object hierarchy functions
 	*/
-	virtual bool		wantScriptCode( void ) const;
+	virtual bool		wantScriptCode() const;
 
 	virtual Validator *getValidSubobjects( ArrayOfStrings *tags );
 	virtual bool isValidSubobject( Element *newObject );
@@ -347,7 +347,7 @@ class Element
 	);
 	virtual Element	*removeObject( Element *oldObject );
 	virtual Element	*removeObject( size_t i );
-	void remove( void );
+	void remove();
 
 	virtual Element *getElement( size_t i ) const;
 	virtual Element *getElement(
@@ -377,27 +377,20 @@ class Element
 	void getPrefixChildElements(
 		XmlArray *elements, const STRING &prefix
 	) const;
-	virtual std::size_t getNumObjects( void ) const;
-	/// @todo remove
-#if GET_NUM_ELEMENTS
-	std::size_t getNumElements( void ) const
-	{
-		return getNumObjects();
-	}
-#endif
-	XmlContainer *getParent( void ) const
+	virtual std::size_t getNumObjects() const;
+	XmlContainer *getParent() const
 	{
 		return parent;
 	}
 	XmlContainer *getPrefixParent( STRING prefix ) const;
-	XmlContainer *getPrefixParent( void ) const
+	XmlContainer *getPrefixParent() const
 	{
 		return getPrefixParent( getPrefix() );
 	}
-	Element *findRoot( void ) const;
+	Element *findRoot() const;
 
-	Element *getPrevious( void );
-	long getIndex( void );
+	Element *getPrevious();
+	long getIndex();
 	void moveTo( size_t index );
 
 #if 0
@@ -413,15 +406,15 @@ class Element
 		namespace relating functions
 	*/
 	STRING getPrefix4Namespace( const STRING &nameSpace );
-	STRING getNamespace( void );
-	STRING getPrefix( void ) const
+	STRING getNamespace();
+	STRING getPrefix() const
 	{
 		return getPrefix( getTag() );
 	}
 	void getPrefixe( ArrayOfStrings	*prefixe );
 	void changePrefixInTree( const STRING &newPrefix );
 	void changeElementPrefix( const STRING &newPrefix );
-	STRING getLocalName( void ) const
+	STRING getLocalName() const
 	{
 		return getLocalName( getTag() );
 	}
@@ -467,9 +460,9 @@ class Element
 	/*
 		CSS Styles
 	*/
-	css::Styles *getCssStyle( void );
-	void clearCss( void );
-	int getTextDecorations( void );
+	css::Styles *getCssStyle();
+	void clearCss();
+	int getTextDecorations();
 };
 
 /*
@@ -490,13 +483,13 @@ class XmlText : public Element
 		cData = theCdata;
 	}
 
-	virtual STRING	getTag( void ) const;
+	virtual STRING	getTag() const;
 	virtual STRING	getValue( GeneratorMode mode ) const;
 	virtual void	setValue( const STRING &theCdata );
-	virtual bool 	isInline( void );
-	virtual bool 	isBlock( void );
-	virtual bool 	isSimpleTag( void ) const;
-	virtual bool 	isVisual( void );
+	virtual bool 	isInline();
+	virtual bool 	isBlock();
+	virtual bool 	isSimpleTag() const;
+	virtual bool 	isVisual();
 };
 
 /*
@@ -509,7 +502,7 @@ class PCData : public XmlText
 	PCData( const char *theCdata ) : XmlText( theCdata ) {}
 
 	virtual STRING	getValue( GeneratorMode mode ) const;
-	virtual Element *createNew( void );
+	virtual Element *createNew();
 };
 
 class Comment : public XmlText
@@ -518,8 +511,8 @@ class Comment : public XmlText
 	Comment( const char *theCdata ) : XmlText( theCdata ) {}
 	Comment( const STRING &theCdata ) : XmlText( theCdata ) {}
 	virtual STRING generate( GeneratorMode mode ) const;
-	virtual bool isVisual( void );
-	virtual Element *createNew( void );
+	virtual bool isVisual();
+	virtual Element *createNew();
 };
 
 class DocType : public XmlText
@@ -528,8 +521,8 @@ class DocType : public XmlText
 	DocType( const char *theCdata ) : XmlText( theCdata ) {}
 	DocType( const STRING &theCdata ) : XmlText( theCdata ) {}
 	virtual STRING generate( GeneratorMode mode ) const;
-	virtual bool isVisual( void );
-	virtual Element *createNew( void );
+	virtual bool isVisual();
+	virtual Element *createNew();
 };
 
 class CData : public XmlText
@@ -540,7 +533,7 @@ class CData : public XmlText
 
 	virtual STRING	generate( GeneratorMode mode ) const;
 
-	virtual Element *createNew( void );
+	virtual Element *createNew();
 };
 
 
@@ -580,7 +573,7 @@ class XmlWithAttributes : public Element
 	virtual STRING getAttribute( size_t i ) const;
 	virtual STRING getAttributeName( size_t i ) const;
 	virtual STRING getAttributes( GeneratorMode mode ) const;
-	virtual size_t getNumAttributes( void ) const;
+	virtual size_t getNumAttributes() const;
 };
 
 /*
@@ -600,7 +593,7 @@ class XmlContainer : public XmlWithAttributes
 	virtual Element *getElement(
 		const STRING &tag, const STRING &nameSpace=""
 	) const;
-	virtual size_t		getNumObjects( void ) const;
+	virtual size_t		getNumObjects() const;
 
 	virtual Validator *getValidSubobjects( ArrayOfStrings *tags );
 	virtual bool isValidSubobject( Element *newObject );
@@ -659,13 +652,13 @@ class Any : public XmlContainer
 		addObject( new CData( cData ) );
 	}
 
-	virtual STRING getTag( void ) const;
+	virtual STRING getTag() const;
 	virtual void setTag( const STRING &tag );
-	virtual bool isInline( void );
-	virtual bool isBlock( void );
-	virtual bool isSimpleTag( void ) const;
-	virtual bool isVisual( void );
-	virtual Element *createNew( void );
+	virtual bool isInline();
+	virtual bool isBlock();
+	virtual bool isSimpleTag() const;
+	virtual bool isVisual();
+	virtual Element *createNew();
 };
 
 /*
@@ -677,18 +670,18 @@ class Mark : public XmlWithAttributes
 	STRING	piTag;
 
 	protected:
-	STRING &getpiTag( void )
+	STRING &getpiTag()
 	{
 		return piTag;
 	}
 	public:
-	virtual STRING getTag( void ) const;
+	virtual STRING getTag() const;
 	virtual void setTag( const STRING &tag );
 
 	virtual STRING getValue( GeneratorMode mode ) const;
-	virtual bool isInline( void );
-	virtual bool isBlock( void );
-	virtual bool isSimpleTag( void ) const;		// for HTML Generation
+	virtual bool isInline();
+	virtual bool isBlock();
+	virtual bool isSimpleTag() const;		// for HTML Generation
 
 	virtual STRING generate( GeneratorMode mode ) const;
 	virtual Validator *getValidSubobjects( ArrayOfStrings *tags );
@@ -710,7 +703,7 @@ class ProcInstruction : public Mark
 	{}
 	virtual void setValue( const STRING &newValue );
 	virtual STRING	getValue( GeneratorMode mode ) const;
-	virtual Element *createNew( void );
+	virtual Element *createNew();
 };
 
 /*
@@ -738,7 +731,7 @@ class Declaration : public Special
 		setStringAttribute( "version", "1.0" );
 		setStringAttribute( "encoding", ISO_8859_1 );
 	}
-	virtual Element *createNew( void );
+	virtual Element *createNew();
 };
 
 /*
@@ -754,15 +747,15 @@ class StyleSheet : public Special
 		setStringAttribute( "type", "text/xsl" );
 		setStringAttribute( "href", href );
 	}
-	STRING getStyleSheet( void )
+	STRING getStyleSheet()
 	{
 		return getAttribute( "href" );
 	}
-	STRING getStylesheetType( void )
+	STRING getStylesheetType()
 	{
 		return getAttribute( "type" );
 	}
-	virtual Element *createNew( void );
+	virtual Element *createNew();
 };
 
 /*
@@ -787,13 +780,13 @@ class Document : public XmlContainer
 	public:
 	Document( const STRING &theFile ) : m_fileName( theFile ) {}
 
-	virtual STRING getTag( void ) const;
-	virtual bool isInline( void );
-	virtual bool isBlock( void );
-	virtual bool isSimpleTag( void ) const;
+	virtual STRING getTag() const;
+	virtual bool isInline();
+	virtual bool isBlock();
+	virtual bool isSimpleTag() const;
 
-	virtual STRING generateDoc( void ) const;
-	const F_STRING &getFilename( void ) const
+	virtual STRING generateDoc() const;
+	const F_STRING &getFilename() const
 	{
 		return m_fileName;
 	}
@@ -802,7 +795,7 @@ class Document : public XmlContainer
 		m_fileName = fileName;
 	}
 
-	void clearCssRules( void )
+	void clearCssRules()
 	{
 		cssRules.clear();
 		clearCss();
@@ -833,14 +826,14 @@ class Document : public XmlContainer
 
 	STRING getStyleSheet( STRING *type );
 
-	Element *getRoot( void );
+	Element *getRoot();
 	Element *getRoot( const STRING &tag, const STRING &nameSpace );
 
 	virtual Element *setStringAttribute( size_t i, const STRING &value );
 	virtual Element *setStringAttribute( const STRING &name, const STRING &value );
 	void setAttributeName( size_t i, const STRING &name );
 	bool isValidAttribute( const STRING &name, const STRING &value );
-	virtual Element *createNew( void );
+	virtual Element *createNew();
 };
 
 // --------------------------------------------------------------------- //
@@ -875,12 +868,12 @@ class Document : public XmlContainer
 // ----- class inlines ------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-inline Element *Element::getPrevious( void )
+inline Element *Element::getPrevious()
 {
 	return parent->getPrevious( this );
 }
 
-inline long Element::getIndex( void )
+inline long Element::getIndex()
 {
 	return parent->getIndex( this );
 }
@@ -890,7 +883,7 @@ inline void Element::moveTo( size_t index )
 	parent->moveTo( this, index );
 }
 
-inline void Element::remove( void )
+inline void Element::remove()
 {
 	parent->removeObject( this );
 }

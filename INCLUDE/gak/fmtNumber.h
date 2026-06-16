@@ -75,6 +75,7 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+static const size_t numberBufferWidth=128;
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -82,6 +83,32 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+struct NumberBuffer
+{
+	char buffer[numberBufferWidth+1];	// let there be space for the 0 byte
+	unsigned len;
+
+	NumberBuffer() : len(0) {}
+	void addDigit( char digit )
+	{
+		buffer[len++] = digit;
+	}
+	NumberBuffer &operator += ( char digit )
+	{
+		addDigit( digit );
+		return *this;
+	}
+	const char *c_str()
+	{
+		buffer[len]=0;
+		return buffer;
+	}
+	unsigned size() const
+	{
+		return len;
+	}
+};
 
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
@@ -126,15 +153,13 @@ namespace internal
 	}
 
 	template <class UNSIGNED_T> 
-	STRING formatUnsigned(
-		UNSIGNED_T value, int fieldLength=0, char filler='0', char thousand=0
+	void formatUnsigned2(
+		NumberBuffer *result, UNSIGNED_T value, int fieldLength, char filler, char thousand
 	)
 	{
-		size_t		numDigits = 0;
-		Stack<char>	tmp;
-		STRING		result;
+		size_t												numDigits = 0;
+		Stack<char, Fixed4Stack<char, numberBufferWidth> >	tmp;
 
-		result.setMinSize( fieldLength );
 		do
 		{
 			tmp.push( char(modulo( value, UNSIGNED_T(10) ) + '0') );
@@ -148,29 +173,51 @@ namespace internal
 				}
 			}
 		} while( value >= 1 );
-
-		int count = int(fieldLength-tmp.size()); 
-		if( count>0 )
+		if( fieldLength > 0 && filler )
 		{
-			result.addCharStr( filler, count );
-		}
-		else
-		{
-			result.setMinSize( tmp.size() );
+			if(fieldLength>numberBufferWidth)
+			{
+				fieldLength=numberBufferWidth;
+			}
+			while(tmp.size() < size_t(fieldLength))
+			{
+				tmp.push( filler );
+			}
 		}
 		while( tmp.size() )
 		{
 			char c = tmp.pop();
-			if( c && (c != thousand || result.size()) )
-				result += c;
+			if( c && (c != thousand || result->size()) )
+			{
+				(*result) += c;
+			}
 		}
+	}
+
+	template <class UNSIGNED_T> 
+	STRING formatUnsigned(
+		UNSIGNED_T value, int fieldLength, char filler, char thousand
+	)
+	{
+		NumberBuffer	tmpBuffer;
+		STRING			result;
+
+		formatUnsigned2(&tmpBuffer, value, fieldLength, filler, thousand);
+
+		int count = int(fieldLength-tmpBuffer.size()); 
+		result.setMinSize( math::max<int>(tmpBuffer.size(), fieldLength ) );
+		if( count>0 )
+		{
+			result.addCharStr( filler, count );
+		}
+		result += tmpBuffer.c_str();
 
 		return result;
 	}
 
 	template <class NUMBER_T>
-	STRING formatNumber(
-		NUMBER_T value, int fieldLength=0, char filler='0', char thousand=0, char ='.'
+	STRING formatNumber2(
+		NUMBER_T value, int fieldLength, char filler, char thousand
 	)
 	{
 	#if defined( __BORLANDC__ )
@@ -182,7 +229,7 @@ namespace internal
 
 		if( value >= 0 )
 		{
-			return formatUnsigned(  value, fieldLength, filler, thousand );
+			return formatUnsigned( value, fieldLength, filler, thousand );
 		}
 		else
 		{
@@ -271,6 +318,45 @@ namespace internal
 }
 /// @endcond
 
+
+// --------------------------------------------------------------------- //
+// ----- class inlines ------------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class constructors/destructors -------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class static functions ---------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class privates ------------------------------------------------ //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class protected ----------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class virtuals ------------------------------------------------ //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- class publics ------------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
+// ----- entry points -------------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+
+/*
+	-------------------------------------------------------------------------------------------------
+		formatBinary with specialisations
+	-------------------------------------------------------------------------------------------------
+*/
 template <class NUMBER_T>
 STRING formatBinary(
 	NUMBER_T value, size_t radix,
@@ -338,12 +424,17 @@ inline STRING formatBinary<void*>(
 	return formatBinary<size_t>( size_t( value ), radix, fieldLength, filler );
 }
 
+/*
+	-------------------------------------------------------------------------------------------------
+		formatNumber with specialisations
+	-------------------------------------------------------------------------------------------------
+*/
 template <class NUMBER_T>
 inline STRING formatNumber(
-	NUMBER_T value, int fieldLength=0, char filler='0', char thousand=0, char decPoint='.'
+	NUMBER_T value, int fieldLength=0, char filler='0', char thousand=0, char /* decPoint */ ='.'
 )
 {
-	return internal::formatNumber( value, fieldLength, filler, thousand, decPoint );
+	return internal::formatNumber2( value, fieldLength, filler, thousand );
 }
 
 template <>
@@ -392,37 +483,22 @@ inline STRING formatNumber<>(
 	return formatFloat( double(value), fieldLength, -1, thousand, decPoint );
 }
 
-// --------------------------------------------------------------------- //
-// ----- class inlines ------------------------------------------------- //
-// --------------------------------------------------------------------- //
+template <class NUMBER_T>
+inline const char * formatNumberFast(
+	NumberBuffer *result, NUMBER_T value, int fieldLength=0, char filler=0, char thousand=0
+)
+{
+	result->len = 0;
+	if( value < 0 )
+	{
+		(*result) += '-';
+		--fieldLength;
+		value = -value;
+	}
+	internal::formatUnsigned2( result, value, fieldLength, filler, thousand );
+	return result->c_str();
+}
 
-// --------------------------------------------------------------------- //
-// ----- class constructors/destructors -------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- class static functions ---------------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- class privates ------------------------------------------------ //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- class protected ----------------------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- class virtuals ------------------------------------------------ //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- class publics ------------------------------------------------- //
-// --------------------------------------------------------------------- //
-
-// --------------------------------------------------------------------- //
-// ----- entry points -------------------------------------------------- //
-// --------------------------------------------------------------------- //
 
 }	// namespace gak
 
