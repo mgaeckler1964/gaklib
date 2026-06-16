@@ -123,7 +123,7 @@ namespace math
 void GPXtrack::LoadGpxTrack( xml::Element *theSegments )
 {
 	Date			startDate, endDate;
-	long			startTime,
+	long			startTime = 0,
 					endTime = 0,
 					elapsedTime;
 	int				year, month, day, hour, minute, second;
@@ -481,7 +481,7 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 
 	int			heartRate,
 				speedI,
-				totalDistance,
+				totalDistance=0,
 				height,
 				dummy,
 				temperatureI,

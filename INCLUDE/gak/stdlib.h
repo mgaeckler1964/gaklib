@@ -164,7 +164,7 @@ class Buffer
 	/**
 		@brief Constructs a pointer object from an allocated memory.
 
-		The buffer should be allocated with std::malloc, std::calloc or std::strdup
+		The buffer should be allocated with std::malloc, std::calloc or strdup
 
 		@param [in] buffer the address of the memory buffer
 	*/

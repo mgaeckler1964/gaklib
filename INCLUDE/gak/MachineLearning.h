@@ -126,9 +126,8 @@ class SupervisedLearning
 	}
 	VariableT getBest( std::size_t *lessonsCount=nullptr, std::size_t *variableCount=nullptr )
 	{
-		double		bestLoss;
+		double		bestLoss = std::numeric_limits<double>::max();
 		VariableT	bestVariable;
-		bool		first=true;
 		if( variableCount )
 			*variableCount = 0;
 		for( 
@@ -138,16 +137,15 @@ class SupervisedLearning
 		)
 		{
 			double curLoss = it->getValue().getMean();
-			if( first || curLoss < bestLoss )
+			if( curLoss < bestLoss )
 			{
 				bestLoss = curLoss;
 				bestVariable = it->getKey();
-				first = false;
 				if( lessonsCount )
 					*lessonsCount = it->getValue().getCount();
 			}
-		if( variableCount )
-			(*variableCount)++;
+			if( variableCount )
+				(*variableCount)++;
 		}
 		return bestVariable;
 	}

@@ -260,7 +260,7 @@ static void countChksum( LineInfo *info )
 static LineInfo *readFile( const STRING &fileName, size_t *nLines )
 {
 	bool		ignoreSpaces = true;
-	bool		space;
+	bool		space = false;
 	RFILE		fp;
 	LineInfo	*fileInfo;
 	size_t		lines;

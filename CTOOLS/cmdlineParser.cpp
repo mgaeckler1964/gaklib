@@ -178,7 +178,7 @@ void CommandLine::parseCommandLine( const Options *opt, const char ** const iarg
 	while( (arg = *argv++) != NULL )
 	{
 		size_t		optIndex = Container::no_index;
-		const char	*cmdLineOption;
+		const char	*cmdLineOption = nullptr;
 		if( !isOptChar( arg[0] ) )
 		{
 			if( target != source )

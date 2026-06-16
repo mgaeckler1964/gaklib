@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -749,7 +749,7 @@ void tokenString( const StringT &string, const StringsT &stopWords, int includeT
 	char								c;
 	size_t								letterCount = 0;
 	STRING								word, lastWord, identifier, lastIdentifier, text;
-	std::size_t							i, wordPosition, identifierPosition, textPosition;
+	std::size_t							i, wordPosition=0, identifierPosition=0, textPosition=0;
 	typename StringT::const_iterator	it;
 
 	for(

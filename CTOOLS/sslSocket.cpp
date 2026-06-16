@@ -90,7 +90,7 @@ static const char DEF_PASSWORD[]	= "password";
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static char *pass = NULL;
+static char *s_pass = nullptr;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -107,11 +107,13 @@ static char *pass = NULL;
 /*The password code is not thread safe*/
 static int password_cb(char *buf,int num, int rwflag,void *userdata)
 {
-	int len;
-
-	if( !pass || num < (len=int(strlen(pass)))+1 )
+	if( !s_pass )
 		return 0;
-	strcpy( buf, pass );
+
+	int len=int(strlen(s_pass));
+	if( num < len +1 )
+		return 0;
+	strcpy( buf, s_pass );
 
 	return len;
 }
@@ -173,7 +175,7 @@ SSL_LIB_ERROR SSLsocketStreambuf::initialize_ctx( void )
 
 	if( SSL_CTX_use_certificate_chain_file(m_ctx, theKeyfile) )
 	{
-		pass=m_password;
+		s_pass=m_password;
 
 		SSL_CTX_set_default_passwd_cb( m_ctx, password_cb );
 		if( SSL_CTX_use_PrivateKey_file( m_ctx, theKeyfile, SSL_FILETYPE_PEM ) )
@@ -211,7 +213,7 @@ int SSLsocketStreambuf::connect( const char *server, int port, int bufferSize )
 	int		thePort = port;
 	bool	useProxy = false;
 	STRING	proxyRequest;
-	int		sslStatus;
+	int		sslStatus = 0;
 
 	if( m_proxy[0U] && strcmpi( theServer, "localhost" ) )
 	{

@@ -96,10 +96,8 @@
 #	pragma warning( disable: 4800 ) // 'xxx': Variable wird auf booleschen Wert ('True' oder 'False') gesetzt (Auswirkungen auf Leistungsverhalten möglich)	
 #	pragma warning( disable: 4512 )	// 'xxx': Zuweisungsoperator konnte nicht generiert werden
 #	pragma warning( disable: 4127 )	// bedingter Ausdruck ist konstant
-#	pragma warning( disable: 4505 ) // Nichtreferenzierte lokale Funktion wurde entfernt
-#	pragma warning( disable: 4701 ) // Die möglicherweise nicht initialisierte lokale Variable "xxx" wurde verwendet.
 
-#	pragma warning( 1: 4061 4063 4263 )
+#	pragma warning( 1: 4061 4063 4263 )		// move some warning to level 1
 #	pragma comment( lib, "gaklib.lib" )
 #endif
 
@@ -272,11 +270,13 @@ int		strncmpi( const char *s1, const char *s2, size_t len );
 #endif
 
 #if defined( _MSC_VER )
+// some posix functions mapped
 #define strcmpi( a, b )				_strcmpi( a, b )
 #define chdir( newPath )			_chdir( newPath )
 #define creat( filename, mode )		_creat( filename, mode )
 #define mkdir( destination )		_mkdir( destination )
 #define rmdir( destination )		_rmdir( destination )
+#define strdup( str )				_strdup( str )
 #endif
 
 #define mkTimeStamp( date, time ) \

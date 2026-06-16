@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			unitTest.cpp
-		Description:
+		Description:	Base class for unit tests
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -500,7 +500,7 @@ void UnitTest::PrintResult()
 bool UnitTest::StressTest( UnitTest *theTest )
 {
 	size_t	count = 1;
-	clock_t time, lastTime;
+	clock_t time, lastTime=0;
 	size_t errorCount = s_errorCount;
 
 	StopWatch	stopWatch( true );

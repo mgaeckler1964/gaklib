@@ -1,12 +1,13 @@
 /*
 		Project:		GAKLIB
 		Module:			lockQueue.h
-		Description:	
+		Description:	Implementation of a loccking queue for multi thread 
+						programs
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -120,14 +121,13 @@ class LockQueue
 	*/
 	OBJ pop( void )
 	{
-		OBJ			item;
 		LockGuard	lock( m_lock );
 		if( lock )
 		{
-			item = m_queue.pop();
+			return m_queue.pop();
 		}
 
-		return item;
+		return OBJ();
 	}
 	/// deletes all items in this Queue
 	void clear( void )

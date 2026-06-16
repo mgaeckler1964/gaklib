@@ -173,7 +173,7 @@ PairMap< OBJ, Array<const OBJ *> > kMeans( const ArrayBase<OBJ> &src, size_t num
 		{
 			// we are searching for the second farest entry
 			bool		nextCenter1OK = false, nextCenter2OK = false;
-			OBJ			nextCenter1, nextCenter2;
+			OBJ			nextCenter1 = OBJ(), nextCenter2 = OBJ();
 			DistType	maxDistance1 = math::limits<DistType>::lowest();
 			DistType	maxDistance2 = math::limits<DistType>::lowest();
 			for(
