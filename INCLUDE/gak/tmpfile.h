@@ -101,6 +101,7 @@ class TempFileName
 		deleteFile();
 		m_filename = tmpName;
 	}
+	public:
 	static STRING buildUniqueName( bool inTmpPath )
 	{
 		static size_t counter = 0;
@@ -113,7 +114,6 @@ class TempFileName
 		return tmpName;
 	}
 
-	public:
 	TempFileName( const STRING &tmpName ) : m_filename(tmpName) {}
 	TempFileName( const char *tmpName=nullptr ) : m_filename(tmpName) {}
 	TempFileName( bool inTmpPath ) : m_filename(buildUniqueName( inTmpPath ))

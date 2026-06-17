@@ -194,8 +194,8 @@ inline F_STRING getExtension( const F_STRING &complete )
 }
 inline F_STRING removeExtension( const F_STRING &complete )
 {
-	ssize_t	slashPos = complete.searchRChar( DIRECTORY_DELIMITER );
-	ssize_t	dotPos = complete.searchRChar( '.' );
+	ssize_t	slashPos = ssize_t(complete.searchRChar( DIRECTORY_DELIMITER ));
+	ssize_t	dotPos = ssize_t(complete.searchRChar( '.' ));
 	
 	return (dotPos > slashPos) ? complete.leftString( dotPos ) : complete;
 }
