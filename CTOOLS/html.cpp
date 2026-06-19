@@ -649,11 +649,9 @@ STRING FRAMESET::getTag( void ) const
 
 STRING HEADER::getTag( void ) const
 {
-	char	buffer[32];
-
-	sprintf( buffer, "H%d", level );
-
-	return (STRING)buffer;
+	NumberBuffer	tmp;
+	tmp.addDigit('H');
+	return STRING( appendNumberFast(&tmp, level) );
 }
 
 STRING HEAD::getTag( void ) const

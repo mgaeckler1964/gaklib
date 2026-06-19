@@ -267,7 +267,6 @@ int SSLsocketStreambuf::connect( const char *server, int port, int bufferSize )
 #if !defined( NDEBUG ) || defined( _DEBUG )
 	if( m_sslLibraryError )
 	{
-		char myDir[1024];
 		getcwd();
 		std::cout << getcwd() << std::endl;
 		const char *file;

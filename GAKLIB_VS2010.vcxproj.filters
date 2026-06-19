@@ -710,5 +710,11 @@
     <ClInclude Include="INCLUDE\gak\neuron.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="INCLUDE\gak\StringBuffer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="INCLUDE\gak\intl.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

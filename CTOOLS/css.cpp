@@ -347,14 +347,13 @@ Color Styles::defaultColors[] =
 
 unsigned char Styles::getColorComponentValue( const STRING &color )
 {
-	double	tmpDbl;
 	int		tmpI;
 	STRING	tmpStr = color;
 	tmpStr.stripBlanks();
 
 	if( tmpStr.endsWith( '%' ) )
 	{
-		tmpDbl = atof( tmpStr );
+		double	tmpDbl = tmpStr.getValueN<double>();
 		tmpI = int(2.55 * tmpDbl +0.5);
 	}
 	else

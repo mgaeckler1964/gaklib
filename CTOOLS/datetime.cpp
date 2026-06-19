@@ -384,7 +384,6 @@ STRING DateTime::getInetTime( long tzOffset )  const
 	doEnterFunctionEx(gakLogging::llDetail, "DateTime::getInetTime");
 
 	STRING	inetTime;
-	char	buffer[16];
 
 	if( tzOffset )
 	{
@@ -398,12 +397,12 @@ STRING DateTime::getInetTime( long tzOffset )  const
 	}
 
 	tzOffset = tzOffset / 3600 * 100 + (tzOffset % 3600) / 60;
-	sprintf( buffer, "%04ld", math::abs(tzOffset) );
 
 	inetTime += ' ';
 	inetTime += tzOffset >= 0 ? '+' : '-';
 
-	inetTime += buffer;
+	NumberBuffer	tmp;
+	inetTime += formatNumberFast( &tmp, math::abs(tzOffset), 4, '0' );
 
 	return inetTime;
 }

@@ -330,20 +330,20 @@ static void deleteProfile()
 
 static FILE *getCsvFp()
 {
-	char		tmpFile[10240];
-	const char	*temp = getenv( "TEMP" );
+	gak::StringBuffer<10240>		csvFile;
+	gak::NumberBuffer				idBuffer;
 
+	const char	*temp = getenv( "TEMP" );
 	if( !temp )
 	{
 		temp = DIRECTORY_DELIMITER_STRING "tmp";
 	}
+	csvFile.addCP( temp )
+		.add(DIRECTORY_DELIMITER_STRING "gaklib")
+		.addCP( gak::formatNumberFast(&idBuffer, GetCurrentProcessId()))
+		.add(".csv");
 
-	sprintf(
-		tmpFile,
-		"%s" DIRECTORY_DELIMITER_STRING "gaklib%d.csv",
-		temp, int(GetCurrentProcessId())
-	);
-	return fopen( tmpFile, "a" );
+	return fopen( csvFile.c_str(), "a" );
 }
 
 static void createSummaryEntry( ProfileEntry &logEntry )

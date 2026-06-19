@@ -47,6 +47,7 @@
 #include <gak/string.h>
 #include <gak/stack.h>
 #include <gak/math.h>
+#include <gak/StringBuffer.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -75,7 +76,8 @@ namespace gak
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static const size_t numberBufferWidth=128;
+static const size_t NUMBER_BUFFER_WIDTH=128;
+
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -84,31 +86,7 @@ static const size_t numberBufferWidth=128;
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-struct NumberBuffer
-{
-	char buffer[numberBufferWidth+1];	// let there be space for the 0 byte
-	unsigned len;
-
-	NumberBuffer() : len(0) {}
-	void addDigit( char digit )
-	{
-		buffer[len++] = digit;
-	}
-	NumberBuffer &operator += ( char digit )
-	{
-		addDigit( digit );
-		return *this;
-	}
-	const char *c_str()
-	{
-		buffer[len]=0;
-		return buffer;
-	}
-	unsigned size() const
-	{
-		return len;
-	}
-};
+typedef BaseBuffer<NUMBER_BUFFER_WIDTH>	NumberBuffer;
 
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
@@ -152,13 +130,13 @@ namespace internal
 		return fmod(left, right);
 	}
 
-	template <class UNSIGNED_T> 
+	template <typename NUMBER_BUFFER_T, typename UNSIGNED_T> 
 	void formatUnsigned2(
-		NumberBuffer *result, UNSIGNED_T value, int fieldLength, char filler, char thousand
+		NUMBER_BUFFER_T *result, UNSIGNED_T value, int fieldLength, char filler, char thousand
 	)
 	{
-		size_t												numDigits = 0;
-		Stack<char, Fixed4Stack<char, numberBufferWidth> >	tmp;
+		size_t													numDigits = 0;
+		Stack<char, Fixed4Stack<char, NUMBER_BUFFER_WIDTH> >	tmp;
 
 		do
 		{
@@ -175,9 +153,9 @@ namespace internal
 		} while( value >= 1 );
 		if( fieldLength > 0 && filler )
 		{
-			if(fieldLength>numberBufferWidth)
+			if(fieldLength>NUMBER_BUFFER_WIDTH)
 			{
-				fieldLength=numberBufferWidth;
+				fieldLength=NUMBER_BUFFER_WIDTH;
 			}
 			while(tmp.size() < size_t(fieldLength))
 			{
@@ -205,7 +183,7 @@ namespace internal
 		formatUnsigned2(&tmpBuffer, value, fieldLength, filler, thousand);
 
 		int count = int(fieldLength-tmpBuffer.size()); 
-		result.setMinSize( math::max<int>(tmpBuffer.size(), fieldLength ) );
+		result.setMinSize( math::max<int>(int(tmpBuffer.size()), fieldLength ) );
 		if( count>0 )
 		{
 			result.add( filler, count );
@@ -357,7 +335,7 @@ namespace internal
 		formatBinary with specialisations
 	-------------------------------------------------------------------------------------------------
 */
-template <class NUMBER_T>
+template <typename NUMBER_T>
 STRING formatBinary(
 	NUMBER_T value, size_t radix,
 	unsigned fieldLength=0, char filler='0'
@@ -429,7 +407,7 @@ inline STRING formatBinary<void*>(
 		formatNumber with specialisations
 	-------------------------------------------------------------------------------------------------
 */
-template <class NUMBER_T>
+template <typename NUMBER_T>
 inline STRING formatNumber(
 	NUMBER_T value, int fieldLength=0, char filler='0', char thousand=0, char /* decPoint */ ='.'
 )
@@ -483,12 +461,11 @@ inline STRING formatNumber<>(
 	return formatFloat( double(value), fieldLength, -1, thousand, decPoint );
 }
 
-template <class NUMBER_T>
-inline const char * formatNumberFast(
-	NumberBuffer *result, NUMBER_T value, int fieldLength=0, char filler=0, char thousand=0
+template <typename NUMBER_BUFFER_T, typename NUMBER_T>
+inline const char * appendNumberFast(
+	NUMBER_BUFFER_T *result, NUMBER_T value, int fieldLength=0, char filler=0, char thousand=0
 )
 {
-	result->len = 0;
 	if( value < 0 )
 	{
 		(*result) += '-';
@@ -497,6 +474,15 @@ inline const char * formatNumberFast(
 	}
 	internal::formatUnsigned2( result, value, fieldLength, filler, thousand );
 	return result->c_str();
+}
+
+template <typename NUMBER_BUFFER_T, typename NUMBER_T>
+inline const char * formatNumberFast(
+	NUMBER_BUFFER_T *result, NUMBER_T value, int fieldLength=0, char filler=0, char thousand=0
+)
+{
+	result->clear();
+	return appendNumberFast(result, value, fieldLength, filler, thousand);
 }
 
 

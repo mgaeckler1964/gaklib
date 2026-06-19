@@ -198,6 +198,7 @@
     <ClInclude Include="Tests\StopWatchTest.h" />
     <ClInclude Include="Tests\strcmpiTest.h" />
     <ClInclude Include="Tests\StreamsTest.h" />
+    <ClInclude Include="Tests\StringBufferTest.h" />
     <ClInclude Include="Tests\StringStreamTest.h" />
     <ClInclude Include="Tests\StringTest.h" />
     <ClInclude Include="Tests\TemporaryTest.h" />

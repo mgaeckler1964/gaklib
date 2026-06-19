@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			soap.h
-		Description:	A SOAP client
+		Module:			StringBuffer.h
+		Description:	A small buffer on stack used to construct strings
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -29,43 +29,40 @@
 		SUCH DAMAGE.
 */
 
+#ifndef STRING_BUFFER_H
+#define STRING_BUFFER_H
+
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
-
-#ifndef SOAP_H
-#define SOAP_H
 
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <gak/http.h>
-#include <gak/xmlValidator.h>
-#include <gak/logfile.h>
-#include <gak/fmtNumber.h>
+#include <gak/exception.h>
+
+// --------------------------------------------------------------------- //
+// ----- imported datas ------------------------------------------------ //
+// --------------------------------------------------------------------- //
 
 // --------------------------------------------------------------------- //
 // ----- module switches ----------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-#ifdef _MSC_VER
-#	pragma warning( push )
-#	pragma warning( disable: 4996 ) // 'xxx': This function or variable may be unsafe. Consider using xxx instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-#endif
 
 #ifdef __BORLANDC__
 #	pragma option -RT-
 #	pragma option -b
 #	pragma option -a4
 #	pragma option -pc
+#endif
 
-#	pragma warn -inl
+#ifdef _MSC_VER
+#	pragma warning ( push )
+#	pragma warning ( disable: 4996 )	// 'strcpy': This function or variable may be unsafe.
 #endif
 
 namespace gak
-{
-namespace net
 {
 
 // --------------------------------------------------------------------- //
@@ -77,203 +74,158 @@ namespace net
 // --------------------------------------------------------------------- //
 
 // --------------------------------------------------------------------- //
+// ----- type definitions ---------------------------------------------- //
+// --------------------------------------------------------------------- //
+
+// --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-/// Base class for all exceptions thrown by SoapRequest
-class SOAPerror : public HTTPerror
+template <size_t BUFFER_SIZE>
+class BaseBuffer
 {
 	protected:
-	SOAPerror( const STRING &errText, const STRING &url ) : HTTPerror( errText, url )
-	{
-	}
-};
+	char	m_buffer[BUFFER_SIZE+1];	// let there be space for the 0 byte
+	size_t	m_len;
 
-/// This exception is thrown if the URL did not return a WSDL file
-class NoWSDLerror : public SOAPerror
-{
 	public:
-	NoWSDLerror( const STRING &url ) : SOAPerror( "No WSDL Document", url )
+	BaseBuffer() : m_len(0) {}
+
+	// adding a character
+	BaseBuffer &addDigit( char digit )
 	{
+		m_buffer[m_len++] = digit;
+		return *this;
 	}
-};
 
-/// This exception is thrown if the URL did returned a corrupted WSDL file without a definition
-class NoWSDLdefinitionError : public SOAPerror
-{
-	public:
-	NoWSDLdefinitionError( const STRING &url ) : SOAPerror( "No WSDL DEfinition in Document", url )
+	BaseBuffer &operator += ( char digit )
 	{
+		addDigit( digit );
+		return *this;
 	}
-};
 
-/// This exception is thrown if the application tried to send a bad or unkown operation to the soap server
-class BadOperationError : public SOAPerror
-{
-	public:
-	BadOperationError( const STRING &url ) : SOAPerror( "Bad SOAP Operation", url )
-	{
-	}
-};
-
-/// This exception is thrown if the soap server did not answer
-class NoAnswerError : public SOAPerror
-{
-	public:
-	NoAnswerError( const STRING &url ) : SOAPerror( "No Answer from SOAP-Server", url )
-	{
-	}
-};
-
-/**
-	@brief base for all SOAP requests
-
-	Use impwsdl tool to create C++ bindings for your soap server
-*/
-class SoapRequest : public HTTPrequest
-{
-	friend class WSDLimporter;
-
-	bool			needCredentials;
-
-	STRING			theWSDURL, theServiceUrl;
-	// the WSDL
-	xml::Document	*theWsdDoc;
-	// "definitions/portType/operation/input" and "../output" of the
-	// current operation withing the actual WSDL
-	xml::Element	*theInputElement, *theOutputElement;
-
-	// Here are the elements of the current soap request
-	xml::Element	*theEnvelope, *theBody, *theParameter;
-
-	// this is the validator which is used to validate the request
-	xml::Validator	*theValidator;
-
-	STRING			lastOperation, SOAPAction, targetNamespace;
-
-	// this is the soap response:
-	xml::Document	*theResponseDoc;
-
-	xml::Element *getSchema( xml::Element *theDefinitions );
-	xml::Element *getSchemaElement( xml::Element *theDefinitions, const STRING &message, xml::Element **theSchemaOut=NULL );
-
-	void loadWSD( const STRING &theServiceUrl, const STRING &userName, const STRING &password );
-
+	// adding a C-string
 	protected:
-	xml::Element *setOperation( const char *operation );
-
-	xml::Element *setParameter( const char *parameterName, const char *value );
-	xml::Element *setParameter( const char *parameterName, int value )
+	BaseBuffer &addCP ( const char *cp, size_t len )
 	{
-		NumberBuffer	tmp;
-		return setParameter( parameterName, formatNumberFast( &tmp, value ) );
-	}
+		assert(len == strlen(cp));
 
-	xml::Element *execute( xml::Element *newParameter );
-	xml::Element *execute( void )
-	{
-		return execute( theParameter );
+		strcpy( m_buffer+m_len, cp );
+		m_len += len;
+
+		return *this;
 	}
 
 	public:
-	/// exception thrown in case of a SOAP error
-	class SoapException : public std::exception
+	BaseBuffer &addCP ( const char *cp )
 	{
-		public:
-		STRING	faultCode, faultActor, faultString, faultDetail;
+		return addCP(cp, strlen(cp));
+	}
+	template <typename T, size_t N>
+	BaseBuffer &add (const T (&arr)[N])
+	{
+		addCP( arr, N-1 );
 
-		SoapException(
-			const STRING &theFaultCode, const STRING &theFaultActor,
-			const STRING &theFaultString,  const STRING &theFaultDetail
-		) :
-		faultCode(theFaultCode), faultActor(theFaultActor),
-		faultString(theFaultString), faultDetail(theFaultDetail)
-		{
-		}
-		virtual ~SoapException() throw()
-		{
-		}
-		virtual const char * what() const throw()
-		{
-			return faultString;
-		}
-	};
-	protected:
-	SoapRequest(
-		const STRING &theWSDURL,
-		const STRING &userName=NULL_STRING,
-		const STRING &password=NULL_STRING
-	)
-	{
-		doEnterFunction("SoapRequest::SoapRequest");
-		try
-		{
-			loadWSD( theWSDURL, userName, password );
-		}
-		catch( NoAuthorisationError & )
-		{
-			// ignore
-		}
-	};
-	public:
-	~SoapRequest()
-	{
-		if( theWsdDoc )
-		{
-			delete theWsdDoc;
-		}
-		if( theEnvelope )
-		{
-			delete theEnvelope;
-		}
-		if( theValidator )
-		{
-			delete theValidator;
-		}
-		if( theResponseDoc )
-		{
-			delete theResponseDoc;
-		}
+		return *this;
 	}
-	/// returns true, if the server requires basic authentication
-	bool getNeedCredentials( void ) const
+	template <typename T, size_t N>
+	BaseBuffer &operator += (const T (&arr)[N])
 	{
-		return needCredentials;
-	}
-	/// returns true if the URL returned a WSDL document
-	bool hasWsdDoc( void )
-	{
-		return theWsdDoc != NULL;
-	}
-	/// sets the credential for the SOAP requests if the WSDL was not yet loaded
-	void setCredentials( const STRING &userName, const STRING &password )
-	{
-		if( !theWsdDoc )
-		{
-			loadWSD( theWSDURL, userName, password );
-		}
-	}
-	/// returns the XML document of the last request
-	STRING	getXmlRequest( void )
-	{
-		return ( theEnvelope ) ? theEnvelope->generateDoc() : NULL_STRING;
+		addCP( arr, N-1 );
+
+		return *this;
 	}
 
-	/// returns the body of the HTTP response for the last request
-	const char *getBody()
+#ifdef __BORLANDC__
+	BaseBuffer &add( const char *arr )
 	{
-		return getHttpResponse().getBody();
+		addCP( arr, strlen(arr) );
+		return *this;
+	}
+	BaseBuffer &operator += (const char *arr)
+	{
+		addCP( arr, strlen(arr) );
+		return *this;
+	}
+#endif
+
+	const char *c_str()
+	{
+		m_buffer[m_len]=0;
+		return m_buffer;
+	}
+	size_t size() const
+	{
+		return m_len;
+	}
+	BaseBuffer &clear()
+	{
+		m_len = 0;
+		return *this;
 	}
 };
 
 
-// --------------------------------------------------------------------- //
-// ----- module static data -------------------------------------------- //
-// --------------------------------------------------------------------- //
+template <size_t BUFFER_SIZE=128>
+class StringBuffer : public BaseBuffer<BUFFER_SIZE>
+{
+	typedef BaseBuffer<BUFFER_SIZE>	Super;
 
-// --------------------------------------------------------------------- //
-// ----- imported datas ------------------------------------------------ //
-// --------------------------------------------------------------------- //
+	public:
+	// adding a character
+	StringBuffer &addDigit( char digit )
+	{
+		if( m_len >= BUFFER_SIZE )
+			throw IndexError();
+		Super::addDigit( digit );
+		return *this;
+	}
+	StringBuffer &operator += ( char digit )
+	{
+		addDigit( digit );
+		return *this;
+	}
+
+	// adding a C string
+	private:
+	StringBuffer &addCP( const char *cp, size_t len )
+	{
+		if( m_len+len > BUFFER_SIZE )
+			throw IndexError();
+		Super::addCP( cp, len );
+		return *this;
+	}
+	public:
+	StringBuffer &addCP( const char *cp )
+	{
+		addCP( cp, strlen(cp) );
+		return *this;
+	}
+	template <typename T, size_t N>
+	StringBuffer &add( const T (&arr)[N] )
+	{
+		addCP( arr, N-1 );
+		return *this;
+	}
+	template <typename T, size_t N>
+	StringBuffer &operator += (const T (&arr)[N])
+	{
+		addCP( arr, N-1 );
+		return *this;
+	}
+#ifdef __BORLANDC__
+	StringBuffer &add( const char *arr )
+	{
+		addCP( arr, strlen(arr) );
+		return *this;
+	}
+	StringBuffer &operator += (const char *arr)
+	{
+		addCP( arr, strlen(arr) );
+		return *this;
+	}
+#endif
+};
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
@@ -327,20 +279,17 @@ class SoapRequest : public HTTPrequest
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-}	// namespace net
 }	// namespace gak
+
+#ifdef _MSC_VER
+#	pragma warning ( pop )
+#endif
 
 #ifdef __BORLANDC__
 #	pragma option -RT.
 #	pragma option -b.
-#	pragma option -p.
 #	pragma option -a.
-
-#	pragma warn +inl
+#	pragma option -p.
 #endif
 
-#ifdef _MSC_VER
-#	pragma warning( pop )
-#endif
-
-#endif
+#endif	// #define STRING_BUFFER_H

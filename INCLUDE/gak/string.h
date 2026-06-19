@@ -360,6 +360,17 @@ class STRING
 	template <typename NUMERIC>
 	NUMERIC getValueN(unsigned base=10, char decPoint='.', char thousand=0) const;
 
+	template <typename NUMERIC>
+	NUMERIC getFloatE(char decPoint='.', char thousand=0) const
+	{
+		return getValueE<NUMERIC>(10, decPoint, thousand );
+	}
+	template <typename NUMERIC>
+	NUMERIC getFloatN(char decPoint='.', char thousand=0) const
+	{
+		return getValueN<NUMERIC>(10, decPoint, thousand );
+	}
+
 	/*
 		-----------------------------------------------------------------------
 		comparing
