@@ -196,6 +196,11 @@ class StringBuffer : public BaseBuffer<BUFFER_SIZE>
 		return *this;
 	}
 	public:
+	StringBuffer &addSTR( const STRING &cp )
+	{
+		addCP( cp.c_str(), cp.strlen() );
+		return *this;
+	}
 	StringBuffer &addCP( const char *cp )
 	{
 		addCP( cp, strlen(cp) );
