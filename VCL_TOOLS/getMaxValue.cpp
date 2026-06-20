@@ -1,21 +1,21 @@
 /*
 		Project:		GAKLIB
 		Module:			getMaxValue.cpp
-		Description:
+		Description:	getNewMaxValue for creating unique keys
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
-		This program is free software: you can redistribute it and/or modify  
-		it under the terms of the GNU General Public License as published by  
+		This program is free software: you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
 		the Free Software Foundation, version 3.
 
-		You should have received a copy of the GNU General Public License 
+		You should have received a copy of the GNU General Public License
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -37,8 +37,7 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <stdio.h>
-
+#include <memory>
 
 #include <vcl.h>
 #include <dbtables.hpp>
@@ -139,23 +138,20 @@ namespace vcl
 
 long getNewMaxValue( const char *database, const char *table, const char *field, const char *filter )
 {
-	TQuery	*maxSql;
 	long	newMaxVal = 1;
-	char	sqlBuffer[256];
 
-	maxSql = new TQuery(Application);
-	if( maxSql )
+	std::auto_ptr<TQuery>	maxSql( new TQuery(Application) );
+	if( maxSql.get() )
 	{
 		maxSql->DatabaseName = database;
 		maxSql->UniDirectional = true;
-		sprintf( sqlBuffer, "select max(%s) from %s", field, table );
-		STRING sqlText = sqlBuffer;
+		STRING sqlText = STRING( "select max(" ).add(field).add(") from ").add(table);
 		if( filter && *filter )
 		{
 			sqlText += " where ";
 			sqlText += filter;
 		}
-		maxSql->SQL->Add( (const char *)sqlText );
+		maxSql->SQL->Add( sqlText.c_str() );
 		maxSql->Open();
 		if( !maxSql->Eof )
 		{
@@ -163,8 +159,6 @@ long getNewMaxValue( const char *database, const char *table, const char *field,
 			newMaxVal++;
 		}
 		maxSql->Close();
-
-		delete maxSql;
 	}
 
 	return newMaxVal;
