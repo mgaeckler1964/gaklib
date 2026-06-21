@@ -324,8 +324,11 @@ void DateTime::setInetTime( const STRING &inetTime )
 
 		unsigned short year = yearStr.getValueE<unsigned short>();
 
-		unsigned int hour, minute, second;
-		sscanf( timeStr, "%u:%u:%u", &hour, &minute, &second );
+		unsigned	hour, minute, second;
+		const char	*cp = timeStr.c_str();
+		hour = getValue<unsigned>( cp, &cp );
+		minute = getValue<unsigned>( ++cp, &cp );
+		second = getValue<unsigned>( ++cp, &cp );
 
 		if( year < 50 )
 		{

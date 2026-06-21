@@ -659,7 +659,7 @@ bool HTTPclientResponse::isExpired() const
 /***/	return true;
 	}
 
-	int		hour, minute, second, day, month, year;
+	int	hour, minute, second, day, month, year;
 
 	STRING	weekday = expires.getFirstToken( " " );
 	STRING	monthDay = expires.getNextToken();
@@ -672,9 +672,12 @@ bool HTTPclientResponse::isExpired() const
 	month = tokenSearch( monthStr, "Jan\0Feb\0Mar\0Apr\0May\0Jun\0Jul\0Aug\0Sep\0Oct\0Noc\0Dec\0" );
 	year = yearStr.getValueE<unsigned>();
 
-	sscanf( timeStr, "%d:%d:%d", &hour, &minute, &second );
+	const char *cp = timeStr.c_str();
+	hour = getValue<unsigned>( cp, &cp );
+	minute = getValue<unsigned>( ++cp, &cp );
+	second = getValue<unsigned>( ++cp, &cp );
 
-	time_t	now = time( NULL );
+	time_t	now = time( nullptr );
 	struct	tm *gmt = gmtime( &now );
 
 	gmt->tm_year += 1900;

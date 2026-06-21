@@ -3,10 +3,10 @@
 		Module:			EXIF.CPP
 		Description:	Reading exif data from an image file
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -41,6 +41,7 @@
 #include <gak/array.h>
 #include <gak/ci_string.h>
 #include <gak/fmtNumber.h>
+#include <gak/numericString.h>
 #include <gak/wideString.h>
 #include <gak/types.h>
 #include <gak/logfile.h>
@@ -906,9 +907,16 @@ bool readImageMetaData( const STRING &fileName, ImageMetaData *metaData )
 #if defined( __BORLANDC__ )
 TDateTime parseExifTimestamp( const STRING &timestamp )
 {
-	int year, month, day, hour, minute, seconds;
+	Word		year, month, day, hour, minute, seconds;
+	const char	*cp = timestamp.c_str();
 
-	sscanf( timestamp, "%d:%d:%d %d:%d:%d", &year, &month, &day, &hour, &minute, &seconds );
+	year = getValue<Word>( cp, &cp );
+	month = getValue<Word>( ++cp, &cp );
+	day = getValue<Word>( ++cp, &cp );
+
+	hour = getValue<Word>( ++cp, &cp );
+	minute = getValue<Word>( ++cp, &cp );
+	seconds = getValue<Word>( ++cp, &cp );
 
 	return EncodeDate( (Word)year, (Word)month, (Word)day ) + EncodeTime( (Word)hour, (Word)minute, (Word)seconds, 0 );
 }

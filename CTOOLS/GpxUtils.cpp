@@ -42,6 +42,7 @@
 #include <gak/date.h>
 #include <gak/gps.h>
 #include <gak/numericString.h>
+#include <gak/fmtNumber.h>
 
 #include <gak/GpxUtils.h>
 
@@ -182,8 +183,13 @@ void GPXtrack::LoadGpxTrack( xml::Element *theSegments )
 				time = "";
 
 			year = month = day = hour = minute = second = 0;
-			sscanf( time, "%d-%d-%dT%d:%d:%dZ", &year, &month, &day, &hour, &minute, &second );
-
+			const char *cp = time.c_str();
+			year = getValue<unsigned>( cp, &cp );
+			month = getValue<unsigned>( ++cp, &cp );
+			day = getValue<unsigned>( ++cp, &cp );
+			hour = getValue<unsigned>( ++cp, &cp );
+			minute = getValue<unsigned>( ++cp, &cp );
+			second = getValue<unsigned>( ++cp, &cp );
 
 			if( !first )
 			{
@@ -475,7 +481,6 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 	FILE		*fp;
 	STRING		line, trackTitle;
 	int			numBytes;
-	char		time[128];
 
 	int			day, month, year;
 
@@ -483,7 +488,6 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 				speedI,
 				totalDistance=0,
 				height,
-				dummy,
 				temperatureI,
 				tempDeg,
 				hour,
@@ -533,17 +537,21 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 			line << fp;		// ignore statistics
 			line << fp;
 
-			sscanf(
-				line,
-				"%d.%d.%d %d:%d:%d %d:%d:%d %d %d %n",
-				&day, &month, &year,
-				&dummy, &dummy, &dummy,
-				&dummy, &dummy, &dummy,
-				&dummy, &dummy,
-				&numBytes
-			);
+			const char *cp = line.c_str();
+			day = getValue<int>( cp, &cp );
+			month = getValue<int>( ++cp, &cp );
+			year = getValue<int>( ++cp, &cp );
+			/*dummy*/ getValue<int>( ++cp, &cp );
+			/*dummy*/ getValue<int>( ++cp, &cp );
+			/*dummy*/ getValue<int>( ++cp, &cp );
+			/*dummy*/ getValue<int>( ++cp, &cp );
+			/*dummy*/ getValue<int>( ++cp, &cp );
+			/*dummy*/ getValue<int>( ++cp, &cp );
+			/*dummy*/ getValue<int>( ++cp, &cp );
+			/*dummy*/ getValue<int>( ++cp, &cp );
+			numBytes = int(cp - line.c_str())+1;
 
-			line += (size_t)numBytes;
+			line += size_t(numBytes);
 			trackTitle = line;
 
 
@@ -553,26 +561,39 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 			line << fp;		// ignore header
 			line << fp;		// first line
 
+			NumberBuffer	tmp[6];
 			while( !feof( fp ) && line != "***" )
 			{
-				sscanf( line, "%d %d %d %d %d %d %d,%d %d:%d:%d",
-					&heartRate,
-					&speedI,
-					&totalDistance,
-					&height,
-					&dummy,		// color
-					&dummy,		// symbol
-					&temperatureI,
-					&tempDeg,
-					&hour,
-					&minute,
-					&second
-				);
-
+				const char *cp = line.c_str();
+				heartRate = getValue<int>( cp, &cp );
+				speedI = getValue<int>( ++cp, &cp );
+				totalDistance = getValue<int>( ++cp, &cp );
+				height = getValue<int>( ++cp, &cp );
+				/*color*/ getValue<int>( ++cp, &cp );
+				/*symbol*/getValue<int>( ++cp, &cp );
+				temperatureI = getValue<int>( ++cp, &cp );
+				tempDeg = getValue<int>( ++cp, &cp );
+				hour = getValue<int>( ++cp, &cp );
+				minute = getValue<int>( ++cp, &cp );
+				second = getValue<int>( ++cp, &cp );
 				totalDistance *= 10;
 				speedKm = speedI / 10.0;
 				speedM = speedKm / 3.6;
-				sprintf( time, "%04d-%02d-%02dT%02d:%02d:%02dZ", year, month, day, hour, minute, second );
+
+				STRING time = STRING()
+					.add( formatNumberFast(tmp+0, year, 4, '0' ) )
+					.add('-')
+					.add( formatNumberFast(tmp+1, month, 2, '0' ) )
+					.add('-')
+					.add( formatNumberFast(tmp+2, day, 2, '0' ) )
+					.add('T')
+					.add( formatNumberFast(tmp+3, hour, 2, '0' ) )
+					.add(':')
+					.add( formatNumberFast(tmp+4, minute, 2, '0' ) )
+					.add(':')
+					.add( formatNumberFast(tmp+5, second, 2, '0' ) )
+					.add('Z')
+				;
 
 				if( height < m_minHeight )
 					m_minHeight = height;
@@ -642,7 +663,6 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 						acceleration = (speedM - lastSpeed)/elapsedTime;
 					else
 						acceleration = 0;
-
 
 					if( acceleration > m_maxAcc )
 						m_maxAcc = acceleration;
