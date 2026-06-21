@@ -122,6 +122,15 @@ namespace internal
 #	pragma warn -inl
 #endif
 
+inline const  char *skipBlanks( const char *cp )
+{
+	while( isSpace(*cp) )
+	{
+		cp++;
+	}
+	return cp;
+}
+
 /**
 	parse string, return integer or throw exception or return bad position
 */
@@ -370,6 +379,7 @@ NUMERIC getFloatValue( const char *cp, char decPoint, char thousand, const char 
 template <typename NUMERIC>
 inline NUMERIC getValue( const char *cp, char decPoint, char thousand, unsigned base, const char **end )
 {
+	cp = skipBlanks(cp);
 	if( std::numeric_limits<NUMERIC>::is_integer && std::numeric_limits<NUMERIC>::digits == 1 )
 	{
 		if( !strcmpi( cp, "T" ) || !strcmpi( cp, "TRUE" ) )
