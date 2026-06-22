@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			FieldSetTest.h
-		Description:	
+		Description:	Named fields in an assoc with dynamic values
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -43,6 +43,7 @@
 
 #include <gak/fieldSet.h>
 #include <gak/stringStream.h>
+#include <gak/tmpfile.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -109,11 +110,34 @@ class FieldSetTest : public UnitTest
 		UT_ASSERT_EQUAL( pid, 3.14 );
 
 	}
+	void testConfigFile()
+	{
+		TempFileName	tmpFile(false);
+
+		FieldSet	fSet1, fSet2;
+		fSet1["integer"] = 2;
+		fSet1["string"] = "Hello World";
+		fSet1["float"] = 3.14;
+
+		// reading from a known file
+		fSet2.loadConfigFile("test_data" DIRECTORY_DELIMITER_STRING "test.cfg");
+		UT_ASSERT_EQUAL(fSet1["integer"], fSet2["integer"]);
+		UT_ASSERT_EQUAL(fSet1["string"], fSet2["string"]);
+		UT_ASSERT_EQUAL(fSet1["float"], fSet2["float"]);
+
+		// reading from a created file
+		fSet1.saveConfigFile(tmpFile.get());
+		fSet2.loadConfigFile(tmpFile.get());
+		UT_ASSERT_EQUAL(fSet1["integer"], fSet2["integer"]);
+		UT_ASSERT_EQUAL(fSet1["string"], fSet2["string"]);
+		UT_ASSERT_EQUAL(fSet1["float"], fSet2["float"]);
+	}
 	virtual void PerformTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "FieldSetTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
+		testConfigFile();
 		testDynamic();
 		FieldSet	fSet;
 

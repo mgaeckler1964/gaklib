@@ -78,7 +78,6 @@
     <ClCompile Include="CTOOLS\httpBaseServer.cpp" />
     <ClCompile Include="CTOOLS\httpProfiler.cpp" />
     <ClCompile Include="CTOOLS\httpResponse.cpp" />
-    <ClCompile Include="CTOOLS\INIFILE.cpp" />
     <ClCompile Include="CTOOLS\inspector.cpp" />
     <ClCompile Include="CTOOLS\int2mot.c" />
     <ClCompile Include="CTOOLS\io.cpp" />

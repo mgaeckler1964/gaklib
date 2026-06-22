@@ -29,7 +29,6 @@
 		SUCH DAMAGE.
 */
 
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -39,6 +38,7 @@
 // --------------------------------------------------------------------- //
 
 #include <assert.h>
+#include <fstream>
 
 #include <gak/arrayFile.h>
 #include <gak/stdlib.h>
@@ -260,7 +260,7 @@ void Crypto::encryptFile(
 	strStatE( plainFileName, &statBuff );
 
 	blockCount = statBuff.st_size / plainBlockSize +1;
-	STDfile fpPlain( plainFileName, "rb" );
+	std::ifstream fpPlain( plainFileName, std::ios_base::binary );
 	if( fpPlain )
 	{
 		Buffer<unsigned char>	plain( size_t(statBuff.st_size ) );
@@ -276,18 +276,18 @@ void Crypto::encryptFile(
 				crypto->cryptoBlockSize = uint16(cryptoBlockSize);
 				crypto->fileSize = statBuff.st_size;
 
-				if( fread( plain, 1, size_t(statBuff.st_size), fpPlain ) == size_t(statBuff.st_size) )
+				if( fpPlain.read( reinterpret_cast<char *>(plain.get()), size_t(statBuff.st_size)  ) )
 				{
 					blockCount = encryptPrepBuffer(
 						plain,
-						(unsigned char *)(crypto+1),
+						reinterpret_cast<unsigned char *>(crypto+1),
 						statBuff.st_size
 					);
-					STDfile fpCrypto( cryptoFileName, "wb" );
+					std::ofstream fpCrypto( cryptoFileName, std::ios_base::binary );
 					if( fpCrypto )
 					{
-						if( !fwrite( crypto, sizeof(CryptoHeader), 1, fpCrypto )
-						|| fwrite( crypto+1, cryptoBlockSize, blockCount, fpCrypto ) != blockCount )
+						if( !fpCrypto.write( reinterpret_cast<char *>(crypto.get()), sizeof(CryptoHeader) )
+						|| !fpCrypto.write( reinterpret_cast<char *>(crypto+1), cryptoBlockSize*blockCount ) )
 /*@*/						throw WriteError( cryptoFileName );
 					}
 					else
@@ -314,14 +314,14 @@ void Crypto::decryptFile(
 
 	struct stat statBuff;
 	strStatE( cryptoFileName, &statBuff );
-	STDfile fpCrypto( cryptoFileName, "rb" );
+	std::ifstream fpCrypto( cryptoFileName, std::ios_base::binary );
 	if( fpCrypto )
 	{
 		Buffer<CryptoHeader>crypto( size_t(statBuff.st_size) );
 		if( crypto )
 		{
 			plain->setChunkSize( size_t(statBuff.st_size) );
-			if( fread( crypto, 1, size_t(statBuff.st_size), fpCrypto ) == size_t(statBuff.st_size) )
+			if( fpCrypto.read( reinterpret_cast<char*>(crypto.get()), size_t(statBuff.st_size) ).gcount() == statBuff.st_size )
 			{
 				if( crypto->magic == EncryptionMagic
 				&& 	crypto->version == EncryptionVersion
@@ -367,10 +367,10 @@ uint32 Crypto::getFileSize( const STRING &fileName )
 	uint32 			size = 0;
 	CryptoHeader	header;
 
-	STDfile fp( fileName, "rb" );
+	std::ifstream fp( fileName, std::ios_base::binary );
 	if( fp )
 	{
-		if( fread( &header, sizeof(CryptoHeader), 1, fp )
+		if( fp.read( reinterpret_cast<char *>(&header), sizeof(CryptoHeader) ).gcount() == sizeof(CryptoHeader)
 		&&  header.magic == EncryptionMagic
 		&& 	header.version == EncryptionVersion
 		&&  header.headerSize == sizeof(CryptoHeader) )

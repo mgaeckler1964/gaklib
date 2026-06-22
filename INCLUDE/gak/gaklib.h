@@ -293,13 +293,6 @@ int randomNumber( int max );
 int appendMail5(const char *mboxFile, const char *from, const char *to, const char *subject, const char *text);
 int appendMail2(const char *subject, const char *text);
 
-/******** Profile support *************************************************/
-
-cBool LocateProfileSection( FILE *file, char *section );
-cBool LocateProfileEntry( FILE *file, char *entry, char *value );
-void AddProfileEntry( const char *iniFile, const char *section, const char *entry );
-void RemoveProfileEntry( const char *iniFile, const char *section, const char *entry );
-
 #ifdef __cplusplus
 }	// extern "C"
 #endif

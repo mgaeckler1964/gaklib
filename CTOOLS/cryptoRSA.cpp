@@ -40,6 +40,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <fstream>
 
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
@@ -143,10 +144,10 @@ static void copyBioToFile(
 			BIO_read( bio, pem_key, keylen );
 			pem_key[keylen] = 0;
 
-			STDfile fp( fileName, "wb" );
+			std::ofstream fp( fileName, std::ios_base::binary );
 			if( fp )
 			{
-				fprintf( fp, "%s", (char *)pem_key );
+				fp << pem_key.get();
 				fp.close();
 
 				if( timeStamp )

@@ -51,14 +51,11 @@
 
 #include <gak/logfile.h>
 
-#ifdef __BORLANDC__
-#include <iostream>
-#endif
-
+#include <fstream>
 #include <memory>
 #include <cassert>
 #include <cstdarg>
-#include <cstdio>
+//#include <cstdio>
 #include <cstring>
 #include <ctime>
 #include <queue>
@@ -261,13 +258,6 @@ static gak::Critical s_logCritical;
 // ----- module functions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static gak::Locker &getLocker()
-{
-	static gak::Locker *locker = new gak::Locker();
-
-	return *locker;
-}
-
 /*
 ---------------------------------------------------------------------------
 	Profiling
@@ -328,22 +318,15 @@ static void deleteProfile()
 	}
 }
 
-static FILE *getCsvFp()
+static gak::STRING getCsvFp()
 {
-	gak::StringBuffer<10240>		csvFile;
-	gak::NumberBuffer				idBuffer;
+	gak::NumberBuffer	idBuffer;
 
-	const char	*temp = getenv( "TEMP" );
-	if( !temp )
-	{
-		temp = DIRECTORY_DELIMITER_STRING "tmp";
-	}
-	csvFile.addCP( temp )
+	const char	*temp = gak::nvl( getenv( "TEMP" ), (char *)DIRECTORY_DELIMITER_STRING "tmp" );
+	return gak::STRING().add( temp )
 		.add(DIRECTORY_DELIMITER_STRING "gaklib")
-		.addCP( gak::formatNumberFast(&idBuffer, GetCurrentProcessId()))
+		.add( gak::formatNumberFast(&idBuffer, GetCurrentProcessId()))
 		.add(".csv");
-
-	return fopen( csvFile.c_str(), "a" );
 }
 
 static void createSummaryEntry( ProfileEntry &logEntry )
@@ -398,11 +381,10 @@ static void writeProfilerCSV()
 /*@*/	return;
 	}
 
-	/// TODO use C++ I/O instead of C I/O
-	gak::STDfile	fp( getCsvFp() );
+	std::ofstream	fp( getCsvFp(), std::ios_base::app );
 	assert( fp );
 
-	fprintf( fp, "%s", "file,line,function,thread,cpu time,total time,total/count,count\n" );
+	fp << "file,line,function,thread,cpu time,total time,total/count,count\n";
 	for( 
 		Summaries::iterator it = summaryEntries.begin(), endIT = summaryEntries.end();
 		it != endIT;
@@ -412,17 +394,11 @@ static void writeProfilerCSV()
 		ProfileEntry		&theEntry = *it;
 		clock_t				executionTimeCPU = theEntry.startTimeCPU;
 		unsigned long		executionTimeReal = theEntry.startTimeReal;
-		fprintf(
-			fp,
-			"%s,%d,\"%s\",%p,%lf,%lf,%lf,%d,",
-			theEntry.file, theEntry.line,
-			theEntry.functionName,
-			(void*)theEntry.threadId,
-			double(executionTimeCPU)/double(CLOCKS_PER_SEC),
-			double(executionTimeReal)/1000.0,
-			double(executionTimeReal)/theEntry.count,
-			theEntry.count
-		);
+
+		fp << theEntry.file << ',' << theEntry.line << ",\"" << theEntry.functionName << "\"," 
+			<< (void*)theEntry.threadId << ',' << (double(executionTimeCPU)/double(CLOCKS_PER_SEC)) << ','
+			<< (double(executionTimeReal)/1000.0) <<',' << (double(executionTimeReal)/theEntry.count) << ','
+			<< theEntry.count << ',';
 		if( theEntry.callerFunc )
 		{
 			theEntry.functionMap[theEntry.callerFunc]++;
@@ -433,14 +409,9 @@ static void writeProfilerCSV()
 			++it
 		)
 		{
-			fprintf(
-				fp,
-				"\"%s\",%d,",
-				it->first,
-				it->second
-			);
+			fp << '"' << it->first << "\"," << it->second << ',';
 		}
-		fputc( '\n', fp );
+		fp << '\n';
 	}
 
 	summaryEntries.clear();
@@ -449,21 +420,17 @@ static void writeProfilerCSV()
 
 	if( profileVctr.size() )
 	{
-		fprintf( fp, "%s", "file,line,function,thread,cpu time,real time\n" );
+		fp << "file,line,function,thread,cpu time,real time\n";
 		for(
 			ProfileVektor::const_iterator it = profileVctr.begin(), endIT = profileVctr.end();
 			it != endIT;
 			++it
 		)
 		{
-			fprintf( fp, "%s,%d,\"%s\",%p,%lf,%lf\n", 
-				it->file,
-				it->line,
-				it->functionName,
-				(void*)it->threadId,
-				double(it->startTimeCPU)/double(CLOCKS_PER_SEC),
-				double(it->startTimeReal)/1000.0
-			);
+			fp << it->file << ',' << it->line << ",\"" 
+				<< it->functionName << "\"," << (void*)it->threadId << ',' 
+				<< double(it->startTimeCPU)/double(CLOCKS_PER_SEC) << ',' << double(it->startTimeReal)/1000.0 
+				<< '\n';
 		}
 		profileVctr.clear();
 	}
@@ -804,7 +771,6 @@ ProfileMode enterProfile( LogLevel level, const char *file, int line, const char
 	theEntry.startTimeReal = gak::UserTimeClock::clock();
 	theEntry.start = true;
 	{
-		//gak::LockGuard		lock( getLocker() );
 		gak::CriticalScope scope(s_profileQueueCritical);
 		s_profileQueue.push(theEntry);
 	}
@@ -850,7 +816,6 @@ ProfileMode enterFunction( LogLevel level, const char *file, int line, const cha
 		first = false;
 	}
 
-	//gak::LockGuard		lock( getLocker() );
 	gak::CriticalScope scope(s_logCritical);
 
 	gak::ThreadID curThread = gak::Locker::GetCurrentThreadID();
@@ -882,7 +847,6 @@ void exitFunction( ProfileMode mode, const char *file, int line )
 		return;
 	}
 
-//	gak::LockGuard		lock( getLocker() );
 	gak::CriticalScope	scope(s_logCritical);
 	gak::ThreadID		curThread = gak::Locker::GetCurrentThreadID();
 	std::clock_t cpuTime = gak::CpuTimeClock::clock();
@@ -941,20 +905,10 @@ void logFileLine( const std::string &line )
 		return;
 	}
 
-//	gak::LockGuard		lock( getLocker() );
 	gak::CriticalScope	scope(s_logCritical);
 	std::string			fileName = getGlobalLogFilename();
 	LoggingThreadPtr	&thread = getLoggingThread( fileName, gak::Locker::GetCurrentThreadID() );
 	thread->pushLine( LogLine( llInfo, line, 0 ) );
-/*
-
-	STDfile	fp( getGlobalLogFp() );
-
-	if( fp )
-	{
-		fprintf( fp, "%s time=%ld\n", line.c_str(), long(clock()) );
-	}
-*/
 }
 
 void logLine( LogLevel level, const std::string &line )
@@ -964,7 +918,6 @@ void logLine( LogLevel level, const std::string &line )
 		return;
 	}
 
-	//gak::LockGuard		lock( getLocker() );
 	gak::CriticalScope	scope(s_logCritical);
 	gak::ThreadID		curThread = gak::Locker::GetCurrentThreadID();
 	CallStack			&logEntries = getCallStack(curThread);

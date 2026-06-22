@@ -40,6 +40,8 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+#include <fstream>
+
 /*
 #include <gak/directory.h>
 #include <gak/strFiles.h>
@@ -161,18 +163,23 @@ void fcopy( const STRING &source, const STRING &destination, FcopyWatcherT &watc
 	fileLen = theEntry.fileSize;
 
 	bool canceled = false;
-	STDfile handle_source( source, "rb" );
+
+	std::ifstream handle_source;
+	handle_source.exceptions(std::ios::badbit);
+	handle_source.open( source, std::ios_base::binary );
 	if( handle_source )
 	{
-		STDfile handle_dest( destination, "wb" );
+		std::ofstream handle_dest;
+		handle_dest.exceptions(std::ios::failbit | std::ios::badbit);
+		handle_dest.open( destination, std::ios_base::binary );
 		if( handle_dest )
 		{
-			std::size_t	bytesRead;
-			bool		error = false;
+			std::streamsize	bytesRead;
+			bool			error = false;
 			do
 			{
-				bytesRead = fread( buffer, 1, memory, handle_source );
-				if( fwrite( buffer, 1, bytesRead, handle_dest ) < bytesRead )
+				bytesRead = handle_source.read( buffer, memory ).gcount();
+				if( !handle_dest.write( buffer, bytesRead ) )
 				{
 					error = true;
 					break;

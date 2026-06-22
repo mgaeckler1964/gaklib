@@ -3,10 +3,10 @@
 		Module:			Date.CPP
 		Description:	Date handlig class
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -33,13 +33,12 @@
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#define _CRT_SECURE_NO_WARNINGS 1
-
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <stdio.h>
+#include <fstream>
+
 #include <string.h>
 
 #include <gak/date.h>
@@ -187,24 +186,23 @@ void Date::loadHolidays( const char *fileName )
 		fileName = "xholidays.dat";
 	}
 
-	STDfile fp( fileName, "r" );
+	std::ifstream fp( fileName );
 	if( fp )
 	{
+		char	comma;
 		int		mode, day, month, offset, weekDay;
 		double	workDay;
 		HOLIDAY	holiday;
 
-		while( !feof( fp ) && !ferror( fp ) )
+		while( !fp.eof() && !fp.fail() )
 		{
-			fscanf(
-				fp, "%d,%d,%d,%d,%d,%lf,",
-				&mode,
-				&day,
-				&month,
-				&offset,
-				&weekDay,
-				&workDay
-			);
+			fp	>> mode >> comma
+				>> day >> comma
+				>> month >> comma
+				>> offset >> comma
+				>> weekDay >> comma
+				>> workDay >> comma
+			;
 			holiday.mode = short(mode);
 			holiday.day = (unsigned char)day;
 			holiday.month = Month(month);
@@ -213,7 +211,7 @@ void Date::loadHolidays( const char *fileName )
 			holiday.workDay = workDay;
 
 			char *cp = holiday.name;
-			while( (c=fgetc( fp )) != EOF )
+			while( (c=fp.get()) != std::char_traits<char>::eof() )
 			{
 				if( c < ' ' )
 				{	// any control character should terminate the string
@@ -229,27 +227,25 @@ void Date::loadHolidays( const char *fileName )
 	}
 	else
 	{
-		STDfile fp( fileName, "w" );
+		std::ofstream fp( fileName );
 		if( fp )
 		{
-			for( size_t i=0; i<arraySize(defaultHolidays); i++ )
+			FOR_EACH( i, defaultHolidays,
 			{
-				fprintf(
-					fp, "%d,%d,%d,%d,%d,%f,%s\n",
-					(int)defaultHolidays[i].mode,
-					(int)defaultHolidays[i].day,
-					(int)defaultHolidays[i].month,
-					(int)defaultHolidays[i].offset,
-					(int)defaultHolidays[i].weekDay,
-					defaultHolidays[i].workDay,
-					defaultHolidays[i].name 
-				);
-			}
+				fp	<< (int)defaultHolidays[i].mode << ','
+					<< (int)defaultHolidays[i].day << ','
+					<< (int)defaultHolidays[i].month << ','
+					<< (int)defaultHolidays[i].offset << ','
+					<< (int)defaultHolidays[i].weekDay << ','
+					<< defaultHolidays[i].workDay << ','
+					<< defaultHolidays[i].name 
+				;
+			});
 		}
-		for( size_t i=0; i<arraySize(defaultHolidays); i++ )
+		FOR_EACH( i, defaultHolidays,
 		{
 			holidays.createElement() = defaultHolidays[i];
-		}
+		});
 	}
 }
 

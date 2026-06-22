@@ -3,10 +3,10 @@
 		Module:			wsdlImporter.cpp
 		Description:	WSDL import and C++ code generator
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -161,7 +161,7 @@ STRING WSDLimporter::searchSimpleType( xml::Element *theSchema, STRING type )
 	return matchType( type );
 }
 
-void WSDLimporter::writeParameters( FILE *fp, xml::Element *theSchema, xml::Element *theElement, STRING xmlPath, STRING cppPath )
+void WSDLimporter::writeParameters( std::ostream &fp, xml::Element *theSchema, xml::Element *theElement, STRING xmlPath, STRING cppPath )
 {
 	STRING	name = theElement->getAttribute( "name" );
 	STRING	type = theElement->getAttribute( "type" );
@@ -180,12 +180,7 @@ void WSDLimporter::writeParameters( FILE *fp, xml::Element *theSchema, xml::Elem
 	{
 		if( xmlPath[0U] && cppPath[0U] )
 		{
-			fprintf(
-				fp,
-				"setParameter( \"%s\", %s );\n",
-				(const char*)xmlPath,
-				(const char*)cppPath
-			);
+			fp << "setParameter( \""<<xmlPath<<"\", "<<cppPath<<" );\n";
 		}
 /***/	return;
 	}
@@ -278,7 +273,7 @@ STRING WSDLimporter::getTypeString( ArrayOfStrings &knownTypes, xml::Element *th
 	return requiredDef + typeDef;
 }
 
-void WSDLimporter::writeTypedefs( FILE *fp, xml::Element *theSchema )
+void WSDLimporter::writeTypedefs( std::ostream &fp, xml::Element *theSchema )
 {
 	ArrayOfStrings	knownTypes;
 
@@ -294,25 +289,20 @@ void WSDLimporter::writeTypedefs( FILE *fp, xml::Element *theSchema )
 				if( knownTypes.findElement( typeName ) == knownTypes.no_index )
 				{
 					STRING typedefs = getTypeString( knownTypes, theSchema, typeName );
-					fprintf( fp, "%s", (const char *)typedefs );
+					fp << typedefs;
 
-					fprintf(
-						fp, "void fill%s( %s_t &item, gak::xml::Element *xml );\n",
-						(const char *)typeName, (const char *)typeName
-					);
-					fprintf(
-						fp, "void fill%s( gak::Array<%s_t> &item, gak::xml::Element *xml );\n",
-						(const char *)typeName, (const char *)typeName
-					);
+					fp <<	"void fill"<<typeName<<"( "<<typeName<<"_t &item, gak::xml::Element *xml );\n"
+							"void fill"<<typeName<<"( gak::Array<"<<typeName<<"_t> &item, gak::xml::Element *xml );\n"
+					;
 				}
 			}
 		}
 	}
 }
 
-void WSDLimporter::writePrototypes( FILE *fp, xml::Element *theDefinitions, xml::Element *theSchema )
+void WSDLimporter::writePrototypes( std::ostream &fp, xml::Element *theDefinitions, xml::Element *theSchema )
 {
-	doEnterFunction("void WSDLimporter::writePrototypes( FILE *fp, xml::Element *theDefinitions )");
+	doEnterFunction("void WSDLimporter::writePrototypes( std::ostream &fp, xml::Element *theDefinitions, xml::Element *theSchema )");
 
 	xml::Element	*thePortType = theDefinitions->getElement( "portType", xml::XMLNS_WSDL );
 	if( thePortType )
@@ -354,7 +344,7 @@ void WSDLimporter::writePrototypes( FILE *fp, xml::Element *theDefinitions, xml:
 					}
 				}
 
-				fprintf( fp, "\n%s %s( ", (const char *)returnType, (const char *)repairName( operationName ) );
+				fp << '\n' << returnType << ' ' << repairName( operationName ) << "( ";
 				if( theInputElement )
 				{
 					xml::Element	*theComplexType = xml::Validator::findComplexType( theSchema, theInputElement );
@@ -379,44 +369,39 @@ void WSDLimporter::writePrototypes( FILE *fp, xml::Element *theDefinitions, xml:
 									type = searchSimpleType( theSchema, type );
 
 									if( !first )
-										fputs( ", ", fp );
+										fp << ", ";
 									first = false;
 
 									if( type != "int" && type != "bool" )
-										fputs( "const ", fp );
-									fputs( type, fp );
+										fp << "const ";
+									fp << type;
 									if( type != "int" && type != "bool" && type != "gak::STRING" )
-										fputs( "_t", fp );
+										fp << "_t ";
 
 									if( type != "int" && type != "bool" )
-										fputs( " &", fp );
+										fp << "_& ";
 									else
-										fputs( " ", fp );
-									fputs( name, fp );
+										fp << ' ';
+									fp << name;
 								}
 							}
 						}
 					}
 				}
 
-				fprintf( fp, ");\n" );
-				// Now create the XML Version
-				fprintf(
-					fp, "%s %s( gak::xml::Element *theParameter );\n",
-					(const char *)returnType,
-					(const char *)repairName( operationName )
-				);
+				fp << ");\n"
+					<< returnType << ' ' <<  repairName( operationName ) << "( gak::xml::Element *theParameter );\n";
 			}
 		}
 	}
 }
 
-void WSDLimporter::writeMemberFunctions( FILE *fp, const STRING &className, xml::Element *theDefinitions, xml::Element *theSchema )
+void WSDLimporter::writeMemberFunctions( std::ostream &fp, const STRING &className, xml::Element *theDefinitions, xml::Element *theSchema )
 {
+	doEnterFunction("void WSDLimporter::writeMemberFunctions( std::ostream &fp, const STRING &className, xml::Element *theDefinitions, xml::Element *theSchema )");
+
 	STRING			returnType;
 	xml::Element	*theSequence = NULL;
-
-	doEnterFunction("void WSDLimporter::writeMemberFunctions( FILE *fp, const STRING &className, xml::Element *theDefinitions, xml::Element *theSchema )");
 
 	for( size_t i=0; i<theSchema->getNumObjects(); i++ )
 	{
@@ -427,13 +412,7 @@ void WSDLimporter::writeMemberFunctions( FILE *fp, const STRING &className, xml:
 			STRING	typeName = theComplexType->getAttribute( "name" );
 			if( !typeName.isEmpty() )
 			{
-				fprintf(
-					fp,
-					"void %s::fill%s( %s_t &item, gak::xml::Element *xml ) {\n",
-					(const char *)className,
-					(const char *)typeName,
-					(const char *)typeName
-				);
+				fp << "void "<<className<<"::fill"<<typeName<<"( "<<typeName<<"_t &item, gak::xml::Element *xml ) {\n";
 
 				xml::Element *theSequence = theComplexType->getElement( "sequence", xml::XMLNS_SCHEMA );
 				if( !theSequence )
@@ -455,53 +434,29 @@ void WSDLimporter::writeMemberFunctions( FILE *fp, const STRING &className, xml:
 							||  type == "int"
 							||  type == "bool" )
 							{
-								fprintf( fp,
-									"gak::xml::Element *%s = xml->getElement( \"%s\" );\n",
-									(const char *)name,
-									(const char *)name
-								);
-								fprintf( fp,
-									"if( %s )\n",
-									(const char *)name
-								);
+								fp << "gak::xml::Element *"<<name<<" = xml->getElement( \""<<name<<"\" );\n";
+								fp << "if(" << name << ')\n';
 								if( type == "gak::STRING" )
 								{
-									fprintf( fp,
-										"item.%s = %s->getValue( gak::xml::PLAIN_MODE );\n",
-										(const char *)name,
-										(const char *)name
-									);
+									fp << "item."<<name<<" = "<<name<<"->getValue( gak::xml::PLAIN_MODE );\n";
 								}
 								else
 								{
-									fprintf( fp,
-										"item.%s = atoi( %s->getValue( gak::xml::PLAIN_MODE ) );\n",
-										(const char *)name,
-										(const char *)name
-									);
+									fp << "item."<<name<<" = atoi( "<<name<<"->getValue( gak::xml::PLAIN_MODE ) );\n";
 								}
 							}
 						}
 					}
 				}
 
-				fputs( "}\n", fp );
-				fprintf(
-					fp,
-					"void %s::fill%s( gak::Array<%s_t> &itemArray, gak::xml::Element *xml ) {\n",
-					(const char *)className,
-					(const char *)typeName,
-					(const char *)typeName
-				);
+				fp << "}\n";
+				fp << "void "<<className<<"::fill"<<typeName<<"( gak::Array<"<<typeName<<"_t> &itemArray, gak::xml::Element *xml ) {\n";
 
-				fputs( "for( size_t i=0; i<xml->getNumObjects(); i++ )\n", fp );
-				fputs( "{\n", fp );
-				fprintf(
-					fp,
-					"fill%s( itemArray.createElement(), xml->getElement( i ) );\n",
-					(const char *)typeName
-				);
-				fputs( "} }\n", fp );
+				fp << "for( size_t i=0; i<xml->getNumObjects(); i++ )\n";
+				fp << "{\n";
+				fp << "fill"<<typeName<<"( itemArray.createElement(), xml->getElement( i ) );\n";
+
+				fp << "} }\n";
 			}
 		}
 	}
@@ -552,12 +507,7 @@ void WSDLimporter::writeMemberFunctions( FILE *fp, const STRING &className, xml:
 				}
 
 				// write the definition
-				fprintf(
-					fp, "\n%s %s::%s( ",
-					(const char *)returnType,
-					(const char *)className,
-					(const char *)repairName( operationName )
-				);
+				fp << '\n'<<returnType<<' ' << className <<"::"<<repairName( operationName )<<"( ";
 				if( theInputElement )
 				{
 					// add each parameter
@@ -583,28 +533,28 @@ void WSDLimporter::writeMemberFunctions( FILE *fp, const STRING &className, xml:
 									type = searchSimpleType( theSchema, type );
 
 									if( !first )
-										fputs( ", ", fp );
+										fp << ", ";
 									first = false;
 
 									if( type != "int" && type != "bool" )
-										fputs( "const ", fp );
-									fputs( type, fp );
+										fp << "const ";
+									fp << type;
 									if( type != "int" && type != "bool" && type != "gak::STRING" )
-										fputs( "_t", fp );
+										fp << "_t";
 									if( type != "int" && type != "bool" )
-										fputs( " &", fp );
+										fp << " &";
 									else
-										fputs( " ", fp );
-									fputs( name, fp );
+										fp << ' ';
+									fp << name;
 								}
 							}
 						}
 					}
 				}
 
-				fputs( ") {\n", fp );
+				fp << ") {\n";
 				// add the body
-				fprintf( fp, "setOperation( \"%s\" );\n", (const char*)operationName );
+				fp << "setOperation( \""<<operationName<<"\" );\n";
 				if( theInputElement && theSequence )
 				{
 					for( size_t j=0; j<theSequence->getNumObjects(); j++ )
@@ -620,79 +570,69 @@ void WSDLimporter::writeMemberFunctions( FILE *fp, const STRING &className, xml:
 
 				if( returnType == "gak::STRING" || returnType == "int"  || returnType == "bool" )
 				{
-					fputs(
+					fp <<
 						"gak::STRING value;\n"
 						"gak::xml::Element *response = execute();\n"
 						"if( response ) {\n"
 							"response = response->getElement(0);\n"
 							"if( response )\n"
 								"value = response->getValue( gak::xml::PLAIN_MODE );\n"
-						"}\n",
-					fp );
+						"}\n";
 					if( returnType == "gak::STRING" )
-						fputs( "return value;\n", fp );
+						fp << "return value;\n";
 					else if( returnType == "int" )
-						fputs( "int iVal = value.getValueE<int>(); return iVal;\n", fp );
+						fp << "int iVal = value.getValueE<int>(); return iVal;\n";
 					else
-						fputs( "bool bVal = value.getBoolValue(); return bVal;\n", fp );
+						fp << "bool bVal = value.getBoolValue(); return bVal;\n";
 				}
 				else if( returnType == "gak::xml::Element *" )
 				{
-					fputs(
-						"gak::xml::Element *response = execute();\n"
+					fp << "gak::xml::Element *response = execute();\n"
 						"if( response )\n"
 							"response = response->getElement(0);\n"
-						"return response;\n",
-					fp );
+						"return response;\n";
 				}
 				else
 				{
-					fputs( "execute();\n", fp );
+					fp << "execute();\n";
 				}
 
-				fputs( "}\n", fp );
+				fp << "}\n";
 
 				// Now create the XML Version
-				fprintf(
-					fp, "\n%s %s::%s( gak::xml::Element *theParameter ) {\n",
-					(const char *)returnType,
-					(const char *)className,
-					(const char *)repairName( operationName )
-				);
-				fprintf( fp, "setOperation( \"%s\" );\n", (const char*)operationName );
+				fp << '\n'<<returnType<<' '<<className<<"::"<<repairName( operationName )<<"( gak::xml::Element *theParameter ) {\n";
+				fp << "setOperation( \""<<operationName<<"\" );\n";
 				if( returnType == "gak::STRING" || returnType == "int"  || returnType == "bool" )
 				{
-					fputs(
+					fp <<
 						"gak::STRING value;\n"
 						"gak::xml::Element *response = execute( theParameter );\n"
 						"if( response ) {\n"
 							"response = response->getElement(0);\n"
 							"if( response )\n"
 								"value = response->getValue( gak::xml::PLAIN_MODE );\n"
-						"}\n",
-					fp );
+						"}\n";
 					if( returnType == "gak::STRING" )
-						fputs( "return value;\n", fp );
+						fp << "return value;\n";
 					else if( returnType == "int" )
-						fputs( "int iVal = value.getValueE<int>(); return iVal;\n", fp );
+						fp << "int iVal = value.getValueE<int>(); return iVal;\n";
 					else
-						fputs( "bool bVal = value.getBoolValue(); return bVal;\n", fp );
+						fp << "bool bVal = value.getBoolValue(); return bVal;\n";
 				}
 				else if( returnType == "gak::xml::Element *" )
 				{
-					fputs(
+					fp <<
 						"gak::xml::Element *response = execute( theParameter );\n"
 						"if( response )\n"
 							"response = response->getElement(0);\n"
-						"return response;\n",
-					fp );
+						"return response;\n";
 				}
 				else
 				{
-					fputs( "execute( theParameter );\n", fp );
+					fp << "execute( theParameter );\n";
 				}
 
-				fputs( "}\n", fp );
+				fp << "}\n";
 			}
 		}
 	}
@@ -742,29 +682,22 @@ void WSDLimporter::writeCppClass( const STRING &directory )
 	fileName += ".h";
 
 	{
-		STDfile fp( fileName, "w" );
+		std::ofstream fp( fileName );
 		if( fp )
 		{
-			fprintf( fp, "// %s\n", (const char*)fileName );
-			fprintf( fp, "// Generated from file %s\n", (const char*)theWSDURL );
-			fputs( "//(c) 1988-2018 by Martin Gaeckler, Munich\n\n", fp );
-
-			fprintf( fp, "#ifndef SOAP_%s_H\n", (const char *)className );
-			fprintf( fp, "#define SOAP_%s_H\n", (const char *)className );
-			fputs( "#include <gak/soap.h>\n", fp );
-			fprintf( fp, "class %s : public gak::net::SoapRequest {\n", (const char *)className );
-			fputs( "public:\n", fp );
-
 			STRING	wsdUrl = theWSDURL.cString();
-			fprintf(
-				fp, "%s() : gak::net::SoapRequest(%s) {}\n",
-				(const char *)className, (const char *)wsdUrl
-			);
-			fprintf(
-				fp,
-				"%s( const char *wsdlUrl ) : gak::net::SoapRequest(wsdlUrl) {}\n",
-				(const char *)className
-			);
+
+			fp	<< "// " << fileName << "n"
+					"// Generated from file " << theWSDURL << "\n"
+					"//(c) 1988-2026 by Martin Gaeckler, Linz\n\n"
+					"#ifndef SOAP_" << className << "_H\n"
+					"#define SOAP_" << className << "_H\n"
+					"#include <gak/soap.h>\n"
+					"class "<<className<<" : public gak::net::SoapRequest {\n"
+					"public:\n"
+				<< className << "() : gak::net::SoapRequest(<<"<<wsdUrl<<") {}\n"
+				<< className << "( const char *wsdlUrl ) : gak::net::SoapRequest(wsdlUrl) {}\n"
+			;
 
 			theSchema = getSchema(theDefinitions);
 			if( theSchema )
@@ -773,8 +706,8 @@ void WSDLimporter::writeCppClass( const STRING &directory )
 				writePrototypes( fp, theDefinitions, theSchema );
 			}
 
-			fputs( "};\n", fp );
-			fputs( "#endif\n", fp );
+			fp << "};\n"
+				"#endif\n";
 		}
 		else
 /*@*/		throw OpenWriteError( fileName );
@@ -784,15 +717,15 @@ void WSDLimporter::writeCppClass( const STRING &directory )
 	fileName += ".cpp";
 
 	{
-		STDfile fp( fileName, "w" );
+		std::ofstream fp( fileName );
 		if( fp )
 		{
-			fprintf( fp, "// %s\n", (const char*)fileName );
-			fprintf( fp, "// Generated from file %s\n", (const char*)theWSDURL );
-			fputs( "//(c) 1988-2018 by Martin Gäckler, Munich\n\n", fp );
-
-			fputs( "#include <gak/numericString.h>\n", fp );
-			fprintf( fp, "#include \"%s.h\"\n", (const char *)className );
+			fp << "// "<<fileName<<"\n"
+				"// Generated from file "<<theWSDURL<<"\n"
+				"// (c) 1988-2026 by Martin Gäckler, Munich\n\n"
+				"#include <gak/numericString.h>\n"
+				"#include \""<<className<<".h\"\n"
+			;
 
 			if( theSchema )
 				writeMemberFunctions( fp, className, theDefinitions, theSchema );
@@ -805,13 +738,13 @@ void WSDLimporter::writeCppClass( const STRING &directory )
 	fileName += "_wsdl.xml";
 
 	{
-		STDfile fp( fileName, "w" );
+		std::ofstream fp( fileName );
 		if( fp )
 		{
 			STRING	xmlDoc = theWsdDoc->generateDoc();
 
-			if( xmlDoc[0U] )
-				fputs( xmlDoc, fp );
+			if( !xmlDoc.isEmpty() )
+				fp << xmlDoc;
 		}
 		else
 /*@*/		throw OpenWriteError( fileName );

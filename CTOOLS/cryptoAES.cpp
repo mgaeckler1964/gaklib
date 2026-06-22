@@ -38,6 +38,8 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+#include <fstream>
+
 #include <gak/aes.h>
 #include <gak/strFiles.h>
 #include <gak/directory.h>
@@ -193,10 +195,10 @@ void CryptoAES::makeRandomCypher( void )
 
 void CryptoAES::loadCypher( const STRING &fName )
 {
-	STDfile fp( fName, "rb" );
+	std::ifstream fp( fName, std::ios_base::binary );
 	if( fp )
 	{
-		if( fread( aesCypher, 1, 32, fp ) != 32 )
+		if( fp.read( reinterpret_cast<char*>(aesCypher), sizeof(aesCypher) ).gcount() != sizeof(aesCypher) )
 /*@*/		throw ReadError( fName );
 	}
 	else
@@ -205,10 +207,10 @@ void CryptoAES::loadCypher( const STRING &fName )
 
 void CryptoAES::saveCypher( const STRING &fName ) const
 {
-	STDfile fp( fName, "wb" );
+	std::ofstream  fp( fName, std::ios_base::binary );
 	if( fp )
 	{
-		if( fwrite( aesCypher, 1, 32, fp ) != 32 )
+		if( !fp.write( reinterpret_cast<const char*>(aesCypher), sizeof(aesCypher)  ) )
 /*@*/		throw WriteError( fName );
 	}
 	else

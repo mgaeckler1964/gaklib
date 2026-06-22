@@ -33,11 +33,11 @@
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#define _CRT_SECURE_NO_WARNINGS 1
-
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
+
+#include <fstream>
 
 #include <gak/date.h>
 #include <gak/gps.h>
@@ -478,7 +478,6 @@ CRP files use a “CSV” type file format with tab-delimited fields. Line delimiter
 
 STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 {
-	FILE		*fp;
 	STRING		line, trackTitle;
 	int			numBytes;
 
@@ -524,18 +523,18 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 	m_minTemperature = std::numeric_limits<double>::max();
 	m_maxTemperature = std::numeric_limits<double>::min();
 
-	fp = fopen( crpFilename, "r" );
+	std::ifstream fp( crpFilename );
 	if( fp )
 	{
-		line << fp;
+		fp >> line;
 		if( line == "HRMProfilDatas" )
 		{
 			// search the date file
-			while( !feof( fp ) && line != "***" )
-				line << fp;
+			while( !fp.eof() && line != "***" )
+				fp >> line;
 
-			line << fp;		// ignore statistics
-			line << fp;
+			fp >> line;		// ignore statistics
+			fp >> line;
 
 			const char *cp = line.c_str();
 			day = getValue<int>( cp, &cp );
@@ -555,14 +554,14 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 			trackTitle = line;
 
 
-			fseek( fp, 0, SEEK_SET );
+			fp.seekg( 0, std::ios_base::beg );
 
-			line << fp;		// HRMProfilDatas
-			line << fp;		// ignore header
-			line << fp;		// first line
+			fp >> line;		// HRMProfilDatas
+			fp >> line;		// ignore header
+			fp >> line;		// first line
 
 			NumberBuffer	tmp[6];
-			while( !feof( fp ) && line != "***" )
+			while( !fp.eof() && line != "***" )
 			{
 				const char *cp = line.c_str();
 				heartRate = getValue<int>( cp, &cp );
@@ -709,7 +708,7 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 					m_ts_valid = true;
 				}
 
-				line << fp;		// next line
+				fp >> line;		// next line
 
 				startTime = endTime;
 				first = false;
@@ -717,8 +716,6 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 
 			m_totalDistance = totalDistance;
 		}
-
-		fclose( fp );
 	}
 
 	if( m_minHeight > m_maxHeight )

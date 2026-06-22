@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			fieldSet.cpp
-		Description:	
+		Description:	Named fields in an assoc with dynamic values
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -32,6 +32,8 @@
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
+
+#include <fstream>
 
 #include <gak/fieldSet.h>
 #include <gak/t_string.h>
@@ -75,37 +77,33 @@ void FieldSet::loadConfigFile( const char *fileName )
 	T_STRING	line;
 	STRING		name, value;
 
-
-	STDfile fp( fileName, "r" );
+	std::ifstream	fp( fileName );
 	if( fp )
 	{
-		while( !feof( fp ) && !ferror( fp ) )
+		while( fp >> line )
 		{
-			line << fp;
 			name = line.getFirstToken( "=" );
 			value = line.getNextToken();
-			if( name[0U] && value[0U] )
-				updateField( name, (const char *)value );
+			if( !name.isEmpty() && !value.isEmpty() )
+				updateField( name, value.c_str() );
 		}
 	}
 }
 
 void FieldSet::saveConfigFile( const char *fileName ) const
 {
-	STRING			name, value;
-
-	STDfile fp( fileName, "w" );
+	std::ofstream fp( fileName );
 	if( fp )
 	{
 		for( const_iterator it = cbegin(), endIT = cend(); it != endIT; ++it )
 		{
 			const Named_Field	&theField = *it;
 
-			name = theField.getKey();
-			value = theField.getValue();
-			if( name[0U] && value[0U] )
-			 {
-				fprintf( fp, "%s=%s\n", (const char *)name, (const char *)value );
+			STRING	name = theField.getKey();
+			STRING	value = theField.getValue();
+			if( !name.isEmpty() && !value.isEmpty() )
+			{
+				fp << name << '=' << value << '\n';
 			}
 		}
 	}

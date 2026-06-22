@@ -34,11 +34,11 @@
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#define _CRT_SECURE_NO_WARNINGS 1
-
 /* --------------------------------------------------------------------- */
 /* ----- includes ------------------------------------------------------ */
 /* --------------------------------------------------------------------- */
+
+#include <fstream>
 
 #include <gak/gaklib.h>
 #include <gak/string.h>
@@ -55,7 +55,7 @@
 namespace gak
 {
 
-static const unsigned char UTF8_BOM[3] = {0xEFu, 0xBBu, 0xBFu};
+static const char UTF8_BOM[3] = {0xEFu, 0xBBu, 0xBFu};
 
 /* --------------------------------------------------------------------- */
 /* ----- entry points -------------------------------------------------- */
@@ -104,25 +104,23 @@ STR *readNfromFile( FILE *fp, size_t n )
 
 STR *readFromFile( const char *fileName )
 {
-	STR 			*str = NULL;
-	long			pos;
-	unsigned short	uniCodeIndicator;
-	bool			utf8IndicatorFnd = false;
+	STR *str = nullptr;
 
-	FILE *fp = fopen( fileName, "rb" );
+	std::ifstream fp( fileName, std::ios_base::binary|std::ios_base::in);
 	if( fp )
 	{
-		fseek( fp, 0, SEEK_END );
-		//fgetpos( fp, &pos );
-		pos = ftell( fp );
-		fseek( fp, 0, SEEK_SET );
+		bool	utf8IndicatorFnd = false;
 
-		str = resizeStr( NULL, size_t(pos+2), cTrue );
-		unsigned char *bufferPos = (unsigned char *)str->string;
+		fp.seekg( 0, std::ios_base::end );
+		size_t pos = fp.tellg();
+		fp.seekg( 0, std::ios_base::beg );
+
+		str = resizeStr( nullptr, size_t(pos+2), cTrue );
+		char *bufferPos = str->string;
 		str->actSize = size_t(pos);
 		if( pos >= 3 )
 		{
-			fread( bufferPos, 3, 1, fp );
+			fp.read( bufferPos, 3 );
 			pos -= 3;
 			if( !memcmp( bufferPos, UTF8_BOM, sizeof(UTF8_BOM) ) )
 			{
@@ -134,19 +132,17 @@ STR *readFromFile( const char *fileName )
 				bufferPos += 3;
 			}
 		}
-		fread( bufferPos, size_t(pos), 1, fp );
+		fp.read( bufferPos, size_t(pos) );
 		bufferPos[pos]=0;
 		bufferPos[pos+1]=0;		// maybe an unicode file
 
-		fclose( fp );
-		
 		if( utf8IndicatorFnd )
 		{
 			str->charset = STR_UTF8;
 		}
 		else
 		{
-			uniCodeIndicator = *((short*)str->string);
+			unsigned short uniCodeIndicator = *((short*)str->string);
 			if( uniCodeIndicator == 0xFFFE || uniCodeIndicator == 0xFEFF )	// unicode
 			{
 				wchar_t	*uniCodeString = (wchar_t *)str->string;
@@ -175,20 +171,19 @@ STR *readFromFile( const char *fileName )
 
 bool writeToFile( const STR *str, const char *fileName, bool withBOM )
 {
-	size_t	numWritten;
 	bool	errorFlag = true;
 
-	FILE *fp = fopen( fileName, "wb" );
+	std::ofstream fp( fileName, std::ios_base::binary|std::ios_base::out );
 	if( fp )
 	{
 		if( str && str->actSize )
 		{
 			if( str->charset == STR_UTF8 && withBOM )
 			{
-				fwrite( UTF8_BOM, sizeof(UTF8_BOM), 1, fp  );
+				fp.write( UTF8_BOM, sizeof(UTF8_BOM) );
 			}
-			numWritten = fwrite( str->string, 1, str->actSize, fp );
-			if( numWritten == str->actSize )
+			fp.write( str->string, str->actSize );
+			if( fp.good() )
 			{
 				errorFlag = false;
 			}
@@ -197,8 +192,6 @@ bool writeToFile( const STR *str, const char *fileName, bool withBOM )
 		{
 			errorFlag = false;
 		}
-
-		fclose( fp );
 	}
 
 	return errorFlag;

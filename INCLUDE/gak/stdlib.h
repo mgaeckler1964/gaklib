@@ -81,6 +81,9 @@ namespace gak
 // --------------------------------------------------------------------- //
 
 /// simple C++ wrapper for std::FILE *
+#ifdef _MSC_VER
+__declspec(deprecated("Migrate to C++ I/O"))
+#endif
 class STDfile
 {
 	FILE	*m_fp;
@@ -95,6 +98,9 @@ class STDfile
 		@param [in] fileName the file to open
 		@param [in] mode the mode string passed to std::fopen
 	*/
+#ifdef _MSC_VER
+__declspec(deprecated("Migrate to C++ I/O"))
+#endif
 	STDfile( const STRING &fileName, const STRING &mode )
 	{
 		m_fp = strFopen( fileName, mode );
@@ -103,6 +109,9 @@ class STDfile
 		@brief Assigns an open FILE handle
 		@param [in] pointer to the std::FILE handle
 	*/
+#ifdef _MSC_VER
+__declspec(deprecated("Migrate to C++ I/O"))
+#endif
 	STDfile( FILE *fp )
 	{
 		m_fp = fp;
