@@ -199,9 +199,17 @@ class Buffer
 	{
 		return m_buff;
 	}
+	TYPE *get()
+	{
+		return m_buff;
+	}
 #ifndef __BORLANDC__
 	/// Returns a const pointer to TYPE
 	operator const TYPE * () const
+	{
+		return m_buff;
+	}
+	const TYPE *get() const
 	{
 		return m_buff;
 	}
