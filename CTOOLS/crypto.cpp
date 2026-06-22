@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -263,14 +263,10 @@ void Crypto::encryptFile(
 	STDfile fpPlain( plainFileName, "rb" );
 	if( fpPlain )
 	{
-		Buffer<unsigned char>	plain( malloc( size_t(statBuff.st_size) ) );
+		Buffer<unsigned char>	plain( size_t(statBuff.st_size ) );
 		if( plain )
 		{
-			Buffer<CryptoHeader>	crypto(
-				malloc(
-					statBuff.st_size+sizeof(CryptoHeader)+blockCount*cryptoBlockSize
-				)
-			);
+			Buffer<CryptoHeader>	crypto( statBuff.st_size+sizeof(CryptoHeader)+blockCount*cryptoBlockSize );
 			if( crypto )
 			{
 				crypto->magic = EncryptionMagic;
@@ -321,7 +317,7 @@ void Crypto::decryptFile(
 	STDfile fpCrypto( cryptoFileName, "rb" );
 	if( fpCrypto )
 	{
-		Buffer<CryptoHeader>crypto( malloc( size_t(statBuff.st_size) ) );
+		Buffer<CryptoHeader>crypto( size_t(statBuff.st_size) );
 		if( crypto )
 		{
 			plain->setChunkSize( size_t(statBuff.st_size) );

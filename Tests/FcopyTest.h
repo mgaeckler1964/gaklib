@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			FcopyTest.h
-		Description:	
+		Description:	Copy a file
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -187,7 +187,7 @@ class FcopyTest : public UnitTest
 			const size_t	loopCount = 1024;
 
 			std::cout << "Creating " << tmpFile << std::endl;
-			Buffer<char>	buffer( malloc( blockCount*blockSize ) );
+			Buffer<char>	buffer( blockCount*blockSize );
 			STDfile fp( tmpFile, "wb" );
 			for( size_t i=1; i<loopCount; i++ )
 			{

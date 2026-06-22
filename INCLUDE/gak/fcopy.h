@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			fcopy.h
-		Description:
+		Description:	Copy a file
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -151,22 +151,10 @@ void fcopy( const STRING &source, const STRING &destination, FcopyWatcherT &watc
 	const std::size_t	memory = 4UL*1024UL*1024UL;
 	uint64				numProcessed = 0, 
 						fileLen = 0;
-#if defined( __BORLANDC__ ) && defined(  __MT__ )
-	static void *buffer = NULL;
-#endif
-
-
-#if defined( __BORLANDC__ ) && defined(  __MT__ )
-	if( !buffer )
-	{
-		if( (buffer=malloc(memory)) == NULL  )
-/*@*/		throw AllocError();
-	}
-#else
-	Buffer<void>	buffer( malloc(memory) );
-	if( !buffer  )
+	
+	Buffer<char>	buffer( memory );
+	if( !bool(buffer)  )
 /*@*/	throw AllocError();
-#endif
 
 	DirectoryEntry	theEntry(source);
 

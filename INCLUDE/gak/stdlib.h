@@ -161,6 +161,12 @@ class Buffer
 	const Buffer & operator = ( const Buffer &src );
 
 	public:
+	Buffer() : m_buff(nullptr) 
+	{}
+
+	Buffer(const char *s, char) : m_buff(strdup(s)) 
+	{}
+
 	/**
 		@brief Constructs a pointer object from an allocated memory.
 
@@ -168,10 +174,12 @@ class Buffer
 
 		@param [in] buffer the address of the memory buffer
 	*/
-	Buffer( void *buff )
+#if 0
+	Buffer( TYPE *buff )
 	{
-		m_buff = static_cast<TYPE*>(buff);
+		m_buff = buff;
 	}
+#endif
 	/**
 		@brief Constructs a pointer object from an allocated memory.
 
@@ -183,6 +191,19 @@ class Buffer
 	{
 		m_buff = static_cast<TYPE*>(::malloc(size));
 	}
+	/**
+		@brief Constructs a pointer object from an allocated memory.
+
+		The buffer wull be allocated with std::malloc
+
+		@param [in] size the number of items int the memory buffer to allocate
+		@param [in] dummy parameter to use calloc instead of malloc
+	*/
+	Buffer( size_t itemCount, const TYPE & )
+	{
+		m_buff = static_cast<TYPE*>(::calloc(itemCount, sizeof(TYPE)));
+	}
+
 	/// Destructor, frees the memory block
 	~Buffer()
 	{
@@ -192,7 +213,7 @@ class Buffer
 	/// Returns true if pointer is valid
 	operator bool ()
 	{
-		return m_buff != NULL;
+		return m_buff != nullptr;
 	}
 	/// Returns a pointer to TYPE
 	operator TYPE * ()
@@ -224,14 +245,16 @@ class Buffer
 	{
 		return m_buff;
 	}
+#if 0
 	/// Updates the pointer
-	Buffer<TYPE> &operator = (void *buff )
+	Buffer<TYPE> &operator = (TYPE *buff )
 	{
 		if( m_buff )
 			::free( m_buff );
 		m_buff = static_cast<TYPE*>(buff);
 		return *this;
 	}
+#endif
 	/**
 		@brief Returns a pointer to an index element
 		@param [in] offset the index of the element
@@ -264,7 +287,7 @@ class Buffer
 	}
 
 	/// returns the pointer and clear the pointer
-	TYPE *prepareMove()
+	TYPE *release()
 	{
 		TYPE *buff = m_buff;
 		m_buff = nullptr;

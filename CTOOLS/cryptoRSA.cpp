@@ -136,7 +136,7 @@ static void copyBioToFile(
 	if( strStat( fileName, &statBuf ) || statBuf.st_mtime != timeStamp )
 	{
 		int				keylen = BIO_pending(bio);
-		Buffer<char>	pem_key( malloc( keylen+1 ) );
+		Buffer<char>	pem_key( keylen+1 );
 
 		if( pem_key )
 		{

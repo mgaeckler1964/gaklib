@@ -3,10 +3,10 @@
 		Module:			SLIST.CPP
 		Description:	Sorted linked list
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -35,6 +35,7 @@
 
 #include <assert.h>
 #include <gak/slist.h>
+#include <gak/stdlib.h>
 
 // --------------------------------------------------------------------- //
 // ----- module switches ----------------------------------------------- //
@@ -71,22 +72,15 @@ static int compare( const void *entry1, const void *entry2 )
 
 void SortedListContainer::sort( void *sortOrder )
 {
-	SortedListContainer	tmpContainer;
-
-	SortedListEntry		**array;
-	SortedListEntry		*object;
-	ListCursor			cursor;
-	size_t				i, numEntry;
-
-	numEntry = (size_t)size();
-	array = (SortedListEntry **)malloc( sizeof( SortedListEntry * ) * numEntry );
+	const size_t	numEntry = size();
+	Buffer<SortedListEntry*>	array( sizeof( SortedListEntry * ) * numEntry );
 	if( array )
 	{
 		// create the temporary array
-		i = 0;
+		size_t i = 0;
 		while( 1 )
 		{
-			object = (SortedListEntry *)getFirstItem();
+			SortedListEntry	*object = (SortedListEntry *)getFirstItem();
 			if( !object )
 /*v*/			break;
 
@@ -103,10 +97,9 @@ void SortedListContainer::sort( void *sortOrder )
 		qsort( array, numEntry, sizeof( SortedListEntry * ), compare );
 		
 		// create the new list
+		ListCursor	cursor;
 		for( i=0; i<numEntry; i++ )
 			insertObject( &cursor, array[i], false );
-
-		free( array );
 	}
 }
 
