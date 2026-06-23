@@ -294,6 +294,10 @@ class ImageMetaData
 // --------------------------------------------------------------------- //
 
 bool readImageMetaData( const STRING &fileName, ImageMetaData *exif );
+/*
+	FILE cannot be migrated to fstream, because the handle is also used
+	by some C source in the imagelib
+*/
 bool readImageMetaData( FILE *fp, ImageMetaData *exif );
 #if defined( __BORLANDC__ )
 TDateTime parseExifTimestamp( const STRING &timestamp );

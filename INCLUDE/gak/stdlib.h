@@ -45,6 +45,7 @@
 
 #include <gak/string.h>
 #include <gak/strFiles.h>
+#include <gak/CopyProtection.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -84,12 +85,9 @@ namespace gak
 #ifdef _MSC_VER
 __declspec(deprecated("Migrate to C++ I/O"))
 #endif
-class STDfile
+class STDfile : public CopyProtection
 {
 	FILE	*m_fp;
-
-	STDfile( const STDfile &src );
-	const STDfile & operator = ( const STDfile &src );
 
 	public:
 	/**
