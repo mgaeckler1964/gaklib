@@ -176,6 +176,7 @@ class Buffer
 	Buffer(const char *s, char) : m_buff(strdup(s)) 
 	{}
 
+#if 0
 	/**
 		@brief Constructs a pointer object from an allocated memory.
 
@@ -183,7 +184,6 @@ class Buffer
 
 		@param [in] buffer the address of the memory buffer
 	*/
-#if 0
 	Buffer( TYPE *buff )
 	{
 		m_buff = buff;
@@ -254,40 +254,29 @@ class Buffer
 	{
 		return m_buff;
 	}
-#if 0
-	/// Updates the pointer
-	Buffer<TYPE> &operator = (TYPE *buff )
-	{
-		if( m_buff )
-			::free( m_buff );
-		m_buff = static_cast<TYPE*>(buff);
-		return *this;
-	}
-#endif
 	/**
 		@brief Returns a pointer to an index element
 		@param [in] offset the index of the element
 	*/
-	TYPE *operator + ( int offset )
+	TYPE *operator + ( int offset ) const
 	{
 		return m_buff + offset;
 	}
-	/**
-		@brief Returns a const pointer to an index element
-		@param [in] offset the index of the element
-	*/
-	const TYPE *operator + ( int offset ) const
+	TYPE *operator + ( size_t offset ) const
 	{
 		return m_buff + offset;
 	}
+
 	/// Frees the memory block
-	void free()
+	Buffer<TYPE> &free()
 	{
 		if( m_buff )
 		{
 			::free( m_buff );
 			m_buff = nullptr;
 		}
+
+		return *this;
 	}
 	/// resizes the buffer
 	void resize(size_t newSize)
@@ -295,13 +284,20 @@ class Buffer
 		m_buff = static_cast<TYPE*>(realloc(m_buff, newSize));
 	}
 
-	/// returns the pointer and clear the pointer
+	/// returns the pointer and gives up the ownership of the address
 	TYPE *release()
 	{
 		TYPE *buff = m_buff;
 		m_buff = nullptr;
 
 		return buff;
+	}
+	Buffer<TYPE> &moveFrom( Buffer<TYPE> &src )
+	{
+		free();
+		m_buff = src.release();
+
+		return *this;
 	}
 };
 
