@@ -184,6 +184,8 @@ NUMERIC getIntegerValue( const char *cp, unsigned base, char thousand, const cha
 			c = static_cast<unsigned char>(ansiToUpper( c ));
 			if( c >= 'A' && c <= 'Z' )
 				digit = c - 'A' + 10;
+			else if( c >= 'a' && c <= 'z' )
+				digit = c - 'a' + 10;
 			else if( c==thousand )	// skip thousend marker
 			{
 				cp++;
