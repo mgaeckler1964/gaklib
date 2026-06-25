@@ -122,11 +122,6 @@ SocketStreambuf::~SocketStreambuf()
 	{
 		disconnect();
 	}
-
-	if( m_dataBuffer )
-	{
-		free( m_dataBuffer );
-	}
 }
 
 // --------------------------------------------------------------------- //
@@ -142,15 +137,11 @@ void SocketStreambuf::makeBuffer( int bufferSize )
 	doEnterFunction("SocketStreambuf::makeBuffer");
 	if( !m_dataBuffer || bufferSize != m_bufferSize )
 	{
-		if( m_dataBuffer )
-		{
-			free( m_dataBuffer );
-			m_dataBuffer = NULL;
-		}
+		m_dataBuffer.free();
 
 		while( !m_dataBuffer && bufferSize )
 		{
-			m_dataBuffer = static_cast<char *>(malloc( bufferSize+1+SocketPutbackSize ));
+			m_dataBuffer.resize( bufferSize+1+SocketPutbackSize );
 			if( m_dataBuffer )
 			{
 				break;
@@ -179,8 +170,8 @@ void SocketStreambuf::flush( void )
 	}
 	else
 	{
-		setg( NULL, NULL, NULL );
-		setp( NULL, NULL );
+		setg( nullptr, nullptr, nullptr );
+		setp( nullptr, nullptr );
 	}
 }
 

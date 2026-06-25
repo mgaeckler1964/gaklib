@@ -105,100 +105,6 @@ namespace vcl
 // ----- module functions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-#if 0
-typedef char *pCHAR;
-typedef unsigned short UINT16;
-inline DBIResult Chk( DBIResult status )
-{
-	Check( status );
-	return status;
-}
-
-
-static DBIResult fDbiDoRestructure5(hDBIDb hTmpDb, pCHAR TblName, FLDDesc FldDesc, pCHAR NewTblName)
-{
-   DBIResult      rslt;
-   CRTblDesc      TblDesc;
-   pCROpType      AddOp;
-   UINT16         i;
-   pFLDDesc       pFldDesc;
-   hDBICur        hCur;
-   CURProps       Props;
-
-   // Get an existing cursor on the source table.
-   rslt = Chk(DbiGetCursorForTable(hTmpDb, TblName, NULL, hCur));
-   if (rslt != DBIERR_NONE)
-	  return rslt;
-
-   // Get the amount of fields in the source table.
-
-   rslt = Chk(DbiGetCursorProps(hCur, Props));
-   if (rslt != DBIERR_NONE)
-	  return rslt;
-
-   // Get the existing field descriptor.
-   pFldDesc = (pFLDDesc)malloc((Props.iFields + 1) * sizeof(FLDDesc));
-   rslt = Chk(DbiGetFieldDescs(hCur, pFldDesc));
-   if (rslt != DBIERR_NONE)
-   {
-	  free(pFldDesc);
-	  return rslt;
-   }
-
-   // Close the source table so the restructure can occur.
-   rslt = Chk(DbiCloseCursor(hCur));
-   if (rslt != DBIERR_NONE)
-   {
-	  free(pFldDesc);
-	  return rslt;
-   }
-
-   // Move the new field descriptor to the end of the source field descriptor.
-   memcpy(&pFldDesc[Props.iFields], &FldDesc, sizeof(FLDDesc));
-
-   // Put a crADD at the same position ad the new field descriptor
-   AddOp = (pCROpType)malloc((Props.iFields + 1) * sizeof(CROpType));
-   memset(AddOp, crNOOP, (Props.iFields + 1) * sizeof(CROpType));
-   AddOp[Props.iFields] = crADD;
-
-   memset(&TblDesc, 0, sizeof(TblDesc));
-   strcpy(TblDesc.szTblName, TblName);
-
-   TblDesc.iFldCount = (UINT16)(Props.iFields + 1);
-   TblDesc.pecrFldOp = AddOp;
-   TblDesc.pfldDesc = pFldDesc;
-
-   // Resync the field numbers in order.
-   for (i = 0; i < Props.iFields; i++)
-		pFldDesc[i].iFldNum = (UINT16)(i + 1);
-
-   rslt = Chk(DbiDoRestructure(hTmpDb, 1, &TblDesc, NewTblName, NULL, NULL, FALSE));
-   free(AddOp);
-   free(pFldDesc);
-   return rslt;
-}
-
-static int compare( const void *iFld1, const void *iFld2 )
-{
-	const FLDDesc *fld1 = (const FLDDesc*)iFld1;
-	const FLDDesc *fld2 = (const FLDDesc*)iFld2;
-
-	if( fld1->iFldNum < fld2->iFldNum )
-		return -1;
-
-	if( fld1->iFldNum > fld2->iFldNum )
-		return 1;
-
-	if( fld1->iOffset < fld2->iOffset )
-		return -1;
-
-	if( fld1->iOffset > fld2->iOffset )
-		return 1;
-
-	return 0;
-}
-#endif
-
 // --------------------------------------------------------------------- //
 // ----- class inlines ------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -818,14 +724,6 @@ void DatabaseSchema::upgradeTable(
 			fld.iFldNum = i+1;
 		}*/
 
-		//newFields.addElements( changedFields );
-		//allOperations.addElements( changeOperations );
-/*		for( size_t i=0; i<changedFields.size(); i++ )
-		{
-			fDbiDoRestructure5(currentDB->Handle, currentTable.getName() + ".DB", changedFields[i], currentTable.getName() + "_NEW.DB" );
-
-		}
-*/
 		memset( &restructureInfo, 0, sizeof( restructureInfo ) );
 		strcpy( restructureInfo.szTblName, currentTable.getName() );
 		strcpy( restructureInfo.szTblType, currentTable.getType() );

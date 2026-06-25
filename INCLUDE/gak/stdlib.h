@@ -222,6 +222,10 @@ class Buffer
 	{
 		return m_buff != nullptr;
 	}
+	bool operator ! ()
+	{
+		return m_buff == nullptr;
+	}
 	/// Returns a pointer to TYPE
 	operator TYPE * ()
 	{
