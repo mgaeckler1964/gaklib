@@ -227,10 +227,10 @@ void TableSchema::readSchema( TDatabase *theDatabase, const STRING &tableName, c
 	doLogPosition();
 	Check( DbiOpenFieldList(
 		theDatabase->Handle,
-		tableName, NULL, FALSE, theCursor
+		tableName, nullptr, FALSE, theCursor
 	) );
 	doLogPosition();
-	while( DbiGetNextRecord(theCursor, dbiNOLOCK, &FieldDescr, NULL) == DBIERR_NONE )
+	while( DbiGetNextRecord(theCursor, dbiNOLOCK, &FieldDescr, nullptr) == DBIERR_NONE )
 	{
 		doLogValue(FieldDescr.szName);
 		m_fields.addElement( FieldDescr );
@@ -242,9 +242,9 @@ void TableSchema::readSchema( TDatabase *theDatabase, const STRING &tableName, c
 
 	Check( DbiOpenIndexList(
 		theDatabase->Handle,
-		tableName, NULL, theCursor
+		tableName, nullptr, theCursor
 	) );
-	while( DbiGetNextRecord(theCursor, dbiNOLOCK, &IndexDescr, NULL) == DBIERR_NONE )
+	while( DbiGetNextRecord(theCursor, dbiNOLOCK, &IndexDescr, nullptr) == DBIERR_NONE )
 	{
 		doLogValue(IndexDescr.szName);
 		m_indices.addElement( IndexDescr );
@@ -253,9 +253,9 @@ void TableSchema::readSchema( TDatabase *theDatabase, const STRING &tableName, c
 
 	Check( DbiOpenVchkList(
 		theDatabase->Handle,
-		tableName, NULL, theCursor
+		tableName, nullptr, theCursor
 	) );
-	while( DbiGetNextRecord(theCursor, dbiNOLOCK, &ValidityDescr, NULL) == DBIERR_NONE )
+	while( DbiGetNextRecord(theCursor, dbiNOLOCK, &ValidityDescr, nullptr) == DBIERR_NONE )
 	{
 		m_validations.addElement( ValidityDescr );
 	}
@@ -263,9 +263,9 @@ void TableSchema::readSchema( TDatabase *theDatabase, const STRING &tableName, c
 
 	Check( DbiOpenRintList(
 		theDatabase->Handle,
-		tableName, NULL, theCursor
+		tableName, nullptr, theCursor
 	) );
-	while( DbiGetNextRecord(theCursor, dbiNOLOCK, &referenceDescr, NULL) == DBIERR_NONE )
+	while( DbiGetNextRecord(theCursor, dbiNOLOCK, &referenceDescr, nullptr) == DBIERR_NONE )
 	{
 		doLogValue(referenceDescr.szRintName);
 		m_references.addElement( referenceDescr );
@@ -297,10 +297,10 @@ void DatabaseSchema::readSchema( TDatabase *theDatabase )
 		doLogPosition();
 		Check( DbiOpenTableList(
 			theDatabase->Handle,
-			FALSE, FALSE, NULL, theCursor
+			FALSE, FALSE, nullptr, theCursor
 		) );
 		doLogPosition();
-		while( DbiGetNextRecord(theCursor, dbiNOLOCK, &tableDescr, NULL) == DBIERR_NONE )
+		while( DbiGetNextRecord(theCursor, dbiNOLOCK, &tableDescr, nullptr) == DBIERR_NONE )
 		{
 			doLogValue( tableDescr.szName );
 			if( !strchr( (const char *)tableDescr.szName, '.'  ) )
@@ -577,7 +577,7 @@ FLDDesc *TableSchema::getField( Word fldNum )
 			return &theField;
 	}
 
-	return NULL;
+	return nullptr;
 }
 */
 
@@ -600,7 +600,7 @@ FLDDesc *TableSchema::getField( const CI_STRING &fieldName )
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -617,7 +617,7 @@ IDXDesc *TableSchema::getPrimaryIndex( void )
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 IDXDesc *TableSchema::getIndex( const CI_STRING &indexName )
@@ -631,7 +631,7 @@ IDXDesc *TableSchema::getIndex( const CI_STRING &indexName )
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 // Validations
@@ -647,7 +647,7 @@ VCHKDesc *TableSchema::getValidation( const CI_STRING &fieldName )
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 // Reference constraints
@@ -663,7 +663,7 @@ RINTDesc *TableSchema::getReference( const CI_STRING &referenceName )
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -733,7 +733,7 @@ void DatabaseSchema::upgradeTable(
 
 		Check(
 			DbiDoRestructure(
-				currentDB->Handle, 1, &restructureInfo, NULL, NULL, NULL, FALSE
+				currentDB->Handle, 1, &restructureInfo, nullptr, nullptr, nullptr, FALSE
 			)
 		);
 
@@ -803,7 +803,7 @@ void DatabaseSchema::emptyTable( TableSchema &theTable )
 		}
 	}
 
-	TTable *dbTable = new TTable( NULL );
+	TTable *dbTable = new TTable( nullptr );
 	try
 	{
 		if( m_database->IsSQLBased && !m_database->InTransaction )
@@ -863,7 +863,7 @@ TDataSet *DatabaseSchema::openTable( const STRING &tableName )
 {
 	TTable	*theTable;
 
-	theTable = new TTable( NULL );
+	theTable = new TTable( nullptr );
 	theTable->DatabaseName = m_database->DatabaseName;
 	theTable->TableName = static_cast<const char *>(tableName);
 	theTable->Open();
@@ -928,7 +928,7 @@ void DatabaseSchema::copyRecord(
 	destTable->Post();
 }
 
-void DatabaseSchema::closeTable( TDataSet *theTable, const STRING &tableName )
+void DatabaseSchema::closeTable( TDataSet *theTable, const STRING & )
 {
 	theTable->Close();
 	delete theTable;
@@ -1376,7 +1376,7 @@ void DatabaseSchema::createSchema( const DBconnector &dbConnector, DBtype dbType
 	}
 
 	connectDB( dbConnector );
-	TQuery *sql = new TQuery( NULL );
+	TQuery *sql = new TQuery( nullptr );
 	sql->DatabaseName = m_database->DatabaseName;
 
 	try
@@ -1685,7 +1685,7 @@ STRING	TableSchema::compareTable( TableSchema &masterTable )
 		/*
 			search Index by definition
 		*/
-		IDXDesc *theIndexByDef = NULL;
+		IDXDesc *theIndexByDef = nullptr;
 		for( size_t j=0; j<m_indices.size(); j++ )
 		{
 			IDXDesc &myIndex = m_indices[j];
@@ -1701,7 +1701,7 @@ STRING	TableSchema::compareTable( TableSchema &masterTable )
 					);
 					if( strcmpi( myField->szName, masterField->szName ) )
 					{
-						theIndexByDef = NULL;
+						theIndexByDef = nullptr;
 /*v*/					break;
 					}
 				}

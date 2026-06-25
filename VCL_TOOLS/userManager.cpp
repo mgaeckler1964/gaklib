@@ -37,6 +37,8 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+#include <memory>
+
 #include <gak/string.h>
 #include <gak/md5.h>
 #include <gak/vcl_tools.h>
@@ -146,7 +148,7 @@ static void getMemberships( const AnsiString &database, const UserOrGroup &theUs
 {
 	groupIds->clear();
 
-	TQuery	*theQuery = new TQuery( NULL );
+	std::auto_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
 	theQuery->DatabaseName = database;
 
 	theQuery->SQL->Add(
@@ -158,8 +160,6 @@ static void getMemberships( const AnsiString &database, const UserOrGroup &theUs
 		groupIds->addElement( theQuery->Fields->Fields[0]->AsInteger );
 	}
 	theQuery->Close();
-
-	delete theQuery;
 
 	if( theUser.department
 	&&  groupIds->findElement( theUser.department ) == groupIds->no_index )
@@ -173,7 +173,7 @@ static void fillGroups( const AnsiString &database, UserOrGroup *theUser, const 
 	UserOrGroup	actGroup;
 	STRING		groupList = theUser->groupList;
 
-	TQuery	*theQuery = new TQuery( NULL );
+	std::auto_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
 	theQuery->DatabaseName = database;
 
 	if( theUser->ID == theGroup.ID )
@@ -226,7 +226,6 @@ static void fillGroups( const AnsiString &database, UserOrGroup *theUser, const 
 		}
 	}
 	theUser->groupList = groupList;
-	delete theQuery;
 }
 
 static void	readUser( TQuery *theQuery, UserOrGroup *result )
@@ -263,7 +262,7 @@ static void fillUserCache( const AnsiString &database )
 {
 	userCache.clear();
 
-	TQuery *theQuery = new TQuery( NULL );
+	std::auto_ptr<TQuery> theQuery( new TQuery( nullptr ) );
 	theQuery->DatabaseName = database;
 
 	theQuery->SQL->Add(
@@ -275,11 +274,9 @@ static void fillUserCache( const AnsiString &database )
 	for( theQuery->Open(); !theQuery->Eof; theQuery->Next() )
 	{
 		UserOrGroup	userFound;
-		readUser( theQuery, &userFound );
+		readUser( theQuery.get(), &userFound );
 		userCache.addElement( userFound );
 	}
-
-	delete theQuery;
 }
 
 // --------------------------------------------------------------------- //
@@ -324,16 +321,14 @@ void getUserById( const AnsiString &database, int id, UserOrGroup *result )
 		*result = userCache[pos];
 /***/	return;
 	}
-	TQuery *theQuery = new TQuery( NULL );
+	std::auto_ptr<TQuery> theQuery( new TQuery( nullptr ) );
 	theQuery->DatabaseName = database;
 	theQuery->SQL->Add( "select * from user_tab where id = :theId" );
 	theQuery->Params->Items[0]->AsInteger = id;
 
-	fillUser( theQuery, result );
+	fillUser( theQuery.get(), result );
 	if( result->ID )
 		userCache.addElement( *result );
-
-	delete theQuery;
 }
 
 void getUserByName( const AnsiString &database, const char *name, UserOrGroup *result )
@@ -347,16 +342,14 @@ void getUserByName( const AnsiString &database, const char *name, UserOrGroup *r
 /***/	return;
 	}
 
-	TQuery *theQuery = new TQuery( NULL );
+	std::auto_ptr<TQuery> theQuery( new TQuery( nullptr ) );
 	theQuery->DatabaseName = database;
 	theQuery->SQL->Add( "select * from user_tab where username = :theName" );
 	theQuery->Params->Items[0]->AsString = name;
 
-	fillUser( theQuery, result );
+	fillUser( theQuery.get(), result );
 	if( result->ID )
 		userCache.addElement( *result );
-
-	delete theQuery;
 }
 
 const UserOrGroup &getActUser( const AnsiString &database )
@@ -371,7 +364,7 @@ const UserOrGroup &getActUser( const AnsiString &database )
 	}
 	if( !actUser.ID && !getUserCount( database ) )
 	{
-		TQuery	*theQuery = new TQuery( NULL );
+		std::auto_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
 		theQuery->DatabaseName = database;
 
 		theQuery->SQL->Add(
@@ -389,8 +382,6 @@ const UserOrGroup &getActUser( const AnsiString &database )
 		actUser.userName = theUserName;
 		actUser.permissions = -1;
 		actUser.department = 0;
-
-		delete theQuery;
 	}
 
 	if( actUser.ID )
@@ -449,7 +440,7 @@ void changePassword(
 
 	if( actUser.encryptedPassword == oldMD5Hex )
 	{
-		TQuery	*theQuery = new TQuery( NULL );
+		std::auto_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
 		theQuery->DatabaseName = database;
 
 		theQuery->SQL->Add(
@@ -462,8 +453,6 @@ void changePassword(
 
 		theQuery->ExecSQL();
 
-		delete theQuery;
-
 		actUser.encryptedPassword = newMD5Hex;
 	}
 	else
@@ -473,7 +462,7 @@ void changePassword(
 size_t getUserCount( const AnsiString &database )
 {
 	size_t	userCount = 0;
-	TQuery	*theQuery = new TQuery( NULL );
+	std::auto_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
 	theQuery->DatabaseName = database;
 
 	theQuery->SQL->Add(
@@ -484,7 +473,6 @@ size_t getUserCount( const AnsiString &database )
 		userCount = theQuery->Fields->Fields[0]->AsInteger;
 
 	theQuery->Close();
-	delete theQuery;
 
 	return userCount;
 }
