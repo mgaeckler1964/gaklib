@@ -137,11 +137,11 @@ Figure *Board::checkEnPassant(const PlayerPos &src, const Position &dest) const
 
 	if( !rowMove || rowMove < -1 ||  rowMove > 1 )
 	{
-		return NULL;
+		return nullptr;
 	}
 	if( !colMove || colMove < -1 ||  colMove > 1 )
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	size_t srcIndex = src.index;
@@ -149,14 +149,14 @@ Figure *Board::checkEnPassant(const PlayerPos &src, const Position &dest) const
 	
 	if( !fig->getType() == Figure::ftPawn )
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	size_t destIndex = getIndex( dest );
 	Figure *destFig = m_board[destIndex];
 	if( destFig )
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	Position enPasantPos(dest.col, src.pos.row);
@@ -170,7 +170,7 @@ Figure *Board::checkEnPassant(const PlayerPos &src, const Position &dest) const
 			const Movement &last = m_history[size-1];
 			if( last.dest != enPasantPos && last.src.col != last.dest.col )
 			{
-				return NULL;
+				return nullptr;
 			}
 			int rowCount = last.src.row - last.dest.row;
 			if( rowCount == - 2 || rowCount == 2 )
@@ -180,7 +180,7 @@ Figure *Board::checkEnPassant(const PlayerPos &src, const Position &dest) const
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 Figure *Board::uncheckedMove( const PlayerPos &src, const Position &dest )
@@ -191,7 +191,7 @@ Figure *Board::uncheckedMove( const PlayerPos &src, const Position &dest )
 	Figure *toCapture = m_board[destIndex];
 
 	m_board[destIndex] = fig;
-	m_board[srcIndex] = NULL;
+	m_board[srcIndex] = nullptr;
 	fig->setPosition(dest, true);
 
 	return toCapture;
@@ -207,7 +207,7 @@ Figure *Board::passantMove( const PlayerPos &src, const Position &dest )
 		assert(!toCapture);
 
 		size_t destIndex = getIndex( enPassantDel->getPos() );
-		m_board[destIndex] = NULL;
+		m_board[destIndex] = nullptr;
 
 		return enPassantDel;
 	}
@@ -235,7 +235,7 @@ void Board::undoTmpMove(const Movement &move)
 	if( !move.captured )
 	{
 		// no caption -> the old destination is now empty
-		m_board[destIndex] = NULL;
+		m_board[destIndex] = nullptr;
 	}
 	else
 	{
@@ -245,7 +245,7 @@ void Board::undoTmpMove(const Movement &move)
 		if( destIndex != capIndex )
 		{
 			// if it is en-passant -> the old destination is now empty
-			m_board[destIndex] = NULL;
+			m_board[destIndex] = nullptr;
 		}
 		move.captured->setPosition(move.capturePos, false);
 	}
@@ -257,7 +257,7 @@ void Board::undoTmpMove(const Movement &move)
 		size_t destIndex = getIndex(move.rookDest);
 		move.rook->setPosition(move.rookSrc, false);
 		m_board[srcIndex] = move.rook;
-		m_board[destIndex] = NULL;
+		m_board[destIndex] = nullptr;
 	}
 
 	m_state = csPlaying;
@@ -289,7 +289,7 @@ void Board::tmpMove(Movement &move)
 		move.fig->setPosition(move.dest, false);
 		m_board[destIndex] = move.fig;
 	}
-	m_board[srcIndex] = NULL;
+	m_board[srcIndex] = nullptr;
 
 	Figure *cap = move.captured;
 	if( cap )
@@ -311,7 +311,7 @@ void Board::tmpMove(Movement &move)
 		size_t destIndex = getIndex(move.rookDest);
 		rook->setPosition(move.rookDest, false);
 		m_board[destIndex] = rook;
-		m_board[srcIndex] = NULL;
+		m_board[srcIndex] = nullptr;
 	}
 
 	m_history.addElement(move);
@@ -690,7 +690,7 @@ const Figure *Board::getAttacker( const Figure *fig ) const
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 size_t Board::getAttackers( const Figure *myFig, FigurePtr *attackers ) const
@@ -770,7 +770,7 @@ const Figure *Board::getThread( Figure::Color color, const Position &pos, bool c
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 size_t Board::getShields( Figure::Color color, const Position &pos, FigurePtr *shields ) const
@@ -927,7 +927,7 @@ void Board::promote( const PlayerPos &pawn, Figure::Type newFig, const Position 
 	size_t srcIndex = pawn.index;
 	size_t destIndex = getIndex( dest );
 
-	m_board[srcIndex] = NULL;
+	m_board[srcIndex] = nullptr;
 
 	Figure *toCapture = m_board[destIndex];
 	Figure *newFigure = create( pawn.fig->m_color, newFig, dest, true );

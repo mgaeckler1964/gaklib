@@ -148,7 +148,7 @@ size_t Thread::CheckThreadCount( bool ownThreads, Array<P_HANDLE> *list )
 				Ptr &theThread = GetThread( i );
 				if( !theThread->isRunning )
 				{
-					theThread = NULL;
+					theThread = nullptr;
 					s_ThreadList.removeElementAt( i );
 				}
 				else
@@ -198,7 +198,7 @@ Thread::Ptr Thread::FindThread( ThreadID threadID, size_t *idx )
 	}
 
 	if( !found )
-		result = NULL;
+		result = nullptr;
 
 	return result;
 }
@@ -222,7 +222,7 @@ bool Thread::waitForThreads( unsigned long timeOut, bool ownThreads )
 #else
 		for( size_t i=0; i<myThreads.size(); i++ )
 		{
-			result = pthread_join( myThreads[i], NULL );
+			result = pthread_join( myThreads[i], nullptr );
 			if( result )
 /*v*/			break;
 		}			
@@ -314,14 +314,14 @@ void Thread::StartThread( const STRING &name, bool hideOwner )
 
 		#if defined( _Windows )
 			theThreadHandle = CreateThread(
-				NULL, 1024,
+				nullptr, 1024,
 				RunThreadCallback,
 				(LPVOID)this,
 				0,
 				&m_threadID
 			);
 		#elif defined( __MACH__ ) || defined( __unix__ )
-			pthread_create( &m_threadID, NULL, RunThreadCallback, this );
+			pthread_create( &m_threadID, nullptr, RunThreadCallback, this );
 			m_detached = false;
 		#endif
 	#endif

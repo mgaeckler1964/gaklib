@@ -240,7 +240,7 @@ void HTTPclientResponse::parseCacheControl( const STRING &iCacheControl )
 
 		if( !strcmpi( name, "max-age" ) )
 		{
-			m_loadTime = long(time( NULL ));
+			m_loadTime = long(time( nullptr ));
 			long maxAge = value.getValueE<long>();
 			setMaxAge( maxAge );
 		}
@@ -643,7 +643,7 @@ bool HTTPclientResponse::isExpired() const
 	if( m_loadTime && maxAge >= 0 )
 	{
 		long maxTime = m_loadTime + maxAge;
-		if( maxTime < long(time( NULL )) )
+		if( maxTime < long(time( nullptr )) )
 		{
 /***/		return true;
 		}
@@ -776,7 +776,7 @@ xml::Document *HTTPrequest::getXmlDocument( bool ignoreMimeType )
 	doEnterFunction("HTTPrequest::getXmlDocument");
 
 	clock_t				parseTime = clock();
-	xml::Document		*theDoc = NULL;
+	xml::Document		*theDoc = nullptr;
 	HTTPclientResponse	&theResponse = m_responseCache[m_lastUrl];
 	STRING				contentType = theResponse.getContentType().leftString( 8 ).lowerCase();
 
@@ -800,7 +800,7 @@ xml::Document *HTTPrequest::getXmlDocument( bool ignoreMimeType )
 html::Document *HTTPrequest::getHtmlDocument()
 {
 	clock_t			  	parseTime = clock();
-	html::Document		*theDoc = NULL;
+	html::Document		*theDoc = nullptr;
 	HTTPclientResponse	&theResponse = m_responseCache[m_lastUrl];
 	STRING			  	contentType = theResponse.getContentType().leftString( 9 ).lowerCase();
 

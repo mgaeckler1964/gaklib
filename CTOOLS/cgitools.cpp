@@ -3,10 +3,10 @@
 		Module:			CGITOOLS.CPP
 		Description:	Tools for CGI Applications
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -146,25 +146,25 @@ void CGIrequest::loadEnvironment( void )
 {
 	const char *env;
 
-	if( (env = getenv( "HTTP_COOKIE" )) != NULL )
+	if( (env = getenv( "HTTP_COOKIE" )) != nullptr )
 		updateField( "HTTP_COOKIE", env );
 
-	if( (env = getenv( "QUERY_STRING" )) != NULL )
+	if( (env = getenv( "QUERY_STRING" )) != nullptr )
 		updateField( "QUERY_STRING", env );
 
-	if( (env = getenv( "PATH_INFO" )) != NULL )
+	if( (env = getenv( "PATH_INFO" )) != nullptr )
 		updateField( "PATH_INFO", env );
 
-	if( (env = getenv( "SCRIPT_NAME" )) != NULL )
+	if( (env = getenv( "SCRIPT_NAME" )) != nullptr )
 		updateField( "SCRIPT_NAME", env );
 
-	if( (env = getenv( "SERVER_NAME" )) != NULL )
+	if( (env = getenv( "SERVER_NAME" )) != nullptr )
 		updateField( "SERVER_NAME", env );
 
-	if( (env = getenv( "SERVER_PORT" )) != NULL )
+	if( (env = getenv( "SERVER_PORT" )) != nullptr )
 		updateField( "SERVER_PORT", env );
 
-	if( (env = getenv( "SERVER_URL" )) != NULL )
+	if( (env = getenv( "SERVER_URL" )) != nullptr )
 		updateField( "SERVER_URL", env );
 }
 

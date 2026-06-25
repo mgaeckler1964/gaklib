@@ -81,8 +81,8 @@ inline void ListEntry::remove( void )
 	{
 		m_next->m_prev = m_prev;
 	}
-	m_prev = NULL;
-	m_next = NULL;
+	m_prev = nullptr;
+	m_next = nullptr;
 }
 
 inline void ListEntry::putFirstObject( ListEntry *first )
@@ -155,7 +155,7 @@ ListEntry *ListContainer::getEntry(
 	}
 	if( num >= size() )
 	{
-/*@*/	return NULL;
+/*@*/	return nullptr;
 	}
 
 	// calculate the distance from each starting point
@@ -231,7 +231,7 @@ ListEntry *ListContainer::getFilteredEntry(
 	}
 	if( num >= size() )
 	{
-/*@*/	return NULL;
+/*@*/	return nullptr;
 	}
 
 	// calculate the distance from each starting point
@@ -257,7 +257,7 @@ ListEntry *ListContainer::getFilteredEntry(
 	}
 
 	if( !point )
-/*@*/	return NULL;
+/*@*/	return nullptr;
 
 	if( minDistance < 0 )									// search backward
 	{

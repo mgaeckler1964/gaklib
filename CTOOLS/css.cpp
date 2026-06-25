@@ -3,10 +3,10 @@
 		Module:			css.cpp
 		Description:	cascading stylesheets
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -97,62 +97,62 @@ namespace css
 
 fieldInfo Styles::theCssFieldInfo[] =
 {
-	{ "background", offsetof( Styles, background ), false, true, NULL },
+	{ "background", offsetof( Styles, background ), false, true, nullptr },
 	{ "background-color", offsetof( Styles, background_color ), true, false, "transparent" },
 	{ "background-image", offsetof( Styles, background_image ), false, false, "none" },
-	{ "border", offsetof( Styles, border ), false, true, NULL },
-	{ "border-color", offsetof( Styles, border_color ), false, true, NULL },
-	{ "border-bottom", offsetof( Styles, border_bottom ), false, true, NULL },
-	{ "border-bottom-color", offsetof( Styles, border_bottom_color ), false, false, NULL },
+	{ "border", offsetof( Styles, border ), false, true, nullptr },
+	{ "border-color", offsetof( Styles, border_color ), false, true, nullptr },
+	{ "border-bottom", offsetof( Styles, border_bottom ), false, true, nullptr },
+	{ "border-bottom-color", offsetof( Styles, border_bottom_color ), false, false, nullptr },
 	{ "border-bottom-style", offsetof( Styles, border_bottom_style ), false, false, "none" },
-	{ "border-bottom-width", offsetof( Styles, border_bottom_width ), false, false, NULL },
-	{ "border-left", offsetof( Styles, border_left ), false, true, NULL },
-	{ "border-left-color", offsetof( Styles, border_left_color ), false, false, NULL },
+	{ "border-bottom-width", offsetof( Styles, border_bottom_width ), false, false, nullptr },
+	{ "border-left", offsetof( Styles, border_left ), false, true, nullptr },
+	{ "border-left-color", offsetof( Styles, border_left_color ), false, false, nullptr },
 	{ "border-left-style", offsetof( Styles, border_left_style ), false, false, "none" },
-	{ "border-left-width", offsetof( Styles, border_left_width ), false, false, NULL },
-	{ "border-top", offsetof( Styles, border_top ), false, true, NULL },
-	{ "border-top-color", offsetof( Styles, border_top_color ), false, false, NULL },
+	{ "border-left-width", offsetof( Styles, border_left_width ), false, false, nullptr },
+	{ "border-top", offsetof( Styles, border_top ), false, true, nullptr },
+	{ "border-top-color", offsetof( Styles, border_top_color ), false, false, nullptr },
 	{ "border-top-style", offsetof( Styles, border_top_style ), false, false, "none" },
-	{ "border-top-width", offsetof( Styles, border_top_width ), false, false, NULL },
-	{ "border-right", offsetof( Styles, border_right ), false, true, NULL },
-	{ "border-right-color", offsetof( Styles, border_right_color ), false, false, NULL },
+	{ "border-top-width", offsetof( Styles, border_top_width ), false, false, nullptr },
+	{ "border-right", offsetof( Styles, border_right ), false, true, nullptr },
+	{ "border-right-color", offsetof( Styles, border_right_color ), false, false, nullptr },
 	{ "border-right-style", offsetof( Styles, border_right_style ), false, false, "none" },
-	{ "border-right-width", offsetof( Styles, border_right_width ), false, false, NULL },
-	{ "border-style", offsetof( Styles, border_style ), false, true, NULL },
-	{ "border-width", offsetof( Styles, border_width ), false, true, NULL },
-	{ "bottom", offsetof( Styles, bottom ), false, false, NULL },
-	{ "color", offsetof( Styles, color ), true, false, NULL },
+	{ "border-right-width", offsetof( Styles, border_right_width ), false, false, nullptr },
+	{ "border-style", offsetof( Styles, border_style ), false, true, nullptr },
+	{ "border-width", offsetof( Styles, border_width ), false, true, nullptr },
+	{ "bottom", offsetof( Styles, bottom ), false, false, nullptr },
+	{ "color", offsetof( Styles, color ), true, false, nullptr },
 	{ "display", offsetof( Styles, display ), false, false, "inline" },
 	{ "float", offsetof( Styles, cssFloat ), false, false, "none" },
-	{ "font-family", offsetof( Styles, font_family ), true, false, NULL },
-	{ "font-size", offsetof( Styles, font_size ), true, false, NULL },
-	{ "font-style", offsetof( Styles, font_style ), true, false, NULL },
-	{ "font-weight", offsetof( Styles, font_weight ), true, false, NULL },
-	{ "height", offsetof( Styles, height ), false, false, NULL },
-	{ "left", offsetof( Styles, left ), false, false, NULL },
-	{ "letter-spacing", offsetof( Styles, letter_spacing ), true, false, NULL },
-	{ "line-height", offsetof( Styles, line_height ), true, false, NULL },
-	{ "list-style-type", offsetof( Styles, list_style_type ), true, false, NULL },
-	{ "margin", offsetof( Styles, margin ), false, true, NULL },
-	{ "margin-left", offsetof( Styles, margin_left ), false, false, NULL },
-	{ "margin-right", offsetof( Styles, margin_right ), false, false, NULL },
-	{ "margin-top", offsetof( Styles, margin_top ), false, false, NULL },
-	{ "margin-bottom", offsetof( Styles, margin_bottom ), false, false, NULL },
-	{ "padding", offsetof( Styles, padding ), false, true, NULL },
-	{ "padding-bottom", offsetof( Styles, padding_bottom ), false, false, NULL },
-	{ "padding-left", offsetof( Styles, padding_left ), false, false, NULL },
-	{ "padding-right", offsetof( Styles, padding_right ), false, false, NULL },
-	{ "padding-top", offsetof( Styles, padding_top ), false, false, NULL },
-	{ "padding-bottom", offsetof( Styles, padding_bottom ), false, false, NULL },
+	{ "font-family", offsetof( Styles, font_family ), true, false, nullptr },
+	{ "font-size", offsetof( Styles, font_size ), true, false, nullptr },
+	{ "font-style", offsetof( Styles, font_style ), true, false, nullptr },
+	{ "font-weight", offsetof( Styles, font_weight ), true, false, nullptr },
+	{ "height", offsetof( Styles, height ), false, false, nullptr },
+	{ "left", offsetof( Styles, left ), false, false, nullptr },
+	{ "letter-spacing", offsetof( Styles, letter_spacing ), true, false, nullptr },
+	{ "line-height", offsetof( Styles, line_height ), true, false, nullptr },
+	{ "list-style-type", offsetof( Styles, list_style_type ), true, false, nullptr },
+	{ "margin", offsetof( Styles, margin ), false, true, nullptr },
+	{ "margin-left", offsetof( Styles, margin_left ), false, false, nullptr },
+	{ "margin-right", offsetof( Styles, margin_right ), false, false, nullptr },
+	{ "margin-top", offsetof( Styles, margin_top ), false, false, nullptr },
+	{ "margin-bottom", offsetof( Styles, margin_bottom ), false, false, nullptr },
+	{ "padding", offsetof( Styles, padding ), false, true, nullptr },
+	{ "padding-bottom", offsetof( Styles, padding_bottom ), false, false, nullptr },
+	{ "padding-left", offsetof( Styles, padding_left ), false, false, nullptr },
+	{ "padding-right", offsetof( Styles, padding_right ), false, false, nullptr },
+	{ "padding-top", offsetof( Styles, padding_top ), false, false, nullptr },
+	{ "padding-bottom", offsetof( Styles, padding_bottom ), false, false, nullptr },
 	{ "position", offsetof( Styles, position ), false, false, "static" },
-	{ "right", offsetof( Styles, right ), false, false, NULL },
+	{ "right", offsetof( Styles, right ), false, false, nullptr },
 	{ "text-align", offsetof( Styles, text_align ), true, false, "left" },
-	{ "text-decoration", offsetof( Styles, text_decoration ), false, false, NULL },
-	{ "text-indent", offsetof( Styles, text_indent ), true, false, NULL },
-	{ "top", offsetof( Styles, top ), false, false, NULL },
+	{ "text-decoration", offsetof( Styles, text_decoration ), false, false, nullptr },
+	{ "text-indent", offsetof( Styles, text_indent ), true, false, nullptr },
+	{ "top", offsetof( Styles, top ), false, false, nullptr },
 	{ "white-space", offsetof( Styles, white_space ), false, false, "normal" },
-	{ "width", offsetof( Styles, width ), false, false, NULL },
-	{ NULL, 0, false, false, NULL },
+	{ "width", offsetof( Styles, width ), false, false, nullptr },
+	{ nullptr, 0, false, false, nullptr },
 };
 
 // --------------------------------------------------------------------- //
@@ -202,7 +202,7 @@ static void skipComment( std::istream *theInput )
 		else if( !c )
 /*v*/		break;
 		else
-			endComment = (const char *)NULL;
+			endComment = (const char *)nullptr;
 	}
 }
 

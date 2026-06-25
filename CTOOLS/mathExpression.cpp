@@ -133,9 +133,9 @@ void MathExpression::fillOperators( Array<ExprOperator>	*operators )
 
 	static ExprOperator	mathOperators[] =
 	{
-		{ "!",  1, 0,	ASSOC_LEFT,  NULL, UnaryFunc(&MathExpression::faculty), NULL },
-		{ "^",  1, 50,	ASSOC_RIGHT, NULL, NULL,								BinaryFunc(&MathExpression::power) },
-		{ ":",  1, 100, ASSOC_LEFT,  NULL, NULL,								BinaryFunc(&NumericEvaluator<double>::division) },
+		{ "!",  1, 0,	ASSOC_LEFT,  nullptr, UnaryFunc(&MathExpression::faculty), nullptr },
+		{ "^",  1, 50,	ASSOC_RIGHT, nullptr, nullptr,								BinaryFunc(&MathExpression::power) },
+		{ ":",  1, 100, ASSOC_LEFT,  nullptr, nullptr,								BinaryFunc(&NumericEvaluator<double>::division) },
 	};
 
 	operators->addElements( mathOperators, 3 );

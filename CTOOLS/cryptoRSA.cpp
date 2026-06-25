@@ -112,17 +112,17 @@ static const char file_pem_pub[] = ".key_pub";
 
 static RSA *createRSA( const char *key, bool publicKey )
 {
-	RSA		*rsa= NULL;
+	RSA		*rsa= nullptr;
 	BIO		*keybio = BIO_new_mem_buf( (void *)key, -1 );
 
 	if( keybio )
 	{
 		if( publicKey )
-//			rsa = PEM_read_bio_RSA_PUBKEY( keybio, &rsa, NULL, NULL );
-			rsa = PEM_read_bio_RSAPublicKey( keybio, &rsa, NULL, NULL );
+//			rsa = PEM_read_bio_RSA_PUBKEY( keybio, &rsa, nullptr, nullptr );
+			rsa = PEM_read_bio_RSAPublicKey( keybio, &rsa, nullptr, nullptr );
 
 		else
-			rsa = PEM_read_bio_RSAPrivateKey( keybio, &rsa, NULL, NULL );
+			rsa = PEM_read_bio_RSAPrivateKey( keybio, &rsa, nullptr, nullptr );
 	}
 
 	return rsa;
@@ -174,13 +174,13 @@ CryptoRSA::CryptoRSA( bool publicKey )
 	try
 	{
 		timeStamp = 0;
-		rsa = NULL;
+		rsa = nullptr;
 		loadPersonalCypher( publicKey );
 	}
 	catch( ... )
 	{
 		timeStamp = 0;
-		rsa = NULL;
+		rsa = nullptr;
 	}
 }
 
@@ -189,7 +189,7 @@ CryptoRSA::CryptoRSA( const STRING &fileName, bool publicKey )
 	try
 	{
 		timeStamp = 0;
-		rsa = NULL;
+		rsa = nullptr;
 		if( publicKey )
 			loadCypher( fileName, true );
 		else
@@ -198,7 +198,7 @@ CryptoRSA::CryptoRSA( const STRING &fileName, bool publicKey )
 	catch( ... )
 	{
 		timeStamp = 0;
-		rsa = NULL;
+		rsa = nullptr;
 	}
 }
 
@@ -214,7 +214,7 @@ void CryptoRSA::makeRandomCypher( void )
 {
 	int				bits = 4096;
 	unsigned long	exp = RSA_F4;
-	RSA				*rsa = RSA_generate_key( bits, exp, NULL, NULL );
+	RSA				*rsa = RSA_generate_key( bits, exp, nullptr, nullptr );
 
 	if( rsa )
 		setRsa( rsa, false );
@@ -299,7 +299,7 @@ void CryptoRSA::saveCypher( const STRING &iFilename ) const
 			BIO	*bio = BIO_new(BIO_s_mem());
 			if( bio )
 			{
-				PEM_write_bio_RSAPrivateKey( bio, rsa, NULL, NULL, 0, NULL, NULL );
+				PEM_write_bio_RSAPrivateKey( bio, rsa, nullptr, nullptr, 0, nullptr, nullptr );
 
 				STRING	filename = iFilename + file_pem;
 				try

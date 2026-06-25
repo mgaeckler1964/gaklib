@@ -317,12 +317,12 @@ STRING SocketStreambuf::getSocketError( void ) const
 
 		FormatMessage(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL,
+			nullptr,
 			m_socketError,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
 			(LPTSTR) &lpMsgBuf,
 			0,
-			NULL
+			nullptr
 		);
 
 		errorString += (const char *)lpMsgBuf;
@@ -363,7 +363,7 @@ int SocketStreambuf::underflow( void )
 #endif
 			FD_SET( m_socket, &sockets );
 
-			select( int(m_socket)+1, &sockets, NULL, NULL, &timeout );
+			select( int(m_socket)+1, &sockets, nullptr, nullptr, &timeout );
 			if( FD_ISSET( m_socket, &sockets ) )
 			{
 				count = ::recv( m_socket, base, m_bufferSize, 0 );
@@ -505,7 +505,7 @@ ClientConnection SocketStreambuf::accept( void )
 	sockets.fd_count = 0;
 #endif
 	FD_SET( m_socket, &sockets );
-	select( int(m_socket)+1, &sockets, NULL, NULL, &timeout );
+	select( int(m_socket)+1, &sockets, nullptr, nullptr, &timeout );
 	if( FD_ISSET( m_socket, &sockets ) )
 	{
 		socklen_t		clientSize = sizeof( connection.m_client );
