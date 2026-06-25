@@ -83,11 +83,11 @@ namespace gak
 
 class CryptoShared
 {
-	size_t		fileSize;
-	ArrayOfData	crypto;		// this is the encrypted file
-	CryptoAES	aesKey;		// this is the AES-Key
+	size_t		m_fileSize;
+	ArrayOfData	m_crypto;		// this is the encrypted file
+	CryptoAES	m_aesKey;		// this is the AES-Key
 
-	PairMap<STRING,ArrayOfData>	keys;
+	PairMap<STRING,ArrayOfData>	m_keys;
 
 	void decryptFile(
 		const STRING		&destFileName
@@ -95,14 +95,14 @@ class CryptoShared
 	public:
 	CryptoShared()
 	{
-		fileSize = 0;
+		m_fileSize = 0;
 	}
 	void init( void )
 	{
-		fileSize = 0;
-		aesKey.makeRandomCypher();
-		keys.clear();
-		crypto.clear();
+		m_fileSize = 0;
+		m_aesKey.makeRandomCypher();
+		m_keys.clear();
+		m_crypto.clear();
 	}
 
 	void decryptAesKey(
@@ -169,11 +169,11 @@ class CryptoShared
 		const STRING &identifier	// unigue identifier (e.g. e-mail address)
 	)
 	{
-		keys.removeElementByKey( identifier );
+		m_keys.removeElementByKey( identifier );
 	}
 	Array<STRING> getKeyList() const
 	{
-		return keys.getKeys();
+		return m_keys.getKeys();
 	}
 	void decryptFile(
 		const STRING		&identifier,	// unigue identifier (e.g. e-mail address)

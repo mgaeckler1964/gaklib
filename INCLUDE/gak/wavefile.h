@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			wavefile.h
-		Description:	
+		Description:	Read and write wave files
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -134,19 +134,19 @@ class WaveFile
 #endif
 
 	private:
-	RiffHeader		theHeader;
-	FormatHeader	theFormat;
-	DataHeader		theData;
+	RiffHeader		m_theHeader;
+	FormatHeader	m_theFormat;
+	DataHeader		m_theData;
 
-	std::fstream	stream;
-	bool			writing;
-	size_t			bytesPerSample, numSamples;
-	int				shift;
+	std::fstream	m_stream;
+	bool			m_writing;
+	size_t			m_bytesPerSample, m_numSamples;
+	int				m_shift;
 
 	void updateSize();
 
 	public:
-	WaveFile() : numSamples(0), writing(false)
+	WaveFile() : m_numSamples(0), m_writing(false)
 	{
 	}
 	~WaveFile()
@@ -156,16 +156,16 @@ class WaveFile
 
 	void setBytesPerSample( uint16 bitsPerSample )
 	{
-		shift = 32-bitsPerSample;
-		bytesPerSample = bitsPerSample / std::numeric_limits<unsigned char>::digits;
+		m_shift = 32-bitsPerSample;
+		m_bytesPerSample = bitsPerSample / std::numeric_limits<unsigned char>::digits;
 		if( bitsPerSample % std::numeric_limits<unsigned char>::digits )
 		{
-			++bytesPerSample;
+			++m_bytesPerSample;
 		}
 	}
 	void setBitsPerSample( uint16 bitsPerSample )
 	{
-		theFormat.format.bitsPerSample = bitsPerSample;
+		m_theFormat.format.bitsPerSample = bitsPerSample;
 		setBytesPerSample( bitsPerSample );
 	}
 	void createWaveFile( const STRING &fileName, uint32 sampleRate, uint16 numChannels, uint16 bitsPerSample );
@@ -173,44 +173,44 @@ class WaveFile
 
 	void writeSample( int32 sample )
 	{
-		stream.write( reinterpret_cast<const char *>(&sample), bytesPerSample );
-		++numSamples;
+		m_stream.write( reinterpret_cast<const char *>(&sample), m_bytesPerSample );
+		++m_numSamples;
 	}
 	int32 readSample()
 	{
 		int32 sample=0;
-		stream.read( reinterpret_cast<char *>(&sample), bytesPerSample );
-		sample <<= shift;
-		sample >>= shift;
+		m_stream.read( reinterpret_cast<char *>(&sample), m_bytesPerSample );
+		sample <<= m_shift;
+		sample >>= m_shift;
 
 		return sample;
 	}
 
 	void close()
 	{
-		if( writing && stream.is_open() )
+		if( m_writing && m_stream.is_open() )
 		{
 			updateSize();
-			stream.close();
+			m_stream.close();
 		}
 	}
 
 	int32 getPosClip() const
 	{
-		return std::numeric_limits<int32>::max() >> shift;
+		return std::numeric_limits<int32>::max() >> m_shift;
 	}
 	int32 getNegClip() const
 	{
-		return std::numeric_limits<int32>::min() >> shift;
+		return std::numeric_limits<int32>::min() >> m_shift;
 	}
 
 	size_t getNumSamples()
 	{
-		return theData.size / bytesPerSample;
+		return m_theData.size / m_bytesPerSample;
 	}
 	uint16 getNumChannels()
 	{
-		return theFormat.format.numChannels;
+		return m_theFormat.format.numChannels;
 	}
 	size_t getNumSamplesPerChannel()
 	{
@@ -219,7 +219,7 @@ class WaveFile
 
 	double getTimeCode( size_t	sampleIdx ) const
 	{
-		return double(sampleIdx)/double(theFormat.format.sampleRate);
+		return double(sampleIdx)/double(m_theFormat.format.sampleRate);
 	}
 	STRING getFormatedTimeCode( size_t sampleIdx ) const;
 };

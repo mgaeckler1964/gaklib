@@ -3,10 +3,10 @@
 		Module:			waveFile.cpp
 		Description:	Read and write wave files
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -114,16 +114,20 @@ namespace gak
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-void WaveFile::updateSize(  )
+void WaveFile::updateSize()
 {
-	theHeader.riffDataHeader.size += bytesPerSample * numSamples;
-	stream.seekp( 0, std::ios_base::beg );
-	binaryToBinaryStream( stream, theHeader );
+	size_t newSize = m_theHeader.riffDataHeader.size + m_bytesPerSample * m_numSamples;
+	if( newSize > std::numeric_limits<uint32>::max() )
+		throw IntegerOverflowError("size_t value");
 
-	stream.seekp( sizeof(FormatHeader), std::ios_base::cur );
+	m_theHeader.riffDataHeader.size = uint32(newSize);
+	m_stream.seekp( 0, std::ios_base::beg );
+	binaryToBinaryStream( m_stream, m_theHeader );
 
-	theData.size = bytesPerSample * numSamples;
-	binaryToBinaryStream( stream, theData );
+	m_stream.seekp( sizeof(FormatHeader), std::ios_base::cur );
+
+	m_theData.size = uint32(m_bytesPerSample * m_numSamples);
+	binaryToBinaryStream( m_stream, m_theData );
 }
 
 // --------------------------------------------------------------------- //
@@ -140,63 +144,63 @@ void WaveFile::updateSize(  )
 
 void WaveFile::createWaveFile( const STRING &fileName, uint32 sampleRate, uint16 numChannels, uint16 bitsPerSample )
 {
-	stream.open( fileName, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios::binary );
-	writing = true;
+	m_stream.open( fileName, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios::binary );
+	m_writing = true;
 
-	theHeader.riffDataHeader.magic = riffMagic;
-	theHeader.riffDataHeader.size = sizeof( RiffHeader ) + sizeof( FormatHeader ) - 8;
-	theHeader.typeMagic = waveMagic;
+	m_theHeader.riffDataHeader.magic = riffMagic;
+	m_theHeader.riffDataHeader.size = sizeof( RiffHeader ) + sizeof( FormatHeader ) - 8;
+	m_theHeader.typeMagic = waveMagic;
 
-	binaryToBinaryStream( stream, theHeader );
+	binaryToBinaryStream( m_stream, m_theHeader );
 
-	theFormat.formatDataHeader.magic = fmtMagic;
-	theFormat.formatDataHeader.size = sizeof( AudioFormat );
-	theFormat.format.format = pcmFORMAT;
-	theFormat.format.numChannels = numChannels;
-	theFormat.format.sampleRate = sampleRate;
+	m_theFormat.formatDataHeader.magic = fmtMagic;
+	m_theFormat.formatDataHeader.size = sizeof( AudioFormat );
+	m_theFormat.format.format = pcmFORMAT;
+	m_theFormat.format.numChannels = numChannels;
+	m_theFormat.format.sampleRate = sampleRate;
 	setBitsPerSample( bitsPerSample );
 
-	theFormat.format.blockAllign = theFormat.format.numChannels * ((theFormat.format.bitsPerSample+7)/8);
-	theFormat.format.avgBytesPerSec = theFormat.format.sampleRate * theFormat.format.blockAllign;
+	m_theFormat.format.blockAllign = m_theFormat.format.numChannels * ((m_theFormat.format.bitsPerSample+7)/8);
+	m_theFormat.format.avgBytesPerSec = m_theFormat.format.sampleRate * m_theFormat.format.blockAllign;
 
-	binaryToBinaryStream( stream, theFormat );
+	binaryToBinaryStream( m_stream, m_theFormat );
 
-	theData.magic = dataMagic;
-	theData.size = 0;
-	binaryToBinaryStream( stream, theData );
+	m_theData.magic = dataMagic;
+	m_theData.size = 0;
+	binaryToBinaryStream( m_stream, m_theData );
 }
 
 void WaveFile::openWaveFile( const STRING &fileName )
 {
-	stream.open( fileName, std::ios_base::in | std::ios::binary );
+	m_stream.open( fileName, std::ios_base::in | std::ios::binary );
 
-	binaryFromBinaryStream( stream, &theHeader );
-	if( theHeader.riffDataHeader.magic != riffMagic )
+	binaryFromBinaryStream( m_stream, &m_theHeader );
+	if( m_theHeader.riffDataHeader.magic != riffMagic )
 	{
 		throw BadHeaderError( STRING("riffMagic: ") + fileName );
 	}
-	if( theHeader.typeMagic != waveMagic )
+	if( m_theHeader.typeMagic != waveMagic )
 	{
 		throw BadHeaderError( STRING("waveMagic: ") + fileName );
 	}
 
-	while( stream )
+	while( m_stream )
 	{
-		binaryFromBinaryStream( stream, &theFormat.formatDataHeader );
-		if( theFormat.formatDataHeader.magic != fmtMagic )
+		binaryFromBinaryStream( m_stream, &m_theFormat.formatDataHeader );
+		if( m_theFormat.formatDataHeader.magic != fmtMagic )
 		{
-			stream.seekp( theFormat.formatDataHeader.size, std::ios_base::cur );
+			m_stream.seekp( m_theFormat.formatDataHeader.size, std::ios_base::cur );
 		}
-		else if( theFormat.formatDataHeader.size == sizeof( theFormat.format ) )
+		else if( m_theFormat.formatDataHeader.size == sizeof( m_theFormat.format ) )
 		{
-			binaryFromBinaryStream( stream, &theFormat.format );
-			if( theFormat.format.format != pcmFORMAT )
+			binaryFromBinaryStream( m_stream, &m_theFormat.format );
+			if( m_theFormat.format.format != pcmFORMAT )
 			{
 				throw BadHeaderError( STRING("This is not in PCM format: ") + fileName );
 			}
-			if( theFormat.format.bitsPerSample != 16 && theFormat.format.bitsPerSample != 24 )
+			if( m_theFormat.format.bitsPerSample != 16 && m_theFormat.format.bitsPerSample != 24 )
 			{
-				throw BadHeaderError( STRING("Unsupported sample size: ") + formatNumber(theFormat.format.bitsPerSample) + ' ' + fileName );
+				throw BadHeaderError( STRING("Unsupported sample size: ") + formatNumber(m_theFormat.format.bitsPerSample) + ' ' + fileName );
 			}
 			break;
 		}
@@ -206,17 +210,17 @@ void WaveFile::openWaveFile( const STRING &fileName )
 		}
 	}
 
-	if( theFormat.formatDataHeader.magic != fmtMagic )
+	if( m_theFormat.formatDataHeader.magic != fmtMagic )
 	{
 		throw BadHeaderError( STRING("fmtMagic: ") + fileName );
 	}
 
-	while( stream )
+	while( m_stream )
 	{
-		binaryFromBinaryStream( stream, &theData );
-		if( theData.magic != dataMagic )
+		binaryFromBinaryStream( m_stream, &m_theData );
+		if( m_theData.magic != dataMagic )
 		{
-			stream.seekp( theData.size, std::ios_base::cur );
+			m_stream.seekp( m_theData.size, std::ios_base::cur );
 		}
 		else
 		{
@@ -224,12 +228,12 @@ void WaveFile::openWaveFile( const STRING &fileName )
 		}
 	}
 
-	if( theData.magic != dataMagic )
+	if( m_theData.magic != dataMagic )
 	{
 		throw BadHeaderError( STRING("dataMagic: ") + fileName );
 	}
 
-	setBytesPerSample( theFormat.format.bitsPerSample );
+	setBytesPerSample( m_theFormat.format.bitsPerSample );
 }
 
 STRING WaveFile::getFormatedTimeCode( size_t sampleIdx ) const

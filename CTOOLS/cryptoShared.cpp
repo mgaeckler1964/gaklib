@@ -4,10 +4,10 @@
 		Description:	Container file, that stores a crypto and multiple RSA
 						crypted keys to encrypt the crypto.
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -16,7 +16,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -39,10 +39,11 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <gak/arrayFile.h>
 #include <gak/cryptoShared.h>
+#include <gak/arrayFile.h>
 #include <gak/iostream.h>
 #include <gak/rsa.h>
+#include <gak/exception.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -119,10 +120,10 @@ void CryptoShared::decryptFile(
 )
 {
 	ArrayOfData		plain;
-	size_t			plainSize = aesKey.getPlainSize( crypto.size() );
+	size_t			plainSize = m_aesKey.getPlainSize( m_crypto.size() );
 
-	aesKey.decryptBuffer( crypto, plain.createElements( plainSize ) );
-	plain.removeElementsAt( fileSize, plainSize - fileSize );
+	m_aesKey.decryptBuffer( m_crypto, plain.createElements( plainSize ) );
+	plain.removeElementsAt( m_fileSize, plainSize - m_fileSize );
 
 	writeToFile( plain, destFileName );
 }
@@ -146,12 +147,12 @@ void CryptoShared::decryptAesKey(
 {
 	if( rsaKey.hasKey() )
 	{
-		size_t	keyIndex = keys.getElementIndex( identifier );
-		if( keyIndex != -1 )
+		size_t	keyIndex = m_keys.getElementIndex( identifier );
+		if( keyIndex != m_keys.no_index )
 		{
-			ArrayOfData	&crypto = keys.getValueAt(keyIndex);
+			ArrayOfData	&crypto = m_keys.getValueAt(keyIndex);
 
-			aesKey.decryptCypher( &rsaKey, crypto );
+			m_aesKey.decryptCypher( &rsaKey, crypto );
 		}
 		else
 /*@*/		BadKeyError();
@@ -165,8 +166,8 @@ void CryptoShared::encryptFile( const STRING &fileName )
 	ArrayOfData	plain;
 
 	readFromFile( &plain, fileName );
-	fileSize = plain.size();
-	aesKey.encryptBuffer( plain.getDataBuffer(), fileSize, &crypto );
+	m_fileSize = plain.size();
+	m_aesKey.encryptBuffer( plain.getDataBuffer(), m_fileSize, &m_crypto );
 }
 
 void CryptoShared::addPublicKey(
@@ -176,9 +177,9 @@ void CryptoShared::addPublicKey(
 {
 	if( publicKey.hasKey() )
 	{
-		ArrayOfData	&crypto = keys[identifier];
+		ArrayOfData	&crypto = m_keys[identifier];
 
-		aesKey.encryptCypher( &publicKey, &crypto );
+		m_aesKey.encryptCypher( &publicKey, &crypto );
 	}
 	else
 /*@*/	BadKeyError();
@@ -193,12 +194,14 @@ void CryptoShared::toBinaryStream ( std::ostream &stream ) const
 	newHeader.headerSize = sizeof( CryptoHeader );
 	newHeader.plainBlockSize = 0;
 	newHeader.cryptoBlockSize = 0;
-	newHeader.fileSize = fileSize;
+	if(m_fileSize > std::numeric_limits<uint32>::max())
+		throw IntegerOverflowError("size_t value");
+	newHeader.fileSize = uint32(m_fileSize);
 
 	gak::toBinaryStream( stream, newHeader );
 
-	crypto.toBinaryStream( stream );
-	keys.toBinaryStream( stream );
+	m_crypto.toBinaryStream( stream );
+	m_keys.toBinaryStream( stream );
 
 	if( !stream )
 		throw WriteError();
@@ -215,10 +218,10 @@ void CryptoShared::fromBinaryStream ( std::istream &stream )
 	&&	newHeader.plainBlockSize == 0
 	&&	newHeader.cryptoBlockSize == 0 )
 	{
-		fileSize = newHeader.fileSize;
+		m_fileSize = newHeader.fileSize;
 
-		crypto.fromBinaryStream( stream );
-		keys.fromBinaryStream( stream );
+		m_crypto.fromBinaryStream( stream );
+		m_keys.fromBinaryStream( stream );
 
 		if( !stream )
 			throw ReadError();
