@@ -169,16 +169,18 @@ Count=1
 Item0=BORLAND;VCL_TOOLS;TOS;CTOOLS;include;$(BCB)\include;$(BCB)\include\vcl;C:\OpenSSL\Win32\include\;c:\openssl\include\;c:\Programme\openssl\include\;C:\Program Files (x86)\OpenSSL\include\
 
 [HistoryLists\hlLibraryPath]
-Count=1
-Item0=$(BCB)\lib\obj;$(BCB)\lib
+Count=2
+Item0=BORLAND;VCL_TOOLS;CTOOLS;$(BCB)\lib\obj;$(BCB)\lib
+Item1=$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1
 Item0=$(BCB)\source\vcl
 
 [HistoryLists\hlConditionals]
-Count=1
+Count=2
 Item0=NDEBUG
+Item1=NDEBUG;_DEBUG
 
 [HistoryLists\hlIntOutputDir]
 Count=1

@@ -1,12 +1,13 @@
 /*
 		Project:		GAKLIB
 		Module:			SharedTest.h
-		Description:	
+		Description:	Template for smart pointer that can automaticaly 
+						destroy objects no longer used
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -90,6 +91,7 @@ class SharedTest : public UnitTest
 
 		SharedObjectPointerTest();
 		SharedPointerTest();
+		XSharedPointerTest();
 	}
 	void SharedObjectPointerTest()
 	{
@@ -162,6 +164,47 @@ class SharedTest : public UnitTest
 		}
 		{
 			const SharedPointer<MyObject>	first = SharedPointer<MyObject>::makeShared( MyObject( 666 ) );
+			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
+			UT_ASSERT_TRUE( first );
+			UT_ASSERT_FALSE( !first );
+			UT_ASSERT_EQUAL( 666, first->m_value );
+			UT_ASSERT_EQUAL( 666, (*first).m_value );
+		}
+		UT_ASSERT_EQUAL( 0, MySharedObject::s_objectCount );
+	}
+	void XSharedPointerTest()
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "SharedTest::XSharedPointerTest");
+		{
+			XSharedPointer<MyObject>	first;
+			first = new MyObject(666);
+			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
+			UT_ASSERT_TRUE( bool(first) && first->m_value == 666 );
+			UT_ASSERT_FALSE( !first );
+			UT_ASSERT_EQUAL( 666, first->m_value );
+			UT_ASSERT_EQUAL( 666, (*first).m_value );
+			
+			XSharedPointer<MyObject>	second(new MyObject(123));
+			UT_ASSERT_EQUAL( 2, MyObject::s_objectCount );
+			UT_ASSERT_EQUAL( 123, second->m_value );
+			UT_ASSERT_EQUAL( 123, (*second).m_value );
+
+			second = first;
+			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
+			UT_ASSERT_EQUAL( 666, second->m_value );
+			UT_ASSERT_EQUAL( 666, (*second).m_value );
+			
+			second = nullptr;
+			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
+			
+			first = nullptr;
+			UT_ASSERT_EQUAL( 0, MyObject::s_objectCount );
+
+			UT_ASSERT_FALSE( first );
+			UT_ASSERT_TRUE( !first );
+		}
+		{
+			XSharedPointer<MyObject>	first( new MyObject(666) );
 			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
 			UT_ASSERT_TRUE( first );
 			UT_ASSERT_FALSE( !first );

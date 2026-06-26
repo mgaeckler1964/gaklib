@@ -7,7 +7,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -42,6 +42,7 @@
 // --------------------------------------------------------------------- //
 
 #include <assert.h>
+#include <memory>
 
 #include <gak/locker.h>
 
@@ -529,6 +530,89 @@ class SharedPointer
 	}
 };
 
+
+/**
+	@brief A shared pointer that can (unlike SharedObjectPointer) point to any type 
+	it can control existing object that have no other managr
+
+	@code
+		class MyType
+		{
+			...
+		};
+		SharedPointer<MyType>	myPointer = SharedPointer<MyType>::makeShared();
+		...
+		*myPointer = ...;
+		myPointer->xxx = ...;
+	@endcode
+
+	@tparam OBJ the type this pointer points to
+*/
+template<class OBJ>
+class XSharedPointer
+{
+	typedef internal::ShObjContainer< std::auto_ptr<OBJ> >	ShObj;
+	typedef SharedObjectPointer<ShObj>						MySharedObjectPointer;
+
+	MySharedObjectPointer					m_shPointer;
+
+	XSharedPointer( ShObj *addr ) : m_shPointer( addr )
+	{}
+
+	public:
+	XSharedPointer(XSharedPointer &other) : m_shPointer(other.m_shPointer)
+	{
+	}
+	XSharedPointer &operator = ( const XSharedPointer &other )
+	{
+		m_shPointer = other.m_shPointer;
+		return *this;
+	}
+
+	explicit XSharedPointer(OBJ *addr=nullptr)
+	{
+		m_shPointer = MySharedObjectPointer(new ShObj(addr));
+//		m_shPointer->get().reset( addr );
+	}
+
+
+	/**
+		@brief Assigns a new address to this pointer
+		@param [in] addr The address of the container item (typically this can only be NULL)
+		@return The pointer itself
+	*/
+	XSharedPointer &operator = ( OBJ *addr )
+	{
+		m_shPointer = MySharedObjectPointer(new ShObj(addr));
+		return *this;
+	}
+
+
+
+
+	/// Returns the address of the item this pointer points to
+	operator OBJ * () const
+	{
+		return m_shPointer ? m_shPointer->get().get() : nullptr;
+	}
+	/// Returns the address of the item this pointer points to
+	OBJ *operator -> () const
+	{
+		return m_shPointer ? m_shPointer->get().get() : nullptr;
+	}
+
+	/// Returns the reference of the item this pointer points to
+	OBJ &operator  * () const
+	{
+		return *m_shPointer->get().get();
+	}
+
+	/// Returns true, if this pointer points to no item (nullptr)
+	bool operator ! () const
+	{
+		return !m_shPointer || !(m_shPointer->get().get());
+	}
+};
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
