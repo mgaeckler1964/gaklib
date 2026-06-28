@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			dbConvertFrm.h
-		Description:	
+		Description:	Migrate database schema versions
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -71,8 +71,8 @@ __published:	// IDE-managed Components
 private:	// User declarations
 	void __fastcall DoLoginDialog( TDatabase *theDatabase, TStrings *LoginParams );
 	void BackupRestoreDB( const gak::vcl::DBconnector &sourceDB, const gak::vcl::DBconnector &destDB );
-	virtual const char *getAliasName( void ) const = 0;
-	virtual gak::vcl::DatabaseSchema *createSchema( void ) const;
+	virtual const char *getAliasName() const = 0;
+	virtual gak::vcl::DatabaseSchema *createSchema() const;
 
 	static void showParams( const TDatabase *db, std::ostream &out );
 protected:

@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			dbConvertFrm.cpp
-		Description:
+		Description:	Migrate database schema versions
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -31,6 +31,7 @@
 
 //---------------------------------------------------------------------------
 
+#include <memory>
 #include <iostream>
 #include <cstring>
 
@@ -66,18 +67,18 @@ class DBlogger : public ProgressLoger
 	public:
 	DBlogger( std::ostream &out ) : ProgressLoger( out )
 	{
-		StatusForm = new TStatusForm( NULL );
+		StatusForm = new TStatusForm( nullptr );
 	}
 	~DBlogger()
 	{
 		StatusForm->Close();
 		delete StatusForm;
 	}
-	virtual void showProgress( void ) const;
+	virtual void showProgress() const;
 };
 #pragma option -RT+
 //---------------------------------------------------------------------------
-void DBlogger::showProgress( void ) const
+void DBlogger::showProgress() const
 {
 	if( !StatusForm->Visible )
 	{
@@ -114,8 +115,8 @@ __fastcall TDbConvertForm::TDbConvertForm(TComponent* Owner)
 //---------------------------------------------------------------------------
 void __fastcall TDbConvertForm::SessionButtonClick(TObject *)
 {
-	TQuery	*delSessionQuery = new TQuery( NULL );
-	TDatabase *theDatabase = m_mainDbConnector.connectDB( true );
+	std::auto_ptr<TQuery>		delSessionQuery(new TQuery( nullptr ));
+	std::auto_ptr<TDatabase>	theDatabase( m_mainDbConnector.connectDB( true ) );
 
 	delSessionQuery->DatabaseName = theDatabase->DatabaseName;;
 	delSessionQuery->SQL->Add(
@@ -126,16 +127,13 @@ void __fastcall TDbConvertForm::SessionButtonClick(TObject *)
 
 	delSessionQuery->ExecSQL();
 
-	delete delSessionQuery;
-
 	theDatabase->Close();
-	delete theDatabase;
 
 	SessionButton->Caption = "Finish";
 	SessionButton->Enabled = false;
 }
 //---------------------------------------------------------------------------
-DatabaseSchema *TDbConvertForm::createSchema( void ) const
+DatabaseSchema *TDbConvertForm::createSchema() const
 {
 	return new DatabaseSchema();
 }
@@ -179,8 +177,7 @@ void TDbConvertForm::BackupRestoreDB(
 	DatabaseSchema *sourceSchema = createSchema();
 	DatabaseSchema *destSchema = createSchema();
 
-	TDatabase *source = NULL;
-	TDatabase *destination = NULL;
+	std::auto_ptr<TDatabase> source, destination;
 
 	progress.showProgress();
 
@@ -188,19 +185,19 @@ void TDbConvertForm::BackupRestoreDB(
 	{
 		out << "Copying tables\n";
 
-		source = sourceDB.connectDB( true );
-		destination = destDB.connectDB( true );
+		source.reset( sourceDB.connectDB( true ) );
+		destination.reset( destDB.connectDB( true ) );
 
 		out << "Source\n";
-		showParams( source, out );
+		showParams( source.get(), out );
 		out << "Destination\n";
-		showParams( destination, out );
+		showParams( destination.get(), out );
 
-		srcVersion = ConfigDataModule->GetDBVersion( source );
-		destVersion = ConfigDataModule->GetDBVersion( destination );
+		srcVersion = ConfigDataModule->GetDBVersion( source.get() );
+		destVersion = ConfigDataModule->GetDBVersion( destination.get() );
 
-		sourceSchema->readSchema( source );
-		destSchema->readSchema( destination );
+		sourceSchema->readSchema( source.get() );
+		destSchema->readSchema( destination.get() );
 
 		sourceSchema->setDbVersion( srcVersion );
 		destSchema->setDbVersion( destVersion );
@@ -221,10 +218,9 @@ void TDbConvertForm::BackupRestoreDB(
 		);
 		if( exists( xmlFile ) )
 		{
-			DatabaseSchema	*masterSchema = createSchema();
+			std::auto_ptr<DatabaseSchema>	masterSchema(createSchema());
 			masterSchema->readSchemaXml( xmlFile );
-			STRING compareResult = destSchema->compareSchema( masterSchema );
-			delete masterSchema;
+			STRING compareResult = destSchema->compareSchema( masterSchema.get() );
 			if( !compareResult.isEmpty() )
 			{
 				STRING	error = "Database check failed for ";
@@ -241,28 +237,23 @@ void TDbConvertForm::BackupRestoreDB(
 
 		destination->Close();
 		source->Close();
-
-		delete destination;
-		delete source;
 	}
 	catch( ... )
 	{
 		doLogPosition();
 		if( destVersion > 0 )
 		{
-			ConfigDataModule->SetDBVersion( destination, destVersion );
+			ConfigDataModule->SetDBVersion( destination.get(), destVersion );
 		}
 
-		if( destination )
+		if( destination.get() )
 		{
 			destination->Close();
-			delete destination;
 		}
 
-		if( source )
+		if( source.get() )
 		{
 			source->Close();
-			delete source;
 		}
 
 /*@*/	throw;
@@ -294,14 +285,14 @@ void __fastcall TDbConvertForm::RestoreButtonClick(TObject *)
 //---------------------------------------------------------------------------
 void __fastcall TDbConvertForm::UpgradeButtonClick(TObject *)
 {
-	TDatabase		*theDatabase = new TDatabase( NULL );
+	std::auto_ptr<TDatabase>	theDatabase( nullptr );
 
 	theDatabase->AliasName = static_cast<const char *>(m_mainDbConnector.m_aliasName);
 	theDatabase->DatabaseName = "theDatabaseDB";
 	theDatabase->Exclusive = true;
 
 	theDatabase->Open();
-	int dbVersion = ConfigDataModule->GetDBVersion( theDatabase );
+	int dbVersion = ConfigDataModule->GetDBVersion( theDatabase.get() );
 	theDatabase->Close();
 
 	try
@@ -311,10 +302,8 @@ void __fastcall TDbConvertForm::UpgradeButtonClick(TObject *)
 	__finally
 	{
 		theDatabase->Open();
-		ConfigDataModule->SetDBVersion( theDatabase, dbVersion );
+		ConfigDataModule->SetDBVersion( theDatabase.get(), dbVersion );
 		theDatabase->Close();
-
-		delete theDatabase;
 
 		UpgradeButton->Caption = "Finish";
 		UpgradeButton->Enabled = false;
@@ -333,13 +322,11 @@ void __fastcall TDbConvertForm::EmptyButtonClick(TObject *)
 		) == IDYES
 	)
 	{
-		TDatabase *theDatabase = m_mainDbConnector.connectDB( true );
+		std::auto_ptr<TDatabase> theDatabase( m_mainDbConnector.connectDB( true ) );
 
-		ConfigDataModule->emptyTables( theDatabase );
+		ConfigDataModule->emptyTables( theDatabase.get() );
 
 		theDatabase->Close();
-
-		delete theDatabase;
 
 		EmptyButton->Caption = "Finish";
 	}
@@ -379,10 +366,10 @@ void __fastcall TDbConvertForm::FormShow(TObject *)
 {
 	doEnterFunction("TDbConvertForm::FormShow");
 
-	STRING		line;
-	int			oldVersion;
-	TDatabase	*theDatabase = new TDatabase( NULL );
-	bool		createDB, createBackupDB;
+	STRING						line;
+	int							oldVersion;
+	std::auto_ptr<TDatabase>	theDatabase( new TDatabase( nullptr ) );
+	bool						createDB, createBackupDB;
 
 	oldVersion = m_backupVersion = m_mainVersion = -1;
 
@@ -407,7 +394,7 @@ void __fastcall TDbConvertForm::FormShow(TObject *)
 			Session->GetAliasDriverName(theDatabase->AliasName).c_str()
 		);
 
-		oldVersion = ConfigDataModule->GetDBVersion( theDatabase );
+		oldVersion = ConfigDataModule->GetDBVersion( theDatabase.get() );
 		theDatabase->Close();
 
 		doLogValue( oldVersion );
@@ -424,7 +411,7 @@ void __fastcall TDbConvertForm::FormShow(TObject *)
 		m_mainDbType = dbTypeForDriver(
 			Session->GetAliasDriverName(theDatabase->AliasName).c_str()
 		);
-		m_mainVersion = ConfigDataModule->GetDBVersion( theDatabase );
+		m_mainVersion = ConfigDataModule->GetDBVersion( theDatabase.get() );
 		theDatabase->Close();
 		if( m_mainVersion < 0 )
 		{
@@ -440,7 +427,7 @@ void __fastcall TDbConvertForm::FormShow(TObject *)
 		m_backupDbType = dbTypeForDriver(
 			Session->GetAliasDriverName(theDatabase->AliasName).c_str()
 		);
-		m_backupVersion = ConfigDataModule->GetDBVersion( theDatabase );
+		m_backupVersion = ConfigDataModule->GetDBVersion( theDatabase.get() );
 		theDatabase->Close();
 		if( m_backupVersion < 0 )
 		{
@@ -501,7 +488,7 @@ void __fastcall TDbConvertForm::FormShow(TObject *)
 			ButtonCheck->Enabled = false;
 
 		const CI_STRING cmd = GetCommandLine();
-		if( cmd.endsWith( "UPGRADE" ) 
+		if( cmd.endsWith( "UPGRADE" )
 		||	(oldVersion >= 0 && m_mainVersion > oldVersion)
 		)
 		{
@@ -581,8 +568,6 @@ void __fastcall TDbConvertForm::FormShow(TObject *)
 	Memo->Lines->Add(
 		"Use BDE-Administration to check whether required databases exist."
 	);
-
-	delete theDatabase;
 }
 //---------------------------------------------------------------------------
 
@@ -591,7 +576,7 @@ void __fastcall TDbConvertForm::ButtonCheckClick(TObject *)
 	doEnterFunction("TDbConvertForm::ButtonCheckClick");
 	STRING	compareResult, currentResult;
 
-	DatabaseSchema	*masterSchema = createSchema();
+	std::auto_ptr<DatabaseSchema>	masterSchema( createSchema() );
 
 	STRING	xmlFile = makeFullPath(
 		STRING( Application->ExeName.c_str() ),
@@ -599,12 +584,12 @@ void __fastcall TDbConvertForm::ButtonCheckClick(TObject *)
 	);
 	masterSchema->readSchemaXml( xmlFile );
 
-	DatabaseSchema	*currentSchema = createSchema();
+	std::auto_ptr<DatabaseSchema>	currentSchema( createSchema() );
 	try
 	{
 		currentSchema->readSchema( m_mainDbConnector );
 
-		currentResult = currentSchema->compareSchema( masterSchema );
+		currentResult = currentSchema->compareSchema( masterSchema.get() );
 		if( currentResult.isEmpty() )
 			currentResult = "No errors";
 		else
@@ -618,10 +603,9 @@ void __fastcall TDbConvertForm::ButtonCheckClick(TObject *)
 				fileName += m_mainDbConnector.m_aliasName;
 				fileName += ".xml";
 
-				xml::Element *schemaXML = currentSchema->getSchema();
+				std::auto_ptr<xml::Element> schemaXML( currentSchema->getSchema() );
 				STRING schemaStr = schemaXML->generateDoc();
 				schemaStr.writeToFile( fileName );
-				delete schemaXML;
 			}
 		}
 	}
@@ -635,19 +619,18 @@ void __fastcall TDbConvertForm::ButtonCheckClick(TObject *)
 	}
 
 	compareResult = m_mainDbConnector.m_aliasName + ":\n" + currentResult;
-	delete currentSchema;
 
 	if( BackupButton->Enabled )
 	{
 		STRING			backupResult;
-		DatabaseSchema	*backupSchema = createSchema();
+		std::auto_ptr<DatabaseSchema>	backupSchema( createSchema() );
 		try
 		{
 			doLogPosition();
 			backupSchema->readSchema( m_backupDbConnector );
 			doLogPosition();
 
-			backupResult = backupSchema->compareSchema( masterSchema );
+			backupResult = backupSchema->compareSchema( masterSchema.get() );
 			doLogPosition();
 			if( backupResult.isEmpty() )
 				backupResult = "No errors";
@@ -662,10 +645,9 @@ void __fastcall TDbConvertForm::ButtonCheckClick(TObject *)
 					fileName += m_backupDbConnector.m_aliasName;
 					fileName += ".xml";
 
-					xml::Element *schemaXML = backupSchema->getSchema();
+					std::auto_ptr<xml::Element> schemaXML( backupSchema->getSchema() );
 					STRING schemaStr = schemaXML->generateDoc();
 					schemaStr.writeToFile( fileName );
-					delete schemaXML;
 				}
 			}
 			doLogPosition();
@@ -684,12 +666,7 @@ void __fastcall TDbConvertForm::ButtonCheckClick(TObject *)
 			m_backupDbConnector.m_aliasName + ":\n" +
 			backupResult
 		;
-
-
-		delete backupSchema;
 	}
-
-	delete masterSchema;
 
 	setMemoText( Memo, compareResult );
 }
@@ -703,7 +680,7 @@ void __fastcall TDbConvertForm::ButtonCreateClick(TObject *)
 	);
 	if( exists( xmlFile ) )
 	{
-		DatabaseSchema	*masterSchema = createSchema();
+		std::auto_ptr<DatabaseSchema>	masterSchema( createSchema() );
 		masterSchema->readSchemaXml( xmlFile );
 
 		if( Session->IsAlias( static_cast<const char *>(m_backupDbConnector.m_aliasName) )
@@ -721,8 +698,6 @@ void __fastcall TDbConvertForm::ButtonCreateClick(TObject *)
 			masterSchema->createSynonymScript( m_mainDbConnector, m_mainDbType );
 			masterSchema->createSchema( m_mainDbConnector, m_mainDbType );
 		}
-
-		delete masterSchema;
 	}
 	ButtonCreate->Caption = "Finish";
 	ButtonCreate->Enabled = false;
