@@ -10,6 +10,7 @@ Actief Jobmade
 Active Solution
 Adecco
 Admiral (Sportwetten)
+Agilox
 APRO Kassensysteme
 Atikon EDV & Marketing GmbH
 avanti GmbH
@@ -34,20 +35,27 @@ epunkt
 ESA
 Eurofunk
 EV Group
+Fabasoft
 Ferchau
 Fröling
 Fronius
 FONDS SOZIALES WIEN
+Gepardec
 HAINZL INDUSTRIESYSTEME GMBH
+HAPEKO Österreich GmbH
 Hello Again
 HITZINGER Power Solutions GmbH
 Hueck Folien
+ibis acam Bildungs GmbH
 INFO-DATA GmbH
+ISG Personalmanagement GmbH
 IU Internationale Hochschule
 IT:U
 IVM TECHNICAL CONSULTANTS WIEN GES.M.B.H. 
 KEBA Group AG 
 KERN engineering careers
+KSV 1870
+KTM
 LISEC Holding GmbH
 LIWEST Kabelmedien GmbH 
 LOXONE 
@@ -79,9 +87,13 @@ STIWA
 SobIT
 solvistas GmbH
 SPAR Österreichische Warenhandels AG
+Sprecher Automation GmbH
+STIWA Holding GmbH
 Storyblok GmbH
 STRABAG AG
 SWIETELSKY AG
+Talentmonkey
+Talentscout
 TeamViewer
 TGW Logistic
 Tieto
@@ -95,7 +107,3 @@ voestalpine
 Wacker Neuson Linz GmbH
 WIENER NETZE GmbH
 Stadt Wien - Wiener Wohnen 
-
-
-
-
