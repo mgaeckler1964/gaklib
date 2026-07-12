@@ -58,6 +58,11 @@
 #	define DO_LOG_PROFILE false
 #endif
 
+#ifdef __BORLANDC__
+#	define SHOW_FUNCTION	0
+#else
+#	define SHOW_FUNCTION	1
+#endif
 
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
@@ -249,12 +254,26 @@ void logError( const char *file, int line, unsigned long dw );
 /*
 	positions
 */
-#if DEBUG_LOG
+#if DEBUG_LOG 
+
+#	if !SHOW_FUNCTION
+
 #define doLogPositionEx(lvl)												\
 {																			\
 	static size_t callCount = 0;											\
 	gakLogging::logValue( lvl, __FILE__, __LINE__, ++callCount, "", "" );	\
 }
+
+#	else
+
+#define doLogPositionEx(lvl)														\
+{																					\
+	static size_t callCount = 0;													\
+	gakLogging::logValue( lvl, __FILE__, __LINE__, ++callCount, __FUNCTION__, "" );	\
+}
+
+#	endif
+
 #else
 #define doLogPositionEx(lvl)		/* nothing */
 #endif
