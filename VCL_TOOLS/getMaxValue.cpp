@@ -37,12 +37,13 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <memory>
-
 #include <vcl.h>
 #include <dbtables.hpp>
 
 #include <gak/vcl_tools.h>
+
+#pragma hdrstop
+#include <gak/memory>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -140,7 +141,7 @@ long getNewMaxValue( const char *database, const char *table, const char *field,
 {
 	long	newMaxVal = 1;
 
-	std::auto_ptr<TQuery>	maxSql( new TQuery(Application) );
+	std::unique_ptr<TQuery>	maxSql( new TQuery(Application) );
 	if( maxSql.get() )
 	{
 		maxSql->DatabaseName = database;

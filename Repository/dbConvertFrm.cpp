@@ -31,7 +31,6 @@
 
 //---------------------------------------------------------------------------
 
-#include <memory>
 #include <iostream>
 #include <cstring>
 
@@ -44,6 +43,7 @@
 #include <gak/stringStream.h>
 
 #pragma hdrstop
+#include <gak/memory>
 
 #include "StatusFrm.h"
 #include "LoginDlg.h"
@@ -115,8 +115,8 @@ __fastcall TDbConvertForm::TDbConvertForm(TComponent* Owner)
 //---------------------------------------------------------------------------
 void __fastcall TDbConvertForm::SessionButtonClick(TObject *)
 {
-	std::auto_ptr<TQuery>		delSessionQuery(new TQuery( nullptr ));
-	std::auto_ptr<TDatabase>	theDatabase( m_mainDbConnector.connectDB( true ) );
+	std::unique_ptr<TQuery>		delSessionQuery(new TQuery( nullptr ));
+	std::unique_ptr<TDatabase>	theDatabase( m_mainDbConnector.connectDB( true ) );
 
 	delSessionQuery->DatabaseName = theDatabase->DatabaseName;;
 	delSessionQuery->SQL->Add(
@@ -177,7 +177,7 @@ void TDbConvertForm::BackupRestoreDB(
 	DatabaseSchema *sourceSchema = createSchema();
 	DatabaseSchema *destSchema = createSchema();
 
-	std::auto_ptr<TDatabase> source, destination;
+	std::unique_ptr<TDatabase> source, destination;
 
 	progress.showProgress();
 
@@ -218,7 +218,7 @@ void TDbConvertForm::BackupRestoreDB(
 		);
 		if( exists( xmlFile ) )
 		{
-			std::auto_ptr<DatabaseSchema>	masterSchema(createSchema());
+			std::unique_ptr<DatabaseSchema>	masterSchema(createSchema());
 			masterSchema->readSchemaXml( xmlFile );
 			STRING compareResult = destSchema->compareSchema( masterSchema.get() );
 			if( !compareResult.isEmpty() )
@@ -285,7 +285,7 @@ void __fastcall TDbConvertForm::RestoreButtonClick(TObject *)
 //---------------------------------------------------------------------------
 void __fastcall TDbConvertForm::UpgradeButtonClick(TObject *)
 {
-	std::auto_ptr<TDatabase>	theDatabase( nullptr );
+	std::unique_ptr<TDatabase>	theDatabase( nullptr );
 
 	theDatabase->AliasName = static_cast<const char *>(m_mainDbConnector.m_aliasName);
 	theDatabase->DatabaseName = "theDatabaseDB";
@@ -322,7 +322,7 @@ void __fastcall TDbConvertForm::EmptyButtonClick(TObject *)
 		) == IDYES
 	)
 	{
-		std::auto_ptr<TDatabase> theDatabase( m_mainDbConnector.connectDB( true ) );
+		std::unique_ptr<TDatabase> theDatabase( m_mainDbConnector.connectDB( true ) );
 
 		ConfigDataModule->emptyTables( theDatabase.get() );
 
@@ -368,7 +368,7 @@ void __fastcall TDbConvertForm::FormShow(TObject *)
 
 	STRING						line;
 	int							oldVersion;
-	std::auto_ptr<TDatabase>	theDatabase( new TDatabase( nullptr ) );
+	std::unique_ptr<TDatabase>	theDatabase( new TDatabase( nullptr ) );
 	bool						createDB, createBackupDB;
 
 	oldVersion = m_backupVersion = m_mainVersion = -1;
@@ -576,7 +576,7 @@ void __fastcall TDbConvertForm::ButtonCheckClick(TObject *)
 	doEnterFunction("TDbConvertForm::ButtonCheckClick");
 	STRING	compareResult, currentResult;
 
-	std::auto_ptr<DatabaseSchema>	masterSchema( createSchema() );
+	std::unique_ptr<DatabaseSchema>	masterSchema( createSchema() );
 
 	STRING	xmlFile = makeFullPath(
 		STRING( Application->ExeName.c_str() ),
@@ -584,7 +584,7 @@ void __fastcall TDbConvertForm::ButtonCheckClick(TObject *)
 	);
 	masterSchema->readSchemaXml( xmlFile );
 
-	std::auto_ptr<DatabaseSchema>	currentSchema( createSchema() );
+	std::unique_ptr<DatabaseSchema>	currentSchema( createSchema() );
 	try
 	{
 		currentSchema->readSchema( m_mainDbConnector );
@@ -603,7 +603,7 @@ void __fastcall TDbConvertForm::ButtonCheckClick(TObject *)
 				fileName += m_mainDbConnector.m_aliasName;
 				fileName += ".xml";
 
-				std::auto_ptr<xml::Element> schemaXML( currentSchema->getSchema() );
+				std::unique_ptr<xml::Element> schemaXML( currentSchema->getSchema() );
 				STRING schemaStr = schemaXML->generateDoc();
 				schemaStr.writeToFile( fileName );
 			}
@@ -623,7 +623,7 @@ void __fastcall TDbConvertForm::ButtonCheckClick(TObject *)
 	if( BackupButton->Enabled )
 	{
 		STRING			backupResult;
-		std::auto_ptr<DatabaseSchema>	backupSchema( createSchema() );
+		std::unique_ptr<DatabaseSchema>	backupSchema( createSchema() );
 		try
 		{
 			doLogPosition();
@@ -645,7 +645,7 @@ void __fastcall TDbConvertForm::ButtonCheckClick(TObject *)
 					fileName += m_backupDbConnector.m_aliasName;
 					fileName += ".xml";
 
-					std::auto_ptr<xml::Element> schemaXML( backupSchema->getSchema() );
+					std::unique_ptr<xml::Element> schemaXML( backupSchema->getSchema() );
 					STRING schemaStr = schemaXML->generateDoc();
 					schemaStr.writeToFile( fileName );
 				}
@@ -680,7 +680,7 @@ void __fastcall TDbConvertForm::ButtonCreateClick(TObject *)
 	);
 	if( exists( xmlFile ) )
 	{
-		std::auto_ptr<DatabaseSchema>	masterSchema( createSchema() );
+		std::unique_ptr<DatabaseSchema>	masterSchema( createSchema() );
 		masterSchema->readSchemaXml( xmlFile );
 
 		if( Session->IsAlias( static_cast<const char *>(m_backupDbConnector.m_aliasName) )

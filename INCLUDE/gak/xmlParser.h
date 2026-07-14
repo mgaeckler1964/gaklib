@@ -41,6 +41,7 @@
 #include <gak/textReader.h>
 #include <gak/xml.h>
 #include <gak/set.h>
+#include <gak/memory>
 
 // --------------------------------------------------------------------- //
 // ----- module switches ----------------------------------------------- //
@@ -267,8 +268,8 @@ void Parser::parseXML( ProcessorT &processor )
 		}
 		else if( theTag == "!" )
 		{
-			std::auto_ptr<Element>	subData( readSpecialTag() );
-			if( subData.get() )
+			std::unique_ptr<Element>	subData( readSpecialTag() );
+			if( subData )
 			{
 				processor.processSpecial( subData.get() );
 			}

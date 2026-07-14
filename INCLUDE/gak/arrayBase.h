@@ -263,7 +263,7 @@ class ReverseIterator : public std::iterator<std::random_access_iterator_tag, ty
 
 	reference operator [] ( size_type index ) const
 	{
-		return theData[index];
+		return this->theData[index];
 	}
 
 #if 0

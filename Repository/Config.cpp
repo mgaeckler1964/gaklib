@@ -31,14 +31,13 @@
 
 //---------------------------------------------------------------------------
 
-#include <memory>
-
 #include <vcl.h>
 
 #include <gak/vcl_tools.h>
 #include <gak/fmtNumber.h>
 
 #pragma hdrstop
+#include <gak/memory>
 
 #include "Config.h"
 //---------------------------------------------------------------------------
@@ -224,7 +223,7 @@ int TConfigDataModule::GetDBVersionByPath( const char *path )
 	doLogValueEx( gakLogging::llInfo, path );
 	try
 	{
-		std::auto_ptr<TDatabase> tmpDB( createDatabase( path ) );
+		std::unique_ptr<TDatabase> tmpDB( createDatabase( path ) );
 
 		setDatabase( tmpDB.get() );
 		dbVersion = GetDBVersion();
@@ -260,7 +259,7 @@ int TConfigDataModule::GetDBVersionByAlias( const char *alias )
 	doLogValueEx(gakLogging::llDetail,  alias );
 	try
 	{
-		std::auto_ptr<TDatabase> tmpDB( new TDatabase(NULL) );
+		std::unique_ptr<TDatabase> tmpDB( new TDatabase(NULL) );
 
 		tmpDB->DatabaseName = alias;
 		tmpDB->AliasName = alias;
@@ -337,7 +336,7 @@ void TConfigDataModule::emptyTables( const STRING &directory )
 	{
 		DatabaseSchema	theSchema;
 
-		std::auto_ptr<TDatabase> theDatabase( createDatabase( directory ) );
+		std::unique_ptr<TDatabase> theDatabase( createDatabase( directory ) );
 
 		emptyTables( theDatabase.get() );
 

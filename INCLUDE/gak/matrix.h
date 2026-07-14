@@ -94,13 +94,13 @@ class RowIterator : public ReverseIterator<ReferenceT>
 
 	const RowIterator &operator ++()				// pre inkrement
 	{
-		m_data += m_numRows;
+		this->m_data += m_numRows;
 		return *this;
 	}
 	RowIterator operator ++( int )					// post inkrement
 	{
 		RowIterator		tmp( *this );
-		m_data += m_numRows;
+		this->m_data += m_numRows;
 		return tmp;
 	}
 
@@ -112,20 +112,20 @@ class RowIterator : public ReverseIterator<ReferenceT>
 	}
 	const RowIterator &operator += ( int offset )
 	{
-		m_data += offset*m_numRows;
+		this->m_data += offset*m_numRows;
 		return *this;
 	}
 
 
 	const RowIterator &operator --()				// pre dekrement
 	{
-		m_data -= m_numRows;
+		this->m_data -= m_numRows;
 		return *this;
 	}
 	RowIterator operator --( int )					// post dekrement
 	{
 		RowIterator		tmp( *this );
-		m_data -= m_numRows;
+		this->m_data -= m_numRows;
 		return tmp;
 	}
 	RowIterator operator - ( int offset ) const
@@ -136,7 +136,7 @@ class RowIterator : public ReverseIterator<ReferenceT>
 	}
 	const RowIterator &operator -= ( int offset )
 	{
-		m_data -= offset*m_numRows;
+		this->m_data -= offset*m_numRows;
 		return *this;
 	}
 };
@@ -663,7 +663,11 @@ MatrixT matrixProduct(  const MatrixT &mat1, const MatrixT &mat2 )
 		for( size_t row=0; row<result.getNumRows(); ++row )
 		{
 			// Warning: Old compiler like Boland C++ Builder 5 may produce bad code
+#ifdef __BORLANDC__
 			typename MatrixT::value_type sum = MatrixT::value_type();
+#else
+			typename MatrixT::value_type sum = typename MatrixT::value_type();
+#endif
 			for( size_t i=0; i<maxIndex; ++i )
 			{
 				sum += mat1(i,row)*mat2(col,i);

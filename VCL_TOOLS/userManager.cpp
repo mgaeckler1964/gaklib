@@ -37,13 +37,14 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <memory>
-
 #include <gak/string.h>
 #include <gak/md5.h>
 #include <gak/vcl_tools.h>
 #include <gak/sortedArray.h>
 #include <gak/user.h>
+
+#pragma hdrstop
+#include <gak/memory>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -148,7 +149,7 @@ static void getMemberships( const AnsiString &database, const UserOrGroup &theUs
 {
 	groupIds->clear();
 
-	std::auto_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
+	std::unique_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
 	theQuery->DatabaseName = database;
 
 	theQuery->SQL->Add(
@@ -173,7 +174,7 @@ static void fillGroups( const AnsiString &database, UserOrGroup *theUser, const 
 	UserOrGroup	actGroup;
 	STRING		groupList = theUser->groupList;
 
-	std::auto_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
+	std::unique_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
 	theQuery->DatabaseName = database;
 
 	if( theUser->ID == theGroup.ID )
@@ -262,7 +263,7 @@ static void fillUserCache( const AnsiString &database )
 {
 	userCache.clear();
 
-	std::auto_ptr<TQuery> theQuery( new TQuery( nullptr ) );
+	std::unique_ptr<TQuery> theQuery( new TQuery( nullptr ) );
 	theQuery->DatabaseName = database;
 
 	theQuery->SQL->Add(
@@ -321,7 +322,7 @@ void getUserById( const AnsiString &database, int id, UserOrGroup *result )
 		*result = userCache[pos];
 /***/	return;
 	}
-	std::auto_ptr<TQuery> theQuery( new TQuery( nullptr ) );
+	std::unique_ptr<TQuery> theQuery( new TQuery( nullptr ) );
 	theQuery->DatabaseName = database;
 	theQuery->SQL->Add( "select * from user_tab where id = :theId" );
 	theQuery->Params->Items[0]->AsInteger = id;
@@ -342,7 +343,7 @@ void getUserByName( const AnsiString &database, const char *name, UserOrGroup *r
 /***/	return;
 	}
 
-	std::auto_ptr<TQuery> theQuery( new TQuery( nullptr ) );
+	std::unique_ptr<TQuery> theQuery( new TQuery( nullptr ) );
 	theQuery->DatabaseName = database;
 	theQuery->SQL->Add( "select * from user_tab where username = :theName" );
 	theQuery->Params->Items[0]->AsString = name;
@@ -364,7 +365,7 @@ const UserOrGroup &getActUser( const AnsiString &database )
 	}
 	if( !actUser.ID && !getUserCount( database ) )
 	{
-		std::auto_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
+		std::unique_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
 		theQuery->DatabaseName = database;
 
 		theQuery->SQL->Add(
@@ -440,7 +441,7 @@ void changePassword(
 
 	if( actUser.encryptedPassword == oldMD5Hex )
 	{
-		std::auto_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
+		std::unique_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
 		theQuery->DatabaseName = database;
 
 		theQuery->SQL->Add(
@@ -462,7 +463,7 @@ void changePassword(
 size_t getUserCount( const AnsiString &database )
 {
 	size_t	userCount = 0;
-	std::auto_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
+	std::unique_ptr<TQuery>	theQuery( new TQuery( nullptr ) );
 	theQuery->DatabaseName = database;
 
 	theQuery->SQL->Add(

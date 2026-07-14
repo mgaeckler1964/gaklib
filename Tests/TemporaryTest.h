@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			TemporaryTest.h
-		Description:	Usefuö to add sam small hacking tests with short live time
+		Description:	Usefull to add sam small hacking tests with short live time
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -36,9 +36,10 @@
 // --------------------------------------------------------------------- //
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
-#include <memory>
+
 #include <iostream>
 #include <gak/unitTest.h>
+#include <gak/memory>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -101,10 +102,12 @@ class TemporaryTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "TemporaryTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
-#if !defined( __BORLANDC__ ) && !defined( __GNUC__ )
 		// my old C++ builder and the old Gnu C++ do not know unique_ptr
 		std::unique_ptr<STRING> myUnique( new STRING );
 		std::auto_ptr<STRING> myAuto( new STRING );
+		std::unique_ptr<STRING[]> myUnique2( new STRING[4] );
+		myUnique2.reset();
+		myUnique.reset();
 
 		UT_ASSERT_LESSEQ( sizeof(myUnique), sizeof(myAuto) );
 		std::cout << sizeof(myUnique) << ' ' << sizeof(myAuto) << std::endl;
@@ -116,15 +119,16 @@ class TemporaryTest : public UnitTest
 			ConsoleOut( {  std::cout << i << '\r' << std::flush; } );
 		}
 		sw1.stop();
-		std::cout << std::endl << "Macro " << sw1.get<Seconds<>>().toString() << std::endl;
+		std::cout << std::endl << "Macro " << sw1.get< Seconds<> >().toString() << std::endl;
 
+#if __cplusplus > 1
 		StopWatch sw2(true);
 		for( size_t i=0; i<count; ++i )
 		{
 			xConsoleOut( [=] {  std::cout << i << '\r' << std::flush; } );
 		}
 		sw2.stop();
-		std::cout << std::endl << "Lambda " << sw2.get<Seconds<>>().toString() << std::endl;
+		std::cout << std::endl << "Lambda " << sw2.get< Seconds<> >().toString() << std::endl;
 
 		UT_ASSERT_LESS( sw2.getMillis(), sw1.getMillis() );
 #endif
@@ -203,3 +207,4 @@ static TemporaryTest myTemporaryTest;
 #	pragma option -a.
 #	pragma option -p.
 #endif
+

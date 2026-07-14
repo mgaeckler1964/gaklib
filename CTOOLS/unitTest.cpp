@@ -47,7 +47,6 @@
 #	include <exception>
 #endif
 
-#include <memory>
 #include <iomanip>
 #include <sstream>
 
@@ -61,6 +60,8 @@
 #include <gak/locker.h>
 #include <gak/logfile.h>
 #include <gak/exception.h>
+
+#include <gak/memory>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -588,7 +589,7 @@ void UnitTest::PerformThreadTest()
 {
 	try
 	{
-		std::auto_ptr<UnitTest> myDup( duplicate() );
+		std::unique_ptr<UnitTest> myDup( duplicate() );
 		assert( myDup.get() );
 		myDup->PerformTest();
 	}

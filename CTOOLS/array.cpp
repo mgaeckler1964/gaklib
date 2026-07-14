@@ -89,11 +89,15 @@ namespace gak
 // --------------------------------------------------------------------- //
 
 #if defined( __BORLANDC__ ) && __BORLANDC__ <= 0x0520
-const int ArrayOfStrings::CHECK_STRINGS		= 0x01;		// ""
-const int ArrayOfStrings::CHECK_CHARS		= 0x02;		// ''
-const int ArrayOfStrings::CHECK_BRACES		= 0x04;		// {}
-const int ArrayOfStrings::CHECK_BRACKETS	= 0x08;		// []
-const int ArrayOfStrings::CHECK_PARENTESIS	= 0x10;		// ()
+	const int ArrayOfStrings::CHECK_STRINGS		= 0x01;		// ""
+	const int ArrayOfStrings::CHECK_CHARS		= 0x02;		// ''
+	const int ArrayOfStrings::CHECK_BRACES		= 0x04;		// {}
+	const int ArrayOfStrings::CHECK_BRACKETS	= 0x08;		// []
+	const int ArrayOfStrings::CHECK_PARENTESIS	= 0x10;		// ()
+#endif
+
+#if defined( __GNUC__ ) && __GNUC__ <= 4
+	const size_t Container::no_index = size_t(-1);
 #endif
 
 // --------------------------------------------------------------------- //

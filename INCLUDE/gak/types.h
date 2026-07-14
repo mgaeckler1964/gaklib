@@ -62,10 +62,10 @@
 
 #if __cplusplus < 201103L
 #	if defined( __BORLANDC__  )
-		#define nullptr (void*)(NULL)
+		#define nullptr ((void*)(NULL))
 #	endif
 #	if defined( __GNUC__ )
-		#define nullptr (NULL)
+		#define nullptr NULL
 #	endif
 #endif
 

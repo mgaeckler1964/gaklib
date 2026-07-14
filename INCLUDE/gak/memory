@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			XmlTest.h
-		Description:	
+		Module:			memory
+		Description:	add types missing in some old compilers
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -29,6 +29,8 @@
 		SUCH DAMAGE.
 */
 
+#ifndef GAK_MEMORY_H
+#define GAK_MEMORY_H
 
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
@@ -38,11 +40,9 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <iostream>
-#include <gak/unitTest.h>
-
-#include <gak/xml.h>
-#include <gak/xmlParser.h>
+#include <memory>
+#include <gak/types.h>
+#include <gak/CopyProtection.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -59,9 +59,8 @@
 #	pragma option -pc
 #endif
 
-namespace gak
+namespace std
 {
-using namespace xml;
 
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
@@ -79,127 +78,94 @@ using namespace xml;
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-class XmlTest : public UnitTest
+#if defined (__cplusplus) && __cplusplus <= 1
+namespace stdgak
 {
-	virtual const char *GetClassName() const
+	template <typename ObjT>
+	class unique_ptr_base : gak::CopyProtection
 	{
-		return "XmlTest";
-	}
-	virtual void PerformTest()
-	{
-		doEnterFunctionEx(gakLogging::llInfo, "XmlTest::PerformTest");
-		TestScope scope( "PerformTest" );
+		protected:
+		ObjT	*m_ptr;
+		unique_ptr_base(ObjT	*ptr=nullptr) : m_ptr(ptr) {}
+
+		public:
+		ObjT *release ()
 		{
-			Any		theRoot( "root" );
-			Any		*theRecord;
-
-			theRecord = new Any( "record" );
-			theRecord->setStringAttribute( "atribute1", "value1.1" );
-			theRecord->setBoolAttribute( "atribute2", true );
-			theRoot.addObject( theRecord );
-			theRecord = new Any( "record" );
-			theRecord->setStringAttribute( "atribute1", "value2.1" );
-			theRecord->setIntegerAttribute( "atribute2", 22 );
-
-			theRecord->addObject( new CData( "cdata2" ) );
-			theRoot.addObject( theRecord );
-			theRecord = new Any( "record" );
-			theRecord->setStringAttribute( "atribute1", "value3.1" );
-			theRecord->setFloatAttribute( "atribute2", 3.2 );
-
-			theRecord->addObject( new CData( "cdata3" ) );
-			theRoot.addObject( theRecord );
-
-
-			STRING	xmlCode = theRoot.generateDoc( "test", "mydata.xsl" );
-			STRING	expected =
-				STRING("<?xml version=\"1.0\" encoding=\"") + ISO_8859_1 + "\" ?>\n"
-				"<!DOCTYPE test SYSTEM \"test.dtd\">\n"
-				"<?xml-stylesheet type=\"text/xsl\" href=\"mydata.xsl\" ?>\n"
-				"<root>\n"
-				"<record atribute1=\"value1.1\" atribute2=\"true\" />\n"
-				"<record atribute1=\"value2.1\" atribute2=\"22\">\n"
-				"<![CDATA[cdata2]]>\n"
-				"</record>\n"
-				"<record atribute1=\"value3.1\" atribute2=\"3.20\">\n"
-				"<![CDATA[cdata3]]>\n"
-				"</record>\n"
-				"</root>"
-			;
-
-			UT_ASSERT_EQUAL( xmlCode, expected );
-			if( xmlCode != expected )
-			{
-				for( size_t i=0; i<xmlCode.strlen(); i++ )
-				{
-					char c1 = xmlCode[i];
-					char c2 = expected[i];
-					UT_ASSERT_EQUAL( c1, c2 );
-					if( c1 != c2 )
-						break;
-				}
-			}
-
-			iSTRINGstream				str( expected );
-			Parser						theParser( &str, "internal" );
-			std::unique_ptr<Document>	theDoc( theParser.readFile( false ) );
-
-			xmlCode = theDoc->generate( XML_MODE );
-			UT_ASSERT_EQUAL( xmlCode, expected );
-			if( xmlCode != expected )
-			{
-				for( size_t i=0; i<xmlCode.strlen(); i++ )
-				{
-					char c1 = xmlCode[i];
-					char c2 = expected[i];
-					UT_ASSERT_EQUAL( c1, c2 );
-					if( c1 != c2 )
-						break;
-				}
-			}
+			ObjT *result = m_ptr;
+			m_ptr = nullptr;
+			return result;
+		}
+		void swap( unique_ptr_base &other )
+		{
+			ObjT *tmp = m_ptr;
+			m_ptr = other.m_ptr;
+			other.m_ptr = tmp;
 		}
 
+		operator bool() const
 		{
-			/// TODO allow PCDATA parsing
-			STRING	xml =
-				STRING("<?xml version=\"1.0\" encoding=\"") + UTF_8 + "\" ?>\n"
-				"<root>\n"
-//				"<![PCDATA[&auml;Ä]]>\n"
-				"äÄ\n"
-				"<record atribute1=\"value3.1\" atribute2=\"äÄ\">\n"
-				"<![CDATA[cdata3]]>\n"
-				"</record>\n"
-				"</root>"
-			;
-			xml = xml.encodeUTF8();
+			return m_ptr != nullptr;
+		}
 
-			iSTRINGstream				str( xml );
-			Parser						theParser( &str, "internal" );
-			std::unique_ptr<Document>	theDoc( theParser.readFile( false ) );
-			Element						*root = theDoc->getRoot(); 
-			UT_ASSERT_EQUAL( STRING("root"), root->getTag() );
-			Element						*cData = root->getElement( 0 );
-			PCData						*pcData = dynamic_cast<PCData*>( cData );
-			UT_ASSERT_TRUE( pcData != NULL );
-			if( pcData != NULL )
-			{
-				STRING pcValue = pcData->getValue( PLAIN_MODE );
-				UT_ASSERT_EQUAL( STRING("\näÄ\n"), pcValue );
-				UT_ASSERT_EQUAL( STR_UTF8, pcValue.getCharSet() );
-			}
-			Element						*record = root->getElement( 1 );
-			UT_ASSERT_EQUAL( STRING("record"), record->getTag() );
+		ObjT &operator * () const
+		{
+			return *m_ptr;
+		}
 
-			STRING atribute1 = record->getAttribute( "atribute1" );
-			UT_ASSERT_EQUAL( STRING("value3.1"), atribute1 );
-			UT_ASSERT_EQUAL( STR_ASCII, atribute1.getCharSet() );
+		// get
+		ObjT *operator -> () const
+		{
+			return m_ptr;
+		}
+		ObjT *get () const
+		{
+			return m_ptr;
+		}
+	};
+}
 
-			STRING atribute2 = record->getAttribute( "atribute2" );
-			UT_ASSERT_EQUAL( STRING("äÄ"), atribute2 );
-			UT_ASSERT_EQUAL( STR_UTF8, atribute2.getCharSet() );
+template <typename ObjT>
+class unique_ptr : public stdgak::unique_ptr_base<ObjT>
+{
+	public:
+	unique_ptr(ObjT *ptr=nullptr) : stdgak::unique_ptr_base<ObjT>(ptr)
+	{}
+	~unique_ptr()
+	{
+		reset();
+	}
+	void reset( ObjT *ptr=nullptr )
+	{
+		if( ptr != this->m_ptr )
+		{
+			if( this->m_ptr )
+				delete this->m_ptr;
+			this->m_ptr = ptr;
 		}
 	}
 };
+
+template < typename ObjT >
+class unique_ptr<ObjT[]> : public stdgak::unique_ptr_base<ObjT>
+{
+	public:
+	unique_ptr(ObjT *ptr=nullptr) : stdgak::unique_ptr_base<ObjT>(ptr)
+	{}
+	~unique_ptr()
+	{
+		reset();
+	}
+	void reset( ObjT *ptr=nullptr )
+	{
+		if( ptr != this->m_ptr )
+		{
+			if( this->m_ptr )
+				delete [] this->m_ptr;
+			this->m_ptr = ptr;
+		}
+	}
+};
+#endif
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
@@ -208,8 +174,6 @@ class XmlTest : public UnitTest
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-static XmlTest myXmlTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -255,7 +219,7 @@ static XmlTest myXmlTest;
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-}	// namespace gak
+} // namespace std
 
 #ifdef __BORLANDC__
 #	pragma option -RT.
@@ -264,3 +228,4 @@ static XmlTest myXmlTest;
 #	pragma option -p.
 #endif
 
+#endif // GAK_MEMORY_H

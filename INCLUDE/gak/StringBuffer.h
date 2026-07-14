@@ -175,7 +175,7 @@ class StringBuffer : public BaseBuffer<BUFFER_SIZE>
 	// adding a character
 	StringBuffer &addDigit( char digit )
 	{
-		if( m_len >= BUFFER_SIZE )
+		if( this->m_len >= BUFFER_SIZE )
 			throw IndexError();
 		Super::addDigit( digit );
 		return *this;
@@ -190,7 +190,7 @@ class StringBuffer : public BaseBuffer<BUFFER_SIZE>
 	private:
 	StringBuffer &addCP( const char *cp, size_t len )
 	{
-		if( m_len+len > BUFFER_SIZE )
+		if( this->m_len+len > BUFFER_SIZE )
 			throw IndexError();
 		Super::addCP( cp, len );
 		return *this;

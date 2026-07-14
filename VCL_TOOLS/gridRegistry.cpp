@@ -37,12 +37,14 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <memory>
 #include <vcl.h>
 #include <dbgrids.hpp>
 #include <registry.hpp>
 
 #include <gak/vcl_tools.h>
+
+#pragma hdrstop
+#include <gak/memory>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -146,7 +148,7 @@ void saveColumSettings( const TDBGrid *theGrid, const char *registryBase )
 	gridRegistry += theGrid->Owner->Name;
 	gridRegistry += theGrid->Name;
 
-	std::auto_ptr<TRegistry> reg(new TRegistry);
+	std::unique_ptr<TRegistry> reg(new TRegistry);
 
 	if( reg->OpenKey( gridRegistry, true ) )
 	{
@@ -184,7 +186,7 @@ void restoreColumSettings( const TDBGrid *theGrid, const char *registryBase )
 	gridRegistry += theGrid->Owner->Name;
 	gridRegistry += theGrid->Name;
 
-	std::auto_ptr<TRegistry> reg(new TRegistry);
+	std::unique_ptr<TRegistry> reg(new TRegistry);
 
 	if( reg->OpenKey( gridRegistry, false ) )
 	{

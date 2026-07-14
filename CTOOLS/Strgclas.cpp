@@ -521,7 +521,7 @@ STRING &STRING::operator += ( size_t offset )
 	}
 	else
 	{
-		setText( nullptr, MAX_LEN );
+		setText( (const char *)nullptr, MAX_LEN );
 	}
 	return *this;
 }
@@ -568,7 +568,7 @@ void STRING::fromBinaryStream( std::istream &stream )
 {
 	uint64 newSize;
 	binaryFromBinaryStream( stream, &newSize );
-	setText( nullptr, MAX_LEN );
+	setText( (const char *)nullptr, MAX_LEN );
 	if( newSize > std::numeric_limits<std::size_t>::max() )
 	{
 		throw AllocError();

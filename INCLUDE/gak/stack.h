@@ -84,7 +84,7 @@ class Fixed4Stack : public FixedArray<OBJ, SIZE>
 	Fixed4Stack() : m_pos(0) {}
 	OBJ &addElement( const OBJ &src )
 	{
-		OBJ	*result = begin();
+		OBJ	*result = this->begin();
 		(*this)[m_pos++] = src;
 		return *result;
 	}
@@ -130,7 +130,7 @@ class Stack : private SuperT
 	/// @copydoc ArrayBase::createElement
 	OBJ &createElement()
 	{
-		return SUPER_T::createElement();
+		return Super::createElement();
 	}
 	/// removes the latest element from the buffer
 	void removeTop()

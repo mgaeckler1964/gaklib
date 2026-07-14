@@ -98,6 +98,8 @@ class Container
 	/// const value used to specify "no item"
 #if __cplusplus >= 201103L
 	static constexpr size_t no_index = size_t(-1);
+#elif defined( __GNUC__ ) && __GNUC__ <= 4
+	static const size_t no_index;
 #else
 	static const size_t no_index = size_t(-1);
 #endif

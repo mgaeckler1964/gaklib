@@ -262,6 +262,9 @@
     <ClInclude Include="INCLUDE\gak\XPath.h" />
     <ClInclude Include="INCLUDE\gak\xslt.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="INCLUDE\gak\memory" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9EB40B93-22E8-489C-BEC3-C88E4ED46588}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
