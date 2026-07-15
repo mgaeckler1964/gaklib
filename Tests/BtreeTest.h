@@ -208,7 +208,7 @@ class BtreeTest : public UnitTest
 		container.setRoot(root);
 		rebalanceTest(container, true);
 
-//		std::auto_ptr<Node> root(oldRoot);
+//		std::unique_ptr<Node> root(oldRoot);
 //		root->testPointer(true);
 //		root.reset( root.release()->rebalance(0) );
 //		assert( root->m_parent == nullptr );

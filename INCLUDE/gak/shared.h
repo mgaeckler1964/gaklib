@@ -42,9 +42,9 @@
 // --------------------------------------------------------------------- //
 
 #include <assert.h>
-#include <memory>
 
 #include <gak/locker.h>
+#include <gak/memory>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -551,7 +551,7 @@ class SharedPointer
 template<class OBJ>
 class XSharedPointer
 {
-	typedef internal::ShObjContainer< std::auto_ptr<OBJ> >	ShObj;
+	typedef internal::ShObjContainer< std::unique_ptr<OBJ> >	ShObj;
 	typedef SharedObjectPointer<ShObj>						MySharedObjectPointer;
 
 	MySharedObjectPointer					m_shPointer;
