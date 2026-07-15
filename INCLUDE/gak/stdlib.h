@@ -159,22 +159,22 @@ __declspec(deprecated("Migrate to C++ I/O"))
 	@tparam TYPE type of the pointer to manage
 */
 template <class TYPE>
-class Buffer
+class Buffer : public CopyProtection
 {
 	TYPE	*m_buff;
-
-	// do not copy
-	Buffer( const Buffer &src );
-	const Buffer & operator = ( const Buffer &src );
 
 	public:
 	Buffer() : m_buff(nullptr) 
 	{}
 
+	/**
+		@brief Constructs a pointer object from an C string
+
+		@param [in] buffer the address of the memory buffer
+	*/
 	Buffer(const char *s, char) : m_buff(strdup(s)) 
 	{}
 
-#if 0
 	/**
 		@brief Constructs a pointer object from an allocated memory.
 
@@ -182,11 +182,9 @@ class Buffer
 
 		@param [in] buffer the address of the memory buffer
 	*/
-	Buffer( TYPE *buff )
-	{
-		m_buff = buff;
-	}
-#endif
+	Buffer(bool, TYPE *src) : m_buff(src) 
+	{}
+
 	/**
 		@brief Constructs a pointer object from an allocated memory.
 
@@ -296,8 +294,28 @@ class Buffer
 	}
 	Buffer<TYPE> &moveFrom( Buffer<TYPE> &src )
 	{
-		free();
-		m_buff = src.release();
+		if( m_buff != src.m_buff )
+		{
+			free();
+			m_buff = src.release();
+		}
+		return *this;
+	}
+
+	/**
+		@brief Constructs a pointer object from an allocated memory.
+
+		The buffer should be allocated with std::malloc, std::calloc or strdup
+
+		@param [in] buffer the address of the memory buffer
+	*/
+	Buffer<TYPE> &reset( TYPE *buff )
+	{
+		if( m_buff != buff )
+		{
+			free();
+			m_buff = buff;
+		}
 
 		return *this;
 	}
