@@ -77,7 +77,7 @@
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-typedef enum { cFalse, cTrue } cBool;
+typedef enum cBool_e { cFalse, cTrue } cBool;
 #ifndef __cplusplus
 	#define false	cFalse
 	#define true	cTrue

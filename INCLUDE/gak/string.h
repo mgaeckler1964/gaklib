@@ -105,22 +105,22 @@
 /* ----- type definitions ---------------------------------------------- */
 /* --------------------------------------------------------------------- */
 
-typedef enum
+typedef enum STR_CHARSET_e
 {
 	STR_CS_UNKNOWN, STR_ASCII, STR_OEM, STR_ANSI, STR_UTF8, STR_UNICODE
 } STR_CHARSET;
 
-typedef enum
+typedef enum RLINE_ENDS_e
 {
 	RL_UNKONW =-1, RL_END_CR, RL_END_LF, RL_END_CRLF, RL_END_LFCR
 } RLINE_ENDS;
 
-typedef enum
+typedef enum STR_PADDING_e
 {
 	STR_P_LEFT, STR_P_RIGHT
 } STR_PADDING;
 
-typedef struct
+typedef struct STR_s
 {
 	long		usageCount;
 	size_t		bufSize,
