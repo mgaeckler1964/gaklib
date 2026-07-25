@@ -284,6 +284,13 @@ class Buffer : public CopyProtection
 		m_buff = static_cast<TYPE*>(realloc(m_buff, newSize));
 	}
 
+	/// resizes the buffer but frees the old and callocs a new buffer
+	void calloc(size_t count, size_t size)
+	{
+		free();
+		m_buff = static_cast<TYPE*>(::calloc(count, size));
+	}
+
 	/// returns the pointer and gives up the ownership of the address
 	TYPE *release()
 	{
