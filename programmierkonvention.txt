@@ -1,0 +1,170 @@
+﻿Programmierkonvention
+=====================
+
+Im folgenden beschreibe ich die C++ Programmierstile, die verwendet werden. Früher 
+habe ich andere Stile verwendet, daher findet Ihr hier auch Abweichungen. Meistens 
+werden diese jedoch geändert, wenn die Klassen, Funktionen und Variablen angefasst 
+werden. Wenn Sie aber zu oft benutzt werden (STRING), bleiben die alten Bezeichner 
+erhalten.
+
+Allgemeine Bezeichner
+---------------------
+
+Bezeichner müssen immer einen aussagekräftigen Namen haben. Unübliche Abkürzungen
+sind verboten. Abkürungen sind nur erlaubt, wenn der Scope entsprechend klein ist.
+Ein i für eine Laufvariable in einer kurzen for-schleife ist völlig OK.
+
+snake_case sieht man nur noch gelegentlich und sollten durch camelCase ersetzt 
+werden.
+
+Funktionsnamen
+--------------
+
+Die Namen aller Funktionen fangen immer mit einem Kleinbuchstaben an, verwenden 
+ansonsten camelCase. Ausnahme: Die Funktionen werden mit einer API verwendet,
+deren Funktionsnamen mit Großbuchstaben beginnen.
+
+Datentypen
+----------
+
+Für Datentypen wird PascalCase verwendet. Alte Datentypen, die noch in UPPER_SNAKE_CASE
+sind, können umbenannt werden, wenn sie nicht zu oft verwendet werden.
+
+Konstante
+---------
+
+Für konstante Werte werden SCREAMING_SNAKE_CASE (CONSTANT_CASE) verwendet. Werte 
+von enums müssen in C++ mit einen Prefix aus Kleinbuchstaben versehen werden. 
+Für Java ist das nicht notwendig. Enums dürfen auch PascalCase verwenden:	
+
+wmFULL_SIZE oder wmFullSize ist ok.
+
+Variablen
+---------
+
+Variablen müssen immer den kleinsten Scope haben, der notwendig ist. Das gleiche 
+gilt für die Lebensdauer.
+
+Klassenmember müssen mit einem Prefix m_ versehen werden. Bei UI-Elementen kann 
+auf den Prefix verzichtet werden. Statische Variablen, auch wenn sie nur in einer 
+kurzen Funktion definiert wurden, müssen immer mit dem Prefix s_ versehen werden.
+
+Klammern
+--------
+
+Klammern werden nicht vom Bezeichner oder Schlüsselwort durch Leerzeichen getrennt.
+Der Inhalt kann muß aber nicht getrennt gtrennt werden:
+
+if( xxx )  oder if(xxx) sind ok
+if (xxx) ist zu vermeiden
+
+Programmstruktur
+----------------
+
+Geschweifte Klammern sind immer die einzigen Zeichen außer white space in einer 
+Zeile. Ausnahme: wenn der Inhalt mit den Klammern in eine Zeile passt. Bei 
+Interpretersprachen wie PHP oder JavaScript, darf auch eine kompakte Darstellung 
+verwendet werden. 
+
+Einzelne Statements nach if, else oder Schleifen, die auch ohne geschweifte Klammern
+verwendet werden können, sollten trotzdem in geschweifte Klammern eingeschlossen 
+werden. Das ist sinnvoll, wenn der Zweig dann doch mal erweitert werden soll, ist 
+die Wartung einfacher.
+
+else ist immer das einzige Wort in einer Zeile außer es folgt ein neues if. Dann 
+können die geschweiften Klammern um das if auch weggelassen werden und sie werden
+nicht als neue Ebene betrachtet:
+if( xxx ) 
+{
+	xxx;
+}
+else if( xxx )
+{
+	xxx;
+}
+else
+{
+	xxx;
+}
+
+statt 
+
+if( xxx ) 
+{
+	xxx;
+}
+else 
+{
+	if( xxx )
+	{
+		xxx;
+	}
+	else
+	{
+		xxx;
+	}
+}
+
+Tabulatorweite ist immer 4 und es werden Tabs verwendet.
+
+Funktionen sollten nicht mehr wie 100 Zeilen und 3 Ebenen haben. Wenn es mehr werden, 
+sind sie nach Möglichkeit aufzuteilen. Wenn ein einzelnes Statement sehr lang ist, 
+das nicht aufgeteilt werden kann, ist das natürlich OK.
+
+Module sollten auch eine sinnvolle Größe haben. Alles über 1000 Zeilen darf hinterfragt 
+werden.
+
+Alle Funktionen müssen Exceptions überstehen. D.h. Ressourcen müssen grundsätzlich 
+in Destruktoren freigegeben werden. Falls das nicht möglich ist, muß mit try .. catch
+gearbeitet werden. Da ich Exceptions erst seit den Nullerjahren einsetze, gibt 
+es gelegentlich Funktionen, die noch umgestellt werden müssen. Ich meine aber, 
+die meisten schon umgestellt zu haben.
+
+Funktionen folgen dieser Struktur:
+Funktionskopf
+	Parameterprüfung. Bei Fehler Exception oder Fehlerreturn.
+	
+	Datenverarbeitung.
+	
+	Ergebniss.
+End
+
+Wenn während der Datenverarbeitung ein Fehler auftritt und die Funktion beendet 
+werden muß, markiere ich das Return immer mit /*@*/. Bei einem vorzeitigen Ende
+ohne Fehler, markiere ich das Return mit /***/. Das war in der "Preexceptionarea"
+notwendig, um das Ende eine Funktion sichtbar zu machen, damit Ressourcen 
+freigegeben werden können. Wegen der Regel, daß alle Funktionen Exceptionsafe sein
+müssen, sind diese Markierungen nicht mehr zwingend erforderlich, da man aber damit 
+den Programmfluß besser erkennt, sollten sie trotzdem verwendet werden. Es ist die 
+Entscheidung der Funktion, ob im Fehlerfall eine Exception geworfen wird oder ein 
+Fehlercode zurückgegeben wird:
+/*@*/	return scError;
+oder
+/*@*/	throw ScError( ... );
+
+Als Faustregel gilt: Wenn der Aufrufer auf den Fehler reagieren kann oder den 
+Benutzer zu informieren, ist ein Fehlercode meistens ausreichend. Wenn der Benutzer 
+informiert werden muß, ist eine Exception für gewöhnlich sinnvoller, da hier mehr 
+Informationen verpackt werden können, die den Benutzer helfen, den Fehler zu korrigieren.
+
+Exkurs:
+	Es ist nun mal sinnvoller zu schreiben
+	"xyz konnte nicht geöffnet werden, weil die Datei nicht existiert."
+	statt
+	"Die angegebene Datei konnte nicht gefunden werden."
+	und dann den Dateinamen zu verschweigen.
+
+	Microsoft schreibt auch gerne
+
+	Es ist ein Fehler passiert. xxxxxxx 
+
+	Dieses Kindergartenniveau ist hier verboten.
+
+NULL is immer durch nullptr zu ersetzen. Für allte Compiler, die nullptr nicht 
+kennen, gibt es in <gak/types.h> ein Makro.
+
+Funktionen, die keine Parameter erwarten sollten in C mit dem Schlüsselwort void
+in der Parameterliste versehen werden. In C++ ist das nicht notwendig. Da ich früher
+Funktionen auch mal vom C-Compiler hab übersetzen lassen, hatte ich mir angewöhnt
+void auch in C++ zu verwenden. Das ist nicht mehr notwendig und ich habe schon 
+sehr viele voids entfernt. Sie sind aber immer noch vorhanden.
