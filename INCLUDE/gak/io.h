@@ -203,18 +203,20 @@ inline void Fclose( int handle )
 	'\n', '\r', '\r\n' and \n\r'
 */
 
-const int buffSize=10240;
+const int BUFF_SIZE=10240;
 
 class  RFILE
 {
-	bool		eof;
-	int     	handle;
-	size_t		nextRead, firstClear;
-	RLINE_ENDS	lineEnd;
-	char    	buffer[buffSize];
+	bool		m_eof;
+	int     	m_handle;
+	size_t		m_nextRead, m_firstClear;
+	RLINE_ENDS	m_lineEnd;
+	char    	m_buffer[BUFF_SIZE];
 
-	int getCharacter( void  );
-	int getNextCharacter( void );
+	int pollCharacter();
+	int popCharacter();
+	void skipCharacter();
+	void ignoreCharacter( int c );
 
 	RFILE( const RFILE &src );
 	const RFILE &operator = ( const RFILE &src );
@@ -222,39 +224,39 @@ class  RFILE
 	public:
 	RFILE()
 	{
-		eof = true;
-		handle = -1;
+		m_eof = true;
+		m_handle = -1;
 	}
 	~RFILE()
 	{
 		close();
 	}
 	void open( const STRING &fileName );
-	STRING gets( void );
-	bool isEOF( void ) const
+	STRING gets();
+	bool isEOF() const
 	{
-		return eof;
+		return m_eof;
 	}
-	off_t getpos( void ) const
+	off_t getpos() const
 	{
-		return Fseek( 0L, handle, SeekCur )
-				- off_t(firstClear)
-				+ off_t(nextRead);
+		return Fseek( 0L, m_handle, SeekCur )
+				- off_t(m_firstClear)
+				+ off_t(m_nextRead);
 	}
 	void setpos( off_t pos )
 	{
-		eof = false;
-		Fseek( pos, handle, SeekSet );
-		nextRead = 0;
-		firstClear = 0;
+		m_eof = false;
+		Fseek( pos, m_handle, SeekSet );
+		m_nextRead = 0;
+		m_firstClear = 0;
 	}
 
-	void close( void )
+	void close()
 	{
-		if( handle >= 0 )
+		if( m_handle >= 0 )
 		{
-			Fclose( handle );
-			handle = -1;
+			Fclose( m_handle );
+			m_handle = -1;
 		}
 	}
 };

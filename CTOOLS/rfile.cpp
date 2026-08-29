@@ -3,10 +3,10 @@
 		Module:			rfile.cpp
 		Description:	Input File Stream
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -55,36 +55,47 @@ namespace gak
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-int RFILE::getCharacter( void )
+inline void RFILE::skipCharacter()
+{
+	m_nextRead++;
+}
+
+inline void RFILE::ignoreCharacter( int c )
+{
+	int next = pollCharacter();
+	if( next == c )
+		skipCharacter();
+}
+
+int RFILE::pollCharacter()
 {
 	int	c;
 
-	if( nextRead >= firstClear )
+	if( m_nextRead >= m_firstClear )
 	{
-		firstClear =
-			Fread( handle, buffSize, buffer );
-		if( firstClear > buffSize )
+		m_firstClear =
+			Fread( m_handle, BUFF_SIZE, m_buffer );
+		if( m_firstClear > BUFF_SIZE )
 			throw ReadError().addCerror();
-		else if( firstClear > 0 )
-			nextRead = 0;
+		else if( m_firstClear > 0 )
+			m_nextRead = 0;
 	}
 
-	if( nextRead < firstClear )
-		c = buffer[nextRead];
+	if( m_nextRead < m_firstClear )
+		c = m_buffer[m_nextRead];
 	else
 	{
 		c = EOF;
-		eof = true;
+		m_eof = true;
 	}
 
 	return c;
 }
 
-inline int RFILE::getNextCharacter( void )
+inline int RFILE::popCharacter()
 {
-	int	c = getCharacter();
-
-	nextRead++;
+	int	c = pollCharacter();
+	skipCharacter();
 
 	return c;
 }
@@ -97,90 +108,84 @@ inline int RFILE::getNextCharacter( void )
 void RFILE::open( const STRING &fileName )
 {
 	close();
-	handle = Fopen( fileName, OM_READ );
-	if( handle >= 0 )
+	m_handle = Fopen( fileName, OM_READ );
+	if( m_handle >= 0 )
 	{
-		eof			= false;
-		nextRead	= 0;
-		firstClear	= 0;
-		lineEnd	= RL_UNKONW;
+		m_eof		= false;
+		m_nextRead	= 0;
+		m_firstClear= 0;
+		m_lineEnd	= RL_UNKONW;
 	}
 	else
 		throw OpenReadError( fileName ).addCerror();
 }
 
-STRING RFILE::gets(  void )
+STRING RFILE::gets()
 {
 	int				c;
 	STRING			string;
 
-	while( !eof )
+	while( !m_eof )
 	{
-		c = getNextCharacter();
+		c = popCharacter();
 		if( c == '\n' )
 		{
-			if( lineEnd == -1 )
+			if( m_lineEnd == RL_UNKONW )
 			{
-				c = getCharacter();
+				c = pollCharacter();
 				if( c == '\r' )
 				{
-					lineEnd = RL_END_LFCR;
-					nextRead++;
+					m_lineEnd = RL_END_LFCR;
+					skipCharacter();
 				}
 				else
-					lineEnd = RL_END_LF;
+					m_lineEnd = RL_END_LF;
 
 				break;
 			}
-			else if( lineEnd == RL_END_LF )
+			else if( m_lineEnd == RL_END_LF )
 			{
 				break;
 			}
-			else if( lineEnd == RL_END_LFCR )
+			else if( m_lineEnd == RL_END_LFCR )
 			{
-				c = getCharacter();
-				if( c == '\r' )
-					nextRead++;
-
+				ignoreCharacter('\r');
 				break;
 			}
 		}
 		else if( c == '\r' )
 		{
-			if( lineEnd == -1 )
+			if( m_lineEnd == RL_UNKONW )
 			{
-				c = getCharacter();
+				c = pollCharacter();
 				if( c == '\n' )
 				{
-					lineEnd = RL_END_CRLF;
-					nextRead++;
+					m_lineEnd = RL_END_CRLF;
+					skipCharacter();
 				}
 				else
-					lineEnd = RL_END_CR;
+					m_lineEnd = RL_END_CR;
 
 				break;
 			}
-			else if( lineEnd == RL_END_CR )
+			else if( m_lineEnd == RL_END_CR )
 			{
 				break;
 			}
-			else if( lineEnd == RL_END_CRLF )
+			else if( m_lineEnd == RL_END_CRLF )
 			{
-				c = getCharacter();
-				if( c == '\n' )
-					nextRead++;
-
+				ignoreCharacter('\n');
 				break;
 			}
 		}
-		else if( !eof )
+		else if( !m_eof )
 		{
 			string += c;
 		}
 	}
 
-	if( eof && !string.isEmpty() )
-		eof = false;
+	if( m_eof && !string.isEmpty() )
+		m_eof = false;
 
 	return string;
 }
