@@ -105,7 +105,7 @@
 #include "Tests/TypeSizeTest.h"
 #include "Tests/GpsTest.h"
 #include "Tests/FileIDTest.h"
-#include "Tests/RFileTest.h"
+#include "Tests/LineReaderTest.h"
 #include "Tests/MapTest.h"
 #include "Tests/DirectoryTest.h"
 #include "Tests/MatrixTest.h"

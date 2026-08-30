@@ -55,19 +55,19 @@ namespace gak
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-inline void RFILE::skipCharacter()
+inline void LineReader::skipCharacter()
 {
 	m_nextRead++;
 }
 
-inline void RFILE::ignoreCharacter( int c )
+inline void LineReader::ignoreCharacter( int c )
 {
 	int next = pollCharacter();
 	if( next == c )
 		skipCharacter();
 }
 
-int RFILE::pollCharacter()
+int LineReader::pollCharacter()
 {
 	int	c;
 
@@ -92,7 +92,7 @@ int RFILE::pollCharacter()
 	return c;
 }
 
-inline int RFILE::popCharacter()
+inline int LineReader::popCharacter()
 {
 	int	c = pollCharacter();
 	skipCharacter();
@@ -105,10 +105,10 @@ inline int RFILE::popCharacter()
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-void RFILE::open( const STRING &fileName )
+void LineReader::open( const STRING &fileName )
 {
 	close();
-	m_handle = Fopen( fileName, OM_READ );
+	m_handle = Fopen( fileName, omREAD );
 	if( m_handle >= 0 )
 	{
 		m_eof		= false;
@@ -120,7 +120,7 @@ void RFILE::open( const STRING &fileName )
 		throw OpenReadError( fileName ).addCerror();
 }
 
-STRING RFILE::gets()
+STRING LineReader::gets()
 {
 	int				c;
 	STRING			string;

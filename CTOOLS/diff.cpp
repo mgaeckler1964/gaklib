@@ -318,7 +318,7 @@ static LineInfo *readFile( const STRING &fileName, size_t *nLines )
 	doEnterFunctionEx( gakLogging::llInfo, "readFile" );
 	bool				ignoreSpaces = true;
 	bool				space = false;
-	RFILE				fp;
+	LineReader			fp;
 	Buffer<LineInfo>	fileInfo;
 	size_t				lines = 0;
 	size_t				maxLines = 0;
@@ -398,9 +398,9 @@ static STRING buildDiffFile(
 )
 {
 	doEnterFunctionEx( gakLogging::llInfo, "buildDiffFile" );
-	STRING	diff;
-	RFILE	fp1, fp2;
-	STRING	lineBuff;
+	STRING		diff;
+	LineReader	fp1, fp2;
+	STRING		lineBuff;
 
 	// open the files
 	fp1.open( file1 );

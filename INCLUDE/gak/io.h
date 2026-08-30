@@ -47,6 +47,7 @@
 
 #include <gak/string.h>
 #include <gak/strFiles.h>
+#include <gak/CopyProtection.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -85,19 +86,19 @@ namespace gak
 
 enum OpenModes
 {
-	OM_READ, OM_WRITE, OM_READWRITE
+	omREAD, omWRITE, omREADWRITE
 };
 
 enum CreateModes
 {
-	CM_READ, CM_WRITE, CM_READWRITE
+	cmREAD, cmWRITE, cmREADWRITE
 };
 
 enum SeekModes
 {
-	SeekSet = SEEK_SET,
-	SeekCur = SEEK_CUR,
-	SeekEnd = SEEK_END	
+	smSeekSet = SEEK_SET,
+	smSeekCur = SEEK_CUR,
+	smSeekEnd = SEEK_END	
 };
 
 typedef long off_t;
@@ -131,19 +132,19 @@ inline int Fcreate( const STRING &fName, CreateModes mode )
 {
 	int sysmode;
 #ifdef _Windows
-	if( mode == CM_READ )
+	if( mode == cmREAD )
 		sysmode = S_IREAD;
-	else if( mode == CM_WRITE )
+	else if( mode == cmWRITE )
 		sysmode = S_IWRITE;
-	else if( mode == CM_READWRITE )
+	else if( mode == cmREADWRITE )
 		sysmode = S_IREAD|S_IWRITE;
 #else
 	sysmode = 0;
-	if( mode == CM_READ )
+	if( mode == cmREAD )
 		sysmode |= 0444;
-	else if( mode == CM_WRITE )
+	else if( mode == cmWRITE )
 		sysmode |= 0222;
-	else if( mode == CM_READWRITE )
+	else if( mode == cmREADWRITE )
 		sysmode |= 0666;
 #endif
 
@@ -153,11 +154,11 @@ inline int Fcreate( const STRING &fName, CreateModes mode )
 inline int Fopen( const STRING &fName, OpenModes mode )
 {
 	int sysMode;
-	if( mode == OM_READ )
+	if( mode == omREAD )
 		sysMode = O_RDONLY;
-	else if( mode == OM_WRITE )
+	else if( mode == omWRITE )
 		sysMode = O_WRONLY;
-	else if( mode == OM_READWRITE )
+	else if( mode == omREADWRITE )
 		sysMode = O_RDWR;
 #ifdef _Windows
 	sysMode |= O_BINARY;
@@ -205,7 +206,7 @@ inline void Fclose( int handle )
 
 const int BUFF_SIZE=10240;
 
-class  RFILE
+class  LineReader : public CopyProtection
 {
 	bool		m_eof;
 	int     	m_handle;
@@ -218,16 +219,13 @@ class  RFILE
 	void skipCharacter();
 	void ignoreCharacter( int c );
 
-	RFILE( const RFILE &src );
-	const RFILE &operator = ( const RFILE &src );
-
 	public:
-	RFILE()
+	LineReader()
 	{
 		m_eof = true;
 		m_handle = -1;
 	}
-	~RFILE()
+	~LineReader()
 	{
 		close();
 	}
@@ -239,14 +237,14 @@ class  RFILE
 	}
 	off_t getpos() const
 	{
-		return Fseek( 0L, m_handle, SeekCur )
+		return Fseek( 0L, m_handle, smSeekCur )
 				- off_t(m_firstClear)
 				+ off_t(m_nextRead);
 	}
 	void setpos( off_t pos )
 	{
 		m_eof = false;
-		Fseek( pos, m_handle, SeekSet );
+		Fseek( pos, m_handle, smSeekSet );
 		m_nextRead = 0;
 		m_firstClear = 0;
 	}

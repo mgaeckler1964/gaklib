@@ -155,9 +155,6 @@
     <ClInclude Include="Tests\PathTest.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="Tests\RFileTest.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="Tests\TypeSizeTest.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -246,6 +243,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Tests\StringBufferTest.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Tests\LineReaderTest.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

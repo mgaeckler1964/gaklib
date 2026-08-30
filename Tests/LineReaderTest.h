@@ -1,6 +1,6 @@
 /*
 		Project:		GAKLIB
-		Module:			RFileTest.h
+		Module:			LineReaderTest.h
 		Description:	
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
@@ -76,15 +76,15 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-class RFileTest : public UnitTest
+class LineReaderTest : public UnitTest
 {
 	virtual const char *GetClassName() const
 	{
-		return "RFileTest";
+		return "LineReaderTest";
 	}
 	virtual void PerformTest()
 	{
-		doEnterFunctionEx(gakLogging::llInfo, "RFileTest::PerformTest");
+		doEnterFunctionEx(gakLogging::llInfo, "LineReaderTest::PerformTest");
 		test( "test_data" DIRECTORY_DELIMITER_STRING "msdos.txt" );
 		test( "test_data" DIRECTORY_DELIMITER_STRING "unix.txt" );
 		test( "test_data" DIRECTORY_DELIMITER_STRING "mac.txt" );
@@ -92,8 +92,8 @@ class RFileTest : public UnitTest
 	void test( const char *fName )
 	{
 		TestScope scope( fName );
-		RFILE	test;
-		STRING	tmpLine, line, secondLine;
+		LineReader	test;
+		STRING		tmpLine, line, secondLine;
 		test.open( fName );
 		tmpLine = test.gets();
 		gak::off_t	pos = test.getpos();
@@ -128,7 +128,7 @@ class RFileTest : public UnitTest
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static RFileTest myRFileTest;
+static LineReaderTest myLineReaderTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
