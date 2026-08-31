@@ -413,6 +413,41 @@ STR *stripBlanks( STR *str )
 	return str; 
 }
 
+STR *stripLineEnds( STR *str )
+{
+	char	c, *src, *dest, *space=NULL;
+	if( !str )
+	{
+/*@*/	return NULL;
+	}
+	dest = src = str->string;
+	while( (c=*src) != 0 )
+	{
+		if( c=='\n' || c=='\r' )
+		{
+			space = NULL;
+			*dest++ = c;
+		}
+		else if( isspace(((int)c)&0xFF) )
+		{
+			if( !space )
+				space = src;
+		}
+		else if( space )
+		{
+			while( space <= src )
+				*dest++ = *space++;
+			space = NULL;
+		}
+		else
+			*dest++ = c;
+		src++;
+	}
+	*dest = 0;
+	str->actSize = dest-str->string;
+	return str;
+}
+
 STR *stripLeftChar( STR *str, const char c )
 {
 	char	*src, *dest;

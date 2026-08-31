@@ -78,26 +78,26 @@ else ist immer das einzige Wort in einer Zeile außer es folgt ein neues if. Dan
 können  die geschweiften  Klammern um  das if  auch weggelassen  werden und  sie
 werden nicht als neue Ebene betrachtet:
 
-if( xxx ) 
-{ 
-    xxx; 
-} 
-else if( xxx ) 
-{
-    xxx;
-} 
-else 
-{ 
-    xxx; 
-}
-
-statt 
-
-if( xxx ) 
+if( xxx )
 {
     xxx;
 }
-else 
+else if( xxx )
+{
+    xxx;
+}
+else
+{
+    xxx;
+}
+
+statt
+
+if( xxx )
+{
+    xxx;
+}
+else
 {
     if( xxx )
     {
@@ -127,9 +127,9 @@ werden müssen. Ich meine aber, die meisten schon umgestellt zu haben.
 Funktionen folgen dieser Struktur:
 Funktionskopf
     Parameterprüfung. Bei Fehler Exception oder Fehlerreturn.
-    
+
     Datenverarbeitung.
-    
+
     Ergebniss.
 End
 
@@ -145,9 +145,9 @@ werden.
 Es ist die  Entscheidung der Funktion, ob im Fehlerfall  eine Exception geworfen
 wird oder ein Fehlercode zurückgegeben wird:
 
-/*@*/	return scError;
+/*@*/ return scError;
 oder
-/*@*/	throw ScError( ... );
+/*@*/ throw ScError( ... );
 
 Als Faustregel  gilt: Wenn der Aufrufer  auf den Fehler reagieren  kann ohne den
 Benutzer  zu informieren,  ist  ein Fehlercode  meistens  ausreichend. Wenn  der
@@ -166,7 +166,7 @@ Exkurs:
 
     Microsoft schreibt auch gerne
 
-    Es ist ein Fehler passiert. xxxxxxx 
+    Es ist ein Fehler passiert. xxxxxxx
 
     Dieses Kindergartenniveau ist hier verboten.
 

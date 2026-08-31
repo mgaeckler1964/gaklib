@@ -151,6 +151,7 @@ STR *appendStr( STR *dest, const STR *source );
 STR *setStr( STR *dest, const char *source );
 STR *copyStr( STR *dest, const STR *source );
 STR *stripBlanks( STR *str );
+STR *stripLineEnds( STR *str );
 STR *stripLeftChar( STR *str, const char c );
 STR *stripRightChar( STR *str, const char c );
 size_t searchText( STR *str, const char *string, size_t startPos, cBool wholeWord, cBool matchCase, cBool downSearch );
@@ -668,6 +669,18 @@ class STRING
 		}
 		return *this;
 	}
+	STRING &stripLineEnds()
+	{
+		makePrivate();
+
+		if( text )
+		{
+			text = ::stripLineEnds( text );
+			text->usageCount = 1;
+		}
+		return *this;
+	}
+
 	STRING &stripLeftChar( char c )
 	{
 		makePrivate();
