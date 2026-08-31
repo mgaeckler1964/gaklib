@@ -4,7 +4,7 @@
 Im  folgenden beschreibe  ich die  C++ Programmierstile,  die verwendet  werden.
 Früher habe ich andere Stile verwendet, daher findet Ihr hier auch Abweichungen.
 Meistens  werden  diese  jedoch  geändert,  wenn  die  Klassen,  Funktionen  und
-Variablen  angefasst werden.  Wenn  Sie  aber zu  oft  benutzt werden  (STRING),
+Variablen  angefasst werden.  Wenn  sie  aber zu  oft  benutzt werden  (STRING),
 bleiben die alten Bezeichner erhalten.
 
 Allgemeine Bezeichner
@@ -127,10 +127,12 @@ ehemalige C-Funktionen,  die migriert werden  sollen, gibt es  in <gak/stdlib.h>
 Wrapperklassen,  die alte  C-Ressourcen freigeben  können. damit  die Portierung
 einfacher geht.
 
-Funktionen folgen  dieser Struktur:  Funktionskopf Parameterprüfung.  Bei Fehler
-Exception oder Fehlerreturn.
+Funktionen folgen  dieser Struktur:
 
-    Datenverarbeitung.
+Funktionskopf
+	Parameterprüfung;  // Bei Fehler Exception oder Fehlerreturn.
+
+    Datenverarbeitung:
 
     Ergebniss.
 End
