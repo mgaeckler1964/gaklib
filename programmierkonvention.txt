@@ -56,10 +56,10 @@ Klammern
 --------
 
 Klammern  werden  nicht  vom  Bezeichner oder  Schlüsselwort  durch  Leerzeichen
-getrennt. Der Inhalt kann muß aber nicht getrennt gtrennt werden:
+getrennt. Der Inhalt kann, muß aber nicht abgegrenzt werden:
 
-if( xxx )  oder if(xxx) sind ok
-if (xxx) ist zu vermeiden
+- if( xxx )  oder if(xxx) sind ok
+- if (xxx) ist zu vermeiden
 
 Programmstruktur
 ----------------
@@ -80,33 +80,33 @@ werden nicht als neue Ebene betrachtet:
 
 if( xxx ) 
 { 
-	xxx; 
+    xxx; 
 } 
 else if( xxx ) 
 {
-	xxx;
+    xxx;
 } 
 else 
 { 
-	xxx; 
+    xxx; 
 }
 
 statt 
 
 if( xxx ) 
 {
-	xxx;
+    xxx;
 }
 else 
 {
-	if( xxx )
-	{
-		xxx;
-	}
-	else
-	{
-		xxx;
-	}
+    if( xxx )
+    {
+        xxx;
+    }
+    else
+    {
+        xxx;
+    }
 }
 
 Tabulatorweite ist immer 4 und es werden Tabs verwendet.
@@ -120,28 +120,30 @@ hinterfragt werden.
 
 Alle   Funktionen  müssen   Exceptions   überstehen.   D.h.  Ressourcen   müssen
 grundsätzlich in Destruktoren  freigegeben werden. Falls das  nicht möglich ist,
-muß  mit  try ..  catch  gearbeitet  werden. Da  ich  Exceptions  erst seit  den
+muß  mit try  ...  catch gearbeitet  werden.  Da ich  Exceptions  erst seit  den
 Nullerjahren  einsetze, gibt  es  gelegentlich Funktionen,  die noch  umgestellt
 werden müssen. Ich meine aber, die meisten schon umgestellt zu haben.
 
 Funktionen folgen dieser Struktur:
 Funktionskopf
-	Parameterprüfung. Bei Fehler Exception oder Fehlerreturn.
-	
-	Datenverarbeitung.
-	
-	Ergebniss.
+    Parameterprüfung. Bei Fehler Exception oder Fehlerreturn.
+    
+    Datenverarbeitung.
+    
+    Ergebniss.
 End
 
 Wenn während der Datenverarbeitung ein  Fehler auftritt und die Funktion beendet
 werden muß, markiere ich das Return immer  mit /*@*/. Bei einem vorzeitigen Ende
-ohne   Fehler,  markiere   ich   das  Return   mit  /***/.   Das   war  in   der
-"Preexceptionarea"  notwendig, um  das Ende  eine Funktion  sichtbar zu  machen,
-damit Ressourcen freigegeben werden können. Wegen der Regel, daß alle Funktionen
-Exceptionsafe  sein   müssen,  sind  diese  Markierungen   nicht  mehr  zwingend
-erforderlich, da  man aber  damit den Programmfluß  besser erkennt,  sollten sie
-trotzdem  verwendet  werden.  Es  ist  die  Entscheidung  der  Funktion,  ob  im
-Fehlerfall eine Exception geworfen wird oder ein Fehlercode zurückgegeben wird:
+ohne Fehler, markiere ich das Return mit /***/. Das war in der "Preexceptionära"
+notwendig,  um das  Ende  eine  Funktion sichtbar  zu  machen, damit  Ressourcen
+freigegeben werden  können. Wegen der  Regel, daß alle  Funktionen Exceptionsafe
+sein müssen,  sind diese Markierungen  nicht mehr zwingend erforderlich,  da man
+aber  damit den  Programmfluß  besser erkennt,  sollten  sie trotzdem  verwendet
+werden.
+
+Es ist die  Entscheidung der Funktion, ob im Fehlerfall  eine Exception geworfen
+wird oder ein Fehlercode zurückgegeben wird:
 
 /*@*/	return scError;
 oder
@@ -151,20 +153,22 @@ Als Faustregel  gilt: Wenn der Aufrufer  auf den Fehler reagieren  kann ohne den
 Benutzer  zu informieren,  ist  ein Fehlercode  meistens  ausreichend. Wenn  der
 Benutzer informiert werden muß, ist eine Exception für gewöhnlich sinnvoller, da
 hier mehr  Informationen verpackt  werden können, die  den Benutzer  helfen, den
-Fehler zu korrigieren.
+Fehler zu korrigieren.  Wenn ein Fehler über  mehrere Aufrufebenen zurückgegeben
+werden muß,  kann eine Exception  auch dann sinnvoll  sein, wenn der  Fehler vom
+Programm ohne Benutzeraktion behoben werden kann.
 
 Exkurs:
-	Es ist nun mal sinnvoller zu schreiben
-	"xyz konnte nicht geöffnet werden, weil die Datei nicht existiert."
-	statt
-	"Die angegebene Datei konnte nicht gefunden werden."
-	und dann den Dateinamen zu verschweigen.
+    Es ist nun mal sinnvoller zu schreiben
+    "xyz konnte nicht geöffnet werden, weil die Datei nicht existiert."
+    statt
+    "Die angegebene Datei konnte nicht gefunden werden."
+    und dann den Dateinamen zu verschweigen.
 
-	Microsoft schreibt auch gerne
+    Microsoft schreibt auch gerne
 
-	Es ist ein Fehler passiert. xxxxxxx 
+    Es ist ein Fehler passiert. xxxxxxx 
 
-	Dieses Kindergartenniveau ist hier verboten.
+    Dieses Kindergartenniveau ist hier verboten.
 
 NULL is  immer durch nullptr zu  ersetzen. Für alte Compiler,  die nullptr nicht
 kennen, gibt es in <gak/types.h> ein Makro.
