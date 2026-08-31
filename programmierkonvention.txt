@@ -35,7 +35,7 @@ werden.
 Konstante
 ---------
 
-Für konstante Werte werden SCREAMING_SNAKE_CASE (CONSTANT_CASE) verwendet. Werte
+Für konstante  Werte wird SCREAMING_SNAKE_CASE (CONSTANT_CASE)  verwendet. Werte
 von enums  müssen in C++ mit  einen Prefix aus Kleinbuchstaben  versehen werden.
 Für Java ist das nicht notwendig. Enums dürfen auch PascalCase verwenden:
 
@@ -122,11 +122,13 @@ Alle   Funktionen  müssen   Exceptions   überstehen.   D.h.  Ressourcen   müs
 grundsätzlich in Destruktoren  freigegeben werden. Falls das  nicht möglich ist,
 muß  mit try  ...  catch gearbeitet  werden.  Da ich  Exceptions  erst seit  den
 Nullerjahren  einsetze, gibt  es  gelegentlich Funktionen,  die noch  umgestellt
-werden müssen. Ich meine aber, die meisten schon umgestellt zu haben.
+werden  müssen. Ich  meine  aber, die  meisten schon  umgestellt  zu haben.  Für
+ehemalige C-Funktionen,  die migriert werden  sollen, gibt es  in <gak/stdlib.h>
+Wrapperklassen,  die alte  C-Ressourcen freigeben  können. damit  die Portierung
+einfacher geht.
 
-Funktionen folgen dieser Struktur:
-Funktionskopf
-    Parameterprüfung. Bei Fehler Exception oder Fehlerreturn.
+Funktionen folgen  dieser Struktur:  Funktionskopf Parameterprüfung.  Bei Fehler
+Exception oder Fehlerreturn.
 
     Datenverarbeitung.
 
@@ -152,7 +154,7 @@ oder
 Als Faustregel  gilt: Wenn der Aufrufer  auf den Fehler reagieren  kann ohne den
 Benutzer  zu informieren,  ist  ein Fehlercode  meistens  ausreichend. Wenn  der
 Benutzer informiert werden muß, ist eine Exception für gewöhnlich sinnvoller, da
-hier mehr  Informationen verpackt  werden können, die  den Benutzer  helfen, den
+hier mehr  Informationen verpackt  werden können, die  dem Benutzer  helfen, den
 Fehler zu korrigieren.  Wenn ein Fehler über  mehrere Aufrufebenen zurückgegeben
 werden muß,  kann eine Exception  auch dann sinnvoll  sein, wenn der  Fehler vom
 Programm ohne Benutzeraktion behoben werden kann.
@@ -169,6 +171,21 @@ Exkurs:
     Es ist ein Fehler passiert. xxxxxxx
 
     Dieses Kindergartenniveau ist hier verboten.
+
+In Schleifen wird ein vorzeitiger Absprung  mit /*v*/ markiert. Analog wird eine
+Fortsetzung mit /*^*/ markiert.
+
+for( xxx )
+{
+	if( xxx )
+	{
+/*v*/	break;
+	}
+	else
+	{
+/*^*/	continue;
+	}
+}
 
 NULL is  immer durch nullptr zu  ersetzen. Für alte Compiler,  die nullptr nicht
 kennen, gibt es in <gak/types.h> ein Makro.
