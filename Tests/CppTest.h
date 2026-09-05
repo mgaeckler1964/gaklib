@@ -106,7 +106,7 @@ class CppTest : public UnitTest
 		}
 
 		result.stripBlanks();
-		UT_ASSERT_EQUAL( result, expectedResult );
+		UT_EXPECT_EQUAL( result, expectedResult );
 	}
 	virtual void PerformTest()
 	{

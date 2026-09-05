@@ -100,101 +100,101 @@ class StopWatchTest : public UnitTest
 			sw.stop();
 			cpuSW.stop();
 
-			UT_ASSERT_LESSEQ( cpuSW.getMillis(), millisSime );
-			UT_ASSERT_RANGE( minTime, millisSime, maxTime );
-			UT_ASSERT_EQUAL( sw.get<Weeks<> >().get(), std::clock_t(0L) );
-			UT_ASSERT_EQUAL( sw.get<Days<> >().get(), std::clock_t(0L) );
-			UT_ASSERT_EQUAL( sw.get<Hours<> >().get(), std::clock_t(0L) );
-			UT_ASSERT_EQUAL( sw.get<Minutes<> >().get(), std::clock_t(0L) );
-			UT_ASSERT_EQUAL( sw.get<Seconds<> >().get(), std::clock_t(0L) );
-			UT_ASSERT_RANGE( minTime, sw.get<MilliSeconds<> >().get(), maxTime );
+			UT_EXPECT_LESSEQ( cpuSW.getMillis(), millisSime );
+			UT_EXPECT_RANGE( minTime, millisSime, maxTime );
+			UT_EXPECT_EQUAL( sw.get<Weeks<> >().get(), std::clock_t(0L) );
+			UT_EXPECT_EQUAL( sw.get<Days<> >().get(), std::clock_t(0L) );
+			UT_EXPECT_EQUAL( sw.get<Hours<> >().get(), std::clock_t(0L) );
+			UT_EXPECT_EQUAL( sw.get<Minutes<> >().get(), std::clock_t(0L) );
+			UT_EXPECT_EQUAL( sw.get<Seconds<> >().get(), std::clock_t(0L) );
+			UT_EXPECT_RANGE( minTime, sw.get<MilliSeconds<> >().get(), maxTime );
 
-			UT_ASSERT_RANGE( minTime, hoursTime.asMillis(), maxTime );
+			UT_EXPECT_RANGE( minTime, hoursTime.asMillis(), maxTime );
 		}
 		{
 			Weeks<>	time(MilliSeconds<>(450));
-			UT_ASSERT_EQUAL( time.get(), std::clock_t(0L) );
-			UT_ASSERT_EQUAL( time.Days<>::get(), std::clock_t(0L) );
-			UT_ASSERT_EQUAL( time.Hours<>::get(), std::clock_t(0L) );
-			UT_ASSERT_EQUAL( time.Minutes<>::get(), std::clock_t(0L) );
-			UT_ASSERT_EQUAL( time.Seconds<>::get(), std::clock_t(0L) );
-			UT_ASSERT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(450L) );
-			UT_ASSERT_EQUAL( time.toString(), STRING("0w 0d 0h 0m 0s 450ms") );
+			UT_EXPECT_EQUAL( time.get(), std::clock_t(0L) );
+			UT_EXPECT_EQUAL( time.Days<>::get(), std::clock_t(0L) );
+			UT_EXPECT_EQUAL( time.Hours<>::get(), std::clock_t(0L) );
+			UT_EXPECT_EQUAL( time.Minutes<>::get(), std::clock_t(0L) );
+			UT_EXPECT_EQUAL( time.Seconds<>::get(), std::clock_t(0L) );
+			UT_EXPECT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(450L) );
+			UT_EXPECT_EQUAL( time.toString(), STRING("0w 0d 0h 0m 0s 450ms") );
 		}
 		{
 			Weeks<>	time(1);
-			UT_ASSERT_EQUAL( time.get(), std::clock_t(1L) );
-			UT_ASSERT_EQUAL( time.Days<>::get(), std::clock_t(7L) );
-			UT_ASSERT_EQUAL( time.Hours<>::get(), std::clock_t(7L*24L) );
-			UT_ASSERT_EQUAL( time.Minutes<>::get(), std::clock_t(7L*24L*60L) );
-			UT_ASSERT_EQUAL( time.Seconds<>::get(), std::clock_t(7L*24L*60L*60L) );
-			UT_ASSERT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(7L*24L*60L*60L*1000) );
-			UT_ASSERT_EQUAL( time.toString(), STRING("1w 0d 0h 0m 0s 0ms") );
+			UT_EXPECT_EQUAL( time.get(), std::clock_t(1L) );
+			UT_EXPECT_EQUAL( time.Days<>::get(), std::clock_t(7L) );
+			UT_EXPECT_EQUAL( time.Hours<>::get(), std::clock_t(7L*24L) );
+			UT_EXPECT_EQUAL( time.Minutes<>::get(), std::clock_t(7L*24L*60L) );
+			UT_EXPECT_EQUAL( time.Seconds<>::get(), std::clock_t(7L*24L*60L*60L) );
+			UT_EXPECT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(7L*24L*60L*60L*1000) );
+			UT_EXPECT_EQUAL( time.toString(), STRING("1w 0d 0h 0m 0s 0ms") );
 
 			time = 2;
-			UT_ASSERT_EQUAL( time.get(), std::clock_t(2L) );
-			UT_ASSERT_EQUAL( time.Days<>::get(), std::clock_t(2L*7L) );
-			UT_ASSERT_EQUAL( time.Hours<>::get(), std::clock_t(2L*7L*24L) );
-			UT_ASSERT_EQUAL( time.Minutes<>::get(), std::clock_t(2L*7L*24L*60L) );
-			UT_ASSERT_EQUAL( time.Seconds<>::get(), std::clock_t(2L*7L*24L*60L*60L) );
-			UT_ASSERT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(2L*7L*24L*60L*60L*1000) );
-			UT_ASSERT_EQUAL( time.toString(), STRING("2w 0d 0h 0m 0s 0ms") );
+			UT_EXPECT_EQUAL( time.get(), std::clock_t(2L) );
+			UT_EXPECT_EQUAL( time.Days<>::get(), std::clock_t(2L*7L) );
+			UT_EXPECT_EQUAL( time.Hours<>::get(), std::clock_t(2L*7L*24L) );
+			UT_EXPECT_EQUAL( time.Minutes<>::get(), std::clock_t(2L*7L*24L*60L) );
+			UT_EXPECT_EQUAL( time.Seconds<>::get(), std::clock_t(2L*7L*24L*60L*60L) );
+			UT_EXPECT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(2L*7L*24L*60L*60L*1000) );
+			UT_EXPECT_EQUAL( time.toString(), STRING("2w 0d 0h 0m 0s 0ms") );
 		}
 		{
 			Days<>	time(1);
-			UT_ASSERT_EQUAL( time.get(), std::clock_t(1L) );
-			UT_ASSERT_EQUAL( time.Hours<>::get(), std::clock_t(24L) );
-			UT_ASSERT_EQUAL( time.Minutes<>::get(), std::clock_t(24L*60L) );
-			UT_ASSERT_EQUAL( time.Seconds<>::get(), std::clock_t(24L*60L*60L) );
-			UT_ASSERT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(24L*60L*60L*1000) );
-			UT_ASSERT_EQUAL( time.toString(), STRING("1d 0h 0m 0s 0ms") );
+			UT_EXPECT_EQUAL( time.get(), std::clock_t(1L) );
+			UT_EXPECT_EQUAL( time.Hours<>::get(), std::clock_t(24L) );
+			UT_EXPECT_EQUAL( time.Minutes<>::get(), std::clock_t(24L*60L) );
+			UT_EXPECT_EQUAL( time.Seconds<>::get(), std::clock_t(24L*60L*60L) );
+			UT_EXPECT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(24L*60L*60L*1000) );
+			UT_EXPECT_EQUAL( time.toString(), STRING("1d 0h 0m 0s 0ms") );
 
 			time = 3;
-			UT_ASSERT_EQUAL( time.get(), std::clock_t(3L) );
-			UT_ASSERT_EQUAL( time.Hours<>::get(), std::clock_t(3L*24L) );
-			UT_ASSERT_EQUAL( time.Minutes<>::get(), std::clock_t(3L*24L*60L) );
-			UT_ASSERT_EQUAL( time.Seconds<>::get(), std::clock_t(3L*24L*60L*60L) );
-			UT_ASSERT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(3L*24L*60L*60L*1000) );
-			UT_ASSERT_EQUAL( time.toString(), STRING("3d 0h 0m 0s 0ms") );
+			UT_EXPECT_EQUAL( time.get(), std::clock_t(3L) );
+			UT_EXPECT_EQUAL( time.Hours<>::get(), std::clock_t(3L*24L) );
+			UT_EXPECT_EQUAL( time.Minutes<>::get(), std::clock_t(3L*24L*60L) );
+			UT_EXPECT_EQUAL( time.Seconds<>::get(), std::clock_t(3L*24L*60L*60L) );
+			UT_EXPECT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(3L*24L*60L*60L*1000) );
+			UT_EXPECT_EQUAL( time.toString(), STRING("3d 0h 0m 0s 0ms") );
 		}
 		{
 			Hours<>	time(1);
-			UT_ASSERT_EQUAL( time.get(), std::clock_t(1L) );
-			UT_ASSERT_EQUAL( time.Minutes<>::get(), std::clock_t(60L) );
-			UT_ASSERT_EQUAL( time.Seconds<>::get(), std::clock_t(60L*60L) );
-			UT_ASSERT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(60L*60L*1000) );
-			UT_ASSERT_EQUAL( time.toString(), STRING("1h 0m 0s 0ms") );
+			UT_EXPECT_EQUAL( time.get(), std::clock_t(1L) );
+			UT_EXPECT_EQUAL( time.Minutes<>::get(), std::clock_t(60L) );
+			UT_EXPECT_EQUAL( time.Seconds<>::get(), std::clock_t(60L*60L) );
+			UT_EXPECT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(60L*60L*1000) );
+			UT_EXPECT_EQUAL( time.toString(), STRING("1h 0m 0s 0ms") );
 
 			time = 4;
-			UT_ASSERT_EQUAL( time.get(), std::clock_t(4L) );
-			UT_ASSERT_EQUAL( time.Minutes<>::get(), std::clock_t(4L*60L) );
-			UT_ASSERT_EQUAL( time.Seconds<>::get(), std::clock_t(4L*60L*60L) );
-			UT_ASSERT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(4L*60L*60L*1000) );
-			UT_ASSERT_EQUAL( time.toString(), STRING("4h 0m 0s 0ms") );
+			UT_EXPECT_EQUAL( time.get(), std::clock_t(4L) );
+			UT_EXPECT_EQUAL( time.Minutes<>::get(), std::clock_t(4L*60L) );
+			UT_EXPECT_EQUAL( time.Seconds<>::get(), std::clock_t(4L*60L*60L) );
+			UT_EXPECT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(4L*60L*60L*1000) );
+			UT_EXPECT_EQUAL( time.toString(), STRING("4h 0m 0s 0ms") );
 		}
 		{
 			Minutes<>	time(1);
-			UT_ASSERT_EQUAL( time.get(), std::clock_t(1L) );
-			UT_ASSERT_EQUAL( time.Seconds<>::get(), std::clock_t(60L) );
-			UT_ASSERT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(60L*1000) );
-			UT_ASSERT_EQUAL( time.toString(), STRING("1m 0s 0ms") );
+			UT_EXPECT_EQUAL( time.get(), std::clock_t(1L) );
+			UT_EXPECT_EQUAL( time.Seconds<>::get(), std::clock_t(60L) );
+			UT_EXPECT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(60L*1000) );
+			UT_EXPECT_EQUAL( time.toString(), STRING("1m 0s 0ms") );
 
 			time = 5;
-			UT_ASSERT_EQUAL( time.get(), std::clock_t(5L) );
-			UT_ASSERT_EQUAL( time.Seconds<>::get(), std::clock_t(5L*60L) );
-			UT_ASSERT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(5L*60L*1000) );
-			UT_ASSERT_EQUAL( time.toString(), STRING("5m 0s 0ms") );
+			UT_EXPECT_EQUAL( time.get(), std::clock_t(5L) );
+			UT_EXPECT_EQUAL( time.Seconds<>::get(), std::clock_t(5L*60L) );
+			UT_EXPECT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(5L*60L*1000) );
+			UT_EXPECT_EQUAL( time.toString(), STRING("5m 0s 0ms") );
 		}
 		{
 			Seconds<>	time(1);
-			UT_ASSERT_EQUAL( time.get(), std::clock_t(1L) );
-			UT_ASSERT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(1000L) );
-			UT_ASSERT_EQUAL( time.toString(), STRING("1s 0ms") );
+			UT_EXPECT_EQUAL( time.get(), std::clock_t(1L) );
+			UT_EXPECT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(1000L) );
+			UT_EXPECT_EQUAL( time.toString(), STRING("1s 0ms") );
 
 			time = 6;
-			UT_ASSERT_EQUAL( time.get(), std::clock_t(6L) );
-			UT_ASSERT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(6L*1000L) );
-			UT_ASSERT_EQUAL( time.toString(), STRING("6s 0ms") );
+			UT_EXPECT_EQUAL( time.get(), std::clock_t(6L) );
+			UT_EXPECT_EQUAL( time.MilliSeconds<>::get(), std::clock_t(6L*1000L) );
+			UT_EXPECT_EQUAL( time.toString(), STRING("6s 0ms") );
 		}
 		{
 			Weeks<>	time = Weeks<>(1) + Days<>(1) + Hours<>(1) + Minutes<>(1) + Seconds<>(1) + MilliSeconds<>(1);
@@ -205,13 +205,13 @@ class StopWatchTest : public UnitTest
 			const clock_t	expectedSeconds	= expectedMinutes * 60 + 1;
 			const clock_t	expectedMillis	= expectedSeconds * 1000 + 1;
 
-			UT_ASSERT_EQUAL( time.get(), expectedWeeks );
-			UT_ASSERT_EQUAL( time.Days<>::get(), expectedDays );
-			UT_ASSERT_EQUAL( time.Hours<>::get(), expectedHours );
-			UT_ASSERT_EQUAL( time.Minutes<>::get(), expectedMinutes );
-			UT_ASSERT_EQUAL( time.Seconds<>::get(), expectedSeconds );
-			UT_ASSERT_EQUAL( time.MilliSeconds<>::get(), expectedMillis );
-			UT_ASSERT_EQUAL( time.toString(), STRING("1w 1d 1h 1m 1s 1ms") );
+			UT_EXPECT_EQUAL( time.get(), expectedWeeks );
+			UT_EXPECT_EQUAL( time.Days<>::get(), expectedDays );
+			UT_EXPECT_EQUAL( time.Hours<>::get(), expectedHours );
+			UT_EXPECT_EQUAL( time.Minutes<>::get(), expectedMinutes );
+			UT_EXPECT_EQUAL( time.Seconds<>::get(), expectedSeconds );
+			UT_EXPECT_EQUAL( time.MilliSeconds<>::get(), expectedMillis );
+			UT_EXPECT_EQUAL( time.toString(), STRING("1w 1d 1h 1m 1s 1ms") );
 		}
 	}
 };

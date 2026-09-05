@@ -125,7 +125,7 @@ class SleeperTest : public UnitTest
 
 			unsigned long elapsedTime = UserTimeClock::clock() - startTime;
 
-			UT_ASSERT_RANGE( 9800UL, elapsedTime, 10200UL );
+			UT_EXPECT_RANGE( 9800UL, elapsedTime, 10200UL );
 		}
 
 		{
@@ -138,7 +138,7 @@ class SleeperTest : public UnitTest
 
 			unsigned long elapsedTime = UserTimeClock::clock() - startTime;
 
-			UT_ASSERT_RANGE( 9800UL, elapsedTime, 10200UL );
+			UT_EXPECT_RANGE( 9800UL, elapsedTime, 10200UL );
 		}
 		{
 			unsigned long startTime = UserTimeClock::clock();
@@ -152,7 +152,7 @@ class SleeperTest : public UnitTest
 
 			unsigned long elapsedTime = UserTimeClock::clock() - startTime;
 
-			UT_ASSERT_RANGE( 4800UL, elapsedTime, 5200UL );
+			UT_EXPECT_RANGE( 4800UL, elapsedTime, 5200UL );
 		}
 	}
 };

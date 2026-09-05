@@ -92,79 +92,79 @@ class QuantitiesTest : public UnitTest
 		const double baseValue = 9.1234567890123456789;
 
 		TeraMeter tera = baseValue;
-		UT_ASSERT_EQUAL( baseValue, tera.m_value );
-		UT_ASSERT_EQUAL( baseValue*1.0e12, tera.getBaseValue() );
+		UT_EXPECT_EQUAL( baseValue, tera.m_value );
+		UT_EXPECT_EQUAL( baseValue*1.0e12, tera.getBaseValue() );
 		GigaMeter giga = baseValue;
-		UT_ASSERT_EQUAL( baseValue, giga.m_value );
-		UT_ASSERT_EQUAL( baseValue*1.0e9, giga.getBaseValue() );
+		UT_EXPECT_EQUAL( baseValue, giga.m_value );
+		UT_EXPECT_EQUAL( baseValue*1.0e9, giga.getBaseValue() );
 		MegaMeter mega = baseValue;
-		UT_ASSERT_EQUAL( baseValue, mega.m_value );
-		UT_ASSERT_EQUAL( baseValue*1.0e6, mega.getBaseValue() );
+		UT_EXPECT_EQUAL( baseValue, mega.m_value );
+		UT_EXPECT_EQUAL( baseValue*1.0e6, mega.getBaseValue() );
 		KiloMeter kilo = baseValue;
-		UT_ASSERT_EQUAL( baseValue, kilo.m_value );
-		UT_ASSERT_EQUAL( baseValue*1.0e3, kilo.getBaseValue() );
+		UT_EXPECT_EQUAL( baseValue, kilo.m_value );
+		UT_EXPECT_EQUAL( baseValue*1.0e3, kilo.getBaseValue() );
 		Meter meter = baseValue;
-		UT_ASSERT_EQUAL( baseValue, meter.m_value );
-		UT_ASSERT_EQUAL( baseValue*1.0e0, meter.getBaseValue() );
+		UT_EXPECT_EQUAL( baseValue, meter.m_value );
+		UT_EXPECT_EQUAL( baseValue*1.0e0, meter.getBaseValue() );
 		MilliMeter milli = baseValue;
-		UT_ASSERT_EQUAL( baseValue, milli.m_value );
-		UT_ASSERT_EQUAL( baseValue*1.0e-3, milli.getBaseValue() );
+		UT_EXPECT_EQUAL( baseValue, milli.m_value );
+		UT_EXPECT_EQUAL( baseValue*1.0e-3, milli.getBaseValue() );
 		MicroMeter micro = baseValue;
-		UT_ASSERT_EQUAL( baseValue, micro.m_value );
-		UT_ASSERT_EQUAL( baseValue*1.0e-6, micro.getBaseValue() );
+		UT_EXPECT_EQUAL( baseValue, micro.m_value );
+		UT_EXPECT_EQUAL( baseValue*1.0e-6, micro.getBaseValue() );
 		NanoMeter nano = baseValue;
-		UT_ASSERT_EQUAL( baseValue, nano.m_value );
-		UT_ASSERT_EQUAL( baseValue*1.0e-9, nano.getBaseValue() );
+		UT_EXPECT_EQUAL( baseValue, nano.m_value );
+		UT_EXPECT_EQUAL( baseValue*1.0e-9, nano.getBaseValue() );
 		PicoMeter pico = baseValue;
-		UT_ASSERT_EQUAL( baseValue, pico.m_value );
-		UT_ASSERT_EQUAL( baseValue*1.0e-12, pico.getBaseValue() );
+		UT_EXPECT_EQUAL( baseValue, pico.m_value );
+		UT_EXPECT_EQUAL( baseValue*1.0e-12, pico.getBaseValue() );
 
 		kilo = 126.0;
 		meter = 3.6;
 		milli = kilo + meter;
-		UT_ASSERT_EQUAL( (126e3+3.6)*1000., milli.m_value );
+		UT_EXPECT_EQUAL( (126e3+3.6)*1000., milli.m_value );
 
 		milli = kilo - meter;
-		UT_ASSERT_EQUAL( (126e3-3.6)*1000., milli.m_value );
+		UT_EXPECT_EQUAL( (126e3-3.6)*1000., milli.m_value );
 
 		kilo += 4.;
-		UT_ASSERT_EQUAL( 130., kilo.m_value );
+		UT_EXPECT_EQUAL( 130., kilo.m_value );
 		kilo -= 15.;
-		UT_ASSERT_EQUAL( 115., kilo.m_value );
+		UT_EXPECT_EQUAL( 115., kilo.m_value );
 		kilo += meter;
-		UT_ASSERT_EQUAL( 115.0036, kilo.m_value );
+		UT_EXPECT_EQUAL( 115.0036, kilo.m_value );
 		kilo -= meter;
-		UT_ASSERT_EQUAL( 115., kilo.m_value );
+		UT_EXPECT_EQUAL( 115., kilo.m_value );
 
 		kilo = kilo + 3.;
-		UT_ASSERT_EQUAL( 118., kilo.m_value );
+		UT_EXPECT_EQUAL( 118., kilo.m_value );
 		kilo = kilo - 8.;
-		UT_ASSERT_EQUAL( 110., kilo.m_value );
+		UT_EXPECT_EQUAL( 110., kilo.m_value );
 
 		Inch inch = 1.0;
 		CentiMeter centi = inch;
-		UT_ASSERT_EQUAL( 2.54, centi.m_value );
+		UT_EXPECT_EQUAL( 2.54, centi.m_value );
 		meter = inch;
-		UT_ASSERT_EQUAL( 0.0254, meter.m_value );
+		UT_EXPECT_EQUAL( 0.0254, meter.m_value );
 
 		Feet feet = 1.0;
 		meter = feet;
-		UT_ASSERT_EQUAL( 0.3048, meter.m_value );
+		UT_EXPECT_EQUAL( 0.3048, meter.m_value );
 
 		Yard yard = 1.0;
 		meter = yard;
-		UT_ASSERT_EQUAL( 0.9144, meter.m_value );
+		UT_EXPECT_EQUAL( 0.9144, meter.m_value );
 
 		inch = feet;
-		UT_ASSERT_EQUAL( 12.0, inch.m_value );
+		UT_EXPECT_EQUAL( 12.0, inch.m_value );
 		inch = yard;
-		UT_ASSERT_EQUAL( 36.0, inch.m_value );
+		UT_EXPECT_EQUAL( 36.0, inch.m_value );
 		feet = yard;
-		UT_ASSERT_EQUAL( 3.0, feet.m_value );
+		UT_EXPECT_EQUAL( 3.0, feet.m_value );
 
 		InterMile	iMile = 1.;
 		meter = iMile;
-		UT_ASSERT_EQUAL( 1609.344, meter.m_value );
+		UT_EXPECT_EQUAL( 1609.344, meter.m_value );
 
 		Show();
 	}

@@ -119,10 +119,10 @@ class AlgorithmTest : public UnitTest
 			test.createElement() = int(i);
 
 		int sum = std::for_each( test.begin(), test.end(), Sum() ).getSum();
-		UT_ASSERT_EQUAL( sum, 20100 );
+		UT_EXPECT_EQUAL( sum, 20100 );
 
 		sum = std::for_each( test.cbegin(), test.cend(), Sum() ).getSum();
-		UT_ASSERT_EQUAL( sum, 20100 );
+		UT_EXPECT_EQUAL( sum, 20100 );
 
 		std::copy( test.rbegin(), test.rend(), std::back_inserter( test1 ) );
 		std::copy( test.crbegin(), test.crend(), std::front_inserter( test2 ) );
@@ -133,11 +133,11 @@ class AlgorithmTest : public UnitTest
 		Array<int>::reverse_iterator testrBegin = test2.rbegin();
 		Array<int>::reverse_iterator testrEnd = test2.rend();
 
-		UT_ASSERT_LESS( testrBegin, testrEnd );
+		UT_EXPECT_LESS( testrBegin, testrEnd );
 		Container::difference_type diff = testrEnd - testrBegin;
-		UT_ASSERT_GREATER( diff, Container::difference_type(0) );
-		UT_ASSERT_EQUAL( testrBegin + diff, testrEnd );
-		UT_ASSERT_EQUAL( size_t(diff), test2.size() );
+		UT_EXPECT_GREATER( diff, Container::difference_type(0) );
+		UT_EXPECT_EQUAL( testrBegin + diff, testrEnd );
+		UT_EXPECT_EQUAL( size_t(diff), test2.size() );
 
 	}
 };

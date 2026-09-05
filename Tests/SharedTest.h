@@ -98,79 +98,79 @@ class SharedTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "SharedTest::SharedObjectPointerTest");
 		{
 			SharedObjectPointer<MySharedObject>	first = new MySharedObject( 666 );
-			UT_ASSERT_EQUAL( 1, MySharedObject::s_objectCount );
-			UT_ASSERT_TRUE( first && first->m_value == 666 );
-			UT_ASSERT_FALSE( !first );
-			UT_ASSERT_EQUAL( 666, first->m_value );
-			UT_ASSERT_EQUAL( 666, (*first).m_value );
+			UT_EXPECT_EQUAL( 1, MySharedObject::s_objectCount );
+			UT_EXPECT_TRUE( first && first->m_value == 666 );
+			UT_EXPECT_FALSE( !first );
+			UT_EXPECT_EQUAL( 666, first->m_value );
+			UT_EXPECT_EQUAL( 666, (*first).m_value );
 			
 			SharedObjectPointer<MySharedObject>	second = new MySharedObject( 123 );
-			UT_ASSERT_EQUAL( 2, MySharedObject::s_objectCount );
-			UT_ASSERT_EQUAL( 123, second->m_value );
-			UT_ASSERT_EQUAL( 123, (*second).m_value );
+			UT_EXPECT_EQUAL( 2, MySharedObject::s_objectCount );
+			UT_EXPECT_EQUAL( 123, second->m_value );
+			UT_EXPECT_EQUAL( 123, (*second).m_value );
 
 			second = first;
-			UT_ASSERT_EQUAL( 1, MySharedObject::s_objectCount );
-			UT_ASSERT_EQUAL( 666, second->m_value );
-			UT_ASSERT_EQUAL( 666, (*second).m_value );
+			UT_EXPECT_EQUAL( 1, MySharedObject::s_objectCount );
+			UT_EXPECT_EQUAL( 666, second->m_value );
+			UT_EXPECT_EQUAL( 666, (*second).m_value );
 			
 			second = NULL;
-			UT_ASSERT_EQUAL( 1, MySharedObject::s_objectCount );
+			UT_EXPECT_EQUAL( 1, MySharedObject::s_objectCount );
 			
 			first = NULL;
-			UT_ASSERT_EQUAL( 0, MySharedObject::s_objectCount );
+			UT_EXPECT_EQUAL( 0, MySharedObject::s_objectCount );
 
-			UT_ASSERT_FALSE( bool( first ) );
-			UT_ASSERT_TRUE( !first );
+			UT_EXPECT_FALSE( bool( first ) );
+			UT_EXPECT_TRUE( !first );
 		}
 		{
 			const SharedObjectPointer<MySharedObject>	first = new MySharedObject( 666 );
-			UT_ASSERT_TRUE( bool( first ) );
-			UT_ASSERT_FALSE( !first );
-			UT_ASSERT_EQUAL( 666, first->m_value );
-			UT_ASSERT_EQUAL( 666, (*first).m_value );
+			UT_EXPECT_TRUE( bool( first ) );
+			UT_EXPECT_FALSE( !first );
+			UT_EXPECT_EQUAL( 666, first->m_value );
+			UT_EXPECT_EQUAL( 666, (*first).m_value );
 		}
-		UT_ASSERT_EQUAL( 0, MySharedObject::s_objectCount );
+		UT_EXPECT_EQUAL( 0, MySharedObject::s_objectCount );
 	}
 	void SharedPointerTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "SharedTest::SharedPointerTest");
 		{
 			SharedPointer<MyObject>	first = SharedPointer<MyObject>::makeShared( MyObject( 666 ) );
-			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
-			UT_ASSERT_TRUE( bool(first) && first->m_value == 666 );
-			UT_ASSERT_FALSE( !first );
-			UT_ASSERT_EQUAL( 666, first->m_value );
-			UT_ASSERT_EQUAL( 666, (*first).m_value );
+			UT_EXPECT_EQUAL( 1, MyObject::s_objectCount );
+			UT_EXPECT_TRUE( bool(first) && first->m_value == 666 );
+			UT_EXPECT_FALSE( !first );
+			UT_EXPECT_EQUAL( 666, first->m_value );
+			UT_EXPECT_EQUAL( 666, (*first).m_value );
 			
 			SharedPointer<MyObject>	second = SharedPointer<MyObject>::makeShared( 123 );
-			UT_ASSERT_EQUAL( 2, MyObject::s_objectCount );
-			UT_ASSERT_EQUAL( 123, second->m_value );
-			UT_ASSERT_EQUAL( 123, (*second).m_value );
+			UT_EXPECT_EQUAL( 2, MyObject::s_objectCount );
+			UT_EXPECT_EQUAL( 123, second->m_value );
+			UT_EXPECT_EQUAL( 123, (*second).m_value );
 
 			second = first;
-			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
-			UT_ASSERT_EQUAL( 666, second->m_value );
-			UT_ASSERT_EQUAL( 666, (*second).m_value );
+			UT_EXPECT_EQUAL( 1, MyObject::s_objectCount );
+			UT_EXPECT_EQUAL( 666, second->m_value );
+			UT_EXPECT_EQUAL( 666, (*second).m_value );
 			
 			second = NULL;
-			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
+			UT_EXPECT_EQUAL( 1, MyObject::s_objectCount );
 			
 			first = NULL;
-			UT_ASSERT_EQUAL( 0, MyObject::s_objectCount );
+			UT_EXPECT_EQUAL( 0, MyObject::s_objectCount );
 
-			UT_ASSERT_FALSE( first );
-			UT_ASSERT_TRUE( !first );
+			UT_EXPECT_FALSE( first );
+			UT_EXPECT_TRUE( !first );
 		}
 		{
 			const SharedPointer<MyObject>	first = SharedPointer<MyObject>::makeShared( MyObject( 666 ) );
-			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
-			UT_ASSERT_TRUE( first );
-			UT_ASSERT_FALSE( !first );
-			UT_ASSERT_EQUAL( 666, first->m_value );
-			UT_ASSERT_EQUAL( 666, (*first).m_value );
+			UT_EXPECT_EQUAL( 1, MyObject::s_objectCount );
+			UT_EXPECT_TRUE( first );
+			UT_EXPECT_FALSE( !first );
+			UT_EXPECT_EQUAL( 666, first->m_value );
+			UT_EXPECT_EQUAL( 666, (*first).m_value );
 		}
-		UT_ASSERT_EQUAL( 0, MySharedObject::s_objectCount );
+		UT_EXPECT_EQUAL( 0, MySharedObject::s_objectCount );
 	}
 	void XSharedPointerTest()
 	{
@@ -178,40 +178,40 @@ class SharedTest : public UnitTest
 		{
 			XSharedPointer<MyObject>	first;
 			first = new MyObject(666);
-			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
-			UT_ASSERT_TRUE( bool(first) && first->m_value == 666 );
-			UT_ASSERT_FALSE( !first );
-			UT_ASSERT_EQUAL( 666, first->m_value );
-			UT_ASSERT_EQUAL( 666, (*first).m_value );
+			UT_EXPECT_EQUAL( 1, MyObject::s_objectCount );
+			UT_EXPECT_TRUE( bool(first) && first->m_value == 666 );
+			UT_EXPECT_FALSE( !first );
+			UT_EXPECT_EQUAL( 666, first->m_value );
+			UT_EXPECT_EQUAL( 666, (*first).m_value );
 			
 			XSharedPointer<MyObject>	second(new MyObject(123));
-			UT_ASSERT_EQUAL( 2, MyObject::s_objectCount );
-			UT_ASSERT_EQUAL( 123, second->m_value );
-			UT_ASSERT_EQUAL( 123, (*second).m_value );
+			UT_EXPECT_EQUAL( 2, MyObject::s_objectCount );
+			UT_EXPECT_EQUAL( 123, second->m_value );
+			UT_EXPECT_EQUAL( 123, (*second).m_value );
 
 			second = first;
-			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
-			UT_ASSERT_EQUAL( 666, second->m_value );
-			UT_ASSERT_EQUAL( 666, (*second).m_value );
+			UT_EXPECT_EQUAL( 1, MyObject::s_objectCount );
+			UT_EXPECT_EQUAL( 666, second->m_value );
+			UT_EXPECT_EQUAL( 666, (*second).m_value );
 			
 			second = nullptr;
-			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
+			UT_EXPECT_EQUAL( 1, MyObject::s_objectCount );
 			
 			first = nullptr;
-			UT_ASSERT_EQUAL( 0, MyObject::s_objectCount );
+			UT_EXPECT_EQUAL( 0, MyObject::s_objectCount );
 
-			UT_ASSERT_FALSE( first );
-			UT_ASSERT_TRUE( !first );
+			UT_EXPECT_FALSE( first );
+			UT_EXPECT_TRUE( !first );
 		}
 		{
 			XSharedPointer<MyObject>	first( new MyObject(666) );
-			UT_ASSERT_EQUAL( 1, MyObject::s_objectCount );
-			UT_ASSERT_TRUE( first );
-			UT_ASSERT_FALSE( !first );
-			UT_ASSERT_EQUAL( 666, first->m_value );
-			UT_ASSERT_EQUAL( 666, (*first).m_value );
+			UT_EXPECT_EQUAL( 1, MyObject::s_objectCount );
+			UT_EXPECT_TRUE( first );
+			UT_EXPECT_FALSE( !first );
+			UT_EXPECT_EQUAL( 666, first->m_value );
+			UT_EXPECT_EQUAL( 666, (*first).m_value );
 		}
-		UT_ASSERT_EQUAL( 0, MySharedObject::s_objectCount );
+		UT_EXPECT_EQUAL( 0, MySharedObject::s_objectCount );
 	}
 
 	struct MySharedObject : public SharedObject

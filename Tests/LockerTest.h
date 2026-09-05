@@ -112,19 +112,19 @@ class LockerTest : public UnitTest
 
 		Locker	locker;
 		
-		UT_ASSERT_EQUAL( locker.getLockCount(), 0 );
+		UT_EXPECT_EQUAL( locker.getLockCount(), 0 );
 
 		locker.lock();
-		UT_ASSERT_EQUAL( locker.getLockCount(), 1 );
+		UT_EXPECT_EQUAL( locker.getLockCount(), 1 );
 
 		locker.lock();
-		UT_ASSERT_EQUAL( locker.getLockCount(), 2 );
+		UT_EXPECT_EQUAL( locker.getLockCount(), 2 );
 
 		locker.unlock();
-		UT_ASSERT_EQUAL( locker.getLockCount(), 1 );
+		UT_EXPECT_EQUAL( locker.getLockCount(), 1 );
 
 		locker.unlock();
-		UT_ASSERT_EQUAL( locker.getLockCount(), 0 );
+		UT_EXPECT_EQUAL( locker.getLockCount(), 0 );
 
 		{
 			TestScope scope( "concurrent test with unlock" );
@@ -135,26 +135,26 @@ class LockerTest : public UnitTest
 			Sleep(TIMEOUT/2);
 			locker.unlock();
 			thread.join();
-			UT_ASSERT_TRUE( thread.m_ok );
-			UT_ASSERT_GREATEREQ( thread.m_sw.getMillis(), clock_t(TIMEOUT)/2 );
-			UT_ASSERT_LESS( thread.m_sw.getMillis(), clock_t(TIMEOUT) );
-			UT_ASSERT_EQUAL( locker.getLockCount(), 0 );
+			UT_EXPECT_TRUE( thread.m_ok );
+			UT_EXPECT_GREATEREQ( thread.m_sw.getMillis(), clock_t(TIMEOUT)/2 );
+			UT_EXPECT_LESS( thread.m_sw.getMillis(), clock_t(TIMEOUT) );
+			UT_EXPECT_EQUAL( locker.getLockCount(), 0 );
 		}
 
 		{
 			TestScope scope( "concurrent test with timeout" );
 
 			LockGuard lg( locker );
-			UT_ASSERT_EQUAL( locker.getLockCount(), 1 );
+			UT_EXPECT_EQUAL( locker.getLockCount(), 1 );
 
 			TestThread	thread( locker, false );
 			StopWatch sw(true);
 			thread.StartThread();
 			thread.join();
-			UT_ASSERT_FALSE( thread.m_ok );
-			UT_ASSERT_GREATEREQ( sw.getMillis(), clock_t(TIMEOUT) );
+			UT_EXPECT_FALSE( thread.m_ok );
+			UT_EXPECT_GREATEREQ( sw.getMillis(), clock_t(TIMEOUT) );
 		}
-		UT_ASSERT_EQUAL( locker.getLockCount(), 0 );
+		UT_EXPECT_EQUAL( locker.getLockCount(), 0 );
 		{
 			TestScope scope( "concurrent test with already free" );
 
@@ -162,19 +162,19 @@ class LockerTest : public UnitTest
 			StopWatch sw(true);
 			thread.StartThread();
 			thread.join();
-			UT_ASSERT_TRUE( thread.m_ok );
-			UT_ASSERT_LESS( sw.getMillis(), clock_t(TIMEOUT) );
+			UT_EXPECT_TRUE( thread.m_ok );
+			UT_EXPECT_LESS( sw.getMillis(), clock_t(TIMEOUT) );
 		}
 		{
 			TestScope scope( "concurrent test with lock forever" );
 
 			StopWatch sw(true);
 			bool ok = locker.lock(TIMEOUT);
-			UT_ASSERT_FALSE( ok );
-			UT_ASSERT_GREATEREQ( sw.getMillis(), clock_t(TIMEOUT) );
-			UT_ASSERT_EQUAL( locker.getLockCount(), 1 );
+			UT_EXPECT_FALSE( ok );
+			UT_EXPECT_GREATEREQ( sw.getMillis(), clock_t(TIMEOUT) );
+			UT_EXPECT_EQUAL( locker.getLockCount(), 1 );
 			locker.unlock();
-			UT_ASSERT_EQUAL( locker.getLockCount(), 1 );
+			UT_EXPECT_EQUAL( locker.getLockCount(), 1 );
 		}
 	}
 };

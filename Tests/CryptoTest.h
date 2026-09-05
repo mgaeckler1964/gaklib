@@ -109,11 +109,11 @@ class CryptoTest : public UnitTest
 		destHash.hash_file( resultFile );
 		if( expectEqual )
 		{
-			UT_ASSERT_EQUAL( sourceHash.getDigest(), destHash.getDigest() );
+			UT_EXPECT_EQUAL( sourceHash.getDigest(), destHash.getDigest() );
 		}
 		else
 		{
-			UT_ASSERT_NOT_EQUAL( sourceHash.getDigest(), destHash.getDigest() );
+			UT_EXPECT_NOT_EQUAL( sourceHash.getDigest(), destHash.getDigest() );
 		}
 	}
 
@@ -151,7 +151,7 @@ class CryptoTest : public UnitTest
 			sha224.hash_string("");
 			out << sha224.getDigest();
 			out.flush();
-			UT_ASSERT_EQUAL( hash, STRING("d1 4a 02 8c 2a 3a 2b c9 47 61 02 bb 28 82 34 c4 15 a2 b0 1f 82 8e a6 2a c5 b3 e4 2f") );
+			UT_EXPECT_EQUAL( hash, STRING("d1 4a 02 8c 2a 3a 2b c9 47 61 02 bb 28 82 34 c4 15 a2 b0 1f 82 8e a6 2a c5 b3 e4 2f") );
 		}
 		{
 			hash = "";
@@ -160,7 +160,7 @@ class CryptoTest : public UnitTest
 			sha256.hash_string("");
 			out << sha256.getDigest();
 			out.flush();
-			UT_ASSERT_EQUAL( hash, STRING("e3 b0 c4 42 98 fc 1c 14 9a fb f4 c8 99 6f b9 24 27 ae 41 e4 64 9b 93 4c a4 95 99 1b 78 52 b8 55") );
+			UT_EXPECT_EQUAL( hash, STRING("e3 b0 c4 42 98 fc 1c 14 9a fb f4 c8 99 6f b9 24 27 ae 41 e4 64 9b 93 4c a4 95 99 1b 78 52 b8 55") );
 		}
 		{
 			hash = "";
@@ -169,7 +169,7 @@ class CryptoTest : public UnitTest
 			sha384.hash_string("");
 			out << sha384.getDigest();
 			out.flush();
-			UT_ASSERT_EQUAL( hash, STRING("38 b0 60 a7 51 ac 96 38 4c d9 32 7e b1 b1 e3 6a 21 fd b7 11 14 be 07 43 4c 0c c7 bf 63 f6 e1 da 27 4e de bf e7 6f 65 fb d5 1a d2 f1 48 98 b9 5b") );
+			UT_EXPECT_EQUAL( hash, STRING("38 b0 60 a7 51 ac 96 38 4c d9 32 7e b1 b1 e3 6a 21 fd b7 11 14 be 07 43 4c 0c c7 bf 63 f6 e1 da 27 4e de bf e7 6f 65 fb d5 1a d2 f1 48 98 b9 5b") );
 		}
 		{
 			hash = "";
@@ -178,7 +178,7 @@ class CryptoTest : public UnitTest
 			sha512.hash_string("");
 			out << sha512.getDigest();
 			out.flush();
-			UT_ASSERT_EQUAL( hash, STRING("cf 83 e1 35 7e ef b8 bd f1 54 28 50 d6 6d 80 07 d6 20 e4 05 0b 57 15 dc 83 f4 a9 21 d3 6c e9 ce 47 d0 d1 3c 5d 85 f2 b0 ff 83 18 d2 87 7e ec 2f 63 b9 31 bd 47 41 7a 81 a5 38 32 7a f9 27 da 3e") );
+			UT_EXPECT_EQUAL( hash, STRING("cf 83 e1 35 7e ef b8 bd f1 54 28 50 d6 6d 80 07 d6 20 e4 05 0b 57 15 dc 83 f4 a9 21 d3 6c e9 ce 47 d0 d1 3c 5d 85 f2 b0 ff 83 18 d2 87 7e ec 2f 63 b9 31 bd 47 41 7a 81 a5 38 32 7a f9 27 da 3e") );
 		}
 		{
 			hash = "";
@@ -187,7 +187,7 @@ class CryptoTest : public UnitTest
 			sha512.hash_string("Franz jagt im komplett verwahrlosten Taxi quer durch Bayern");
 			out << sha512.getDigest();
 			out.flush();
-			UT_ASSERT_EQUAL( hash, STRING("af 9e d2 de 70 04 33 b8 03 24 0a 55 2b 41 b5 a4 72 a6 ef 3f e1 43 1a 72 2b 20 63 c7 5e 9f 07 45 1f 67 a2 8e 37 d0 9c de 76 94 24 c9 6a ea 6f 89 71 38 9d b9 e1 99 3d 6c 56 5c 3c 71 b8 55 72 3c") );
+			UT_EXPECT_EQUAL( hash, STRING("af 9e d2 de 70 04 33 b8 03 24 0a 55 2b 41 b5 a4 72 a6 ef 3f e1 43 1a 72 2b 20 63 c7 5e 9f 07 45 1f 67 a2 8e 37 d0 9c de 76 94 24 c9 6a ea 6f 89 71 38 9d b9 e1 99 3d 6c 56 5c 3c 71 b8 55 72 3c") );
 		}
 	}
 	void RsaTest()
@@ -214,7 +214,7 @@ class CryptoTest : public UnitTest
 		myPublicRsaKey.encryptString( plainText, &encrypted );
 
 		decrypted = myPrivateRsaKey.decryptString( encrypted );
-		UT_ASSERT_EQUAL( plainText, decrypted );
+		UT_EXPECT_EQUAL( plainText, decrypted );
 		std::cout << "Decrypted Text =" << decrypted << '\n';
 
 		STRING	srcName = __FILE__;
@@ -232,7 +232,7 @@ class CryptoTest : public UnitTest
 		struct stat srcStat;
 		strStatE( srcName, &srcStat );
 		uint32 size = Crypto::getFileSize( secretFile );
-		UT_ASSERT_EQUAL( uint32(srcStat.st_size), size );
+		UT_EXPECT_EQUAL( uint32(srcStat.st_size), size );
 	}
 
 	struct ArrayTEST
@@ -263,12 +263,12 @@ class CryptoTest : public UnitTest
 		struct stat srcStat;
 		strStatE( srcName, &srcStat );
 		uint32 size = Crypto::getFileSize( secretFile );
-		UT_ASSERT_EQUAL( size_t(srcStat.st_size), size_t(size) );
+		UT_EXPECT_EQUAL( size_t(srcStat.st_size), size_t(size) );
 
 		ArrayOfData	buffer;
 		aesEncryptString( cypher, cypher, &buffer );
 		STRING newCypher = aesDecryptString( cypher, buffer );
-		UT_ASSERT_EQUAL( cypher, newCypher );
+		UT_EXPECT_EQUAL( cypher, newCypher );
 	}
 	void CryptoSharedTest()
 	{
@@ -307,10 +307,10 @@ class CryptoTest : public UnitTest
 		compare(srcFile, secretFile, false);
 
 		Array<STRING>	keys = myEncryptor.getKeyList();
-		UT_ASSERT_EQUAL( keys.size(), size_t(2) );
+		UT_EXPECT_EQUAL( keys.size(), size_t(2) );
 		myEncryptor.removeKey( rootEmail );
 		keys = myEncryptor.getKeyList();
-		UT_ASSERT_EQUAL( keys.size(), size_t(1) );
+		UT_EXPECT_EQUAL( keys.size(), size_t(1) );
 	}
 };
 

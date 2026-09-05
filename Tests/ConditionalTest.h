@@ -114,18 +114,18 @@ class WorkerThread : public Thread
 		clock_t	start = clock();
 		theConditional.wait();
 		clock_t	end = clock();
-		UT_ASSERT_EQUAL( 1, notifyCount );
-		UT_ASSERT_LESS( int(end-start), 10 );
+		UT_EXPECT_EQUAL( 1, notifyCount );
+		UT_EXPECT_LESS( int(end-start), 10 );
 
 		theConditional.wait();
-		UT_ASSERT_EQUAL( 2, notifyCount );
+		UT_EXPECT_EQUAL( 2, notifyCount );
 
 		{
 			time_t	start = time( NULL );
 			theConditional.wait();
 			time_t	end = time( NULL );
-			UT_ASSERT_EQUAL( 3, notifyCount );
-			UT_ASSERT_GREATER( int(end-start), 1 );
+			UT_EXPECT_EQUAL( 3, notifyCount );
+			UT_EXPECT_GREATER( int(end-start), 1 );
 		}
 
 		notifyCount = -1;
@@ -163,7 +163,7 @@ class ConditionalTest : public UnitTest
 			worker->StopThread( true );
 			std::cout << "\nWorker is running 8-(" << std::endl;
 		}
-		UT_ASSERT_EQUAL( -1, notifyCount );
+		UT_EXPECT_EQUAL( -1, notifyCount );
 	}
 };
 

@@ -109,30 +109,30 @@ class GraphTest : public UnitTest
 		SimpleGraph		theGraph2;
 		theGraph2.merge(theGraph);
 
-		UT_ASSERT_EQUAL( size_t(6), theGraph.getNumLinks() );
-		UT_ASSERT_EQUAL( size_t(3), theGraph.getNumNodes() );
-		UT_ASSERT_EQUAL( size_t(6), theGraph2.getNumLinks() );
-		UT_ASSERT_EQUAL( size_t(3), theGraph2.getNumNodes() );
+		UT_EXPECT_EQUAL( size_t(6), theGraph.getNumLinks() );
+		UT_EXPECT_EQUAL( size_t(3), theGraph.getNumNodes() );
+		UT_EXPECT_EQUAL( size_t(6), theGraph2.getNumLinks() );
+		UT_EXPECT_EQUAL( size_t(3), theGraph2.getNumNodes() );
 
-		UT_ASSERT_EQUAL( theGraph.getLink( 4 ), 2.18 );
-		UT_ASSERT_EQUAL( theGraph.getLink( 5 ), 3.141 );
-		UT_ASSERT_EQUAL( theGraph.getLink( 7 ), 55. );
-		UT_ASSERT_EQUAL( theGraph.getLinkStart( 7 ), size_t(0) );
-		UT_ASSERT_EQUAL( theGraph.getLinkEnd( 7 ), size_t(2) );
+		UT_EXPECT_EQUAL( theGraph.getLink( 4 ), 2.18 );
+		UT_EXPECT_EQUAL( theGraph.getLink( 5 ), 3.141 );
+		UT_EXPECT_EQUAL( theGraph.getLink( 7 ), 55. );
+		UT_EXPECT_EQUAL( theGraph.getLinkStart( 7 ), size_t(0) );
+		UT_EXPECT_EQUAL( theGraph.getLinkEnd( 7 ), size_t(2) );
 
-		UT_ASSERT_EQUAL( theGraph.getNode( 2 ), 10. );
+		UT_EXPECT_EQUAL( theGraph.getNode( 2 ), 10. );
 		const SimpleGraph::link_key_types	&outgoing = theGraph.getOutgoing( 2 );
-		UT_ASSERT_EQUAL( size_t(2), outgoing.size() );
-		UT_ASSERT_TRUE( outgoing.hasElement( 8 ) );
-		UT_ASSERT_TRUE( outgoing.hasElement( 6 ) );
+		UT_EXPECT_EQUAL( size_t(2), outgoing.size() );
+		UT_EXPECT_TRUE( outgoing.hasElement( 8 ) );
+		UT_EXPECT_TRUE( outgoing.hasElement( 6 ) );
 
 #if HAVE_INCOMING
 		theGraph.removeNode( 0 );
 		theGraph.removeNode( 1 );
 		theGraph.removeNode( 2 );
 
-		UT_ASSERT_EQUAL( size_t(0), theGraph.getNumLinks() );
-		UT_ASSERT_EQUAL( size_t(0), theGraph.getNumNodes() );
+		UT_EXPECT_EQUAL( size_t(0), theGraph.getNumLinks() );
+		UT_EXPECT_EQUAL( size_t(0), theGraph.getNumNodes() );
 #endif
 
 	}

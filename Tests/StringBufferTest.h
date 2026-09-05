@@ -90,21 +90,21 @@ class StringBufferTest : public UnitTest
 		StringBuffer<5>	tmpBuffer;
 		const char *cd = "cd";
 
-		UT_ASSERT_EQUAL(tmpBuffer.size(), 0);
+		UT_EXPECT_EQUAL(tmpBuffer.size(), 0);
 		tmpBuffer += "ab";
-		UT_ASSERT_EQUAL(tmpBuffer.size(), 2);
+		UT_EXPECT_EQUAL(tmpBuffer.size(), 2);
 		tmpBuffer.addCP(cd);
-		UT_ASSERT_EQUAL(tmpBuffer.size(), 4);
+		UT_EXPECT_EQUAL(tmpBuffer.size(), 4);
 		tmpBuffer += 'e';
-		UT_ASSERT_EQUAL(tmpBuffer.size(), 5);
-		UT_ASSERT_EQUAL(tmpBuffer.c_str(), (const char *)"abcde");
+		UT_EXPECT_EQUAL(tmpBuffer.size(), 5);
+		UT_EXPECT_EQUAL(tmpBuffer.c_str(), (const char *)"abcde");
 
-		UT_ASSERT_EXCEPTION( tmpBuffer += 'f', IndexError );
-		UT_ASSERT_EXCEPTION( tmpBuffer += "f", IndexError );
-		UT_ASSERT_EXCEPTION( tmpBuffer.addCP(cd), IndexError );
+		UT_EXPECT_EXCEPTION( tmpBuffer += 'f', IndexError );
+		UT_EXPECT_EXCEPTION( tmpBuffer += "f", IndexError );
+		UT_EXPECT_EXCEPTION( tmpBuffer.addCP(cd), IndexError );
 
 		tmpBuffer.clear();
-		UT_ASSERT_EQUAL(*tmpBuffer.c_str(), 0);
+		UT_EXPECT_EQUAL(*tmpBuffer.c_str(), 0);
 	}
 };
 

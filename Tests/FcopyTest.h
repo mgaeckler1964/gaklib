@@ -131,18 +131,18 @@ class FcopyTest : public UnitTest
 				++errorCount;
 			}
 
-			UT_ASSERT_EQUAL( sourceOwner, targetOwner );
-			UT_ASSERT_EQUAL( sourceGroup, targetGroup );
+			UT_EXPECT_EQUAL( sourceOwner, targetOwner );
+			UT_EXPECT_EQUAL( sourceGroup, targetGroup );
 
-			UT_ASSERT_EQUAL( 0, errorCount );
+			UT_EXPECT_EQUAL( 0, errorCount );
 		}
 #endif
 
 		DirectoryEntry sourceEntry( source ), targetEntry( targetFile );
 
-		UT_ASSERT_EQUAL( sourceEntry.fileSize, targetEntry.fileSize );
-		UT_ASSERT_EQUAL( sourceEntry.modifiedDate, targetEntry.modifiedDate );
-		UT_ASSERT_EQUAL( sourceEntry.accessDate, targetEntry.accessDate );
+		UT_EXPECT_EQUAL( sourceEntry.fileSize, targetEntry.fileSize );
+		UT_EXPECT_EQUAL( sourceEntry.modifiedDate, targetEntry.modifiedDate );
+		UT_EXPECT_EQUAL( sourceEntry.accessDate, targetEntry.accessDate );
 
 		// remove( targetFile );
 	}
@@ -203,7 +203,7 @@ class FcopyTest : public UnitTest
 		strStatE( tmpFile, &x );
 		std::time_t modTime2 = x.st_mtime;
 		std::cout << modTime1 <<'-' << modTime2 << '=' << (modTime2-modTime1) << std::endl;
-		UT_ASSERT_EQUAL( modTime1, modTime2 );
+		UT_EXPECT_EQUAL( modTime1, modTime2 );
 
 		if( deleteOnExit )
 		{

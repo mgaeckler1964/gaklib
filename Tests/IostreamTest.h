@@ -98,7 +98,7 @@ class IOstreamTest : public UnitTest
 		writeToBinaryFile( fileName, source, magic, version, owmOverwrite );
 
 		readFromBinaryFile( fileName, dest, magic, version, true );
-		UT_ASSERT_EQUAL( source.size(), dest->size() );
+		UT_EXPECT_EQUAL( source.size(), dest->size() );
 	}
 
 	template <typename OBJ>
@@ -112,9 +112,9 @@ class IOstreamTest : public UnitTest
 		writeToBinaryFile( fileName, source, magic, version, owmOverwrite );
 
 		readFromBinaryFile( fileName, &target, magic, version, false );
-		UT_ASSERT_EQUAL( source, target );
+		UT_EXPECT_EQUAL( source, target );
 
-		UT_ASSERT_EXCEPTION( readFromBinaryFile( fileName, &target, magic+1, version, false ), BadHeaderError );
+		UT_EXPECT_EXCEPTION( readFromBinaryFile( fileName, &target, magic+1, version, false ), BadHeaderError );
 
 		{
 			ofstream	str( fileName, owmRenameOld );
@@ -123,7 +123,7 @@ class IOstreamTest : public UnitTest
 			str.rollback();
 
 			readFromBinaryFile( fileName, &target, magic, version, false );
-			UT_ASSERT_EQUAL( source, target );
+			UT_EXPECT_EQUAL( source, target );
 		}
 		{
 			ofstream	str( fileName, std::ios_base::binary, owmRenameOld );
@@ -132,7 +132,7 @@ class IOstreamTest : public UnitTest
 			str.rollback();
 
 			readFromBinaryFile( fileName, &target, magic, version, false );
-			UT_ASSERT_EQUAL( source, target );
+			UT_EXPECT_EQUAL( source, target );
 		}
 		{
 			ofstream	str;
@@ -147,7 +147,7 @@ class IOstreamTest : public UnitTest
 			str.flush();
 		}
 		readFromBinaryFile( fileName, &target, magic, version, false );
-		UT_ASSERT_EQUAL( source, target );
+		UT_EXPECT_EQUAL( source, target );
 	}
 
 	virtual void PerformTest()
@@ -264,15 +264,15 @@ class IOstreamTest : public UnitTest
 			myTree[2] = "two";
 			myTree[3] = "three";
 			doCompatTest( myTree, &myPair );
-			UT_ASSERT_EQUAL( myTree[1], myPair[1] );
-			UT_ASSERT_EQUAL( myTree[2], myPair[2] );
-			UT_ASSERT_EQUAL( myTree[3], myPair[3] );
+			UT_EXPECT_EQUAL( myTree[1], myPair[1] );
+			UT_EXPECT_EQUAL( myTree[2], myPair[2] );
+			UT_EXPECT_EQUAL( myTree[3], myPair[3] );
 
 			myTree.clear();
 			doCompatTest( myPair, &myTree );
-			UT_ASSERT_EQUAL( myTree[1], myPair[1] );
-			UT_ASSERT_EQUAL( myTree[2], myPair[2] );
-			UT_ASSERT_EQUAL( myTree[3], myPair[3] );
+			UT_EXPECT_EQUAL( myTree[1], myPair[1] );
+			UT_EXPECT_EQUAL( myTree[2], myPair[2] );
+			UT_EXPECT_EQUAL( myTree[3], myPair[3] );
 		}
 	}
 };

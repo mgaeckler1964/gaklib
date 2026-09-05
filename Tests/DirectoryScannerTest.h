@@ -115,19 +115,19 @@ class DirectoryScannerTest : public UnitTest
 		DirectoryScanner<TheProcessor> theScanner(dummy);
 
 		theScanner("CTOOLS", "*.cpp" );
-		UT_ASSERT_EQUAL( theScanner.processor().m_startCount, 1 ); 
-		UT_ASSERT_EQUAL( theScanner.processor().m_processCount, 92 ); 
-		UT_ASSERT_EQUAL( theScanner.processor().m_endCount, 1 ); 
+		UT_EXPECT_EQUAL( theScanner.processor().m_startCount, 1 ); 
+		UT_EXPECT_EQUAL( theScanner.processor().m_processCount, 92 ); 
+		UT_EXPECT_EQUAL( theScanner.processor().m_endCount, 1 ); 
 
 		theScanner("INCLUDE", "*.h");
-		UT_ASSERT_EQUAL( theScanner.processor().m_startCount, 3 ); 
-		UT_ASSERT_EQUAL( theScanner.processor().m_processCount, 224 ); 
-		UT_ASSERT_EQUAL( theScanner.processor().m_endCount, 3 ); 
+		UT_EXPECT_EQUAL( theScanner.processor().m_startCount, 3 ); 
+		UT_EXPECT_EQUAL( theScanner.processor().m_processCount, 224 ); 
+		UT_EXPECT_EQUAL( theScanner.processor().m_endCount, 3 ); 
 
 		theScanner("TESTS", "*.h");
-		UT_ASSERT_EQUAL( theScanner.processor().m_startCount, 4 ); 
-		UT_ASSERT_EQUAL( theScanner.processor().m_processCount, 302 ); 
-		UT_ASSERT_EQUAL( theScanner.processor().m_endCount, 4 ); 
+		UT_EXPECT_EQUAL( theScanner.processor().m_startCount, 4 ); 
+		UT_EXPECT_EQUAL( theScanner.processor().m_processCount, 302 ); 
+		UT_EXPECT_EQUAL( theScanner.processor().m_endCount, 4 ); 
 	}
 };
 

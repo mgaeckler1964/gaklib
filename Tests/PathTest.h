@@ -97,8 +97,8 @@ class PathTest : public UnitTest
 			"C:\\Dokumente\\user\\gak\\deppen.cpp",
 			relPath
 		);
-		UT_ASSERT_EQUAL( relPath, STRING("D:\\Dokumente\\user\\gak\\deppen.cpp")  );
-		UT_ASSERT_EQUAL( fullPath, STRING("D:\\Dokumente\\user\\gak\\deppen.cpp") );
+		UT_EXPECT_EQUAL( relPath, STRING("D:\\Dokumente\\user\\gak\\deppen.cpp")  );
+		UT_EXPECT_EQUAL( fullPath, STRING("D:\\Dokumente\\user\\gak\\deppen.cpp") );
 
 		relPath = makeRelPath(
 			"C:\\Dokumente\\user\\gak\\deppen.cpp",
@@ -108,8 +108,8 @@ class PathTest : public UnitTest
 			"C:\\Dokumente\\user\\gak\\deppen.cpp",
 			relPath
 		);
-		UT_ASSERT_EQUAL( relPath, STRING("deppen.cpp") );
-		UT_ASSERT_EQUAL( fullPath, STRING("C:\\Dokumente\\user\\gak\\deppen.cpp") );
+		UT_EXPECT_EQUAL( relPath, STRING("deppen.cpp") );
+		UT_EXPECT_EQUAL( fullPath, STRING("C:\\Dokumente\\user\\gak\\deppen.cpp") );
 
 		relPath = makeRelPath(
 			"C:\\Dokumente\\user\\gak\\deppen.cpp",
@@ -119,8 +119,8 @@ class PathTest : public UnitTest
 			"C:\\Dokumente\\user\\gak\\deppen.cpp",
 			relPath
 		);
-		UT_ASSERT_EQUAL( relPath, STRING("..\\..\\..\\Maja\\user\\gak\\deppen.cpp") );
-		UT_ASSERT_EQUAL( fullPath, STRING("C:\\Maja\\user\\gak\\deppen.cpp") );
+		UT_EXPECT_EQUAL( relPath, STRING("..\\..\\..\\Maja\\user\\gak\\deppen.cpp") );
+		UT_EXPECT_EQUAL( fullPath, STRING("C:\\Maja\\user\\gak\\deppen.cpp") );
 
 		relPath = makeRelPath(
 			"C:\\Dokumente\\user\\gak\\deppen.cpp",
@@ -130,8 +130,8 @@ class PathTest : public UnitTest
 			"C:\\Dokumente\\user\\gak\\deppen.cpp",
 			relPath
 		);
-		UT_ASSERT_EQUAL( relPath, STRING("doks\\deppen.cpp") );
-		UT_ASSERT_EQUAL( fullPath, STRING("C:\\Dokumente\\user\\gak\\doks\\deppen.cpp") );
+		UT_EXPECT_EQUAL( relPath, STRING("doks\\deppen.cpp") );
+		UT_EXPECT_EQUAL( fullPath, STRING("C:\\Dokumente\\user\\gak\\doks\\deppen.cpp") );
 #endif
 #if defined( __MACH__ ) || defined( __unix__ )
 		STRING	relPath = makeRelPath(
@@ -142,8 +142,8 @@ class PathTest : public UnitTest
 			"/Dokumente/user/gak/deppen.cpp",
 			relPath
 		);
-		UT_ASSERT_EQUAL( relPath, STRING("deppen.cpp") );
-		UT_ASSERT_EQUAL( fullPath, STRING("/Dokumente/user/gak/deppen.cpp") );
+		UT_EXPECT_EQUAL( relPath, STRING("deppen.cpp") );
+		UT_EXPECT_EQUAL( fullPath, STRING("/Dokumente/user/gak/deppen.cpp") );
 
 		relPath = makeRelPath(
 			"/Dokumente/user/gak/deppen.cpp",
@@ -153,8 +153,8 @@ class PathTest : public UnitTest
 			"/Dokumente/user/gak/deppen.cpp",
 			relPath
 		);
-		UT_ASSERT_EQUAL( relPath, STRING("../../../Maja/user/gak/deppen.cpp") );
-		UT_ASSERT_EQUAL( fullPath, STRING("/Maja/user/gak/deppen.cpp") );
+		UT_EXPECT_EQUAL( relPath, STRING("../../../Maja/user/gak/deppen.cpp") );
+		UT_EXPECT_EQUAL( fullPath, STRING("/Maja/user/gak/deppen.cpp") );
 
 		relPath = makeRelPath(
 			"/Dokumente/user/gak/deppen.cpp",
@@ -164,24 +164,24 @@ class PathTest : public UnitTest
 			"/Dokumente/user/gak/deppen.cpp",
 			relPath
 		);
-		UT_ASSERT_EQUAL( relPath, STRING("doks/deppen.cpp") );
-		UT_ASSERT_EQUAL( fullPath, STRING("/Dokumente/user/gak/doks/deppen.cpp") );
+		UT_EXPECT_EQUAL( relPath, STRING("doks/deppen.cpp") );
+		UT_EXPECT_EQUAL( fullPath, STRING("/Dokumente/user/gak/doks/deppen.cpp") );
 #endif
 		F_STRING	fName = DIRECTORY_DELIMITER_STRING "path" DIRECTORY_DELIMITER_STRING "name.ext";
 
 		F_STRING	path, name;
 		STRING	extension = fsplit( fName, &path, &name );
-		UT_ASSERT_EQUAL( path, F_STRING(DIRECTORY_DELIMITER_STRING "path" DIRECTORY_DELIMITER_STRING) );
-		UT_ASSERT_EQUAL( name, F_STRING("name.ext") );
-		UT_ASSERT_EQUAL( extension, STRING("ext") );
+		UT_EXPECT_EQUAL( path, F_STRING(DIRECTORY_DELIMITER_STRING "path" DIRECTORY_DELIMITER_STRING) );
+		UT_EXPECT_EQUAL( name, F_STRING("name.ext") );
+		UT_EXPECT_EQUAL( extension, STRING("ext") );
 
 		F_STRING fullName = gak::fullPath( __FILE__ );
 
 #ifdef _Windows
-		UT_ASSERT_EQUAL( fullName, F_STRING("c:\\cresd\\source\\gaklib\\Tests/PathTest.h") );
+		UT_EXPECT_EQUAL( fullName, F_STRING("c:\\cresd\\source\\gaklib\\Tests/PathTest.h") );
 #endif
 #if defined( __MACH__ ) || defined( __unix__ )
-		UT_ASSERT_EQUAL( fullName, F_STRING("/Source/GAKLIB/Tests/PathTest.h") );
+		UT_EXPECT_EQUAL( fullName, F_STRING("/Source/GAKLIB/Tests/PathTest.h") );
 #endif
 	}
 };

@@ -172,10 +172,10 @@ class MachineLearningTest : public UnitTest
 		expectedVariableCount *= expectedVariableCount;
 		MyVariableType	best = mlSchool.getBest( &lessonsCount, &variableCount );
 
-		UT_ASSERT_EQUAL( best.val1, m_m );
-		UT_ASSERT_EQUAL( best.val2, m_d );
-		UT_ASSERT_EQUAL( lessonsCount, expectedLessonCount );
-		UT_ASSERT_EQUAL( variableCount, expectedVariableCount );
+		UT_EXPECT_EQUAL( best.val1, m_m );
+		UT_EXPECT_EQUAL( best.val2, m_d );
+		UT_EXPECT_EQUAL( lessonsCount, expectedLessonCount );
+		UT_EXPECT_EQUAL( variableCount, expectedVariableCount );
 	}
 };
 

@@ -92,39 +92,39 @@ class MatrixTest : public UnitTest
 
 		// test + and +=
 		Matrix<int>::row_iterator	tmpEnd = it + 3;
-		UT_ASSERT_EQUAL( endIT, tmpEnd );
+		UT_EXPECT_EQUAL( endIT, tmpEnd );
 		it += 3;
-		UT_ASSERT_EQUAL( endIT, it );
+		UT_EXPECT_EQUAL( endIT, it );
 
 		it = mat.rowbegin( 2 );
 
 		// test - and -=
 		Matrix<int>::row_iterator	tmpIT = endIT - 3;
-		UT_ASSERT_EQUAL( it, tmpIT );
+		UT_EXPECT_EQUAL( it, tmpIT );
 		endIT -= 3;
-		UT_ASSERT_EQUAL( it, endIT );
+		UT_EXPECT_EQUAL( it, endIT );
 
 		it = mat.rowbegin( 2 );
 		endIT = mat.rowend( 2 );
 
 		// test (pre/post)increment
 		Matrix<int>::row_iterator	it2 = it;
-		UT_ASSERT_EQUAL( it, it2++ );
-		UT_ASSERT_NOT_EQUAL( it, it2 );
+		UT_EXPECT_EQUAL( it, it2++ );
+		UT_EXPECT_NOT_EQUAL( it, it2 );
 		it2 = it;
-		UT_ASSERT_NOT_EQUAL( it, ++it2 );
-		UT_ASSERT_NOT_EQUAL( endIT, ++it2 );
-		UT_ASSERT_EQUAL( endIT, ++it2 );
+		UT_EXPECT_NOT_EQUAL( it, ++it2 );
+		UT_EXPECT_NOT_EQUAL( endIT, ++it2 );
+		UT_EXPECT_EQUAL( endIT, ++it2 );
 
 
 		// test (pre/post)increment
 		it2 = endIT;
-		UT_ASSERT_EQUAL( endIT, it2-- );
-		UT_ASSERT_NOT_EQUAL( endIT, it2 );
+		UT_EXPECT_EQUAL( endIT, it2-- );
+		UT_EXPECT_NOT_EQUAL( endIT, it2 );
 		it2 = endIT;
-		UT_ASSERT_NOT_EQUAL( it, --it2 );
-		UT_ASSERT_NOT_EQUAL( it, --it2 );
-		UT_ASSERT_EQUAL( it, --it2 );
+		UT_EXPECT_NOT_EQUAL( it, --it2 );
+		UT_EXPECT_NOT_EQUAL( it, --it2 );
+		UT_EXPECT_EQUAL( it, --it2 );
 	}
 
 	void IteratorTest(const size_t numCols, const size_t numRows )
@@ -153,7 +153,7 @@ class MatrixTest : public UnitTest
 			++it
 		)
 		{
-			UT_ASSERT_EQUAL( *it, i++ );
+			UT_EXPECT_EQUAL( *it, i++ );
 		}
 
 		/*
@@ -170,7 +170,7 @@ class MatrixTest : public UnitTest
 			*it = i++;
 
 			if( ptr )
-				UT_ASSERT_LESS( (const int*)it, ptr );
+				UT_EXPECT_LESS( (const int*)it, ptr );
 			ptr = it;
 		}
 		i = 0;
@@ -181,10 +181,10 @@ class MatrixTest : public UnitTest
 			++it
 		)
 		{
-			UT_ASSERT_EQUAL( *it, i++ );
+			UT_EXPECT_EQUAL( *it, i++ );
 
 			if( ptr )
-				UT_ASSERT_LESS( (const int*)it, ptr );
+				UT_EXPECT_LESS( (const int*)it, ptr );
 			ptr = it;
 		}
 
@@ -216,7 +216,7 @@ class MatrixTest : public UnitTest
 			)
 			{
 				int val = int(col << 8 | i++);
-				UT_ASSERT_EQUAL( *it, val );
+				UT_EXPECT_EQUAL( *it, val );
 			}
 		}
 
@@ -237,7 +237,7 @@ class MatrixTest : public UnitTest
 				*it = val;
 
 				if( ptr )
-					UT_ASSERT_LESS( (const int*)it, ptr );
+					UT_EXPECT_LESS( (const int*)it, ptr );
 				ptr = it;
 			}
 		}
@@ -253,10 +253,10 @@ class MatrixTest : public UnitTest
 			)
 			{
 				int val = int(col << 8 | i++);
-				UT_ASSERT_EQUAL( *it, val );
+				UT_EXPECT_EQUAL( *it, val );
 
 				if( ptr )
-					UT_ASSERT_LESS( (const int*)it, ptr );
+					UT_EXPECT_LESS( (const int*)it, ptr );
 				ptr = it;
 			}
 		}
@@ -278,7 +278,7 @@ class MatrixTest : public UnitTest
 				*it = val;
 
 				if( ptr )
-					UT_ASSERT_GREATER( (const int*)it, ptr );
+					UT_EXPECT_GREATER( (const int*)it, ptr );
 				ptr = it;
 			}
 		}
@@ -294,10 +294,10 @@ class MatrixTest : public UnitTest
 			)
 			{
 				int val = int(row << 8 | i++);
-				UT_ASSERT_EQUAL( *it, val );
+				UT_EXPECT_EQUAL( *it, val );
 
 				if( ptr )
-					UT_ASSERT_GREATER( (const int*)it, ptr );
+					UT_EXPECT_GREATER( (const int*)it, ptr );
 				ptr = it;
 			}
 		}
@@ -318,7 +318,7 @@ class MatrixTest : public UnitTest
 				*it = val;
 
 				if( ptr )
-					UT_ASSERT_LESS( (const int*)it, ptr );
+					UT_EXPECT_LESS( (const int*)it, ptr );
 				ptr = it;
 			}
 		}
@@ -334,10 +334,10 @@ class MatrixTest : public UnitTest
 			)
 			{
 				int val = int(row << 8 | i++);
-				UT_ASSERT_EQUAL( *it, val );
+				UT_EXPECT_EQUAL( *it, val );
 
 				if( ptr )
-					UT_ASSERT_LESS( (const int*)it, ptr );
+					UT_EXPECT_LESS( (const int*)it, ptr );
 				ptr = it;
 			}
 		}
@@ -348,17 +348,17 @@ class MatrixTest : public UnitTest
 			PODmatrix<int>	mat1(3,5), mat2(4,3);
 			PODmatrix<int>	result = matrixProduct( mat1, mat2 );
 
-			UT_ASSERT_EQUAL(result.getNumCols(), 4);
-			UT_ASSERT_EQUAL(result.getNumRows(), 5);
+			UT_EXPECT_EQUAL(result.getNumCols(), 4);
+			UT_EXPECT_EQUAL(result.getNumRows(), 5);
 		}
 		{
 			PODmatrix<int>	mat1(3,1), mat2(1,3);
 			mat1(0,0) = 1;
 			mat2(0,0) = 1;
 			PODmatrix<int>	result = matrixProduct( mat1, mat2 );
-			UT_ASSERT_EQUAL(result.getNumCols(), 1);
-			UT_ASSERT_EQUAL(result.getNumRows(), 1);
-			UT_ASSERT_EQUAL(result(0,0), 1);
+			UT_EXPECT_EQUAL(result.getNumCols(), 1);
+			UT_EXPECT_EQUAL(result.getNumRows(), 1);
+			UT_EXPECT_EQUAL(result(0,0), 1);
 		}
 	}
 
@@ -383,12 +383,12 @@ class MatrixTest : public UnitTest
 		ptrdiff_t				diff = &matrix[1][0] - &matrix[0][0];
 		ptrdiff_t				xdiff = &xmatrix(1,0) - &xmatrix(0,0);
 
-		UT_ASSERT_EQUAL( diff, xdiff );
+		UT_EXPECT_EQUAL( diff, xdiff );
 		std::cout << diff << std::endl;
 
 		diff = &matrix[0][1] - &matrix[0][0];
 		xdiff = &xmatrix(0,1) - &xmatrix(0,0);
-		UT_ASSERT_EQUAL( diff, xdiff );
+		UT_EXPECT_EQUAL( diff, xdiff );
 		std::cout << diff << std::endl;
 		int val=0;
 		for( size_t col = 0; col<numMaxCols; ++col )
@@ -405,7 +405,7 @@ class MatrixTest : public UnitTest
 		{
 			for( size_t row = 0; row<numMaxRows; ++row )
 			{
-				UT_ASSERT_EQUAL( xmatrix( col, row ), xmatrix[col][row] );
+				UT_EXPECT_EQUAL( xmatrix( col, row ), xmatrix[col][row] );
 			}
 		}
 
@@ -414,7 +414,7 @@ class MatrixTest : public UnitTest
 		{
 			for( size_t row = 0; row<numRows; ++row )
 			{
-				UT_ASSERT_EQUAL( extract( col, row ), xmatrix( col+startCol, row+startRow ) );
+				UT_EXPECT_EQUAL( extract( col, row ), xmatrix( col+startCol, row+startRow ) );
 			}
 		}
 
@@ -422,13 +422,13 @@ class MatrixTest : public UnitTest
 		xmatrix.getColumn( startCol, &colData );
 		for( size_t row = 0; row<numMaxRows; ++row )
 		{
-			UT_ASSERT_EQUAL( colData[row], xmatrix( startCol, row ) );
+			UT_EXPECT_EQUAL( colData[row], xmatrix( startCol, row ) );
 		}
 
 		xmatrix.getRow( startRow, &rowData );
 		for( size_t col = 0; col<numMaxCols; ++col )
 		{
-			UT_ASSERT_EQUAL( rowData[col], xmatrix( col, startRow ) );
+			UT_EXPECT_EQUAL( rowData[col], xmatrix( col, startRow ) );
 		}
 #endif
 
@@ -437,7 +437,7 @@ class MatrixTest : public UnitTest
 		{
 			for( size_t row = 0; row<numMaxRows; ++row )
 			{
-				UT_ASSERT_EQUAL( xmatrix[col][row], matrix[col][row] );
+				UT_EXPECT_EQUAL( xmatrix[col][row], matrix[col][row] );
 			}
 		}
 
@@ -446,7 +446,7 @@ class MatrixTest : public UnitTest
 		{
 			for( size_t row = 0; row<numMaxRows; ++row )
 			{
-				UT_ASSERT_EQUAL( xmatrix[col][row], matrix[col][row] );
+				UT_EXPECT_EQUAL( xmatrix[col][row], matrix[col][row] );
 			}
 		}
 
@@ -455,7 +455,7 @@ class MatrixTest : public UnitTest
 		{
 			for( size_t row = 0; row<numMaxRows; ++row )
 			{
-				UT_ASSERT_EQUAL( xmatrix[col][row], matrix[col][row] );
+				UT_EXPECT_EQUAL( xmatrix[col][row], matrix[col][row] );
 			}
 		}
 
@@ -464,7 +464,7 @@ class MatrixTest : public UnitTest
 		{
 			for( size_t row = 0; row<numMaxRows; ++row )
 			{
-				UT_ASSERT_EQUAL( xmatrix[col][row], matrix[col][row] );
+				UT_EXPECT_EQUAL( xmatrix[col][row], matrix[col][row] );
 			}
 		}
 

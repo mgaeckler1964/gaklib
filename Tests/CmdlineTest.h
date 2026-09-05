@@ -159,21 +159,21 @@ class CmdlineTest : public UnitTest
 			CommandLine	cmdLine( options, x & 1 ? argv : noargv );
 			if( x )
 			{
-				UT_ASSERT_EQUAL( cmdLine.flags & optionPresent, optionPresent );
+				UT_EXPECT_EQUAL( cmdLine.flags & optionPresent, optionPresent );
 				if( x&1 )
 				{
-					UT_ASSERT_EQUAL( cmdLine.flags & flag1Present, flag1Present );
-					UT_ASSERT_EQUAL( cmdLine.flags & flag2Present, flag2Present );
+					UT_EXPECT_EQUAL( cmdLine.flags & flag1Present, flag1Present );
+					UT_EXPECT_EQUAL( cmdLine.flags & flag2Present, flag2Present );
 				}
 				else
 				{
-					UT_ASSERT_EQUAL( cmdLine.flags & flag1Present, 0 );
-					UT_ASSERT_EQUAL( cmdLine.flags & flag2Present, 0 );
+					UT_EXPECT_EQUAL( cmdLine.flags & flag1Present, 0 );
+					UT_EXPECT_EQUAL( cmdLine.flags & flag2Present, 0 );
 				}
-				UT_ASSERT_EQUAL( cmdLine.flags & flag3Present, 0 );
+				UT_EXPECT_EQUAL( cmdLine.flags & flag3Present, 0 );
 			}
 			else
-				UT_ASSERT_EQUAL( cmdLine.flags, 0 );
+				UT_EXPECT_EQUAL( cmdLine.flags, 0 );
 
 			int index = 0;
 			size_t expectedCount = 0;
@@ -182,39 +182,39 @@ class CmdlineTest : public UnitTest
 			if( x&2 )
 				expectedCount += 1;
 
-			UT_ASSERT_EQUAL( cmdLine.parameter['D'].size(), expectedCount );
+			UT_EXPECT_EQUAL( cmdLine.parameter['D'].size(), expectedCount );
 			if( x&2 )
 			{
-				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("fromConfig") );
+				UT_EXPECT_EQUAL( cmdLine.parameter['D'][index++], STRING("fromConfig") );
 			}
 			if( x&1 )
 			{
-				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("optCharWithParam") );
-				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("optCharWithParam") );
-				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("optCharWithParam") );
-				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("optStringWithParam") );
-				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("optStringWithParam") );
-				UT_ASSERT_EQUAL( cmdLine.parameter['D'][index++], STRING("optStringWithParam") );
+				UT_EXPECT_EQUAL( cmdLine.parameter['D'][index++], STRING("optCharWithParam") );
+				UT_EXPECT_EQUAL( cmdLine.parameter['D'][index++], STRING("optCharWithParam") );
+				UT_EXPECT_EQUAL( cmdLine.parameter['D'][index++], STRING("optCharWithParam") );
+				UT_EXPECT_EQUAL( cmdLine.parameter['D'][index++], STRING("optStringWithParam") );
+				UT_EXPECT_EQUAL( cmdLine.parameter['D'][index++], STRING("optStringWithParam") );
+				UT_EXPECT_EQUAL( cmdLine.parameter['D'][index++], STRING("optStringWithParam") );
 			}
 
 			if( x&1 )
 			{
-				UT_ASSERT_EQUAL( cmdLine.argc, 10 );
-				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[0], (const char *)EXE_NAME );
-				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[1], (const char *)"otherParam1" );
-				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[2], (const char *)"otherParam2" );
-				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[3], (const char *)"otherParam3" );
-				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[4], (const char *)"otherParam4" );
-				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[5], (const char *)"otherParam5" );
-				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[6], (const char *)"otherParam6" );
-				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[7], (const char *)"otherParam7" );
-				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[8], (const char *)"otherParam8" );
-				UT_ASSERT_EQUAL( (const char *)cmdLine.argv[9], (const char *)"otherParam9" );
-				UT_ASSERT_EQUAL( (void *)cmdLine.argv[10], (void *)NULL );
+				UT_EXPECT_EQUAL( cmdLine.argc, 10 );
+				UT_EXPECT_EQUAL( (const char *)cmdLine.argv[0], (const char *)EXE_NAME );
+				UT_EXPECT_EQUAL( (const char *)cmdLine.argv[1], (const char *)"otherParam1" );
+				UT_EXPECT_EQUAL( (const char *)cmdLine.argv[2], (const char *)"otherParam2" );
+				UT_EXPECT_EQUAL( (const char *)cmdLine.argv[3], (const char *)"otherParam3" );
+				UT_EXPECT_EQUAL( (const char *)cmdLine.argv[4], (const char *)"otherParam4" );
+				UT_EXPECT_EQUAL( (const char *)cmdLine.argv[5], (const char *)"otherParam5" );
+				UT_EXPECT_EQUAL( (const char *)cmdLine.argv[6], (const char *)"otherParam6" );
+				UT_EXPECT_EQUAL( (const char *)cmdLine.argv[7], (const char *)"otherParam7" );
+				UT_EXPECT_EQUAL( (const char *)cmdLine.argv[8], (const char *)"otherParam8" );
+				UT_EXPECT_EQUAL( (const char *)cmdLine.argv[9], (const char *)"otherParam9" );
+				UT_EXPECT_EQUAL( (void *)cmdLine.argv[10], (void *)NULL );
 			}
 			else
 			{
-				UT_ASSERT_EQUAL( cmdLine.argc, 1 );
+				UT_EXPECT_EQUAL( cmdLine.argc, 1 );
 			}
 		}
 	}

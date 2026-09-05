@@ -94,16 +94,16 @@ class ExifTest : public UnitTest
 
 		bool imageRead = readImageMetaData( fileName, &metaData );
 
-		UT_ASSERT_TRUE( imageRead );
+		UT_EXPECT_TRUE( imageRead );
 
 		if( imageRead )
 		{
-			UT_ASSERT_EQUAL( metaData.exifData.Flash, int16(15) ); 
-			UT_ASSERT_TRUE( metaData.getFlashFired() );
-			UT_ASSERT_TRUE( !metaData.getRedEyeMode() );
-			UT_ASSERT_EQUAL( STRING(metaData.getStrobeReturnStr()), STRING("Strobe return light detected") ) ;
-			UT_ASSERT_EQUAL( STRING(metaData.getFlashModeStr()), STRING("Compulsory flash firing") );
-			UT_ASSERT_EQUAL( metaData.tiffData.Artist, STRING("Martin Gäckler") );
+			UT_EXPECT_EQUAL( metaData.exifData.Flash, int16(15) ); 
+			UT_EXPECT_TRUE( metaData.getFlashFired() );
+			UT_EXPECT_TRUE( !metaData.getRedEyeMode() );
+			UT_EXPECT_EQUAL( STRING(metaData.getStrobeReturnStr()), STRING("Strobe return light detected") ) ;
+			UT_EXPECT_EQUAL( STRING(metaData.getFlashModeStr()), STRING("Compulsory flash firing") );
+			UT_EXPECT_EQUAL( metaData.tiffData.Artist, STRING("Martin Gäckler") );
 		}
 		else
 			std::cout << "Cannot read " << fileName << std::endl;

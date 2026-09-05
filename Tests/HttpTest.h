@@ -108,20 +108,20 @@ class HttpTest : public UnitTest
 		size_t size1 = myClient.getHttpResponse().getContentLength();
 		int status1 = myClient.getHttpResponse().getStatusCode();
 
-		UT_ASSERT_EQUAL( size1, strlen(cp1) );
-		UT_ASSERT_EQUAL( status1, 200 );
+		UT_EXPECT_EQUAL( size1, strlen(cp1) );
+		UT_EXPECT_EQUAL( status1, 200 );
 
 		myClient.Get( "https://www.gaeckler.at/" );
 		const char *cp2 = myClient.getHttpResponse().getBody();
 		size_t size2 = myClient.getHttpResponse().getContentLength();
 		int status2 = myClient.getHttpResponse().getStatusCode();
 		STRING	socketError = myClient.getSocketError();
-		UT_ASSERT_EQUAL( socketError, EMPTY_STRING );
+		UT_EXPECT_EQUAL( socketError, EMPTY_STRING );
 
-		UT_ASSERT_EQUAL( size2, strlen(cp2) );
-		UT_ASSERT_EQUAL( status2, 200 );
+		UT_EXPECT_EQUAL( size2, strlen(cp2) );
+		UT_EXPECT_EQUAL( status2, 200 );
 
-//		UT_ASSERT_EQUAL( size1, size2 );
+//		UT_EXPECT_EQUAL( size1, size2 );
 	}
 	void ServerTest()
 	{
@@ -140,7 +140,7 @@ class HttpTest : public UnitTest
 		myServer.startServer( 6666, 1 );
 		Sleep( 1000 );
 		STRING	socketError = myServer.getSocketError();
-		UT_ASSERT_EQUAL( socketError, EMPTY_STRING );
+		UT_EXPECT_EQUAL( socketError, EMPTY_STRING );
 		if( socketError.isEmpty() )
 		{
 			myClient.Get( url );
@@ -155,22 +155,22 @@ class HttpTest : public UnitTest
 			/*
 				compare with server data
 			*/
-			UT_ASSERT_EQUAL( size, s_serverResult.size() );
+			UT_EXPECT_EQUAL( size, s_serverResult.size() );
 			int status = myClient.getHttpResponse().getStatusCode();
-			UT_ASSERT_EQUAL( status, 200 );
+			UT_EXPECT_EQUAL( status, 200 );
 
 			for( size_t i=0; i<s_serverResult.size(); i++ )
 			{
 				char c1 = cp[i];
 				char c2 = s_serverResult[i];
-				UT_ASSERT_EQUAL( c1, c2 );
+				UT_EXPECT_EQUAL( c1, c2 );
 				if( c1 != c2 )
 					break;
 			}
 			if( size > s_serverResult.size() )
 			{
 				STRING	extra = cp + s_serverResult.size();
-				UT_ASSERT_EQUAL( extra, EMPTY_STRING );
+				UT_EXPECT_EQUAL( extra, EMPTY_STRING );
 			}
 		}
 	}

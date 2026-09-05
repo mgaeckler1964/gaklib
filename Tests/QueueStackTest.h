@@ -94,40 +94,40 @@ class QueueStackTest : public UnitTest
 		queue.push( 3 );
 		queue.push( 1 );
 
-		UT_ASSERT_EQUAL( queue.size(), size_t(2) );
+		UT_EXPECT_EQUAL( queue.size(), size_t(2) );
 		popValue = queue.pop();
-		UT_ASSERT_EQUAL( popValue, 3 );
+		UT_EXPECT_EQUAL( popValue, 3 );
 		popValue = queue.pop();
-		UT_ASSERT_EQUAL( popValue, 1 );
-		UT_ASSERT_EQUAL( queue.size(), size_t(0) );
+		UT_EXPECT_EQUAL( popValue, 1 );
+		UT_EXPECT_EQUAL( queue.size(), size_t(0) );
 
 		stack.push( 3 );
 		stack.push( 1 );
 
-		UT_ASSERT_EQUAL( stack.size(), size_t(2) );
+		UT_EXPECT_EQUAL( stack.size(), size_t(2) );
 		popValue = stack.pop();
-		UT_ASSERT_EQUAL( popValue, 1 );
+		UT_EXPECT_EQUAL( popValue, 1 );
 		popValue = stack.pop();
-		UT_ASSERT_EQUAL( popValue, 3 );
-		UT_ASSERT_EQUAL( stack.size(), size_t(0) );
+		UT_EXPECT_EQUAL( popValue, 3 );
+		UT_EXPECT_EQUAL( stack.size(), size_t(0) );
 
 
 		LockQueue<STRING>	myQueue;
-		UT_ASSERT_EQUAL( myQueue.size(), size_t(0) );
+		UT_EXPECT_EQUAL( myQueue.size(), size_t(0) );
 		for( int i=1; i<4; ++i )
 		{
 			STRING data = "Hello World " + formatNumber(i);
 			myQueue.push( data );
-			UT_ASSERT_EQUAL( myQueue.size(), size_t(i) );
+			UT_EXPECT_EQUAL( myQueue.size(), size_t(i) );
 		}
 		for( int i=1; i<4; ++i )
 		{
 			STRING data = "Hello World " + formatNumber(i);
-			UT_ASSERT_EQUAL( myQueue.size(), size_t(4-i) );
+			UT_EXPECT_EQUAL( myQueue.size(), size_t(4-i) );
 			STRING	text = myQueue.pop();
-			UT_ASSERT_EQUAL( text, data );
+			UT_EXPECT_EQUAL( text, data );
 		}
-		UT_ASSERT_EQUAL( myQueue.total(), size_t(3) );
+		UT_EXPECT_EQUAL( myQueue.total(), size_t(3) );
 	}
 };
 

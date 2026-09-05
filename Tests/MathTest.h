@@ -75,8 +75,8 @@ class MathTest : public UnitTest
 
 		double dist1 = math::distance( point1, point2 );		// the template
 		double dist2 = math::getDistance( point1, point2 );		// my original
-		UT_ASSERT_EQUAL( dist1, dist2 );
-		UT_ASSERT_EQUAL_FLT( dist1, 372023.20, 0.1 );
+		UT_EXPECT_EQUAL( dist1, dist2 );
+		UT_EXPECT_EQUAL_FLT( dist1, 372023.20, 0.1 );
 
 		GeoT	point3( 10.5, 48 ),
 				point4( 5, 48 );
@@ -88,8 +88,8 @@ class MathTest : public UnitTest
 
 		math::Mean< GeoT > mean(testData.cbegin(), testData.cend());
 
-		UT_ASSERT_EQUAL(mean.getMean().longitude, 10.125 );
-		UT_ASSERT_EQUAL(mean.getMean().latitude, 48 );
+		UT_EXPECT_EQUAL(mean.getMean().longitude, 10.125 );
+		UT_EXPECT_EQUAL(mean.getMean().latitude, 48 );
 	}
 
 	void AllGeoTests()
@@ -102,7 +102,7 @@ class MathTest : public UnitTest
 
 		double dist1 = math::distance( point1, point2 );
 		double dist2 = math::distance( point3, point4 );
-		UT_ASSERT_EQUAL(dist1, dist2);
+		UT_EXPECT_EQUAL(dist1, dist2);
 
 		{
 			TestScope scope( "GeoPosition<float>" );
@@ -115,22 +115,22 @@ class MathTest : public UnitTest
 	}
 	void getExponentTest()
 	{
-		UT_ASSERT_EQUAL( 2, math::getExponent( 999.9999 ) );
-		UT_ASSERT_EQUAL( 2, math::getExponent( 100.0 ) );
-		UT_ASSERT_EQUAL( 2, math::getExponent( -100.0 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( 99.99999 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( 10.0 ) );
-		UT_ASSERT_EQUAL( 1, math::getExponent( -10.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( 9.999999 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( 1.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( -1.0 ) );
-		UT_ASSERT_EQUAL( 0, math::getExponent( .0 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( 0.9999999 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( 0.1 ) );
-		UT_ASSERT_EQUAL( -1, math::getExponent( -0.1 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( 0.09999999 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( 0.01 ) );
-		UT_ASSERT_EQUAL( -2, math::getExponent( -0.01 ) );
+		UT_EXPECT_EQUAL( 2, math::getExponent( 999.9999 ) );
+		UT_EXPECT_EQUAL( 2, math::getExponent( 100.0 ) );
+		UT_EXPECT_EQUAL( 2, math::getExponent( -100.0 ) );
+		UT_EXPECT_EQUAL( 1, math::getExponent( 99.99999 ) );
+		UT_EXPECT_EQUAL( 1, math::getExponent( 10.0 ) );
+		UT_EXPECT_EQUAL( 1, math::getExponent( -10.0 ) );
+		UT_EXPECT_EQUAL( 0, math::getExponent( 9.999999 ) );
+		UT_EXPECT_EQUAL( 0, math::getExponent( 1.0 ) );
+		UT_EXPECT_EQUAL( 0, math::getExponent( -1.0 ) );
+		UT_EXPECT_EQUAL( 0, math::getExponent( .0 ) );
+		UT_EXPECT_EQUAL( -1, math::getExponent( 0.9999999 ) );
+		UT_EXPECT_EQUAL( -1, math::getExponent( 0.1 ) );
+		UT_EXPECT_EQUAL( -1, math::getExponent( -0.1 ) );
+		UT_EXPECT_EQUAL( -2, math::getExponent( 0.09999999 ) );
+		UT_EXPECT_EQUAL( -2, math::getExponent( 0.01 ) );
+		UT_EXPECT_EQUAL( -2, math::getExponent( -0.01 ) );
 	}
 	void normalizeTest()
 	{
@@ -138,71 +138,71 @@ class MathTest : public UnitTest
 		double value;
 
 		value = math::normalize( 999.9999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 2, exponent );
+		UT_EXPECT_EQUAL( 9.999999, value );
+		UT_EXPECT_EQUAL( 2, exponent );
 		value = math::normalize( 99.99999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 1, exponent );
+		UT_EXPECT_EQUAL( 9.999999, value );
+		UT_EXPECT_EQUAL( 1, exponent );
 		value = math::normalize( 9.999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( 0, exponent );
+		UT_EXPECT_EQUAL( 9.999999, value );
+		UT_EXPECT_EQUAL( 0, exponent );
 		value = math::normalize( .9999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( -1, exponent );
+		UT_EXPECT_EQUAL( 9.999999, value );
+		UT_EXPECT_EQUAL( -1, exponent );
 		value = math::normalize( .09999999, &exponent );
-		UT_ASSERT_EQUAL( 9.999999, value );
-		UT_ASSERT_EQUAL( -2, exponent );
+		UT_EXPECT_EQUAL( 9.999999, value );
+		UT_EXPECT_EQUAL( -2, exponent );
 
 		value = math::normalize( -999.9999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 2, exponent );
+		UT_EXPECT_EQUAL( -9.999999, value );
+		UT_EXPECT_EQUAL( 2, exponent );
 		value = math::normalize( -99.99999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 1, exponent );
+		UT_EXPECT_EQUAL( -9.999999, value );
+		UT_EXPECT_EQUAL( 1, exponent );
 		value = math::normalize( -9.999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( 0, exponent );
+		UT_EXPECT_EQUAL( -9.999999, value );
+		UT_EXPECT_EQUAL( 0, exponent );
 		value = math::normalize( -0.9999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( -1, exponent );
+		UT_EXPECT_EQUAL( -9.999999, value );
+		UT_EXPECT_EQUAL( -1, exponent );
 		value = math::normalize( -0.09999999, &exponent );
-		UT_ASSERT_EQUAL( -9.999999, value );
-		UT_ASSERT_EQUAL( -2, exponent );
+		UT_EXPECT_EQUAL( -9.999999, value );
+		UT_EXPECT_EQUAL( -2, exponent );
 	}
 	void minMaxMeanTest()
 	{
 		math::MinMax<int>	minMax;
 
-		UT_ASSERT_LESS( 0, minMax.getMin() );
-		UT_ASSERT_GREATER( 0, minMax.getMax() );
+		UT_EXPECT_LESS( 0, minMax.getMin() );
+		UT_EXPECT_GREATER( 0, minMax.getMax() );
 
 		minMax.test( 5 );
 
-		UT_ASSERT_EQUAL( 5, minMax.getMin() );
-		UT_ASSERT_EQUAL( 5, minMax.getMax() );
+		UT_EXPECT_EQUAL( 5, minMax.getMin() );
+		UT_EXPECT_EQUAL( 5, minMax.getMax() );
 
 		minMax.test( 10 );
 		minMax.test( 3 );
 
-		UT_ASSERT_EQUAL( 3, minMax.getMin() );
-		UT_ASSERT_EQUAL( 10, minMax.getMax() );
+		UT_EXPECT_EQUAL( 3, minMax.getMin() );
+		UT_EXPECT_EQUAL( 10, minMax.getMax() );
 
 		math::MinMax<double>	minMaxD;
 
 		minMaxD.test( -4 );
 		minMaxD.test( -8 );
-		UT_ASSERT_EQUAL( -8, minMaxD.getMin() );
-		UT_ASSERT_EQUAL( -4, minMaxD.getMax() );
+		UT_EXPECT_EQUAL( -8, minMaxD.getMin() );
+		UT_EXPECT_EQUAL( -4, minMaxD.getMax() );
 
 		math::Mean<double>	mean;
 		mean.add( 8.0 );
-		UT_ASSERT_EQUAL( 8.0, mean.getMean() );
+		UT_EXPECT_EQUAL( 8.0, mean.getMean() );
 		mean.add( 8.0 );
-		UT_ASSERT_EQUAL( 8.0, mean.getMean() );
+		UT_EXPECT_EQUAL( 8.0, mean.getMean() );
 		mean.add( 0.0 );
 		mean.add( 0.0 );
-		UT_ASSERT_EQUAL( 4.0, mean.getMean() );
-		UT_ASSERT_EQUAL( 4, mean.getCount() );
+		UT_EXPECT_EQUAL( 4.0, mean.getMean() );
+		UT_EXPECT_EQUAL( 4, mean.getCount() );
 
 		{
 			int tmp[] = { 3,16,8 };
@@ -211,13 +211,13 @@ class MathTest : public UnitTest
 			math::MinMax<int>	minMax( datas.cbegin(), datas.cend() );
 			math::Mean<int>		mean( datas.cbegin(), datas.cend() );
 
-			UT_ASSERT_EQUAL(minMax.getMin(), 3);
-			UT_ASSERT_EQUAL(minMax.getMax(), 16);
-			UT_ASSERT_EQUAL(minMax.getRange(), 13);
-			UT_ASSERT_EQUAL(minMax.getMidRange(), 6);
+			UT_EXPECT_EQUAL(minMax.getMin(), 3);
+			UT_EXPECT_EQUAL(minMax.getMax(), 16);
+			UT_EXPECT_EQUAL(minMax.getRange(), 13);
+			UT_EXPECT_EQUAL(minMax.getMidRange(), 6);
 
-			UT_ASSERT_EQUAL(mean.getCount(), 3);
-			UT_ASSERT_EQUAL(mean.getMean(), 9);
+			UT_EXPECT_EQUAL(mean.getCount(), 3);
+			UT_EXPECT_EQUAL(mean.getMean(), 9);
 		}
 	}
 	void scalarProductTest()
@@ -227,7 +227,7 @@ class MathTest : public UnitTest
 		Array<double> vec1( tmp1 );
 		Array<double> vec2( tmp2 );
 		double result = math::scalarProduct( vec1, vec2 );
-		UT_ASSERT_EQUAL(result, 16);
+		UT_EXPECT_EQUAL(result, 16);
 	}
 	void vectorSumTest()
 	{
@@ -236,13 +236,13 @@ class MathTest : public UnitTest
 		Array<int> vec1( tmp1 );
 		Array<int> vec2( tmp2 );
 		Array<int> result1 = math::vectorSum( vec1, vec2 );
-		UT_ASSERT_EQUAL(result1[0], 1);
-		UT_ASSERT_EQUAL(result1[1], 4);
-		UT_ASSERT_EQUAL(result1[2], 666);
+		UT_EXPECT_EQUAL(result1[0], 1);
+		UT_EXPECT_EQUAL(result1[1], 4);
+		UT_EXPECT_EQUAL(result1[2], 666);
 		Array<int> result2 = math::vectorSum( vec2, vec1 );
-		UT_ASSERT_EQUAL(result1[0], result2[0]);
-		UT_ASSERT_EQUAL(result1[1], result2[1]);
-		UT_ASSERT_EQUAL(result1[2], result2[2]);
+		UT_EXPECT_EQUAL(result1[0], result2[0]);
+		UT_EXPECT_EQUAL(result1[1], result2[1]);
+		UT_EXPECT_EQUAL(result1[2], result2[2]);
 	}
 
 	virtual void PerformTest()

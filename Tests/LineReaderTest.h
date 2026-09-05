@@ -103,7 +103,7 @@ class LineReaderTest : public UnitTest
 			tmpLine = test.gets();
 		test.setpos( pos );
 		line = test.gets();
-		UT_ASSERT_EQUAL( line, secondLine );
+		UT_EXPECT_EQUAL( line, secondLine );
 
 		test.setpos( 0 );
 		while( true )
@@ -115,8 +115,8 @@ class LineReaderTest : public UnitTest
 				break;
 		}
 
-		UT_ASSERT_EQUAL( line, STRING("last") );
-		UT_ASSERT_EQUAL( secondLine, STRING("first") );
+		UT_EXPECT_EQUAL( line, STRING("last") );
+		UT_EXPECT_EQUAL( secondLine, STRING("first") );
 	}
 };
 

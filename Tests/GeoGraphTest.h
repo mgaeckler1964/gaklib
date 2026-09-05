@@ -94,10 +94,10 @@ class GeoGraphTest : public UnitTest
 		TestScope scope( "PerformTest" );
 
 		math::Rectangle< math::GeoPosition<double> > bbox = theMVV.getBoundingBox();
-		UT_ASSERT_EQUAL( theMVV.minLon, bbox.topLeft.longitude );
-		UT_ASSERT_EQUAL( theMVV.maxLat, bbox.topLeft.latitude );
-		UT_ASSERT_EQUAL( theMVV.maxLon, bbox.bottomRight.longitude );
-		UT_ASSERT_EQUAL( theMVV.minLat, bbox.bottomRight.latitude );
+		UT_EXPECT_EQUAL( theMVV.minLon, bbox.topLeft.longitude );
+		UT_EXPECT_EQUAL( theMVV.maxLat, bbox.topLeft.latitude );
+		UT_EXPECT_EQUAL( theMVV.maxLon, bbox.bottomRight.longitude );
+		UT_EXPECT_EQUAL( theMVV.minLat, bbox.bottomRight.latitude );
 
 		Array<Bahnhoefe>	theSmallMVV;
 		theMVV.getRegion( 
@@ -110,18 +110,18 @@ class GeoGraphTest : public UnitTest
 			), 
 			&theSmallMVV 
 		);
-		UT_ASSERT_TRUE( theSmallMVV.hasElement( Marienplatz_U ) );
-		UT_ASSERT_TRUE( theSmallMVV.hasElement( Ostbahnhof_U ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( LaimerPlatz ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( Stachus_U ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( Trudering_U ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( MessestadtOst ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( Odeonsplatz_U3 ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( SendlingerTor_U3 ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( Kolumbusplatz ) );
+		UT_EXPECT_TRUE( theSmallMVV.hasElement( Marienplatz_U ) );
+		UT_EXPECT_TRUE( theSmallMVV.hasElement( Ostbahnhof_U ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( LaimerPlatz ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( Stachus_U ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( Trudering_U ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( MessestadtOst ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( Odeonsplatz_U3 ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( SendlingerTor_U3 ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( Kolumbusplatz ) );
 		
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( Marienplatz_S ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( Ostbahnhof_S ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( Marienplatz_S ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( Ostbahnhof_S ) );
 
 		theMVV.moveNode( SBAHN_LAYER, UBAHN_LAYER, Marienplatz_S );
 		theSmallMVV.clear();
@@ -135,7 +135,7 @@ class GeoGraphTest : public UnitTest
 			), 
 			&theSmallMVV 
 		);
-		UT_ASSERT_TRUE( theSmallMVV.hasElement( Marienplatz_S ) );
+		UT_EXPECT_TRUE( theSmallMVV.hasElement( Marienplatz_S ) );
 	}
 };
 

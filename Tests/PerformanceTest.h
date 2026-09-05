@@ -169,9 +169,9 @@ class PerformanceTest : public UnitTest
 				myStdGakVector += test;
 			}
 		}
-		UT_ASSERT_EQUAL( myStdGakVector.size(), size_t(numItems*2) );
+		UT_EXPECT_EQUAL( myStdGakVector.size(), size_t(numItems*2) );
 
-		UT_ASSERT_LESSEQ( double(endTimeGak)/double(CLOCKS_PER_SEC), double(endTimeStd)/double(CLOCKS_PER_SEC) );
+		UT_EXPECT_LESSEQ( double(endTimeGak)/double(CLOCKS_PER_SEC), double(endTimeStd)/double(CLOCKS_PER_SEC) );
 
 		std::cout << "GAKLIB: " << endTimeGak << " vs STDLIB: " << endTimeStd << '\n';
 		std::cout << "std:string in gak::Array: " << endTimeStdGak << " vs " << "gak::STRING in std::vector: " << endTimeGakStd << '\n';

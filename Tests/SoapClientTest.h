@@ -141,17 +141,17 @@ class SoapClientTest : public UnitTest
 		try
 		{
 			result = myCsharpService.HelloWorld();
-			UT_ASSERT_EQUAL( result, STRING("Hello World") );
+			UT_EXPECT_EQUAL( result, STRING("Hello World") );
 
 			result = myCsharpService.StrCat( "Martin", "Gaeckler" );
-			UT_ASSERT_EQUAL( result, STRING("Martin Gaeckler") );
+			UT_EXPECT_EQUAL( result, STRING("Martin Gaeckler") );
 
 			Service1::TestClass_t	param;
 			param.name = "Martin Gaeckler";
 			param.id = 1;
 
 			result = myCsharpService.extractName( param );
-			UT_ASSERT_EQUAL( result, STRING("Martin Gaeckler") );
+			UT_EXPECT_EQUAL( result, STRING("Martin Gaeckler") );
 		}
 		catch( ... )
 		{
@@ -188,10 +188,10 @@ class SoapClientTest : public UnitTest
 			result = myPHPservice.getBody();
 			std::cout << result << '\n';
 		}
-		UT_ASSERT_TRUE( gotException );
+		UT_EXPECT_TRUE( gotException );
 
 		result = myPHPservice.get_message( "Martin" );
-		UT_ASSERT_EQUAL( result, STRING("Welcome Martin.") );
+		UT_EXPECT_EQUAL( result, STRING("Welcome Martin.") );
 		std::cout << result << '\n';
 
 /*
@@ -209,12 +209,12 @@ class SoapClientTest : public UnitTest
 //		cout << result << '\n';
 //		result = myPHPservice.getHttpResponse().getBody();
 //		cout << result << '\n';
-		UT_ASSERT_NOT_NULL( xmlResult );
+		UT_EXPECT_NOT_NULL( xmlResult );
 		if( xmlResult )
 		{
 			Array<myService::MyRecord_t>	resultTable;
 			myPHPservice.fillMyRecord( resultTable, xmlResult );
-			UT_ASSERT_EQUAL( resultTable.size(), size_t(3) );
+			UT_EXPECT_EQUAL( resultTable.size(), size_t(3) );
 
 			for( size_t i=0; i<resultTable.size(); i++ )
 			{
@@ -222,8 +222,8 @@ class SoapClientTest : public UnitTest
 
 				std::cout << newItem.ID << ' ' << newItem.YourName << '\n';
 
-				UT_ASSERT_EQUAL( int(newItem.ID), int(i+2) );
-				UT_ASSERT_EQUAL( newItem.YourName, STRING("Hello Martin") );
+				UT_EXPECT_EQUAL( int(newItem.ID), int(i+2) );
+				UT_EXPECT_EQUAL( newItem.YourName, STRING("Hello Martin") );
 			}
 //			result = xmlResult->getValue( XML_MODE );
 //			cout << result << '\n';

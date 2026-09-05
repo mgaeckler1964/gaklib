@@ -125,7 +125,7 @@ class PipelineTest : public UnitTest
 				cin >> c;
 				if( !cin || !c )
 					break;
-				UT_ASSERT_EQUAL( c, *cp );
+				UT_EXPECT_EQUAL( c, *cp );
 				std::cout << getThreadID() << " Filter: " << char(ansiToUpper( c )) << std::endl;
 				cout << char( ansiToUpper( c ) );
 				if( c != *cp )
@@ -134,7 +134,7 @@ class PipelineTest : public UnitTest
 				numData++;
 				Sleep( 1000 );
 			}
-			UT_ASSERT_EQUAL( strlen( pipeTestText ), numData );
+			UT_EXPECT_EQUAL( strlen( pipeTestText ), numData );
 		}
 	};
 
@@ -160,7 +160,7 @@ class PipelineTest : public UnitTest
 				cin >> c;
 				if( !cin || !c )
 					break;
-				UT_ASSERT_EQUAL( c, char(ansiToUpper( *cp )) );
+				UT_EXPECT_EQUAL( c, char(ansiToUpper( *cp )) );
 				std::cout << getThreadID() << " Consumer: " << char(ansiToUpper( c )) << std::endl;
 				if( c != ansiToUpper( *cp ) )
 					break;
@@ -168,7 +168,7 @@ class PipelineTest : public UnitTest
 				numData++;
 				Sleep( 1000 );
 			}
-			UT_ASSERT_EQUAL( strlen( pipeTestText ), numData );
+			UT_EXPECT_EQUAL( strlen( pipeTestText ), numData );
 		}
 	};
 

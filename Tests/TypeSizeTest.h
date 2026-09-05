@@ -89,55 +89,55 @@ class TypeSizeTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "TypeSizeTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
-		UT_ASSERT_EQUAL( sizeof( uint8 ), size_t(1) );
-		UT_ASSERT_EQUAL( sizeof( int8 ), size_t(1) );
+		UT_EXPECT_EQUAL( sizeof( uint8 ), size_t(1) );
+		UT_EXPECT_EQUAL( sizeof( int8 ), size_t(1) );
 
-		UT_ASSERT_EQUAL( sizeof( uint16 ), size_t(2) );
-		UT_ASSERT_EQUAL( sizeof( int16 ), size_t(2) );
+		UT_EXPECT_EQUAL( sizeof( uint16 ), size_t(2) );
+		UT_EXPECT_EQUAL( sizeof( int16 ), size_t(2) );
 
-		UT_ASSERT_EQUAL( sizeof( uint32 ), size_t(4) );
-		UT_ASSERT_EQUAL( sizeof( int32 ), size_t(4) );
+		UT_EXPECT_EQUAL( sizeof( uint32 ), size_t(4) );
+		UT_EXPECT_EQUAL( sizeof( int32 ), size_t(4) );
 
-		UT_ASSERT_EQUAL( sizeof( uint64 ), size_t(8) );
-		UT_ASSERT_EQUAL( sizeof( int64 ), size_t(8) );
+		UT_EXPECT_EQUAL( sizeof( uint64 ), size_t(8) );
+		UT_EXPECT_EQUAL( sizeof( int64 ), size_t(8) );
 
-		UT_ASSERT_EQUAL( sizeof( ssize_t ), sizeof( std::size_t ) );
+		UT_EXPECT_EQUAL( sizeof( ssize_t ), sizeof( std::size_t ) );
 
-		UT_ASSERT_TRUE( is_float<double>::value );
-		UT_ASSERT_TRUE( is_float<float>::value );
-		UT_ASSERT_FALSE( is_float<int>::value );
-		UT_ASSERT_FALSE( is_float<bool>::value );
-		UT_ASSERT_FALSE( is_float< Array<int> >::value );
+		UT_EXPECT_TRUE( is_float<double>::value );
+		UT_EXPECT_TRUE( is_float<float>::value );
+		UT_EXPECT_FALSE( is_float<int>::value );
+		UT_EXPECT_FALSE( is_float<bool>::value );
+		UT_EXPECT_FALSE( is_float< Array<int> >::value );
 
-		UT_ASSERT_TRUE( is_float<const float>::value );
-		UT_ASSERT_TRUE( is_float<const double>::value );
-		UT_ASSERT_FALSE( is_float<const int>::value );
-		UT_ASSERT_FALSE( is_float<const bool>::value );
-		UT_ASSERT_FALSE( is_float< const Array<int> >::value );
+		UT_EXPECT_TRUE( is_float<const float>::value );
+		UT_EXPECT_TRUE( is_float<const double>::value );
+		UT_EXPECT_FALSE( is_float<const int>::value );
+		UT_EXPECT_FALSE( is_float<const bool>::value );
+		UT_EXPECT_FALSE( is_float< const Array<int> >::value );
 
-		UT_ASSERT_FALSE( is_integral<double>::value );
-		UT_ASSERT_FALSE( is_integral<float>::value );
-		UT_ASSERT_TRUE( is_integral<int>::value );
-		UT_ASSERT_TRUE( is_integral<bool>::value );
-		UT_ASSERT_FALSE( is_integral< Array<int> >::value );
+		UT_EXPECT_FALSE( is_integral<double>::value );
+		UT_EXPECT_FALSE( is_integral<float>::value );
+		UT_EXPECT_TRUE( is_integral<int>::value );
+		UT_EXPECT_TRUE( is_integral<bool>::value );
+		UT_EXPECT_FALSE( is_integral< Array<int> >::value );
 
-		UT_ASSERT_FALSE( is_integral<const double>::value );
-		UT_ASSERT_FALSE( is_integral<const float>::value );
-		UT_ASSERT_TRUE( is_integral<const int>::value );
-		UT_ASSERT_TRUE( is_integral<const bool>::value );
-		UT_ASSERT_FALSE( is_integral< const Array<int> >::value );
+		UT_EXPECT_FALSE( is_integral<const double>::value );
+		UT_EXPECT_FALSE( is_integral<const float>::value );
+		UT_EXPECT_TRUE( is_integral<const int>::value );
+		UT_EXPECT_TRUE( is_integral<const bool>::value );
+		UT_EXPECT_FALSE( is_integral< const Array<int> >::value );
 
-		UT_ASSERT_TRUE( is_arithmetic<double>::value );
-		UT_ASSERT_TRUE( is_arithmetic<float>::value );
-		UT_ASSERT_TRUE( is_arithmetic<int>::value );
-		UT_ASSERT_TRUE( is_arithmetic<bool>::value );
-		UT_ASSERT_FALSE( is_arithmetic< Array<int> >::value );
+		UT_EXPECT_TRUE( is_arithmetic<double>::value );
+		UT_EXPECT_TRUE( is_arithmetic<float>::value );
+		UT_EXPECT_TRUE( is_arithmetic<int>::value );
+		UT_EXPECT_TRUE( is_arithmetic<bool>::value );
+		UT_EXPECT_FALSE( is_arithmetic< Array<int> >::value );
 
-		UT_ASSERT_TRUE( is_arithmetic<const double>::value );
-		UT_ASSERT_TRUE( is_arithmetic<const float>::value );
-		UT_ASSERT_TRUE( is_arithmetic<const int>::value );
-		UT_ASSERT_TRUE( is_arithmetic<const bool>::value );
-		UT_ASSERT_FALSE( is_arithmetic< const Array<int> >::value );
+		UT_EXPECT_TRUE( is_arithmetic<const double>::value );
+		UT_EXPECT_TRUE( is_arithmetic<const float>::value );
+		UT_EXPECT_TRUE( is_arithmetic<const int>::value );
+		UT_EXPECT_TRUE( is_arithmetic<const bool>::value );
+		UT_EXPECT_FALSE( is_arithmetic< const Array<int> >::value );
 	}
 };
 

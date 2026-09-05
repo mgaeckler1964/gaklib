@@ -88,7 +88,7 @@ class StringTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "StringTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
-		UT_ASSERT_TRUE( checkData() );
+		UT_EXPECT_TRUE( checkData() );
 
 		ConstructorTest();
 		ModifyingTests();
@@ -107,67 +107,67 @@ class StringTest : public UnitTest
 
 		// isNull, isEmpty and operator ! are tested during constructor test
 
-		UT_ASSERT_EQUAL( 0, testLower.compare( "hello world" LOWER_UMLAUT ) );
-		UT_ASSERT_GREATER( 0, testLower.compare( "zz top" ) );
-		UT_ASSERT_LESS( 0, testLower.compare( "abba" ) );
+		UT_EXPECT_EQUAL( 0, testLower.compare( "hello world" LOWER_UMLAUT ) );
+		UT_EXPECT_GREATER( 0, testLower.compare( "zz top" ) );
+		UT_EXPECT_LESS( 0, testLower.compare( "abba" ) );
 
-		UT_ASSERT_EQUAL( 0, testLower.compare( STRING("hello world" LOWER_UMLAUT) ) );
-		UT_ASSERT_GREATER( 0, testLower.compare( STRING("zz top") ) );
-		UT_ASSERT_LESS( 0, testLower.compare( STRING("abba") ) );
+		UT_EXPECT_EQUAL( 0, testLower.compare( STRING("hello world" LOWER_UMLAUT) ) );
+		UT_EXPECT_GREATER( 0, testLower.compare( STRING("zz top") ) );
+		UT_EXPECT_LESS( 0, testLower.compare( STRING("abba") ) );
 
-		UT_ASSERT_EQUAL( 0, testLower.compareI( "HELLO WORLD" UPPER_UMLAUT) );
-		UT_ASSERT_GREATER( 0, testUpper.compareI( "zz zop" ) );
-		UT_ASSERT_LESS( 0, testLower.compareI( "ABBA" ) );
+		UT_EXPECT_EQUAL( 0, testLower.compareI( "HELLO WORLD" UPPER_UMLAUT) );
+		UT_EXPECT_GREATER( 0, testUpper.compareI( "zz zop" ) );
+		UT_EXPECT_LESS( 0, testLower.compareI( "ABBA" ) );
 
-		UT_ASSERT_EQUAL( 0, testLower.compareI( testUpper ) );
-		UT_ASSERT_GREATER( 0, testUpper.compareI( STRING("zz zop") ) );
-		UT_ASSERT_LESS( 0, testLower.compareI( STRING("ABBA") ) );
+		UT_EXPECT_EQUAL( 0, testLower.compareI( testUpper ) );
+		UT_EXPECT_GREATER( 0, testUpper.compareI( STRING("zz zop") ) );
+		UT_EXPECT_LESS( 0, testLower.compareI( STRING("ABBA") ) );
 
-		UT_ASSERT_TRUE( testLower != "abba" );
-		UT_ASSERT_FALSE( testLower != "hello world" LOWER_UMLAUT);
-		UT_ASSERT_TRUE( testLower != STRING("abba") );
-		UT_ASSERT_FALSE( testLower != STRING("hello world" LOWER_UMLAUT) );
+		UT_EXPECT_TRUE( testLower != "abba" );
+		UT_EXPECT_FALSE( testLower != "hello world" LOWER_UMLAUT);
+		UT_EXPECT_TRUE( testLower != STRING("abba") );
+		UT_EXPECT_FALSE( testLower != STRING("hello world" LOWER_UMLAUT) );
 
-		UT_ASSERT_FALSE( testLower == "abba" );
-		UT_ASSERT_TRUE( testLower == "hello world" LOWER_UMLAUT);
-		UT_ASSERT_FALSE( testLower == STRING("abba") );
-		UT_ASSERT_TRUE( testLower == STRING("hello world" LOWER_UMLAUT) );
+		UT_EXPECT_FALSE( testLower == "abba" );
+		UT_EXPECT_TRUE( testLower == "hello world" LOWER_UMLAUT);
+		UT_EXPECT_FALSE( testLower == STRING("abba") );
+		UT_EXPECT_TRUE( testLower == STRING("hello world" LOWER_UMLAUT) );
 
-		UT_ASSERT_TRUE( testLower <= "hello world" LOWER_UMLAUT );
-		UT_ASSERT_TRUE( testLower >= "hello world" LOWER_UMLAUT );
-		UT_ASSERT_FALSE( testLower < "hello world" LOWER_UMLAUT );
-		UT_ASSERT_FALSE( testLower > "hello world" LOWER_UMLAUT );
+		UT_EXPECT_TRUE( testLower <= "hello world" LOWER_UMLAUT );
+		UT_EXPECT_TRUE( testLower >= "hello world" LOWER_UMLAUT );
+		UT_EXPECT_FALSE( testLower < "hello world" LOWER_UMLAUT );
+		UT_EXPECT_FALSE( testLower > "hello world" LOWER_UMLAUT );
 
-		UT_ASSERT_TRUE( testLower <= "zz top" );
-		UT_ASSERT_FALSE( testLower >= "zz top" );
-		UT_ASSERT_TRUE( testLower < "zz top" );
-		UT_ASSERT_FALSE( testLower > "zz top" );
+		UT_EXPECT_TRUE( testLower <= "zz top" );
+		UT_EXPECT_FALSE( testLower >= "zz top" );
+		UT_EXPECT_TRUE( testLower < "zz top" );
+		UT_EXPECT_FALSE( testLower > "zz top" );
 
-		UT_ASSERT_FALSE( testLower <= "abba" );
-		UT_ASSERT_TRUE( testLower >= "abba" );
-		UT_ASSERT_FALSE( testLower < "abba" );
-		UT_ASSERT_TRUE( testLower > "abba" );
+		UT_EXPECT_FALSE( testLower <= "abba" );
+		UT_EXPECT_TRUE( testLower >= "abba" );
+		UT_EXPECT_FALSE( testLower < "abba" );
+		UT_EXPECT_TRUE( testLower > "abba" );
 
-		UT_ASSERT_TRUE( testLower <= STRING("hello world" LOWER_UMLAUT ) );
-		UT_ASSERT_TRUE( testLower >= STRING("hello world" LOWER_UMLAUT ) );
-		UT_ASSERT_FALSE( testLower < STRING("hello world" LOWER_UMLAUT ) );
-		UT_ASSERT_FALSE( testLower > STRING("hello world" LOWER_UMLAUT ) );
+		UT_EXPECT_TRUE( testLower <= STRING("hello world" LOWER_UMLAUT ) );
+		UT_EXPECT_TRUE( testLower >= STRING("hello world" LOWER_UMLAUT ) );
+		UT_EXPECT_FALSE( testLower < STRING("hello world" LOWER_UMLAUT ) );
+		UT_EXPECT_FALSE( testLower > STRING("hello world" LOWER_UMLAUT ) );
 
-		UT_ASSERT_TRUE( testLower <= STRING("zz top") );
-		UT_ASSERT_FALSE( testLower >= STRING("zz top") );
-		UT_ASSERT_TRUE( testLower < STRING("zz top") );
-		UT_ASSERT_FALSE( testLower > STRING("zz top") );
+		UT_EXPECT_TRUE( testLower <= STRING("zz top") );
+		UT_EXPECT_FALSE( testLower >= STRING("zz top") );
+		UT_EXPECT_TRUE( testLower < STRING("zz top") );
+		UT_EXPECT_FALSE( testLower > STRING("zz top") );
 
-		UT_ASSERT_FALSE( testLower <= STRING("abba") );
-		UT_ASSERT_TRUE( testLower >= STRING("abba") );
-		UT_ASSERT_FALSE( testLower < STRING("abba") );
-		UT_ASSERT_TRUE( testLower > STRING("abba") );
+		UT_EXPECT_FALSE( testLower <= STRING("abba") );
+		UT_EXPECT_TRUE( testLower >= STRING("abba") );
+		UT_EXPECT_FALSE( testLower < STRING("abba") );
+		UT_EXPECT_TRUE( testLower > STRING("abba") );
 
-		UT_ASSERT_LESS( STRING("הצü"), STRING("bcd") );
-		UT_ASSERT_GREATER( STRING("הצü"), STRING("abc") );
-		UT_ASSERT_LESS( STRING("ִצü"), STRING("abc") );
+		UT_EXPECT_LESS( STRING("הצü"), STRING("bcd") );
+		UT_EXPECT_GREATER( STRING("הצü"), STRING("abc") );
+		UT_EXPECT_LESS( STRING("ִצü"), STRING("abc") );
 
-		UT_ASSERT_LESS( STRING( "abc" ), STRING( "abcd" ) );
+		UT_EXPECT_LESS( STRING( "abc" ), STRING( "abcd" ) );
 	}
 	void CiComparingTests()
 	{
@@ -176,105 +176,105 @@ class StringTest : public UnitTest
 
 		// isNull, isEmpty and operator ! are tested during constructor test
 
-		UT_ASSERT_EQUAL( 0, testLower.compare( "hello world" LOWER_UMLAUT ) );
-		UT_ASSERT_GREATER( 0, testLower.compare( "zz top" ) );
-		UT_ASSERT_LESS( 0, testLower.compare( "abba" ) );
+		UT_EXPECT_EQUAL( 0, testLower.compare( "hello world" LOWER_UMLAUT ) );
+		UT_EXPECT_GREATER( 0, testLower.compare( "zz top" ) );
+		UT_EXPECT_LESS( 0, testLower.compare( "abba" ) );
 
-		UT_ASSERT_EQUAL( 0, testLower.compare( "HELLO WORLD" UPPER_UMLAUT ) );
-		UT_ASSERT_GREATER( 0, testLower.compare( "ZZ TOP" ) );
-		UT_ASSERT_LESS( 0, testLower.compare( "ABBA" ) );
+		UT_EXPECT_EQUAL( 0, testLower.compare( "HELLO WORLD" UPPER_UMLAUT ) );
+		UT_EXPECT_GREATER( 0, testLower.compare( "ZZ TOP" ) );
+		UT_EXPECT_LESS( 0, testLower.compare( "ABBA" ) );
 
-		UT_ASSERT_EQUAL( 0, testLower.compare( STRING("hello world" LOWER_UMLAUT) ) );
-		UT_ASSERT_GREATER( 0, testLower.compare( STRING("zz top") ) );
-		UT_ASSERT_GREATER( 0, testLower.compare( STRING("zz top") ) );
+		UT_EXPECT_EQUAL( 0, testLower.compare( STRING("hello world" LOWER_UMLAUT) ) );
+		UT_EXPECT_GREATER( 0, testLower.compare( STRING("zz top") ) );
+		UT_EXPECT_GREATER( 0, testLower.compare( STRING("zz top") ) );
 
-		UT_ASSERT_EQUAL( 0, testLower.compare( STRING("HELLO WORLD" UPPER_UMLAUT) ) );
-		UT_ASSERT_GREATER( 0, testLower.compare( STRING("ZZ TOP") ) );
-		UT_ASSERT_GREATER( 0, testLower.compare( STRING("ZZ TOP") ) );
+		UT_EXPECT_EQUAL( 0, testLower.compare( STRING("HELLO WORLD" UPPER_UMLAUT) ) );
+		UT_EXPECT_GREATER( 0, testLower.compare( STRING("ZZ TOP") ) );
+		UT_EXPECT_GREATER( 0, testLower.compare( STRING("ZZ TOP") ) );
 
-		UT_ASSERT_TRUE( testLower != "abba" );
-		UT_ASSERT_FALSE( testLower != "hello world" LOWER_UMLAUT);
-		UT_ASSERT_TRUE( testLower != STRING("abba") );
-		UT_ASSERT_FALSE( testLower != STRING("hello world" LOWER_UMLAUT) );
+		UT_EXPECT_TRUE( testLower != "abba" );
+		UT_EXPECT_FALSE( testLower != "hello world" LOWER_UMLAUT);
+		UT_EXPECT_TRUE( testLower != STRING("abba") );
+		UT_EXPECT_FALSE( testLower != STRING("hello world" LOWER_UMLAUT) );
 
-		UT_ASSERT_TRUE( testLower != "ABBA" );
-		UT_ASSERT_FALSE( testLower != "HELLO WORLD" UPPER_UMLAUT);
-		UT_ASSERT_TRUE( testLower != STRING("ABBA") );
-		UT_ASSERT_FALSE( testLower != STRING("HELLO WORLD" UPPER_UMLAUT) );
+		UT_EXPECT_TRUE( testLower != "ABBA" );
+		UT_EXPECT_FALSE( testLower != "HELLO WORLD" UPPER_UMLAUT);
+		UT_EXPECT_TRUE( testLower != STRING("ABBA") );
+		UT_EXPECT_FALSE( testLower != STRING("HELLO WORLD" UPPER_UMLAUT) );
 
-		UT_ASSERT_FALSE( testLower == "abba" );
-		UT_ASSERT_TRUE( testLower == "hello world" LOWER_UMLAUT);
-		UT_ASSERT_FALSE( testLower == STRING("abba") );
-		UT_ASSERT_TRUE( testLower == STRING("hello world" LOWER_UMLAUT) );
+		UT_EXPECT_FALSE( testLower == "abba" );
+		UT_EXPECT_TRUE( testLower == "hello world" LOWER_UMLAUT);
+		UT_EXPECT_FALSE( testLower == STRING("abba") );
+		UT_EXPECT_TRUE( testLower == STRING("hello world" LOWER_UMLAUT) );
 
-		UT_ASSERT_FALSE( testLower == "ABBA" );
-		UT_ASSERT_TRUE( testLower == "HELLO WORLD" LOWER_UMLAUT);
-		UT_ASSERT_FALSE( testLower == STRING("ABBA") );
-		UT_ASSERT_TRUE( testLower == STRING("HELLO WORLD" LOWER_UMLAUT) );
+		UT_EXPECT_FALSE( testLower == "ABBA" );
+		UT_EXPECT_TRUE( testLower == "HELLO WORLD" LOWER_UMLAUT);
+		UT_EXPECT_FALSE( testLower == STRING("ABBA") );
+		UT_EXPECT_TRUE( testLower == STRING("HELLO WORLD" LOWER_UMLAUT) );
 
-		UT_ASSERT_TRUE( testLower <= "hello world" LOWER_UMLAUT );
-		UT_ASSERT_TRUE( testLower >= "hello world" LOWER_UMLAUT );
-		UT_ASSERT_FALSE( testLower < "hello world" LOWER_UMLAUT );
-		UT_ASSERT_FALSE( testLower > "hello world" LOWER_UMLAUT );
+		UT_EXPECT_TRUE( testLower <= "hello world" LOWER_UMLAUT );
+		UT_EXPECT_TRUE( testLower >= "hello world" LOWER_UMLAUT );
+		UT_EXPECT_FALSE( testLower < "hello world" LOWER_UMLAUT );
+		UT_EXPECT_FALSE( testLower > "hello world" LOWER_UMLAUT );
 
-		UT_ASSERT_TRUE( testLower <= "HELLO WORLD" LOWER_UMLAUT );
-		UT_ASSERT_TRUE( testLower >= "HELLO WORLD" LOWER_UMLAUT );
-		UT_ASSERT_FALSE( testLower < "HELLO WORLD" LOWER_UMLAUT );
-		UT_ASSERT_FALSE( testLower > "HELLO WORLD" LOWER_UMLAUT );
+		UT_EXPECT_TRUE( testLower <= "HELLO WORLD" LOWER_UMLAUT );
+		UT_EXPECT_TRUE( testLower >= "HELLO WORLD" LOWER_UMLAUT );
+		UT_EXPECT_FALSE( testLower < "HELLO WORLD" LOWER_UMLAUT );
+		UT_EXPECT_FALSE( testLower > "HELLO WORLD" LOWER_UMLAUT );
 
-		UT_ASSERT_TRUE( testLower <= "zz top" );
-		UT_ASSERT_FALSE( testLower >= "zz top" );
-		UT_ASSERT_TRUE( testLower < "zz top" );
-		UT_ASSERT_FALSE( testLower > "zz top" );
+		UT_EXPECT_TRUE( testLower <= "zz top" );
+		UT_EXPECT_FALSE( testLower >= "zz top" );
+		UT_EXPECT_TRUE( testLower < "zz top" );
+		UT_EXPECT_FALSE( testLower > "zz top" );
 
-		UT_ASSERT_TRUE( testLower <= "ZZ TOP" );
-		UT_ASSERT_FALSE( testLower >= "ZZ TOP" );
-		UT_ASSERT_TRUE( testLower < "ZZ TOP" );
-		UT_ASSERT_FALSE( testLower > "ZZ TOP" );
+		UT_EXPECT_TRUE( testLower <= "ZZ TOP" );
+		UT_EXPECT_FALSE( testLower >= "ZZ TOP" );
+		UT_EXPECT_TRUE( testLower < "ZZ TOP" );
+		UT_EXPECT_FALSE( testLower > "ZZ TOP" );
 
-		UT_ASSERT_FALSE( testLower <= "abba" );
-		UT_ASSERT_TRUE( testLower >= "abba" );
-		UT_ASSERT_FALSE( testLower < "abba" );
-		UT_ASSERT_TRUE( testLower > "abba" );
+		UT_EXPECT_FALSE( testLower <= "abba" );
+		UT_EXPECT_TRUE( testLower >= "abba" );
+		UT_EXPECT_FALSE( testLower < "abba" );
+		UT_EXPECT_TRUE( testLower > "abba" );
 
-		UT_ASSERT_FALSE( testLower <= "ABBA" );
-		UT_ASSERT_TRUE( testLower >= "ABBA" );
-		UT_ASSERT_FALSE( testLower < "ABBA" );
-		UT_ASSERT_TRUE( testLower > "ABBA" );
+		UT_EXPECT_FALSE( testLower <= "ABBA" );
+		UT_EXPECT_TRUE( testLower >= "ABBA" );
+		UT_EXPECT_FALSE( testLower < "ABBA" );
+		UT_EXPECT_TRUE( testLower > "ABBA" );
 
-		UT_ASSERT_TRUE( testLower <= STRING("hello world" LOWER_UMLAUT ) );
-		UT_ASSERT_TRUE( testLower >= STRING("hello world" LOWER_UMLAUT ) );
-		UT_ASSERT_FALSE( testLower < STRING("hello world" LOWER_UMLAUT ) );
-		UT_ASSERT_FALSE( testLower > STRING("hello world" LOWER_UMLAUT ) );
+		UT_EXPECT_TRUE( testLower <= STRING("hello world" LOWER_UMLAUT ) );
+		UT_EXPECT_TRUE( testLower >= STRING("hello world" LOWER_UMLAUT ) );
+		UT_EXPECT_FALSE( testLower < STRING("hello world" LOWER_UMLAUT ) );
+		UT_EXPECT_FALSE( testLower > STRING("hello world" LOWER_UMLAUT ) );
 
-		UT_ASSERT_TRUE( testLower <= STRING("HELLO WORLD" LOWER_UMLAUT ) );
-		UT_ASSERT_TRUE( testLower >= STRING("HELLO WORLD" LOWER_UMLAUT ) );
-		UT_ASSERT_FALSE( testLower < STRING("HELLO WORLD" LOWER_UMLAUT ) );
-		UT_ASSERT_FALSE( testLower > STRING("HELLO WORLD" LOWER_UMLAUT ) );
+		UT_EXPECT_TRUE( testLower <= STRING("HELLO WORLD" LOWER_UMLAUT ) );
+		UT_EXPECT_TRUE( testLower >= STRING("HELLO WORLD" LOWER_UMLAUT ) );
+		UT_EXPECT_FALSE( testLower < STRING("HELLO WORLD" LOWER_UMLAUT ) );
+		UT_EXPECT_FALSE( testLower > STRING("HELLO WORLD" LOWER_UMLAUT ) );
 
-		UT_ASSERT_TRUE( testLower <= STRING("zz top") );
-		UT_ASSERT_FALSE( testLower >= STRING("zz top") );
-		UT_ASSERT_TRUE( testLower < STRING("zz top") );
-		UT_ASSERT_FALSE( testLower > STRING("zz top") );
+		UT_EXPECT_TRUE( testLower <= STRING("zz top") );
+		UT_EXPECT_FALSE( testLower >= STRING("zz top") );
+		UT_EXPECT_TRUE( testLower < STRING("zz top") );
+		UT_EXPECT_FALSE( testLower > STRING("zz top") );
 
-		UT_ASSERT_TRUE( testLower <= STRING("ZZ TOP") );
-		UT_ASSERT_FALSE( testLower >= STRING("ZZ TOP") );
-		UT_ASSERT_TRUE( testLower < STRING("ZZ TOP") );
-		UT_ASSERT_FALSE( testLower > STRING("ZZ TOP") );
+		UT_EXPECT_TRUE( testLower <= STRING("ZZ TOP") );
+		UT_EXPECT_FALSE( testLower >= STRING("ZZ TOP") );
+		UT_EXPECT_TRUE( testLower < STRING("ZZ TOP") );
+		UT_EXPECT_FALSE( testLower > STRING("ZZ TOP") );
 
-		UT_ASSERT_FALSE( testLower <= STRING("abba") );
-		UT_ASSERT_TRUE( testLower >= STRING("abba") );
-		UT_ASSERT_FALSE( testLower < STRING("abba") );
-		UT_ASSERT_TRUE( testLower > STRING("abba") );
+		UT_EXPECT_FALSE( testLower <= STRING("abba") );
+		UT_EXPECT_TRUE( testLower >= STRING("abba") );
+		UT_EXPECT_FALSE( testLower < STRING("abba") );
+		UT_EXPECT_TRUE( testLower > STRING("abba") );
 
-		UT_ASSERT_FALSE( testLower <= STRING("ABBA") );
-		UT_ASSERT_TRUE( testLower >= STRING("ABBA") );
-		UT_ASSERT_FALSE( testLower < STRING("ABBA") );
-		UT_ASSERT_TRUE( testLower > STRING("ABBA") );
+		UT_EXPECT_FALSE( testLower <= STRING("ABBA") );
+		UT_EXPECT_TRUE( testLower >= STRING("ABBA") );
+		UT_EXPECT_FALSE( testLower < STRING("ABBA") );
+		UT_EXPECT_TRUE( testLower > STRING("ABBA") );
 
-		UT_ASSERT_LESS( CI_STRING("הצü"), CI_STRING("BCD") );
-		UT_ASSERT_GREATER( CI_STRING("הצü"), CI_STRING("ABC") );
-		UT_ASSERT_GREATER( CI_STRING("ִצü"), CI_STRING("ABC") );
+		UT_EXPECT_LESS( CI_STRING("הצü"), CI_STRING("BCD") );
+		UT_EXPECT_GREATER( CI_STRING("הצü"), CI_STRING("ABC") );
+		UT_EXPECT_GREATER( CI_STRING("ִצü"), CI_STRING("ABC") );
 	}
 	void ConversionTests()
 	{
@@ -283,165 +283,165 @@ class StringTest : public UnitTest
 			const char	*ccp1 = test;
 			const char	*ccp2 = test;
 
-			UT_ASSERT_EQUAL( static_cast<const void*>(ccp1), static_cast<const void*>(ccp2) );
+			UT_EXPECT_EQUAL( static_cast<const void*>(ccp1), static_cast<const void*>(ccp2) );
 
 			char	*cp1 = test;
 			char	*cp2 = test;
 
-			UT_ASSERT_NOT_EQUAL( static_cast<void*>(cp1), static_cast<void*>(cp2) );
+			UT_EXPECT_NOT_EQUAL( static_cast<void*>(cp1), static_cast<void*>(cp2) );
 			free( cp1 );
 			free( cp2 );
 		}
 		{
 			STRING		text = "4711";
 			unsigned	val = text.getValueE<unsigned>();
-			UT_ASSERT_EQUAL( val, 4711U );
+			UT_EXPECT_EQUAL( val, 4711U );
 		}
 		{
 			STRING		text = "-4711";
 			int			val = text.getValueE<int>();
-			UT_ASSERT_EQUAL( val, -4711 );
+			UT_EXPECT_EQUAL( val, -4711 );
 		}
 		{
 			STRING		text = "32767";
 			short		val = text.getValueE<short>();
-			UT_ASSERT_EQUAL( val, short(32767) );
+			UT_EXPECT_EQUAL( val, short(32767) );
 		}
 		{
 			STRING		text = "32767";
 			int16		val = text.getValueE<int16>();
-			UT_ASSERT_EQUAL( val, int16(32767) );
+			UT_EXPECT_EQUAL( val, int16(32767) );
 		}
 		{
 			STRING		text = "32768";
-			UT_ASSERT_EXCEPTION(text.getValueE<int16>(), IntegerOverflowError);
+			UT_EXPECT_EXCEPTION(text.getValueE<int16>(), IntegerOverflowError);
 		}
 		{
 			STRING		text = "-32768";
 			int16		val = text.getValueE<int16>();
-			UT_ASSERT_EQUAL( val, int16(-32768) );
+			UT_EXPECT_EQUAL( val, int16(-32768) );
 		}
 		{
 			STRING		text = "-32769";
-			UT_ASSERT_EXCEPTION(text.getValueE<int16>(), IntegerUnderflowError);
+			UT_EXPECT_EXCEPTION(text.getValueE<int16>(), IntegerUnderflowError);
 		}
 
 		{
 			STRING		text = "65535";
 			uint16		val = text.getValueE<uint16>();
-			UT_ASSERT_EQUAL( val, uint16(65535) );
+			UT_EXPECT_EQUAL( val, uint16(65535) );
 		}
 		{
 			STRING		text = "65536";
-			UT_ASSERT_EXCEPTION(text.getValueE<uint16>(), IntegerOverflowError);
+			UT_EXPECT_EXCEPTION(text.getValueE<uint16>(), IntegerOverflowError);
 		}
 		{
 			STRING		text = "-1";
-			UT_ASSERT_EXCEPTION(text.getValueE<uint16>(), BadNumericFormatError);
+			UT_EXPECT_EXCEPTION(text.getValueE<uint16>(), BadNumericFormatError);
 		}
 		{
 			STRING		text = "1234567891234567890A";
-			UT_ASSERT_EXCEPTION(text.getValueE<uint16>(), BadNumericFormatError);
+			UT_EXPECT_EXCEPTION(text.getValueE<uint16>(), BadNumericFormatError);
 		}
 		{
 			STRING		text = "4594812546";
 #ifdef __BORLANDC__
-			UT_ASSERT_EQUAL(4594812546L, text.getValueE<int64>());
+			UT_EXPECT_EQUAL(4594812546L, text.getValueE<int64>());
 #else
-			UT_ASSERT_EQUAL(4594812546LL, text.getValueE<int64>());
+			UT_EXPECT_EQUAL(4594812546LL, text.getValueE<int64>());
 #endif
 		}
 
 		{
 			STRING		text = "127";
-			UT_ASSERT_EQUAL(127, text.getValueN<char>());
+			UT_EXPECT_EQUAL(127, text.getValueN<char>());
 		}
 		{
 			STRING		text = "true";
-			UT_ASSERT_TRUE(text.getValueN<bool>());
+			UT_EXPECT_TRUE(text.getValueN<bool>());
 		}
 		{
 			STRING		text = "false";
-			UT_ASSERT_FALSE(text.getValueN<bool>());
+			UT_EXPECT_FALSE(text.getValueN<bool>());
 		}
 		{
 			STRING		text = "3.14";
-			UT_ASSERT_EQUAL(3.14, text.getValueN<double>());
+			UT_EXPECT_EQUAL(3.14, text.getValueN<double>());
 		}
 		{
 			STRING		text = "3,14";
-			UT_ASSERT_EQUAL(3.14, text.getValueN<double>(10,','));
+			UT_EXPECT_EQUAL(3.14, text.getValueN<double>(10,','));
 		}
 		{
 			STRING text = "-9 913,56X";
 			double result = text.getValueN<double>(10, ',', ' ');
-			UT_ASSERT_EQUAL( result, -9913.56 );
+			UT_EXPECT_EQUAL( result, -9913.56 );
 		}
 		{
 			STRING		text = "1,798e308";
-			UT_ASSERT_EXCEPTION( text.getValueE<double>(10, ','), FloatOverflowError );
+			UT_EXPECT_EXCEPTION( text.getValueE<double>(10, ','), FloatOverflowError );
 		}
 		{
 			STRING		text = "1e" + formatNumber(std::numeric_limits<double>::max_exponent10+1);
-			UT_ASSERT_EXCEPTION( text.getValueE<double>(), ExponentOverflowError );
+			UT_EXPECT_EXCEPTION( text.getValueE<double>(), ExponentOverflowError );
 		}
 		{
 			STRING		text = "1e" + formatNumber(std::numeric_limits<float>::max_exponent10+1);
-			UT_ASSERT_EXCEPTION( text.getValueE<float>(), ExponentOverflowError );
+			UT_EXPECT_EXCEPTION( text.getValueE<float>(), ExponentOverflowError );
 		}
 		{
 			STRING		text = "1e" + formatNumber(std::numeric_limits<double>::min_exponent10-1);
-			UT_ASSERT_EXCEPTION( text.getValueE<double>(), ExponentUnderflowError );
+			UT_EXPECT_EXCEPTION( text.getValueE<double>(), ExponentUnderflowError );
 		}
 		{
 			STRING		text = "1e" + formatNumber(std::numeric_limits<float>::min_exponent10-1);
-			UT_ASSERT_EXCEPTION( text.getValueE<float>(), ExponentUnderflowError );
+			UT_EXPECT_EXCEPTION( text.getValueE<float>(), ExponentUnderflowError );
 		}
 	}
 	void SizeTests()
 	{
 		STRING	test;
-		UT_ASSERT_EQUAL( size_t(0), test.strlen() );
+		UT_EXPECT_EQUAL( size_t(0), test.strlen() );
 		test = "";
-		UT_ASSERT_EQUAL( size_t(0), test.strlen() );
+		UT_EXPECT_EQUAL( size_t(0), test.strlen() );
 		test = "1234567890";
-		UT_ASSERT_EQUAL( size_t(10), test.strlen() );
+		UT_EXPECT_EQUAL( size_t(10), test.strlen() );
 	}
 	void ConstructorTest()
 	{
 		{
 			STRING	defaultString;
 
-			UT_ASSERT_EQUAL( size_t(0), defaultString.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(0), defaultString.strlen() );
-			UT_ASSERT_TRUE( defaultString.isNullPtr() );
-			UT_ASSERT_TRUE( defaultString.isEmpty() );
-			UT_ASSERT_EQUAL( STRING(""), defaultString );
+			UT_EXPECT_EQUAL( size_t(0), defaultString.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(0), defaultString.strlen() );
+			UT_EXPECT_TRUE( defaultString.isNullPtr() );
+			UT_EXPECT_TRUE( defaultString.isEmpty() );
+			UT_EXPECT_EQUAL( STRING(""), defaultString );
 		}
 		{
 			const char *testText = "Hello World"; 
 			STRING	testString1 = testText;
 
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( strlen(testText), testString1.strlen() );
-			UT_ASSERT_FALSE( testString1.isNullPtr() );
-			UT_ASSERT_FALSE( testString1.isEmpty() );
-			UT_ASSERT_EQUAL( 0, ansiCompare( testText, testString1 ) );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( strlen(testText), testString1.strlen() );
+			UT_EXPECT_FALSE( testString1.isNullPtr() );
+			UT_EXPECT_FALSE( testString1.isEmpty() );
+			UT_EXPECT_EQUAL( 0, ansiCompare( testText, testString1 ) );
 
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText), testString2 );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText), testString2 );
 
 			testString2 = testText;
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText), testString2 );
 
 			testString1 = "";
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_FALSE( testString1.isNullPtr() );
-			UT_ASSERT_TRUE( testString1.isEmpty() );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_FALSE( testString1.isNullPtr() );
+			UT_EXPECT_TRUE( testString1.isEmpty() );
 
 		}
 		{
@@ -453,56 +453,56 @@ class StringTest : public UnitTest
 			const char	testChar3 = 'A';
 			STRING	testString1 = STRING(testChar1);
 
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( strlen(testText1), testString1.strlen() );
-			UT_ASSERT_FALSE( testString1.isNullPtr() );
-			UT_ASSERT_FALSE( testString1.isEmpty() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( strlen(testText1), testString1.strlen() );
+			UT_EXPECT_FALSE( testString1.isNullPtr() );
+			UT_EXPECT_FALSE( testString1.isEmpty() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
 
 			testString1 = testChar2;
-			UT_ASSERT_EQUAL( strlen(testText2), testString1.strlen() );
-			UT_ASSERT_EQUAL( STRING(testText2), testString1 );
+			UT_EXPECT_EQUAL( strlen(testText2), testString1.strlen() );
+			UT_EXPECT_EQUAL( STRING(testText2), testString1 );
 
 			STRING	testString2( testChar3, 5 );
-			UT_ASSERT_EQUAL( STRING(testText3), testString2 );
+			UT_EXPECT_EQUAL( STRING(testText3), testString2 );
 		}
 		{
 			const char	*testText = "Hello World"; 
 			DynamicVar	testDynamic = testText;
 			STRING	testString1 = testDynamic;
 
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( strlen(testText), testString1.strlen() );
-			UT_ASSERT_FALSE( testString1.isNullPtr() );
-			UT_ASSERT_FALSE( testString1.isEmpty() );
-			UT_ASSERT_EQUAL( 0, ansiCompare( testText, testString1 ) );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( strlen(testText), testString1.strlen() );
+			UT_EXPECT_FALSE( testString1.isNullPtr() );
+			UT_EXPECT_FALSE( testString1.isEmpty() );
+			UT_EXPECT_EQUAL( 0, ansiCompare( testText, testString1 ) );
 
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(3), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(3), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText), testString2 );
+			UT_EXPECT_EQUAL( size_t(3), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(3), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText), testString2 );
 
 			testString2 = testDynamic;
-			UT_ASSERT_EQUAL( size_t(3), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(3), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText), testString2 );
+			UT_EXPECT_EQUAL( size_t(3), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(3), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText), testString2 );
 
 			testDynamic = testText;
 			testString2 = testDynamic;
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText), testString2 );
 
 		}
 		{
 			STRING	test1 = "Hello world";
-			UT_ASSERT_EQUAL( size_t(1), test1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), test1.getUsageCount() );
 			{
 				STRING	test2 = test1;
-				UT_ASSERT_EQUAL( size_t(2), test1.getUsageCount() );
-				UT_ASSERT_EQUAL( size_t(2), test2.getUsageCount() );
+				UT_EXPECT_EQUAL( size_t(2), test1.getUsageCount() );
+				UT_EXPECT_EQUAL( size_t(2), test2.getUsageCount() );
 			}
-			UT_ASSERT_EQUAL( size_t(1), test1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), test1.getUsageCount() );
 		}
 	}
 	void ModifyingTests()
@@ -513,13 +513,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.replaceText( 6, 3, "Hello world" );
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = "012345ABC6789";
@@ -527,13 +527,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2 += std::size_t(6);
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = " \t\n\rABC   \t\n\r";
@@ -541,13 +541,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.stripBlanks();
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = ">>>>>ABC>>>>>";
@@ -555,13 +555,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.stripLeftChar( '>' );
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = ">>>>>ABC>>>>>";
@@ -569,13 +569,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.stripRightChar( '>' );
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = ">>>>>ABC>>>>>";
@@ -583,13 +583,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.stripChar( '>' );
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = "1234567890";
@@ -597,13 +597,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.cut( 5 );
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = "1234567890";
@@ -611,13 +611,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.delStr( 5, 3 );
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = "1234567890";
@@ -625,13 +625,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.delChar( 5 );
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = "1234590";
@@ -639,13 +639,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.insStr( 0, "AAA" ).insStr( 8, "678" );
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = "1234590";
@@ -653,13 +653,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.insChar( 0, 'A' ).insChar( 5, '6' ).insChar( 0, 'B', 3 ).insChar( 5, 'C', 3 );
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = "the quick brown fox jums over the lazy dog" LOWER_UMLAUT;
@@ -667,13 +667,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.upperCase();
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = "THE QUICK BROWN FOX JUMS OVER THE LAZY DOG" UPPER_UMLAUT;
@@ -681,13 +681,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.lowerCase();
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = "-----THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG-----";
@@ -695,13 +695,13 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.replaceChar( '-', '=' ).replaceChar( ' ', '+' );
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 		}
 		{
 			const char *testText1 = "\nTHE\nQUICK\nBROWN\nFOX\nJUMPS\nOVER\nTHE\nLAZY\nDOG\n";
@@ -711,41 +711,41 @@ class StringTest : public UnitTest
 
 			STRING	testString1 = testText1;
 			STRING	testString2 = testString1;
-			UT_ASSERT_EQUAL( size_t(2), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(2), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(2), testString2.getUsageCount() );
 			testString2.replaceLineEnds( RL_END_CR );
-			UT_ASSERT_EQUAL( size_t(1), testString1.getUsageCount() );
-			UT_ASSERT_EQUAL( size_t(1), testString2.getUsageCount() );
-			UT_ASSERT_EQUAL( STRING(testText1), testString1 );
-			UT_ASSERT_EQUAL( STRING(testText2), testString2 );
+			UT_EXPECT_EQUAL( size_t(1), testString1.getUsageCount() );
+			UT_EXPECT_EQUAL( size_t(1), testString2.getUsageCount() );
+			UT_EXPECT_EQUAL( STRING(testText1), testString1 );
+			UT_EXPECT_EQUAL( STRING(testText2), testString2 );
 			testString2.replaceLineEnds( RL_END_CRLF );
-			UT_ASSERT_EQUAL( STRING(testText3), testString2 );
+			UT_EXPECT_EQUAL( STRING(testText3), testString2 );
 			testString2.replaceLineEnds( RL_END_LFCR );
-			UT_ASSERT_EQUAL( STRING(testText4), testString2 );
+			UT_EXPECT_EQUAL( STRING(testText4), testString2 );
 			testString2.replaceLineEnds( RL_END_LF );
-			UT_ASSERT_EQUAL( STRING(testText1), testString2 );
+			UT_EXPECT_EQUAL( STRING(testText1), testString2 );
 		}
 		{
 			STRING		testText = "Hello World";
 			STRING		result = testText.padCopy( 10, STR_P_LEFT );
-			UT_ASSERT_EQUAL( result, STRING("...o World") );
+			UT_EXPECT_EQUAL( result, STRING("...o World") );
 			result = testText.padCopy( 10, STR_P_RIGHT );
-			UT_ASSERT_EQUAL( result, STRING("Hello W...") );
+			UT_EXPECT_EQUAL( result, STRING("Hello W...") );
 
 			result = testText.padCopy( 15, STR_P_LEFT );
-			UT_ASSERT_EQUAL( result, STRING("    Hello World") );
+			UT_EXPECT_EQUAL( result, STRING("    Hello World") );
 			result = testText.padCopy( 15, STR_P_RIGHT );
-			UT_ASSERT_EQUAL( result, STRING("Hello World    ") );
+			UT_EXPECT_EQUAL( result, STRING("Hello World    ") );
 
 			result = testText.padCopy( 2, STR_P_LEFT );
-			UT_ASSERT_EQUAL( result, STRING("..") );
+			UT_EXPECT_EQUAL( result, STRING("..") );
 			result = testText.padCopy( 2, STR_P_RIGHT );
-			UT_ASSERT_EQUAL( result, STRING("..") );
+			UT_EXPECT_EQUAL( result, STRING("..") );
 
 			result = testText.padCopy( 0, STR_P_LEFT );
-			UT_ASSERT_TRUE( result.isEmpty() );
+			UT_EXPECT_TRUE( result.isEmpty() );
 			result = testText.padCopy( 0, STR_P_RIGHT );
-			UT_ASSERT_TRUE( result.isEmpty() );
+			UT_EXPECT_TRUE( result.isEmpty() );
 		}
 	}
 	void OtherTests()
@@ -757,99 +757,99 @@ class StringTest : public UnitTest
 
 			myTstring = myTest;
 
-			UT_ASSERT_TRUE( myTest == "Hello World" );
-			UT_ASSERT_TRUE( myCiString == myTest );
-			UT_ASSERT_TRUE( myTstring == myTest );
+			UT_EXPECT_TRUE( myTest == "Hello World" );
+			UT_EXPECT_TRUE( myCiString == myTest );
+			UT_EXPECT_TRUE( myTstring == myTest );
 
 			myTest.upperCase();
-			UT_ASSERT_TRUE( myCiString == myTest );
-			UT_ASSERT_TRUE( myTest != myCiString );
+			UT_EXPECT_TRUE( myCiString == myTest );
+			UT_EXPECT_TRUE( myTest != myCiString );
 
 			myTstring = "hello@world";
 			STRING	part1 = myTstring.getFirstToken("@");
 			STRING	part2 = myTstring.getNextToken();
 			bool	next = myTstring.hasNextToken();
-			UT_ASSERT_FALSE( next );
-			UT_ASSERT_EQUAL( part1, STRING("hello") );
-			UT_ASSERT_EQUAL( part2, STRING("world") );
+			UT_EXPECT_FALSE( next );
+			UT_EXPECT_EQUAL( part1, STRING("hello") );
+			UT_EXPECT_EQUAL( part2, STRING("world") );
 		}
 
 		{
 			STRING	text = "meier.inf";
 			STRING pattern = "meier*.*";
 
-			UT_ASSERT_TRUE( text.match( pattern ) );
-			UT_ASSERT_TRUE( patternMatch( "meier.inf", "meier*.*" ) );
-			UT_ASSERT_FALSE( patternMatch( "meier.inf", "*.doc" ) );
+			UT_EXPECT_TRUE( text.match( pattern ) );
+			UT_EXPECT_TRUE( patternMatch( "meier.inf", "meier*.*" ) );
+			UT_EXPECT_FALSE( patternMatch( "meier.inf", "*.doc" ) );
 
-			UT_ASSERT_TRUE( patternMatch( "meier.inf", "*.inf" ) );
-			UT_ASSERT_TRUE( patternMatch( "meier.doc.inf.mager", "*.inf.*" ) );
-			UT_ASSERT_TRUE( patternMatch( "meier.doc.inf.", "*.inf.*" ) );
+			UT_EXPECT_TRUE( patternMatch( "meier.inf", "*.inf" ) );
+			UT_EXPECT_TRUE( patternMatch( "meier.doc.inf.mager", "*.inf.*" ) );
+			UT_EXPECT_TRUE( patternMatch( "meier.doc.inf.", "*.inf.*" ) );
 		}
 		{
 			STRING	normal = "\xFF\x80\x7F\x01";
 			STRING	escaped = "%FF%80\x7F%01";
 
 			STRING result = net::webEscape( normal );
-			UT_ASSERT_EQUAL( result, escaped );
+			UT_EXPECT_EQUAL( result, escaped );
 
 			result = net::webUnEscape( escaped );
-			UT_ASSERT_EQUAL( result, normal );
+			UT_EXPECT_EQUAL( result, normal );
 		}
 
 		{
 			const char *end;
 			int result = getValue<int>( "13X", 10, &end );
-			UT_ASSERT_EQUAL( result, 13 );
-			UT_ASSERT_EQUAL( *end, 'X' );
+			UT_EXPECT_EQUAL( result, 13 );
+			UT_EXPECT_EQUAL( *end, 'X' );
 		}
 		{
 			const char *end;
 			int result = getValue<int>( "-13Y", 10, &end );
-			UT_ASSERT_EQUAL( result, -13 );
-			UT_ASSERT_EQUAL( *end, 'Y' );
+			UT_EXPECT_EQUAL( result, -13 );
+			UT_EXPECT_EQUAL( *end, 'Y' );
 		}
 		{
 			const char *end;
 			unsigned result = getValue<unsigned>( "-13", 10, &end );
-			UT_ASSERT_EQUAL( result, 0U );
-			UT_ASSERT_EQUAL( *end, '-' );
+			UT_EXPECT_EQUAL( result, 0U );
+			UT_EXPECT_EQUAL( *end, '-' );
 		}
 		{
 			const char *end;
 			double result = getValue<double>( "-13.56X", &end );
-			UT_ASSERT_EQUAL( result, -13.56 );
-			UT_ASSERT_EQUAL( *end, 'X' );
+			UT_EXPECT_EQUAL( result, -13.56 );
+			UT_EXPECT_EQUAL( *end, 'X' );
 		}
 		{
 			const char *end;
 			double result = getValue<double>( "-13.56E1\xFF", &end );
-			UT_ASSERT_EQUAL( result, -135.6 );
-			UT_ASSERT_EQUAL( *end, '\xFF' );
+			UT_EXPECT_EQUAL( result, -135.6 );
+			UT_EXPECT_EQUAL( *end, '\xFF' );
 		}
 		{
 			const char *end;
 			double result = getValue<double>( "-13,56X", &end, ',' );
-			UT_ASSERT_EQUAL( result, -13.56 );
-			UT_ASSERT_EQUAL( *end, 'X' );
+			UT_EXPECT_EQUAL( result, -13.56 );
+			UT_EXPECT_EQUAL( *end, 'X' );
 		}
 		{
 			const char *end;
 			double result = getValue<double>( "-9 913,56X", &end, ',', ' ' );
-			UT_ASSERT_EQUAL( result, -9913.56 );
-			UT_ASSERT_EQUAL( *end, 'X' );
+			UT_EXPECT_EQUAL( result, -9913.56 );
+			UT_EXPECT_EQUAL( *end, 'X' );
 		}
 		{
 			STRING	test = STRING('a');
-			UT_ASSERT_EQUAL( test[0U], 'a' );
-			UT_ASSERT_EQUAL( std::size_t(1), test.strlen() );
+			UT_EXPECT_EQUAL( test[0U], 'a' );
+			UT_EXPECT_EQUAL( std::size_t(1), test.strlen() );
 
 			test.insChar( 0, 'b', 5 );
-			UT_ASSERT_EQUAL( test, STRING("bbbbba") );
+			UT_EXPECT_EQUAL( test, STRING("bbbbba") );
 			test.add( 'c', 5 );
-			UT_ASSERT_EQUAL( test, STRING("bbbbbaccccc") );
+			UT_EXPECT_EQUAL( test, STRING("bbbbbaccccc") );
 			test.insChar( 5, 'd', 5 );
-			UT_ASSERT_EQUAL( test, STRING("bbbbbdddddaccccc") );
+			UT_EXPECT_EQUAL( test, STRING("bbbbbdddddaccccc") );
 		}
 	}
 
@@ -857,7 +857,7 @@ class StringTest : public UnitTest
 	{
 		STRING myUtf8;
 		myUtf8.readFromFile( "test_data" DIRECTORY_DELIMITER_STRING "utf8bom.txt" );
-		UT_ASSERT_EQUAL( myUtf8.getCharSet(), STR_UTF8 );
+		UT_EXPECT_EQUAL( myUtf8.getCharSet(), STR_UTF8 );
 	}
 
 };

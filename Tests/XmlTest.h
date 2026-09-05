@@ -127,14 +127,14 @@ class XmlTest : public UnitTest
 				"</root>"
 			;
 
-			UT_ASSERT_EQUAL( xmlCode, expected );
+			UT_EXPECT_EQUAL( xmlCode, expected );
 			if( xmlCode != expected )
 			{
 				for( size_t i=0; i<xmlCode.strlen(); i++ )
 				{
 					char c1 = xmlCode[i];
 					char c2 = expected[i];
-					UT_ASSERT_EQUAL( c1, c2 );
+					UT_EXPECT_EQUAL( c1, c2 );
 					if( c1 != c2 )
 						break;
 				}
@@ -145,14 +145,14 @@ class XmlTest : public UnitTest
 			std::unique_ptr<Document>	theDoc( theParser.readFile( false ) );
 
 			xmlCode = theDoc->generate( XML_MODE );
-			UT_ASSERT_EQUAL( xmlCode, expected );
+			UT_EXPECT_EQUAL( xmlCode, expected );
 			if( xmlCode != expected )
 			{
 				for( size_t i=0; i<xmlCode.strlen(); i++ )
 				{
 					char c1 = xmlCode[i];
 					char c2 = expected[i];
-					UT_ASSERT_EQUAL( c1, c2 );
+					UT_EXPECT_EQUAL( c1, c2 );
 					if( c1 != c2 )
 						break;
 				}
@@ -177,26 +177,26 @@ class XmlTest : public UnitTest
 			Parser						theParser( &str, "internal" );
 			std::unique_ptr<Document>	theDoc( theParser.readFile( false ) );
 			Element						*root = theDoc->getRoot(); 
-			UT_ASSERT_EQUAL( STRING("root"), root->getTag() );
+			UT_EXPECT_EQUAL( STRING("root"), root->getTag() );
 			Element						*cData = root->getElement( 0 );
 			PCData						*pcData = dynamic_cast<PCData*>( cData );
-			UT_ASSERT_TRUE( pcData != NULL );
+			UT_EXPECT_TRUE( pcData != NULL );
 			if( pcData != NULL )
 			{
 				STRING pcValue = pcData->getValue( PLAIN_MODE );
-				UT_ASSERT_EQUAL( STRING("\näÄ\n"), pcValue );
-				UT_ASSERT_EQUAL( STR_UTF8, pcValue.getCharSet() );
+				UT_EXPECT_EQUAL( STRING("\näÄ\n"), pcValue );
+				UT_EXPECT_EQUAL( STR_UTF8, pcValue.getCharSet() );
 			}
 			Element						*record = root->getElement( 1 );
-			UT_ASSERT_EQUAL( STRING("record"), record->getTag() );
+			UT_EXPECT_EQUAL( STRING("record"), record->getTag() );
 
 			STRING atribute1 = record->getAttribute( "atribute1" );
-			UT_ASSERT_EQUAL( STRING("value3.1"), atribute1 );
-			UT_ASSERT_EQUAL( STR_ASCII, atribute1.getCharSet() );
+			UT_EXPECT_EQUAL( STRING("value3.1"), atribute1 );
+			UT_EXPECT_EQUAL( STR_ASCII, atribute1.getCharSet() );
 
 			STRING atribute2 = record->getAttribute( "atribute2" );
-			UT_ASSERT_EQUAL( STRING("äÄ"), atribute2 );
-			UT_ASSERT_EQUAL( STR_UTF8, atribute2.getCharSet() );
+			UT_EXPECT_EQUAL( STRING("äÄ"), atribute2 );
+			UT_EXPECT_EQUAL( STR_UTF8, atribute2.getCharSet() );
 		}
 	}
 };

@@ -85,13 +85,13 @@ class DateTest : public UnitTest
 	{
 		gak::JulianDate		theSourceDate(day, month, year );
 		gak::JulianDate		theTarget( theSourceDate.since() );
-		UT_ASSERT_EQUAL( theSourceDate, theTarget );
+		UT_EXPECT_EQUAL( theSourceDate, theTarget );
 	}
 	void testGregorianSince( unsigned char day, Date::Month month, unsigned short year )
 	{
 		gak::Date		theSourceDate(day, month, year );
 		gak::Date		theTarget( theSourceDate.since() );
-		UT_ASSERT_EQUAL( theSourceDate, theTarget );
+		UT_EXPECT_EQUAL( theSourceDate, theTarget );
 	}
 
 	virtual void PerformTest()
@@ -104,60 +104,60 @@ class DateTest : public UnitTest
 		gak::Date	Dec31( 31, Date::DECEMBER, 2015 );
 
 		double	numWorkdays = getNumWorkDays( Dec1, Jan1 );
-		UT_ASSERT_EQUAL( numWorkdays, 21.0 );
+		UT_EXPECT_EQUAL( numWorkdays, 21.0 );
 
 		numWorkdays = getNumWorkDays( Dec1, Dec31 );
-		UT_ASSERT_EQUAL( numWorkdays, 20.5 );
+		UT_EXPECT_EQUAL( numWorkdays, 20.5 );
 
 		gak::Date	Mar1( 1, Date::MARCH, 2016 );
 		gak::Date	Apr1( 1, Date::APRIL, 2016 );
 
 		numWorkdays = getNumWorkDays( Mar1, Apr1 );
-		UT_ASSERT_EQUAL( numWorkdays, 21.0 );
+		UT_EXPECT_EQUAL( numWorkdays, 21.0 );
 
 		long numDays = Jan1 - Dec1;
-		UT_ASSERT_EQUAL( numDays, 31L );
+		UT_EXPECT_EQUAL( numDays, 31L );
 		Dec1++;
 		numDays = Jan1 - Dec1;
-		UT_ASSERT_EQUAL( numDays, 30L );
-		UT_ASSERT_GREATER( Jan1, Dec1 );
+		UT_EXPECT_EQUAL( numDays, 30L );
+		UT_EXPECT_GREATER( Jan1, Dec1 );
 
 		Date::WeekDay	wd = Jan1.weekDay();
-		UT_ASSERT_EQUAL( wd, Date::FRIDAY );
+		UT_EXPECT_EQUAL( wd, Date::FRIDAY );
 
 		{
 			gak::JulianDate	theDate(4, JulianDate::OCTOBER, 1582 );
 			JulianDate::WeekDay	wd = theDate.weekDay();
-			UT_ASSERT_EQUAL( wd, JulianDate::THURSDAY );
+			UT_EXPECT_EQUAL( wd, JulianDate::THURSDAY );
 		}
 		{
 			gak::Date		theDate(15, Date::OCTOBER, 1582 );
 			Date::WeekDay	wd = theDate.weekDay();
-			UT_ASSERT_EQUAL( wd, Date::FRIDAY );
+			UT_EXPECT_EQUAL( wd, Date::FRIDAY );
 		}
 		{
 			gak::JulianDate	theJulDate(5, JulianDate::OCTOBER, 1582 );
 			gak::Date		theGregDate(15, Date::OCTOBER, 1582 );
 
-			UT_ASSERT_EQUAL( int(theGregDate.weekDay()), int(theJulDate.weekDay()) );
-			UT_ASSERT_EQUAL( theGregDate, julian2GregorianDate( theJulDate ) );
-			UT_ASSERT_EQUAL( theJulDate, gregorian2JulianDate( theGregDate ) );
+			UT_EXPECT_EQUAL( int(theGregDate.weekDay()), int(theJulDate.weekDay()) );
+			UT_EXPECT_EQUAL( theGregDate, julian2GregorianDate( theJulDate ) );
+			UT_EXPECT_EQUAL( theJulDate, gregorian2JulianDate( theGregDate ) );
 		}
 		{
 			gak::JulianDate	theJulDate(19, JulianDate::FEBRUARY, 1700 );
 			gak::Date		theGregDate(1, Date::MARCH, 1700 );
 
-			UT_ASSERT_EQUAL( int(theGregDate.weekDay()), int(theJulDate.weekDay()) );
-			UT_ASSERT_EQUAL( theGregDate, julian2GregorianDate( theJulDate ) );
-			UT_ASSERT_EQUAL( theJulDate, gregorian2JulianDate( theGregDate ) );
+			UT_EXPECT_EQUAL( int(theGregDate.weekDay()), int(theJulDate.weekDay()) );
+			UT_EXPECT_EQUAL( theGregDate, julian2GregorianDate( theJulDate ) );
+			UT_EXPECT_EQUAL( theJulDate, gregorian2JulianDate( theGregDate ) );
 		}
 		{
 			gak::JulianDate	theJulDate(1, JulianDate::FEBRUARY, 1918 );
 			gak::Date		theGregDate(14, Date::FEBRUARY, 1918 );
 
-			UT_ASSERT_EQUAL( int(theGregDate.weekDay()), int(theJulDate.weekDay()) );
-			UT_ASSERT_EQUAL( theGregDate, julian2GregorianDate( theJulDate ) );
-			UT_ASSERT_EQUAL( theJulDate, gregorian2JulianDate( theGregDate ) );
+			UT_EXPECT_EQUAL( int(theGregDate.weekDay()), int(theJulDate.weekDay()) );
+			UT_EXPECT_EQUAL( theGregDate, julian2GregorianDate( theJulDate ) );
+			UT_EXPECT_EQUAL( theJulDate, gregorian2JulianDate( theGregDate ) );
 		}
 
 		testJulianSince( 1, JulianDate::JANUARY, 0 );
@@ -181,116 +181,116 @@ class DateTest : public UnitTest
 		{
 			gak::Date	theDate = gak::Date::getEastern( 2018 );
 
-			UT_ASSERT_EQUAL( 1, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::APRIL, theDate.getMonth() );
-			UT_ASSERT_EQUAL( theDate.holiday(), static_cast<const char*>("Ostersonntag") );
-			UT_ASSERT_EQUAL( 0., theDate.isWorkDay() );
+			UT_EXPECT_EQUAL( 1, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::APRIL, theDate.getMonth() );
+			UT_EXPECT_EQUAL( theDate.holiday(), static_cast<const char*>("Ostersonntag") );
+			UT_EXPECT_EQUAL( 0., theDate.isWorkDay() );
 		}
 		{
 			gak::Date	theDate = gak::Date::getEastern( 2000 );
 
-			UT_ASSERT_EQUAL( 23, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::APRIL, theDate.getMonth() );
-			UT_ASSERT_EQUAL( theDate.holiday(), static_cast<const char*>("Ostersonntag") );
-			UT_ASSERT_EQUAL( 0., theDate.isWorkDay() );
+			UT_EXPECT_EQUAL( 23, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::APRIL, theDate.getMonth() );
+			UT_EXPECT_EQUAL( theDate.holiday(), static_cast<const char*>("Ostersonntag") );
+			UT_EXPECT_EQUAL( 0., theDate.isWorkDay() );
 		}
 		{
 			gak::Date	theDate = gak::Date::getEastern( 1900 );
 
-			UT_ASSERT_EQUAL( 15, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::APRIL, theDate.getMonth() );
-			UT_ASSERT_EQUAL( theDate.holiday(), static_cast<const char*>("Ostersonntag") );
-			UT_ASSERT_EQUAL( 0., theDate.isWorkDay() );
+			UT_EXPECT_EQUAL( 15, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::APRIL, theDate.getMonth() );
+			UT_EXPECT_EQUAL( theDate.holiday(), static_cast<const char*>("Ostersonntag") );
+			UT_EXPECT_EQUAL( 0., theDate.isWorkDay() );
 		}
 		{
 			gak::Date	theDate = gak::Date::getMothersDay( 1900 );
 
-			UT_ASSERT_EQUAL( 13, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::MAY, theDate.getMonth() );
-			UT_ASSERT_EQUAL( theDate.holiday(), static_cast<const char*>("Muttertag") );
-			UT_ASSERT_EQUAL( 0., theDate.isWorkDay() );
+			UT_EXPECT_EQUAL( 13, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::MAY, theDate.getMonth() );
+			UT_EXPECT_EQUAL( theDate.holiday(), static_cast<const char*>("Muttertag") );
+			UT_EXPECT_EQUAL( 0., theDate.isWorkDay() );
 		}
 		{
 			gak::Date	theDate = gak::Date::getMothersDay( 2018 );
 
-			UT_ASSERT_EQUAL( 13, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::MAY, theDate.getMonth() );
-			UT_ASSERT_EQUAL( theDate.holiday(), static_cast<const char*>("Muttertag") );
-			UT_ASSERT_EQUAL( 0., theDate.isWorkDay() );
+			UT_EXPECT_EQUAL( 13, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::MAY, theDate.getMonth() );
+			UT_EXPECT_EQUAL( theDate.holiday(), static_cast<const char*>("Muttertag") );
+			UT_EXPECT_EQUAL( 0., theDate.isWorkDay() );
 		}
 		{
 			gak::Date	theDate(6, Date::JANUARY, 2018 );
-			UT_ASSERT_EQUAL( theDate.holiday(), static_cast<const char*>("Hl. Drei Könige") );
-			UT_ASSERT_EQUAL( 0., theDate.isWorkDay() );
+			UT_EXPECT_EQUAL( theDate.holiday(), static_cast<const char*>("Hl. Drei Könige") );
+			UT_EXPECT_EQUAL( 0., theDate.isWorkDay() );
 		}
 		{
 			gak::Date	theDate(24, Date::DECEMBER, 2018 );
-			UT_ASSERT_EQUAL( theDate.holiday(), static_cast<const char*>("Hl. Abend") );
-			UT_ASSERT_EQUAL( 0.5, theDate.isWorkDay() );
+			UT_EXPECT_EQUAL( theDate.holiday(), static_cast<const char*>("Hl. Abend") );
+			UT_EXPECT_EQUAL( 0.5, theDate.isWorkDay() );
 		}
 		{
 			gak::Date	theDate(11, Date::JUNE, 1964 );
-			UT_ASSERT_EQUAL( theDate.holiday(), static_cast<const char*>("") );
-			UT_ASSERT_EQUAL( 1., theDate.isWorkDay() );
+			UT_EXPECT_EQUAL( theDate.holiday(), static_cast<const char*>("") );
+			UT_EXPECT_EQUAL( 1., theDate.isWorkDay() );
 		}
 		{
 			gak::Date	theDate(11, Date::JUNE, 1964 );
-			UT_ASSERT_EQUAL( Date::THURSDAY, theDate.weekDay() );
+			UT_EXPECT_EQUAL( Date::THURSDAY, theDate.weekDay() );
 		}
 		{
 			gak::Date	theDate(11, Date::JUNE, 1964 );
-			UT_ASSERT_EQUAL( (unsigned short)163, theDate.dayOfYear() );
+			UT_EXPECT_EQUAL( (unsigned short)163, theDate.dayOfYear() );
 		}
 		{
 			gak::Date	theDate(11, Date::JUNE, 2000 );
-			UT_ASSERT_EQUAL( (unsigned short)163, theDate.dayOfYear() );
+			UT_EXPECT_EQUAL( (unsigned short)163, theDate.dayOfYear() );
 		}
 		{
 			gak::Date	theDate(11, Date::JUNE, 1900 );
-			UT_ASSERT_EQUAL( (unsigned short)162, theDate.dayOfYear() );
+			UT_EXPECT_EQUAL( (unsigned short)162, theDate.dayOfYear() );
 		}
 		{
 			gak::Date	theDate( 28, Date::FEBRUARY, 1900 );
 			theDate.increment( 1 );
-			UT_ASSERT_EQUAL( 1, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::MARCH, theDate.getMonth() );
-			UT_ASSERT_EQUAL( 1900, int(theDate.getYear()) );
+			UT_EXPECT_EQUAL( 1, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::MARCH, theDate.getMonth() );
+			UT_EXPECT_EQUAL( 1900, int(theDate.getYear()) );
 			theDate.decrement( 1 );
-			UT_ASSERT_EQUAL( 28, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::FEBRUARY, theDate.getMonth() );
-			UT_ASSERT_EQUAL( 1900, int(theDate.getYear()) );
+			UT_EXPECT_EQUAL( 28, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::FEBRUARY, theDate.getMonth() );
+			UT_EXPECT_EQUAL( 1900, int(theDate.getYear()) );
 			++theDate;
-			UT_ASSERT_EQUAL( 1, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::MARCH, theDate.getMonth() );
-			UT_ASSERT_EQUAL( 1900, int(theDate.getYear()) );
+			UT_EXPECT_EQUAL( 1, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::MARCH, theDate.getMonth() );
+			UT_EXPECT_EQUAL( 1900, int(theDate.getYear()) );
 			--theDate;
-			UT_ASSERT_EQUAL( 28, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::FEBRUARY, theDate.getMonth() );
-			UT_ASSERT_EQUAL( 1900, int(theDate.getYear()) );
+			UT_EXPECT_EQUAL( 28, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::FEBRUARY, theDate.getMonth() );
+			UT_EXPECT_EQUAL( 1900, int(theDate.getYear()) );
 			theDate++;
-			UT_ASSERT_EQUAL( 1, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::MARCH, theDate.getMonth() );
-			UT_ASSERT_EQUAL( 1900, int(theDate.getYear()) );
+			UT_EXPECT_EQUAL( 1, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::MARCH, theDate.getMonth() );
+			UT_EXPECT_EQUAL( 1900, int(theDate.getYear()) );
 			theDate--;
-			UT_ASSERT_EQUAL( 28, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::FEBRUARY, theDate.getMonth() );
-			UT_ASSERT_EQUAL( 1900, int(theDate.getYear()) );
+			UT_EXPECT_EQUAL( 28, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::FEBRUARY, theDate.getMonth() );
+			UT_EXPECT_EQUAL( 1900, int(theDate.getYear()) );
 			theDate += 1;
-			UT_ASSERT_EQUAL( 1, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::MARCH, theDate.getMonth() );
-			UT_ASSERT_EQUAL( 1900, int(theDate.getYear()) );
+			UT_EXPECT_EQUAL( 1, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::MARCH, theDate.getMonth() );
+			UT_EXPECT_EQUAL( 1900, int(theDate.getYear()) );
 			theDate -= 1;
-			UT_ASSERT_EQUAL( 28, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::FEBRUARY, theDate.getMonth() );
-			UT_ASSERT_EQUAL( 1900, int(theDate.getYear()) );
+			UT_EXPECT_EQUAL( 28, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::FEBRUARY, theDate.getMonth() );
+			UT_EXPECT_EQUAL( 1900, int(theDate.getYear()) );
 			theDate = theDate + 1;
-			UT_ASSERT_EQUAL( 1, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::MARCH, theDate.getMonth() );
-			UT_ASSERT_EQUAL( 1900, int(theDate.getYear()) );
+			UT_EXPECT_EQUAL( 1, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::MARCH, theDate.getMonth() );
+			UT_EXPECT_EQUAL( 1900, int(theDate.getYear()) );
 			theDate = theDate - 1;
-			UT_ASSERT_EQUAL( 28, int(theDate.getDay()) );
-			UT_ASSERT_EQUAL( Date::FEBRUARY, theDate.getMonth() );
-			UT_ASSERT_EQUAL( 1900, int(theDate.getYear()) );
+			UT_EXPECT_EQUAL( 28, int(theDate.getDay()) );
+			UT_EXPECT_EQUAL( Date::FEBRUARY, theDate.getMonth() );
+			UT_EXPECT_EQUAL( 1900, int(theDate.getYear()) );
 		}
 	}
 };

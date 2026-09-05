@@ -98,7 +98,7 @@ class MapTest : public UnitTest
 		for( int i=0; i<10; i++ )
 		{
 			STRING	value = "Value " + formatNumber( i );
-			UT_ASSERT_EQUAL( value, myIntStrMap[ i ] );
+			UT_EXPECT_EQUAL( value, myIntStrMap[ i ] );
 		}
 
 		StrStrMap	myStrStrMap;
@@ -113,7 +113,7 @@ class MapTest : public UnitTest
 		{
 			STRING	value = "Value " + formatNumber( i );
 			STRING	key = "Key " + formatNumber( i );
-			UT_ASSERT_EQUAL( value, myStrStrMap[ key ] );
+			UT_EXPECT_EQUAL( value, myStrStrMap[ key ] );
 		}
 
 		Map<CALLER_ENTRY>	myTestMap;

@@ -112,8 +112,8 @@ class DateTimeTest : public UnitTest
 			std::cout << "SunsetAfter  " << sunsetAfter << ' ' << sunsetAfter.getUtcUnixSeconds() << '\n';
 			std::cout << "day length " << winterDayAfter << '\n';
 
-			UT_ASSERT_LESS( winterDay, winterDayBefore );
-			UT_ASSERT_LESS( winterDay, winterDayAfter );
+			UT_EXPECT_LESS( winterDay, winterDayBefore );
+			UT_EXPECT_LESS( winterDay, winterDayAfter );
 		}
 		{
 #if !NO_SEASON
@@ -144,8 +144,8 @@ class DateTimeTest : public UnitTest
 			std::cout << "SunsetAfter  " << sunsetAfter << ' ' << sunsetAfter.getUtcUnixSeconds() << '\n';
 			std::cout << "day length " << summerDayAfter << '\n'; 
 
-			UT_ASSERT_GREATER( summerDay, summerDayBefore );
-			UT_ASSERT_GREATER( summerDay, summerDayAfter );
+			UT_EXPECT_GREATER( summerDay, summerDayBefore );
+			UT_EXPECT_GREATER( summerDay, summerDayAfter );
 		}
 	}
 	virtual void PerformTest()
@@ -189,14 +189,14 @@ class DateTimeTest : public UnitTest
 		std::cout << "Vollmond: " << nextFullMoon << " Neumond: " << nextNewMoon << '\n';
 #endif
 
-		UT_ASSERT_EQUAL( now.getTZoffset(), 7200L );
+		UT_EXPECT_EQUAL( now.getTZoffset(), 7200L );
 		DateTime	epochBegin( time_t( 0 ) );
-		UT_ASSERT_EQUAL( epochBegin.getYear(), (unsigned short)1970 );
-		UT_ASSERT_EQUAL( epochBegin.getMonth(), Date::JANUARY );
-		UT_ASSERT_EQUAL( int(epochBegin.getDay()), 1 );
-		UT_ASSERT_EQUAL( int(epochBegin.getHour()), 0 );
-		UT_ASSERT_EQUAL( int(epochBegin.getMinute()), 0 );
-		UT_ASSERT_EQUAL( int(epochBegin.getSecond()), 0 );
+		UT_EXPECT_EQUAL( epochBegin.getYear(), (unsigned short)1970 );
+		UT_EXPECT_EQUAL( epochBegin.getMonth(), Date::JANUARY );
+		UT_EXPECT_EQUAL( int(epochBegin.getDay()), 1 );
+		UT_EXPECT_EQUAL( int(epochBegin.getHour()), 0 );
+		UT_EXPECT_EQUAL( int(epochBegin.getMinute()), 0 );
+		UT_EXPECT_EQUAL( int(epochBegin.getSecond()), 0 );
 
 		const time_t daySeconds = 24 * 3600;
 		const time_t yearSeconds = 365 * daySeconds;
@@ -204,30 +204,30 @@ class DateTimeTest : public UnitTest
 
 		{
 			DateTime	theDate( time_t( yearSeconds*2 + leapYearSeconds + yearSeconds ) );
-			UT_ASSERT_EQUAL( theDate.getYear(), (unsigned short)1974 );
-			UT_ASSERT_EQUAL( theDate.getMonth(), Date::JANUARY );
-			UT_ASSERT_EQUAL( int(theDate.getDay()), 1 );
-			UT_ASSERT_EQUAL( int(theDate.getHour()), 0 );
-			UT_ASSERT_EQUAL( int(theDate.getMinute()), 0 );
-			UT_ASSERT_EQUAL( int(theDate.getSecond()), 0 );
+			UT_EXPECT_EQUAL( theDate.getYear(), (unsigned short)1974 );
+			UT_EXPECT_EQUAL( theDate.getMonth(), Date::JANUARY );
+			UT_EXPECT_EQUAL( int(theDate.getDay()), 1 );
+			UT_EXPECT_EQUAL( int(theDate.getHour()), 0 );
+			UT_EXPECT_EQUAL( int(theDate.getMinute()), 0 );
+			UT_EXPECT_EQUAL( int(theDate.getSecond()), 0 );
 		}
 
 		{
 			DateTime	theDate( time_t( yearSeconds*2 + 31*daySeconds + 28*daySeconds + 14*3600 + 30 * 60 + 25 ) );
-			UT_ASSERT_EQUAL( theDate.getYear(), (unsigned short)1972 );
-			UT_ASSERT_EQUAL( theDate.getMonth(), Date::FEBRUARY );
-			UT_ASSERT_EQUAL( int(theDate.getDay()), 29 );
-			UT_ASSERT_EQUAL( int(theDate.getHour()), 14 );
-			UT_ASSERT_EQUAL( int(theDate.getMinute()), 30 );
-			UT_ASSERT_EQUAL( int(theDate.getSecond()), 25 );
+			UT_EXPECT_EQUAL( theDate.getYear(), (unsigned short)1972 );
+			UT_EXPECT_EQUAL( theDate.getMonth(), Date::FEBRUARY );
+			UT_EXPECT_EQUAL( int(theDate.getDay()), 29 );
+			UT_EXPECT_EQUAL( int(theDate.getHour()), 14 );
+			UT_EXPECT_EQUAL( int(theDate.getMinute()), 30 );
+			UT_EXPECT_EQUAL( int(theDate.getSecond()), 25 );
 		}
 
 		{
 			DateTime	theDate( 14, Date::NOVEMBER, 2023, 22, 13, 20 );
 			std::cout << theDate << ' ' << theDate.getUtcUnixSeconds() << '\n'; 
-			UT_ASSERT_EQUAL( theDate.getUtcUnixSeconds(), 1700000000 );
+			UT_EXPECT_EQUAL( theDate.getUtcUnixSeconds(), 1700000000 );
 		}
-		//UT_ASSERT_FALSE(true);
+		//UT_EXPECT_FALSE(true);
 		{
 		    double latitude = 48.269655;
 			double longitude = 14.311495;

@@ -111,7 +111,7 @@ class GpsTest : public UnitTest
 
 		double	distance = getDistance( start, end );
 		std::cout << distance << std::endl;
-		UT_ASSERT_EQUAL( distance, 772.70455160827623 );
+		UT_EXPECT_EQUAL( distance, 772.70455160827623 );
 
 		double angle = 12.2525;
 		int degree;
@@ -119,39 +119,39 @@ class GpsTest : public UnitTest
 		double seconds;
 
 		ConvertDegree( angle, &degree, &minutes, &seconds );
-		UT_ASSERT_EQUAL( degree, 12 );
-		UT_ASSERT_EQUAL( minutes, 15U );
-		UT_ASSERT_LESS( abs(seconds-9.0), 1e-11 );
+		UT_EXPECT_EQUAL( degree, 12 );
+		UT_EXPECT_EQUAL( minutes, 15U );
+		UT_EXPECT_LESS( abs(seconds-9.0), 1e-11 );
 
 		ConvertDegree( -angle, &degree, &minutes, &seconds );
-		UT_ASSERT_EQUAL( degree, -12 );
-		UT_ASSERT_EQUAL( minutes, 15U );
-		UT_ASSERT_LESS( abs(seconds-9.0), 1e-11 );
+		UT_EXPECT_EQUAL( degree, -12 );
+		UT_EXPECT_EQUAL( minutes, 15U );
+		UT_EXPECT_LESS( abs(seconds-9.0), 1e-11 );
 
 		{
 			GeoPosition<double> start( 10, 48 );
 			GeoPosition<double> end( 10, 50 );
 			double bearing = getBearing( start, end );
-			UT_ASSERT_EQUAL( 0.0, bearing );
+			UT_EXPECT_EQUAL( 0.0, bearing );
 
 			end.latitude = 40;
 			bearing = getBearing( start, end );
-			UT_ASSERT_EQUAL( M_PI, bearing );
+			UT_EXPECT_EQUAL( M_PI, bearing );
 
 			start.latitude = 0;
 			end.latitude = 0;
 			end.longitude = 12;
 			bearing = getBearing( start, end );
-			UT_ASSERT_EQUAL( M_PI/2, bearing );
+			UT_EXPECT_EQUAL( M_PI/2, bearing );
 			bearing = getBearingDegree( start, end );
-			UT_ASSERT_EQUAL( 90.0, bearing );
+			UT_EXPECT_EQUAL( 90.0, bearing );
 
 			end.longitude = 8;
 			bearing = getBearing( start, end );
-			UT_ASSERT_EQUAL( -M_PI/2, bearing );
+			UT_EXPECT_EQUAL( -M_PI/2, bearing );
 
 			bearing = getBearingDegree( start, end );
-			UT_ASSERT_EQUAL( 270.0, bearing );
+			UT_EXPECT_EQUAL( 270.0, bearing );
 		}
 	}
 	void RectangleTest()
@@ -161,37 +161,37 @@ class GpsTest : public UnitTest
 		GeoPosition<double>	left( 10, 2 );
 		GeoPosition<double>	right( 11, 22 );
 		GeoPosition<double>	sum = left + right;
-		UT_ASSERT_EQUAL( sum.longitude, 21.0 );
-		UT_ASSERT_EQUAL( sum.latitude, 24.0 );
+		UT_EXPECT_EQUAL( sum.longitude, 21.0 );
+		UT_EXPECT_EQUAL( sum.latitude, 24.0 );
 		left += right;
-		UT_ASSERT_EQUAL( left.longitude, 21.0 );
-		UT_ASSERT_EQUAL( left.latitude, 24.0 );
+		UT_EXPECT_EQUAL( left.longitude, 21.0 );
+		UT_EXPECT_EQUAL( left.latitude, 24.0 );
 
 		Rectangle< GeoPosition<double> >	rect( left, right );
 		moveRectangle( &rect, left );
-		UT_ASSERT_EQUAL( rect.topLeft.longitude, 42.0 );
-		UT_ASSERT_EQUAL( rect.topLeft.latitude, 48.0 );
-		UT_ASSERT_EQUAL( rect.bottomRight.longitude, 32.0 );
-		UT_ASSERT_EQUAL( rect.bottomRight.latitude, 46.0 );
+		UT_EXPECT_EQUAL( rect.topLeft.longitude, 42.0 );
+		UT_EXPECT_EQUAL( rect.topLeft.latitude, 48.0 );
+		UT_EXPECT_EQUAL( rect.bottomRight.longitude, 32.0 );
+		UT_EXPECT_EQUAL( rect.bottomRight.latitude, 46.0 );
 
 		moveRectangle( &rect, GeoPosition<double>( 0, 45 ) );
-		UT_ASSERT_EQUAL( rect.topLeft.longitude, 42.0 );
-		UT_ASSERT_EQUAL( rect.topLeft.latitude, 90.0 );
-		UT_ASSERT_EQUAL( rect.bottomRight.longitude, 32.0 );
-		UT_ASSERT_EQUAL( rect.bottomRight.latitude, 88.0 );
+		UT_EXPECT_EQUAL( rect.topLeft.longitude, 42.0 );
+		UT_EXPECT_EQUAL( rect.topLeft.latitude, 90.0 );
+		UT_EXPECT_EQUAL( rect.bottomRight.longitude, 32.0 );
+		UT_EXPECT_EQUAL( rect.bottomRight.latitude, 88.0 );
 
 		moveRectangle( &rect, GeoPosition<double>( 0, -180 ) );
-		UT_ASSERT_EQUAL( rect.topLeft.longitude, 42.0 );
-		UT_ASSERT_EQUAL( rect.topLeft.latitude, -88.0 );
-		UT_ASSERT_EQUAL( rect.bottomRight.longitude, 32.0 );
-		UT_ASSERT_EQUAL( rect.bottomRight.latitude, -90.0 );
+		UT_EXPECT_EQUAL( rect.topLeft.longitude, 42.0 );
+		UT_EXPECT_EQUAL( rect.topLeft.latitude, -88.0 );
+		UT_EXPECT_EQUAL( rect.bottomRight.longitude, 32.0 );
+		UT_EXPECT_EQUAL( rect.bottomRight.latitude, -90.0 );
 	}
 	void TileTest()
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "GpsTest::TileTest");
 
 		tileid_t tileId = GeoPosition<double>::getTileID(-179.9, -89.9);
-		UT_ASSERT_EQUAL( tileId, tileid_t(0) );
+		UT_EXPECT_EQUAL( tileId, tileid_t(0) );
 
 		{
 			TestScope scope( "atlantic ocean" );
@@ -226,10 +226,10 @@ class GpsTest : public UnitTest
 		GeoPosition<double> upperRight;
 		
 		GeoPosition<double>::getTile(tileId, lowerLeft, upperRight);
-		UT_ASSERT_LESSEQ( lowerLeft.longitude, longitude );
-		UT_ASSERT_LESSEQ( lowerLeft.latitude, latitude );
-		UT_ASSERT_GREATEREQ( upperRight.longitude, longitude );
-		UT_ASSERT_GREATEREQ( upperRight.latitude, latitude );
+		UT_EXPECT_LESSEQ( lowerLeft.longitude, longitude );
+		UT_EXPECT_LESSEQ( lowerLeft.latitude, latitude );
+		UT_EXPECT_GREATEREQ( upperRight.longitude, longitude );
+		UT_EXPECT_GREATEREQ( upperRight.latitude, latitude );
 	}
 };
 

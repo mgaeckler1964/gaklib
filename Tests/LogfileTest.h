@@ -218,7 +218,7 @@ void LogfileTest::ProfileTest()
 		ProfileTestInfo();
 		ProfileTestDetail();
 		ProfileTestNone();
-		UT_ASSERT_EQUAL( count, 3*s_loop_count);
+		UT_EXPECT_EQUAL( count, 3*s_loop_count);
 	}
 
 	{
@@ -233,8 +233,8 @@ void LogfileTest::ProfileTest()
 		detailThread.join();
 		infoThread.join();
 
-		UT_ASSERT_EQUAL( detailThread.m_count, ThreadProfiler::s_loop_count);
-		UT_ASSERT_EQUAL( infoThread.m_count, ThreadProfiler::s_loop_count);
+		UT_EXPECT_EQUAL( detailThread.m_count, ThreadProfiler::s_loop_count);
+		UT_EXPECT_EQUAL( infoThread.m_count, ThreadProfiler::s_loop_count);
 	}
 }
 

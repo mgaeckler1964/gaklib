@@ -142,19 +142,19 @@ class ThreadPoolTest : public UnitTest
 		{
 			ThreadPool<Functor>	pool( 5, "ThreadPoolTest1", nullptr );
 
-			UT_ASSERT_EQUAL( pool.getCurrentState(), psIdle );
+			UT_EXPECT_EQUAL( pool.getCurrentState(), psIdle );
 			pool.start();
-			UT_ASSERT_EQUAL( pool.getCurrentState(), psWaiting );
+			UT_EXPECT_EQUAL( pool.getCurrentState(), psWaiting );
 			for( size_t i=0; i<count; ++i )
 			{
 				pool.process( Functor( int(i), &callCount ) );
 			}
-			UT_ASSERT_EQUAL( pool.getCurrentState(), psProssesing );
+			UT_EXPECT_EQUAL( pool.getCurrentState(), psProssesing );
 			pool.flush();
-			UT_ASSERT_EQUAL( pool.getCurrentState(), psWaiting );
-			UT_ASSERT_EQUAL( count, pool.total() );
+			UT_EXPECT_EQUAL( pool.getCurrentState(), psWaiting );
+			UT_EXPECT_EQUAL( count, pool.total() );
 		}
-		UT_ASSERT_EQUAL( count, callCount );
+		UT_EXPECT_EQUAL( count, callCount );
 		{
 			const size_t	count(10);
 			ThreadPool<Functor>	pool( 5, "ThreadPoolTest2", nullptr );
@@ -169,7 +169,7 @@ class ThreadPoolTest : public UnitTest
 			}
 			Sleep( 2000 );
 			pool.flush();
-			UT_ASSERT_EQUAL( count, callCount );
+			UT_EXPECT_EQUAL( count, callCount );
 			pool.shutdown();
 
 			callCount = 0;
@@ -180,11 +180,11 @@ class ThreadPoolTest : public UnitTest
 			}
 			pool.flush();
 			pool.shutdown();
-			UT_ASSERT_EQUAL( count, callCount );
+			UT_EXPECT_EQUAL( count, callCount );
 
-			UT_ASSERT_EQUAL( pool.getCurrentState(), psIdle );
+			UT_EXPECT_EQUAL( pool.getCurrentState(), psIdle );
 
-			UT_ASSERT_EXCEPTION(
+			UT_EXPECT_EXCEPTION(
 				pool.process( Functor( int(0), &callCount ) ),
 				ThreadPoolError
 			);
@@ -194,38 +194,38 @@ class ThreadPoolTest : public UnitTest
 			ThreadPool<int>	pool(3, "MyIntPool", &mainData );
 
 			pool.start();
-			UT_ASSERT_EQUAL( mainData.sum, 0 );
+			UT_EXPECT_EQUAL( mainData.sum, 0 );
 			pool.process( 5 );
 			pool.flush();
 			pool.shutdown();
-			UT_ASSERT_EQUAL( mainData.sum, 5 );
+			UT_EXPECT_EQUAL( mainData.sum, 5 );
 			pool.start();
 			pool.process( 5 );
 			pool.process( 10 );
 			pool.flush();
 			pool.shutdown();
-			UT_ASSERT_EQUAL( mainData.sum, 20 );
+			UT_EXPECT_EQUAL( mainData.sum, 20 );
 
-			UT_ASSERT_GREATER( mainData.waiting, 0 );
+			UT_EXPECT_GREATER( mainData.waiting, 0 );
 		}
 		{
 			MainData	mainData;
 			ThreadPool<int>	pool(0, "MyIntPool", &mainData );
 
 			pool.start();
-			UT_ASSERT_EQUAL( mainData.sum, 0 );
+			UT_EXPECT_EQUAL( mainData.sum, 0 );
 			pool.process( 5 );
 			pool.flush();
 			pool.shutdown();
-			UT_ASSERT_EQUAL( mainData.sum, 5 );
+			UT_EXPECT_EQUAL( mainData.sum, 5 );
 			pool.start();
 			pool.process( 5 );
 			pool.process( 10 );
 			pool.flush();
 			pool.shutdown();
-			UT_ASSERT_EQUAL( mainData.sum, 20 );
+			UT_EXPECT_EQUAL( mainData.sum, 20 );
 
-			UT_ASSERT_GREATER( mainData.waiting, 0 );
+			UT_EXPECT_GREATER( mainData.waiting, 0 );
 		}
 	}
 	virtual bool canThreadTest()

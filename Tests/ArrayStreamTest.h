@@ -96,9 +96,9 @@ class ArrayStreamTest : public UnitTest
 		myData1.writeToFile(tmpName);
 		myData2.readFromFile(tmpName);
 
-		UT_ASSERT_EQUAL(myData1.size(), myData2.size());
-		UT_ASSERT_EQUAL(myData1[0], myData2[0]);
-		UT_ASSERT_EQUAL(myData1[1], myData2[1]);
+		UT_EXPECT_EQUAL(myData1.size(), myData2.size());
+		UT_EXPECT_EQUAL(myData1[0], myData2[0]);
+		UT_EXPECT_EQUAL(myData1[1], myData2[1]);
 	}
 };
 

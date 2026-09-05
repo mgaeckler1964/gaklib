@@ -87,16 +87,16 @@ class NeuronTest : public UnitTest
 		ai::Neuron<>	neuron;
 
 		float	result = neuron.calculate( 0.5 );
-		UT_ASSERT_EQUAL( result, 0 );				// by default this neuron is off
+		UT_EXPECT_EQUAL( result, 0 );				// by default this neuron is off
 
 		neuron.setWeight( 1 );
 
 		result = neuron.calculate( 0.5 );
-		UT_ASSERT_EQUAL( result, float(tanh(0.5f)) );
+		UT_EXPECT_EQUAL( result, float(tanh(0.5f)) );
 
 		neuron.setBias( 1 );
 		result = neuron.calculate( 0.5 );
-		UT_ASSERT_EQUAL( result, float(tanh(1.5f)) );
+		UT_EXPECT_EQUAL( result, float(tanh(1.5f)) );
 	}
 	void layerTest()
 	{
@@ -106,19 +106,19 @@ class NeuronTest : public UnitTest
 		input[0] = 0.5;
 
 		layer.calculate( input, &output );
-		UT_ASSERT_EQUAL(layer.size(), output.size());
-		UT_ASSERT_EQUAL( output[0], 0 );				// by default the neurons are off
-		UT_ASSERT_EQUAL( output[1], 0 );
+		UT_EXPECT_EQUAL(layer.size(), output.size());
+		UT_EXPECT_EQUAL( output[0], 0 );				// by default the neurons are off
+		UT_EXPECT_EQUAL( output[1], 0 );
 
 		layer[0].setWeight( 1 );
 		layer.calculate( input, &output );
-		UT_ASSERT_EQUAL( output[0], float(tanh(0.5f)) );
-		UT_ASSERT_EQUAL( output[1], 0 );
+		UT_EXPECT_EQUAL( output[0], float(tanh(0.5f)) );
+		UT_EXPECT_EQUAL( output[1], 0 );
 
 		layer[1].setBias( 1 );
 		layer.calculate( input, &output );
-		UT_ASSERT_EQUAL( output[0], float(tanh(0.5f)) );
-		UT_ASSERT_EQUAL( output[1], float(tanh(1.0f)) );
+		UT_EXPECT_EQUAL( output[0], float(tanh(0.5f)) );
+		UT_EXPECT_EQUAL( output[1], float(tanh(1.0f)) );
 	}
 	ai::NeuronNetwork<> createNetwork()
 	{
@@ -140,8 +140,8 @@ class NeuronTest : public UnitTest
 		ai::NeuronNetwork<>	netWork = createNetwork();
 
 		netWork.calculate( input, &output );
-		UT_ASSERT_EQUAL( 1, output.size() ); 
-		UT_ASSERT_EQUAL( output[0], 0 );				// by default the neurons are off
+		UT_EXPECT_EQUAL( 1, output.size() ); 
+		UT_EXPECT_EQUAL( output[0], 0 );				// by default the neurons are off
 
 		ai::BaseValues	weights1, weights2;
 		weights1[0] = 1;
@@ -155,8 +155,8 @@ class NeuronTest : public UnitTest
 		netWork.setWeights( 2, 0, weights2 );
 
 		netWork.calculate( input, &output );
-		UT_ASSERT_EQUAL( 1, output.size() ); 
-		UT_ASSERT_EQUAL( output[0], float(tanh(weights2[0]*tanh(tanh(0.5f)))) );
+		UT_EXPECT_EQUAL( 1, output.size() ); 
+		UT_EXPECT_EQUAL( output[0], float(tanh(weights2[0]*tanh(tanh(0.5f)))) );
 	}
 
 	void GradientTest()
@@ -176,14 +176,14 @@ class NeuronTest : public UnitTest
 		netWork.calculate( input, &output );
 		double loss2 = netWork.getLoss(output, expected);
 
-		UT_ASSERT_LESS(loss2, loss1);
+		UT_EXPECT_LESS(loss2, loss1);
 
 		for( int i=0; i<10; ++i )
 			netWork.GradientDescent(input, expected, 0.1);
 
 		netWork.calculate( input, &output );
 		double loss3 = netWork.getLoss(output, expected);
-		UT_ASSERT_LESS(loss3, loss1);
+		UT_EXPECT_LESS(loss3, loss1);
 	}
 	void XorTest()
 	{
@@ -258,15 +258,15 @@ class NeuronTest : public UnitTest
 			loss1 = loss2;
 		}
 		std::cout << "Loop count " << loopCount << " loss " << loss0 << ' ' << loss1 << std::endl;
-		UT_ASSERT_LESS( loopCount, maxLoops );
+		UT_EXPECT_LESS( loopCount, maxLoops );
 		netWork.calculate(input1, &output);
-		UT_ASSERT_EQUAL_FLT(output[0], expected0[0], tolerance);
+		UT_EXPECT_EQUAL_FLT(output[0], expected0[0], tolerance);
 		netWork.calculate(input2, &output);
-		UT_ASSERT_EQUAL_FLT(output[0], expected1[0], tolerance);
+		UT_EXPECT_EQUAL_FLT(output[0], expected1[0], tolerance);
 		netWork.calculate(input3, &output);
-		UT_ASSERT_EQUAL_FLT(output[0], expected1[0], tolerance);
+		UT_EXPECT_EQUAL_FLT(output[0], expected1[0], tolerance);
 		netWork.calculate(input4, &output);
-		UT_ASSERT_EQUAL_FLT(output[0], expected0[0], tolerance);
+		UT_EXPECT_EQUAL_FLT(output[0], expected0[0], tolerance);
 	}
 
 	virtual void PerformTest()

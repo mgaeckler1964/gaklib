@@ -86,85 +86,85 @@ class strcmpiTest : public UnitTest
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "strcmpiTest::PerformTest");
 		TestScope scope( "PerformTest" );
-		UT_ASSERT_EQUAL( 0,
+		UT_EXPECT_EQUAL( 0,
 			strcmpi(
 				"abcdefghijklmnopqrstuvwxyzäöüß",
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß"
 			)
 		);
-		UT_ASSERT_GREATER( 0,
+		UT_EXPECT_GREATER( 0,
 			strcmpi(
 				"abcdefghijklmnopqrstuvwxyzäöü",
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß"
 			)
 		);
-		UT_ASSERT_LESS( 0,
+		UT_EXPECT_LESS( 0,
 			strcmpi(
 				"abcdefghijklmnopqrstuvwxyzäöüß",
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ"
 			)
 		);
-		UT_ASSERT_GREATER( 0,
+		UT_EXPECT_GREATER( 0,
 			strcmpi(
 				"",
 				"ä"
 			)
 		);
-		UT_ASSERT_GREATER( 0,
+		UT_EXPECT_GREATER( 0,
 			strcmpi(
 				"",
 				"a"
 			)
 		);
-		UT_ASSERT_LESS( 0,
+		UT_EXPECT_LESS( 0,
 			strcmpi(
 				"ä",
 				""
 			)
 		);
-		UT_ASSERT_LESS( 0,
+		UT_EXPECT_LESS( 0,
 			strcmpi(
 				"a",
 				""
 			)
 		);
 
-		UT_ASSERT_EQUAL( 0,
+		UT_EXPECT_EQUAL( 0,
 			strncmpi(
 				"abcdefghijklmnopqrstuvwxyzäöüß",
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß",
 				16
 			)
 		);
-		UT_ASSERT_EQUAL( 0,
+		UT_EXPECT_EQUAL( 0,
 			strncmpi(
 				"abcdefghijklmnopqrstuvwxyzäöüß",
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß",
 				128
 			)
 		);
-		UT_ASSERT_EQUAL( 0,
+		UT_EXPECT_EQUAL( 0,
 			strncmpi(
 				"abcdefghijklmnopqrstuvwxyzäöü",
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß",
 				29
 			)
 		);
-		UT_ASSERT_GREATER( 0,
+		UT_EXPECT_GREATER( 0,
 			strncmpi(
 				"abcdefghijklmnopqrstuvwxyzäöü",
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß",
 				30
 			)
 		);
-		UT_ASSERT_EQUAL( 0,
+		UT_EXPECT_EQUAL( 0,
 			strncmpi(
 				"abcdefghijklmnopqrstuvwxyzäöüß",
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ",
 				29
 			)
 		);
-		UT_ASSERT_LESS( 0,
+		UT_EXPECT_LESS( 0,
 			strncmpi(
 				"abcdefghijklmnopqrstuvwxyzäöüß",
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ",

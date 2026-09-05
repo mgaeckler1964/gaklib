@@ -178,8 +178,8 @@ class StreamsTest : public UnitTest
 			strSink2->start();
 			strSink2->wait();
 
-			UT_ASSERT_EQUAL( resultArray.size(), array1Size );
-			UT_ASSERT_EQUAL( resultArray, myStrings1 );
+			UT_EXPECT_EQUAL( resultArray.size(), array1Size );
+			UT_EXPECT_EQUAL( resultArray, myStrings1 );
 		}
 	}
 	void ContainerTest()
@@ -206,12 +206,12 @@ class StreamsTest : public UnitTest
 		strSink2->start();
 		strSink2->wait();
 
-		UT_ASSERT_EQUAL( strStream1->getNumItems(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsProcessed(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsDispatched(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( strStream1->getNumItems(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsProcessed(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsDispatched(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( resultArray.size(), array1Size );
+		UT_EXPECT_EQUAL( resultArray.size(), array1Size );
 	}
 	void UnionTest()
 	{
@@ -245,22 +245,22 @@ class StreamsTest : public UnitTest
 		strSink2->start();
 		strSink2->wait();
 
-		UT_ASSERT_EQUAL( strStream1->getNumItems(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsProcessed(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsDispatched(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( strStream1->getNumItems(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsProcessed(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsDispatched(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( strStream2->getNumItems(), array2Size );
-		UT_ASSERT_EQUAL( strStream2->getNumItemsProcessed(), array2Size );
-		UT_ASSERT_EQUAL( strStream2->getNumItemsDispatched(), array2Size );
-		UT_ASSERT_EQUAL( strStream2->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( strStream2->getNumItems(), array2Size );
+		UT_EXPECT_EQUAL( strStream2->getNumItemsProcessed(), array2Size );
+		UT_EXPECT_EQUAL( strStream2->getNumItemsDispatched(), array2Size );
+		UT_EXPECT_EQUAL( strStream2->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( unionStream1->getNumItems(), arrayXSize );
-		UT_ASSERT_EQUAL( unionStream1->getNumItemsProcessed(), arrayXSize );
-		UT_ASSERT_EQUAL( unionStream1->getNumItemsDispatched(), arrayXSize );
-		UT_ASSERT_EQUAL( unionStream1->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( unionStream1->getNumItems(), arrayXSize );
+		UT_EXPECT_EQUAL( unionStream1->getNumItemsProcessed(), arrayXSize );
+		UT_EXPECT_EQUAL( unionStream1->getNumItemsDispatched(), arrayXSize );
+		UT_EXPECT_EQUAL( unionStream1->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( resultArray.size(), arrayXSize );
+		UT_EXPECT_EQUAL( resultArray.size(), arrayXSize );
 	}
 	void MapTest()
 	{
@@ -291,17 +291,17 @@ class StreamsTest : public UnitTest
 		strSink2->start();
 		strSink2->wait();
 
-		UT_ASSERT_EQUAL( strStream1->getNumItems(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsProcessed(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsDispatched(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( strStream1->getNumItems(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsProcessed(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsDispatched(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( firstLetterStream->getNumItems(), array1Size );
-		UT_ASSERT_EQUAL( firstLetterStream->getNumItemsProcessed(), array1Size );
-		UT_ASSERT_EQUAL( firstLetterStream->getNumItemsDispatched(), array1Size );
-		UT_ASSERT_EQUAL( firstLetterStream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( firstLetterStream->getNumItems(), array1Size );
+		UT_EXPECT_EQUAL( firstLetterStream->getNumItemsProcessed(), array1Size );
+		UT_EXPECT_EQUAL( firstLetterStream->getNumItemsDispatched(), array1Size );
+		UT_EXPECT_EQUAL( firstLetterStream->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( resultArray.size(), array1Size );
+		UT_EXPECT_EQUAL( resultArray.size(), array1Size );
 	}
 	void FilterTest()
 	{
@@ -335,27 +335,27 @@ class StreamsTest : public UnitTest
 		strSink2->start();
 		strSink2->wait();
 
-		UT_ASSERT_EQUAL( strStream1->getNumItems(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsProcessed(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsDispatched(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( strStream1->getNumItems(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsProcessed(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsDispatched(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( firstLetterStream->getNumItems(), array1Size );
-		UT_ASSERT_EQUAL( firstLetterStream->getNumItemsProcessed(), array1Size );
-		UT_ASSERT_EQUAL( firstLetterStream->getNumItemsDispatched(), array1Size );
-		UT_ASSERT_EQUAL( firstLetterStream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( firstLetterStream->getNumItems(), array1Size );
+		UT_EXPECT_EQUAL( firstLetterStream->getNumItemsProcessed(), array1Size );
+		UT_EXPECT_EQUAL( firstLetterStream->getNumItemsDispatched(), array1Size );
+		UT_EXPECT_EQUAL( firstLetterStream->getNumItemsWaiting(), size_t(0) );
 
 		size_t evenSize = evenStream->getNumItems();
 
-		UT_ASSERT_EQUAL( evenSize, numEvenSucces );
+		UT_EXPECT_EQUAL( evenSize, numEvenSucces );
 
-		UT_ASSERT_EQUAL( array1Size, numEvenCalls );
+		UT_EXPECT_EQUAL( array1Size, numEvenCalls );
 
-		UT_ASSERT_EQUAL( evenStream->getNumItemsProcessed(), evenSize );
-		UT_ASSERT_EQUAL( evenStream->getNumItemsDispatched(), evenSize );
-		UT_ASSERT_EQUAL( evenStream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( evenStream->getNumItemsProcessed(), evenSize );
+		UT_EXPECT_EQUAL( evenStream->getNumItemsDispatched(), evenSize );
+		UT_EXPECT_EQUAL( evenStream->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( resultArray.size(), evenSize );
+		UT_EXPECT_EQUAL( resultArray.size(), evenSize );
 
 		resetCounters();
 	}
@@ -383,12 +383,12 @@ class StreamsTest : public UnitTest
 		strSink2->start();
 		strSink2->wait();
 
-		UT_ASSERT_EQUAL( randomStream->getNumItems(), RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( randomStream->getNumItemsProcessed(), RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( randomStream->getNumItemsDispatched(), RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( randomStream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( randomStream->getNumItems(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( randomStream->getNumItemsProcessed(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( randomStream->getNumItemsDispatched(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( randomStream->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( resultArray.size(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( resultArray.size(), RandomChar::NUM_ITEMS );
 	}
 	void FlatmapSourceTest()
 	{
@@ -418,17 +418,17 @@ class StreamsTest : public UnitTest
 		strSink2->start();
 		strSink2->wait();
 
-		UT_ASSERT_EQUAL( randomStream->getNumItems(), RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( randomStream->getNumItemsProcessed(), RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( randomStream->getNumItemsDispatched(), RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( randomStream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( randomStream->getNumItems(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( randomStream->getNumItemsProcessed(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( randomStream->getNumItemsDispatched(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( randomStream->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( randomFlatMapped3Stream->getNumItems(), RandomChar::NUM_ITEMS*3 );
-		UT_ASSERT_EQUAL( randomFlatMapped3Stream->getNumItemsProcessed(), RandomChar::NUM_ITEMS*3 );
-		UT_ASSERT_EQUAL( randomFlatMapped3Stream->getNumItemsDispatched(), RandomChar::NUM_ITEMS*3 );
-		UT_ASSERT_EQUAL( randomFlatMapped3Stream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( randomFlatMapped3Stream->getNumItems(), RandomChar::NUM_ITEMS*3 );
+		UT_EXPECT_EQUAL( randomFlatMapped3Stream->getNumItemsProcessed(), RandomChar::NUM_ITEMS*3 );
+		UT_EXPECT_EQUAL( randomFlatMapped3Stream->getNumItemsDispatched(), RandomChar::NUM_ITEMS*3 );
+		UT_EXPECT_EQUAL( randomFlatMapped3Stream->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( resultArray.size(), RandomChar::NUM_ITEMS*3 );
+		UT_EXPECT_EQUAL( resultArray.size(), RandomChar::NUM_ITEMS*3 );
 	}
 	void AllTests()
 	{
@@ -505,78 +505,78 @@ class StreamsTest : public UnitTest
 		strSink1->wait();
 		strSink2->wait();
 
-		UT_ASSERT_EQUAL( strStream1->getNumItems(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsProcessed(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsDispatched(), array1Size );
-		UT_ASSERT_EQUAL( strStream1->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( strStream1->getNumItems(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsProcessed(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsDispatched(), array1Size );
+		UT_EXPECT_EQUAL( strStream1->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( strStream2->getNumItems(), array2Size );
-		UT_ASSERT_EQUAL( strStream2->getNumItemsProcessed(), array2Size );
-		UT_ASSERT_EQUAL( strStream2->getNumItemsDispatched(), array2Size );
-		UT_ASSERT_EQUAL( strStream2->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( strStream2->getNumItems(), array2Size );
+		UT_EXPECT_EQUAL( strStream2->getNumItemsProcessed(), array2Size );
+		UT_EXPECT_EQUAL( strStream2->getNumItemsDispatched(), array2Size );
+		UT_EXPECT_EQUAL( strStream2->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( unionStream1->getNumItems(), arrayXSize );
-		UT_ASSERT_EQUAL( unionStream1->getNumItemsProcessed(), arrayXSize );
-		UT_ASSERT_EQUAL( unionStream1->getNumItemsDispatched(), arrayXSize );
-		UT_ASSERT_EQUAL( unionStream1->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( unionStream1->getNumItems(), arrayXSize );
+		UT_EXPECT_EQUAL( unionStream1->getNumItemsProcessed(), arrayXSize );
+		UT_EXPECT_EQUAL( unionStream1->getNumItemsDispatched(), arrayXSize );
+		UT_EXPECT_EQUAL( unionStream1->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( firstLetterStream->getNumItems(), arrayXSize );
-		UT_ASSERT_EQUAL( firstLetterStream->getNumItemsProcessed(), arrayXSize );
-		UT_ASSERT_EQUAL( firstLetterStream->getNumItemsDispatched(), arrayXSize );
-		UT_ASSERT_EQUAL( firstLetterStream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( firstLetterStream->getNumItems(), arrayXSize );
+		UT_EXPECT_EQUAL( firstLetterStream->getNumItemsProcessed(), arrayXSize );
+		UT_EXPECT_EQUAL( firstLetterStream->getNumItemsDispatched(), arrayXSize );
+		UT_EXPECT_EQUAL( firstLetterStream->getNumItemsWaiting(), size_t(0) );
 
 		size_t evenSize = evenStream->getNumItems();
 		size_t oddSize = oddStream->getNumItems();
 
-		UT_ASSERT_EQUAL( evenSize, numEvenSucces );
-		UT_ASSERT_EQUAL( oddSize, numOddSucces );
+		UT_EXPECT_EQUAL( evenSize, numEvenSucces );
+		UT_EXPECT_EQUAL( oddSize, numOddSucces );
 
-		UT_ASSERT_EQUAL( arrayXSize, numEvenCalls );
-		UT_ASSERT_EQUAL( arrayXSize, numOddCalls );
+		UT_EXPECT_EQUAL( arrayXSize, numEvenCalls );
+		UT_EXPECT_EQUAL( arrayXSize, numOddCalls );
 
-		UT_ASSERT_EQUAL( evenStream->getNumItemsProcessed(), evenSize );
-		UT_ASSERT_EQUAL( evenStream->getNumItemsDispatched(), evenSize );
-		UT_ASSERT_EQUAL( evenStream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( evenStream->getNumItemsProcessed(), evenSize );
+		UT_EXPECT_EQUAL( evenStream->getNumItemsDispatched(), evenSize );
+		UT_EXPECT_EQUAL( evenStream->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( oddStream->getNumItemsProcessed(), oddSize );
-		UT_ASSERT_EQUAL( oddStream->getNumItemsDispatched(), oddSize );
-		UT_ASSERT_EQUAL( oddStream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( oddStream->getNumItemsProcessed(), oddSize );
+		UT_EXPECT_EQUAL( oddStream->getNumItemsDispatched(), oddSize );
+		UT_EXPECT_EQUAL( oddStream->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( evenSize + oddSize, arrayXSize );
+		UT_EXPECT_EQUAL( evenSize + oddSize, arrayXSize );
 
 		size_t evenFlatmapSize = evenFlatMapped3Stream->getNumItems();
-		UT_ASSERT_EQUAL( evenFlatMapped3Stream->getNumItemsProcessed(), evenFlatmapSize );
-		UT_ASSERT_EQUAL( evenFlatMapped3Stream->getNumItemsDispatched(), evenFlatmapSize );
-		UT_ASSERT_EQUAL( evenFlatMapped3Stream->getNumItemsWaiting(), size_t(0) );
-		UT_ASSERT_EQUAL( evenFlatmapSize, evenSize*3 );
+		UT_EXPECT_EQUAL( evenFlatMapped3Stream->getNumItemsProcessed(), evenFlatmapSize );
+		UT_EXPECT_EQUAL( evenFlatMapped3Stream->getNumItemsDispatched(), evenFlatmapSize );
+		UT_EXPECT_EQUAL( evenFlatMapped3Stream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( evenFlatmapSize, evenSize*3 );
 
 		size_t oddFlatmapSize = oddFlatMapped1Stream->getNumItems();
-		UT_ASSERT_EQUAL( oddFlatMapped1Stream->getNumItemsProcessed(), oddFlatmapSize );
-		UT_ASSERT_EQUAL( oddFlatMapped1Stream->getNumItemsDispatched(), oddFlatmapSize );
-		UT_ASSERT_EQUAL( oddFlatMapped1Stream->getNumItemsWaiting(), size_t(0) );
-		UT_ASSERT_EQUAL( oddFlatmapSize, oddSize );
+		UT_EXPECT_EQUAL( oddFlatMapped1Stream->getNumItemsProcessed(), oddFlatmapSize );
+		UT_EXPECT_EQUAL( oddFlatMapped1Stream->getNumItemsDispatched(), oddFlatmapSize );
+		UT_EXPECT_EQUAL( oddFlatMapped1Stream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( oddFlatmapSize, oddSize );
 
-		UT_ASSERT_EQUAL( unionStream2->getNumItems(), evenFlatmapSize+oddFlatmapSize );
-		UT_ASSERT_EQUAL( unionStream2->getNumItemsProcessed(), evenFlatmapSize+oddFlatmapSize );
-		UT_ASSERT_EQUAL( unionStream2->getNumItemsDispatched(), evenFlatmapSize+oddFlatmapSize );
-		UT_ASSERT_EQUAL( unionStream2->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( unionStream2->getNumItems(), evenFlatmapSize+oddFlatmapSize );
+		UT_EXPECT_EQUAL( unionStream2->getNumItemsProcessed(), evenFlatmapSize+oddFlatmapSize );
+		UT_EXPECT_EQUAL( unionStream2->getNumItemsDispatched(), evenFlatmapSize+oddFlatmapSize );
+		UT_EXPECT_EQUAL( unionStream2->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( randomStream->getNumItems(), RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( randomStream->getNumItemsProcessed(), RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( randomStream->getNumItemsDispatched(), RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( randomStream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( randomStream->getNumItems(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( randomStream->getNumItemsProcessed(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( randomStream->getNumItemsDispatched(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( randomStream->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( randomFlatMapped1Stream->getNumItems(), RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( randomFlatMapped1Stream->getNumItemsProcessed(), RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( randomFlatMapped1Stream->getNumItemsDispatched(), RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( randomFlatMapped1Stream->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( randomFlatMapped1Stream->getNumItems(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( randomFlatMapped1Stream->getNumItemsProcessed(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( randomFlatMapped1Stream->getNumItemsDispatched(), RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( randomFlatMapped1Stream->getNumItemsWaiting(), size_t(0) );
 
-		UT_ASSERT_EQUAL( unionStream3->getNumItems(), evenFlatmapSize+oddFlatmapSize+RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( unionStream3->getNumItemsProcessed(), evenFlatmapSize+oddFlatmapSize+RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( unionStream3->getNumItemsDispatched(), evenFlatmapSize+oddFlatmapSize+RandomChar::NUM_ITEMS );
-		UT_ASSERT_EQUAL( unionStream3->getNumItemsWaiting(), size_t(0) );
+		UT_EXPECT_EQUAL( unionStream3->getNumItems(), evenFlatmapSize+oddFlatmapSize+RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( unionStream3->getNumItemsProcessed(), evenFlatmapSize+oddFlatmapSize+RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( unionStream3->getNumItemsDispatched(), evenFlatmapSize+oddFlatmapSize+RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( unionStream3->getNumItemsWaiting(), size_t(0) );
 		
-		UT_ASSERT_EQUAL( resultArray.size(), evenFlatmapSize+oddFlatmapSize+RandomChar::NUM_ITEMS );
+		UT_EXPECT_EQUAL( resultArray.size(), evenFlatmapSize+oddFlatmapSize+RandomChar::NUM_ITEMS );
 	}
 
 	Array<STRING>	myStrings1;

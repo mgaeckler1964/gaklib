@@ -88,12 +88,12 @@ class FmtNumberTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "FmtNumberTest::binaryTest");
 		
 		long value2 = formatBinary( value1, 16, 16 ).getValueN<long>(16);
-		UT_ASSERT_EQUAL( value1, value2 );
+		UT_EXPECT_EQUAL( value1, value2 );
 
 		if( value1 > std::numeric_limits<long>::min() )
 		{	// formatNumber cannot handle the min value
 			value2 = formatNumber( value1, 16 ).getValueN<long>(10);
-			UT_ASSERT_EQUAL( value1, value2 );
+			UT_EXPECT_EQUAL( value1, value2 );
 		}
 	}
 	void numberBufferTest()
@@ -101,10 +101,10 @@ class FmtNumberTest : public UnitTest
 		NumberBuffer	buffer;
 
 		formatNumberFast( &buffer, 1000, 10, ' ', '.' );
-		UT_ASSERT_EQUAL( buffer.c_str(), (const char *)"     1.000" );
+		UT_EXPECT_EQUAL( buffer.c_str(), (const char *)"     1.000" );
 
 		formatNumberFast( &buffer, -1000, 10, ' ', '.' );
-		UT_ASSERT_EQUAL( buffer.c_str(), (const char *)"-    1.000" );
+		UT_EXPECT_EQUAL( buffer.c_str(), (const char *)"-    1.000" );
 	}
 
 	virtual void PerformTest()
@@ -113,60 +113,60 @@ class FmtNumberTest : public UnitTest
 		TestScope scope( "PerformTest" );
 		numberBufferTest();
 
-		UT_ASSERT_EQUAL( STRING("999.999990000000025"), formatNumber( 999.999990000000025 ) );
-		UT_ASSERT_EQUAL( STRING("99.999999000000003"), formatNumber( 99.999999000000003 ) );
-		UT_ASSERT_EQUAL( STRING("9.999999900000001"), formatNumber( 9.999999900000001 ) );
-		UT_ASSERT_EQUAL( STRING("0.9999999"), formatNumber( 0.9999999 ) );
-		UT_ASSERT_EQUAL( STRING("0.09999999"), formatNumber( 0.09999999 ) );
-		UT_ASSERT_EQUAL( STRING("0.009999999"), formatNumber( 0.009999999 ) );
+		UT_EXPECT_EQUAL( STRING("999.999990000000025"), formatNumber( 999.999990000000025 ) );
+		UT_EXPECT_EQUAL( STRING("99.999999000000003"), formatNumber( 99.999999000000003 ) );
+		UT_EXPECT_EQUAL( STRING("9.999999900000001"), formatNumber( 9.999999900000001 ) );
+		UT_EXPECT_EQUAL( STRING("0.9999999"), formatNumber( 0.9999999 ) );
+		UT_EXPECT_EQUAL( STRING("0.09999999"), formatNumber( 0.09999999 ) );
+		UT_EXPECT_EQUAL( STRING("0.009999999"), formatNumber( 0.009999999 ) );
 
-		UT_ASSERT_EQUAL( STRING("-999.999990000000025"), formatNumber( -999.999990000000025 ) );
-		UT_ASSERT_EQUAL( STRING("-0.009999999"), formatNumber( -0.009999999 ) );
+		UT_EXPECT_EQUAL( STRING("-999.999990000000025"), formatNumber( -999.999990000000025 ) );
+		UT_EXPECT_EQUAL( STRING("-0.009999999"), formatNumber( -0.009999999 ) );
 
-		UT_ASSERT_EQUAL( STRING("  0.05"), formatNumber( 0.05, 6 ) );
-		UT_ASSERT_EQUAL( STRING(" -0.05"), formatNumber( -0.05, 6 ) );
-		UT_ASSERT_EQUAL( STRING("-0.005"), formatNumber( -0.005, 6 ) );
-		UT_ASSERT_EQUAL( STRING("-0.0005"), formatNumber( -0.0005, 6 ) );
+		UT_EXPECT_EQUAL( STRING("  0.05"), formatNumber( 0.05, 6 ) );
+		UT_EXPECT_EQUAL( STRING(" -0.05"), formatNumber( -0.05, 6 ) );
+		UT_EXPECT_EQUAL( STRING("-0.005"), formatNumber( -0.005, 6 ) );
+		UT_EXPECT_EQUAL( STRING("-0.0005"), formatNumber( -0.0005, 6 ) );
 
-		UT_ASSERT_EQUAL( STRING("9999"), formatNumber( 9999 ) );
-		UT_ASSERT_EQUAL( STRING("-9999"), formatNumber( -9999 ) );
-		UT_ASSERT_EQUAL( STRING("009999"), formatNumber( 9999, 6 ) );
-		UT_ASSERT_EQUAL( STRING("-09999"), formatNumber( -9999, 6 ) );
-		UT_ASSERT_EQUAL( STRING("  9999"), formatNumber( 9999, 6, ' ' ) );
-		UT_ASSERT_EQUAL( STRING(" -9999"), formatNumber( -9999, 6, ' ' ) );
+		UT_EXPECT_EQUAL( STRING("9999"), formatNumber( 9999 ) );
+		UT_EXPECT_EQUAL( STRING("-9999"), formatNumber( -9999 ) );
+		UT_EXPECT_EQUAL( STRING("009999"), formatNumber( 9999, 6 ) );
+		UT_EXPECT_EQUAL( STRING("-09999"), formatNumber( -9999, 6 ) );
+		UT_EXPECT_EQUAL( STRING("  9999"), formatNumber( 9999, 6, ' ' ) );
+		UT_EXPECT_EQUAL( STRING(" -9999"), formatNumber( -9999, 6, ' ' ) );
 
-		UT_ASSERT_EQUAL( STRING("   9 999"), formatNumber( 9999, 8, ' ', ' ' ) );
-		UT_ASSERT_EQUAL( STRING("  -9 999"), formatNumber( -9999, 8, ' ', ' ' ) );
+		UT_EXPECT_EQUAL( STRING("   9 999"), formatNumber( 9999, 8, ' ', ' ' ) );
+		UT_EXPECT_EQUAL( STRING("  -9 999"), formatNumber( -9999, 8, ' ', ' ' ) );
 
-		UT_ASSERT_EQUAL( STRING( "9 999"), formatNumber(  9999, 3, ' ', ' ' ) );
-		UT_ASSERT_EQUAL( STRING("-9 999"), formatNumber( -9999, 3, ' ', ' ' ) );
+		UT_EXPECT_EQUAL( STRING( "9 999"), formatNumber(  9999, 3, ' ', ' ' ) );
+		UT_EXPECT_EQUAL( STRING("-9 999"), formatNumber( -9999, 3, ' ', ' ' ) );
 
-		UT_ASSERT_EQUAL( STRING("999.999990000000025"), formatFloat( 999.999990000000025 ) );
-		UT_ASSERT_EQUAL( STRING("99.999999000000003"), formatFloat( 99.999999000000003 ) );
-		UT_ASSERT_EQUAL( STRING("9.999999900000001"), formatFloat( 9.999999900000001 ) );
-		UT_ASSERT_EQUAL( STRING("0.9999999"), formatFloat( 0.9999999 ) );
-		UT_ASSERT_EQUAL( STRING("0.09999999"), formatFloat( 0.09999999 ) );
-		UT_ASSERT_EQUAL( STRING("0.009999999"), formatFloat( 0.009999999 ) );
+		UT_EXPECT_EQUAL( STRING("999.999990000000025"), formatFloat( 999.999990000000025 ) );
+		UT_EXPECT_EQUAL( STRING("99.999999000000003"), formatFloat( 99.999999000000003 ) );
+		UT_EXPECT_EQUAL( STRING("9.999999900000001"), formatFloat( 9.999999900000001 ) );
+		UT_EXPECT_EQUAL( STRING("0.9999999"), formatFloat( 0.9999999 ) );
+		UT_EXPECT_EQUAL( STRING("0.09999999"), formatFloat( 0.09999999 ) );
+		UT_EXPECT_EQUAL( STRING("0.009999999"), formatFloat( 0.009999999 ) );
 
-		UT_ASSERT_EQUAL( STRING("-999.999990000000025"), formatFloat( -999.999990000000025 ) );
-		UT_ASSERT_EQUAL( STRING("-0.009999999"), formatFloat( -0.009999999 ) );
+		UT_EXPECT_EQUAL( STRING("-999.999990000000025"), formatFloat( -999.999990000000025 ) );
+		UT_EXPECT_EQUAL( STRING("-0.009999999"), formatFloat( -0.009999999 ) );
 
-		UT_ASSERT_EQUAL( STRING("   99.99"), formatFloat( 99.99, 8, 2 ) );
-		UT_ASSERT_EQUAL( STRING("  -99.99"), formatFloat( -99.99, 8, 2 ) );
+		UT_EXPECT_EQUAL( STRING("   99.99"), formatFloat( 99.99, 8, 2 ) );
+		UT_EXPECT_EQUAL( STRING("  -99.99"), formatFloat( -99.99, 8, 2 ) );
 
-		UT_ASSERT_EQUAL( STRING("   100.0"), formatFloat( 99.99, 8, 1 ) );
-		UT_ASSERT_EQUAL( STRING("  -100.0"), formatFloat( -99.99, 8, 1 ) );
+		UT_EXPECT_EQUAL( STRING("   100.0"), formatFloat( 99.99, 8, 1 ) );
+		UT_EXPECT_EQUAL( STRING("  -100.0"), formatFloat( -99.99, 8, 1 ) );
 
-		UT_ASSERT_EQUAL( STRING("     100"), formatFloat( 99.99, 8, 0 ) );
-		UT_ASSERT_EQUAL( STRING("    -100"), formatFloat( -99.99, 8, 0 ) );
+		UT_EXPECT_EQUAL( STRING("     100"), formatFloat( 99.99, 8, 0 ) );
+		UT_EXPECT_EQUAL( STRING("    -100"), formatFloat( -99.99, 8, 0 ) );
 
-		UT_ASSERT_EQUAL( STRING("   0.005"), formatFloat(  0.005, 8, 3 ) );
-		UT_ASSERT_EQUAL( STRING("  -0.005"), formatFloat( -0.005, 8, 3 ) );
-		UT_ASSERT_EQUAL( STRING("   0.00500"), formatFloat(  0.005, 10, 5 ) );
-		UT_ASSERT_EQUAL( STRING("  -0.00500"), formatFloat( -0.005, 10, 5 ) );
+		UT_EXPECT_EQUAL( STRING("   0.005"), formatFloat(  0.005, 8, 3 ) );
+		UT_EXPECT_EQUAL( STRING("  -0.005"), formatFloat( -0.005, 8, 3 ) );
+		UT_EXPECT_EQUAL( STRING("   0.00500"), formatFloat(  0.005, 10, 5 ) );
+		UT_EXPECT_EQUAL( STRING("  -0.00500"), formatFloat( -0.005, 10, 5 ) );
 
-		UT_ASSERT_EQUAL( STRING("    9 999,9900"), formatFloat( 9999.99, 14, 4, ' ', ',' ) );
-		UT_ASSERT_EQUAL( STRING("   -9 999,9900"), formatFloat( -9999.99, 14, 4, ' ', ',' ) );
+		UT_EXPECT_EQUAL( STRING("    9 999,9900"), formatFloat( 9999.99, 14, 4, ' ', ',' ) );
+		UT_EXPECT_EQUAL( STRING("   -9 999,9900"), formatFloat( -9999.99, 14, 4, ' ', ',' ) );
 
 		{
 			TestScope scope("min");

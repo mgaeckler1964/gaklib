@@ -109,7 +109,7 @@ class TemporaryTest : public UnitTest
 		myUnique2.reset();
 		myUnique.reset();
 
-		UT_ASSERT_LESSEQ( sizeof(myUnique), sizeof(myAuto) );
+		UT_EXPECT_LESSEQ( sizeof(myUnique), sizeof(myAuto) );
 		std::cout << sizeof(myUnique) << ' ' << sizeof(myAuto) << std::endl;
 
 		const size_t count = 100000;
@@ -130,7 +130,7 @@ class TemporaryTest : public UnitTest
 		sw2.stop();
 		std::cout << std::endl << "Lambda " << sw2.get< Seconds<> >().toString() << std::endl;
 
-		UT_ASSERT_LESS( sw2.getMillis(), sw1.getMillis() );
+		UT_EXPECT_LESS( sw2.getMillis(), sw1.getMillis() );
 #endif
 	}
 	virtual bool canThreadTest()

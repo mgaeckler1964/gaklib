@@ -101,13 +101,13 @@ class FileIDTest : public UnitTest
 		const char *dest = __FILE__ ".gak";
 		TempFileName _(dest);
 
-		UT_ASSERT_EXCEPTION( getFileID( dest ), LibraryException );
+		UT_EXPECT_EXCEPTION( getFileID( dest ), LibraryException );
 
 		flink( __FILE__, dest );
 		FileID	srcID = getFileID( __FILE__ );
 		FileID	destID = getFileID( dest );
 
-		UT_ASSERT_EQUAL( srcID,  destID );
+		UT_EXPECT_EQUAL( srcID,  destID );
 		strRemoveE( dest );
 
 		if( thisFile.readOnly )
@@ -117,7 +117,7 @@ class FileIDTest : public UnitTest
 
 		fcopy( __FILE__, dest );
 		destID = getFileID( dest );
-		UT_ASSERT_NOT_EQUAL( srcID, destID );
+		UT_EXPECT_NOT_EQUAL( srcID, destID );
 	}
 };
 

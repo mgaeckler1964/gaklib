@@ -107,21 +107,21 @@ class IndexerTest : public UnitTest
 		StringIndex	positions;
 		indexString( testText1, stopWords, ai::IS_ANY, &positions );
 
-		UT_ASSERT_EQUAL( std::size_t(19), positions.size() );
-		UT_ASSERT_EQUAL( std::size_t(2), positions[searchWord1].size());
+		UT_EXPECT_EQUAL( std::size_t(19), positions.size() );
+		UT_EXPECT_EQUAL( std::size_t(2), positions[searchWord1].size());
 
 		Index<STRING>	globalIndex;
 		typedef Index<STRING>::SearchResult	SearchResult;
 
 		globalIndex.moveIndexPositions( "testText1", &positions );
-		UT_ASSERT_EQUAL( 
+		UT_EXPECT_EQUAL( 
 			std::size_t(1), 
 			globalIndex[searchWord1].size()
 		);
-		UT_ASSERT_FALSE( 
+		UT_EXPECT_FALSE( 
 			globalIndex.hasElement(searchWord2)
 		);
-		UT_ASSERT_FALSE(
+		UT_EXPECT_FALSE(
 			globalIndex.hasElement(searchWord3)
 		);
 		{
@@ -129,62 +129,62 @@ class IndexerTest : public UnitTest
 			indexString( testText2, stopWords, ai::IS_ANY, &index );
 			globalIndex.moveIndexPositions( "testText2", &index	);
 		}
-		UT_ASSERT_EQUAL( 
+		UT_EXPECT_EQUAL( 
 			std::size_t(2), 
 			globalIndex[searchWord1].size()
 		);
-		UT_ASSERT_EQUAL( 
+		UT_EXPECT_EQUAL( 
 			std::size_t(1), 
 			globalIndex[searchWord2].size()
 		);
-		UT_ASSERT_EQUAL( 
+		UT_EXPECT_EQUAL( 
 			STRING("testText2"), 
 			globalIndex[searchWord2].getKeys()[0]
 		);
-		UT_ASSERT_EQUAL( 
+		UT_EXPECT_EQUAL( 
 			std::size_t(2), 
 			globalIndex[searchWord2]["testText2"].size()
 		);
 
-		UT_ASSERT_EQUAL( 
+		UT_EXPECT_EQUAL( 
 			std::size_t(1), 
 			globalIndex[searchWord4].size()
 		);
-		UT_ASSERT_EQUAL( 
+		UT_EXPECT_EQUAL( 
 			std::size_t(1), 
 			globalIndex[searchWord5].size()
 		);
 
 		const Position &of0 = globalIndex[searchWord2]["testText2"][0];
 		const Position &of1 = globalIndex[searchWord2]["testText2"][1];
-		UT_ASSERT_EQUAL( STRING(searchWord2), testText2.subString( of0.m_start, 2 ) );
-		UT_ASSERT_EQUAL( STRING(searchWord2), testText2.subString( of1.m_start, 2 ) );
-		UT_ASSERT_FALSE(
+		UT_EXPECT_EQUAL( STRING(searchWord2), testText2.subString( of0.m_start, 2 ) );
+		UT_EXPECT_EQUAL( STRING(searchWord2), testText2.subString( of1.m_start, 2 ) );
+		UT_EXPECT_FALSE(
 			globalIndex.hasElement(searchWord3)
 		);
 
 		SearchResult	sources = globalIndex.findWords( searchWord1, true, true, false );
-		UT_ASSERT_EQUAL( std::size_t(2), sources.size() );
+		UT_EXPECT_EQUAL( std::size_t(2), sources.size() );
 
 		sources = globalIndex.findWords( "the -quick", true, true, false );
-		UT_ASSERT_EQUAL( std::size_t(1), sources.size() );
-		UT_ASSERT_EQUAL( STRING("testText2"), sources.cbegin()->getKey() );
+		UT_EXPECT_EQUAL( std::size_t(1), sources.size() );
+		UT_EXPECT_EQUAL( STRING("testText2"), sources.cbegin()->getKey() );
 
 		sources = globalIndex.findWords( "the +quick", true, true, false );
-		UT_ASSERT_EQUAL( std::size_t(1), sources.size() );
-		UT_ASSERT_EQUAL( STRING("testText1"), sources.cbegin()->getKey() );
-		UT_ASSERT_EQUAL( std::size_t(0), sources.cbegin()->getValue()[0].m_start );
-		UT_ASSERT_EQUAL( std::size_t(4), sources.cbegin()->getValue()[1].m_start );
+		UT_EXPECT_EQUAL( std::size_t(1), sources.size() );
+		UT_EXPECT_EQUAL( STRING("testText1"), sources.cbegin()->getKey() );
+		UT_EXPECT_EQUAL( std::size_t(0), sources.cbegin()->getValue()[0].m_start );
+		UT_EXPECT_EQUAL( std::size_t(4), sources.cbegin()->getValue()[1].m_start );
 
 		sources = globalIndex.findWords( "fox all", true, true, false );
-		UT_ASSERT_EQUAL( std::size_t(2), sources.size() );
+		UT_EXPECT_EQUAL( std::size_t(2), sources.size() );
 
 		sources = globalIndex.findWords( "fox all", true, true, true );
-		UT_ASSERT_EQUAL( std::size_t(2), sources.size() );
+		UT_EXPECT_EQUAL( std::size_t(2), sources.size() );
 
 		StatistikData	stats;
 		globalIndex.getStatistik(&stats);
-		UT_ASSERT_EQUAL( std::size_t(34), stats.size() );
+		UT_EXPECT_EQUAL( std::size_t(34), stats.size() );
 
 		{
 			gak::ai::StringIndex index;
@@ -192,16 +192,16 @@ class IndexerTest : public UnitTest
 			globalIndex.moveIndexPositions( "Gäckler", &index );
 		}
 		sources = globalIndex.findWords( "gakler", true, true, true );
-		UT_ASSERT_EQUAL( std::size_t(1), sources.size() );
+		UT_EXPECT_EQUAL( std::size_t(1), sources.size() );
 		Index<STRING>::RelevantHits	relevant = globalIndex.getRelevantHits( "gakler", true, true, true );
-		UT_ASSERT_EQUAL( std::size_t(1), relevant.size() );
+		UT_EXPECT_EQUAL( std::size_t(1), relevant.size() );
 
 		sources = globalIndex.findWords( "gakle?", true, true, true );
-		UT_ASSERT_EQUAL( std::size_t(1), sources.size() );
+		UT_EXPECT_EQUAL( std::size_t(1), sources.size() );
 		sources = globalIndex.findWords( "kakle?", true, true, true );
-		UT_ASSERT_EQUAL( std::size_t(1), sources.size() );
+		UT_EXPECT_EQUAL( std::size_t(1), sources.size() );
 		sources = globalIndex.findWords( "kakle?", false, true, true );
-		UT_ASSERT_EQUAL( std::size_t(0), sources.size() );
+		UT_EXPECT_EQUAL( std::size_t(0), sources.size() );
 
 		{
 			static Critical	section;

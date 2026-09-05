@@ -99,7 +99,7 @@ class BlockedRingBufferTest : public UnitTest
 			Sleep( 2000 );
 			for( const char *cp = testText; *cp; ++cp )
 			{
-				UT_ASSERT_TRUE( buffer.push( *cp ) );
+				UT_EXPECT_TRUE( buffer.push( *cp ) );
 			}
 		}
 	};
@@ -120,8 +120,8 @@ class BlockedRingBufferTest : public UnitTest
 			for( const char *cp = testText; *cp; ++cp )
 			{
 				char c;
-				UT_ASSERT_TRUE( buffer.pop( &c ) );
-				UT_ASSERT_EQUAL( c, *cp );
+				UT_EXPECT_TRUE( buffer.pop( &c ) );
+				UT_EXPECT_EQUAL( c, *cp );
 				std::cout << c << std::flush;
 				Sleep( 100 );
 			}

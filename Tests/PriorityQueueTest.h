@@ -112,32 +112,32 @@ class PriorityQueueTest : public UnitTest
 		myQueue.push( Priority( 1.0, 0 ) );
 		myQueue.push( Priority( 1.0, 1 ) );
 		
-		UT_ASSERT_EQUAL( myQueue.size(), size_t(2) );
+		UT_EXPECT_EQUAL( myQueue.size(), size_t(2) );
 		Priority	val = myQueue.pop();
-		UT_ASSERT_EQUAL( val.m_value, 0 );
+		UT_EXPECT_EQUAL( val.m_value, 0 );
 		val = myQueue.pop();
-		UT_ASSERT_EQUAL( val.m_value, 1 );
-		UT_ASSERT_EQUAL( myQueue.size(), size_t(0) );
+		UT_EXPECT_EQUAL( val.m_value, 1 );
+		UT_EXPECT_EQUAL( myQueue.size(), size_t(0) );
 
 		myQueue.push( Priority( 1.0, 0 ) );
 		myQueue.push( Priority( 1.0, 1 ) );
 		myQueue.push( Priority( 2.0, 2 ) );
 		myQueue.push( Priority( 2.0, 3 ) );
 
-		UT_ASSERT_EQUAL( myQueue.size(), size_t(4) );
+		UT_EXPECT_EQUAL( myQueue.size(), size_t(4) );
 
 		val = myQueue.pop();
-		UT_ASSERT_EQUAL( val.m_value, 2 );
+		UT_EXPECT_EQUAL( val.m_value, 2 );
 		val = myQueue.pop();
-		UT_ASSERT_EQUAL( val.m_value, 3 );
+		UT_EXPECT_EQUAL( val.m_value, 3 );
 		val = myQueue.pop();
-		UT_ASSERT_EQUAL( val.m_value, 0 );
+		UT_EXPECT_EQUAL( val.m_value, 0 );
 		val = myQueue.pop();
-		UT_ASSERT_EQUAL( val.m_value, 1 );
+		UT_EXPECT_EQUAL( val.m_value, 1 );
 
-		UT_ASSERT_EQUAL( myQueue.size(), size_t(0) );
+		UT_EXPECT_EQUAL( myQueue.size(), size_t(0) );
 
-		UT_ASSERT_EXCEPTION( myQueue.pop(), QueueEmptyError );
+		UT_EXPECT_EXCEPTION( myQueue.pop(), QueueEmptyError );
 	}
 	template <typename PriorityQueueT>
 	Hours<> speedTest()

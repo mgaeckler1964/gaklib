@@ -91,69 +91,69 @@ class RingBufferTest : public UnitTest
 		{
 			Optional<int>	first = buffer.oldest();
 			Optional<int>	last = buffer.newest();
-			UT_ASSERT_FALSE( first.isPresent() );
-			UT_ASSERT_FALSE( last.isPresent() );
+			UT_EXPECT_FALSE( first.isPresent() );
+			UT_EXPECT_FALSE( last.isPresent() );
 		}
-		UT_ASSERT_TRUE( buffer.isEmpty() );
-		UT_ASSERT_FALSE( buffer.isFull() );
-		UT_ASSERT_EQUAL( buffer.size(), 0UL );
+		UT_EXPECT_TRUE( buffer.isEmpty() );
+		UT_EXPECT_FALSE( buffer.isFull() );
+		UT_EXPECT_EQUAL( buffer.size(), 0UL );
 
 		buffer.push( 1 );
-		UT_ASSERT_FALSE( buffer.isEmpty() );
-		UT_ASSERT_FALSE( buffer.isFull() );
-		UT_ASSERT_EQUAL( buffer.size(), 1UL );
+		UT_EXPECT_FALSE( buffer.isEmpty() );
+		UT_EXPECT_FALSE( buffer.isFull() );
+		UT_EXPECT_EQUAL( buffer.size(), 1UL );
 		{
 			Optional<int>	first = buffer.oldest();
 			Optional<int>	last = buffer.newest();
-			UT_ASSERT_TRUE( first.isPresent() );
-			UT_ASSERT_TRUE( last.isPresent() );
-			UT_ASSERT_EQUAL( first.get(), 1 );
-			UT_ASSERT_EQUAL( last.get(), 1 );
+			UT_EXPECT_TRUE( first.isPresent() );
+			UT_EXPECT_TRUE( last.isPresent() );
+			UT_EXPECT_EQUAL( first.get(), 1 );
+			UT_EXPECT_EQUAL( last.get(), 1 );
 		}
 
 		buffer.push( 2 );
 		buffer.push( 3 );
 		buffer.push( 4 );
-		UT_ASSERT_FALSE( buffer.isEmpty() );
-		UT_ASSERT_FALSE( buffer.isFull() );
-		UT_ASSERT_EQUAL( buffer.size(), 4UL );
+		UT_EXPECT_FALSE( buffer.isEmpty() );
+		UT_EXPECT_FALSE( buffer.isFull() );
+		UT_EXPECT_EQUAL( buffer.size(), 4UL );
 		{
 			Optional<int>	first = buffer.oldest();
 			Optional<int>	last = buffer.newest();
-			UT_ASSERT_TRUE( first.isPresent() );
-			UT_ASSERT_TRUE( last.isPresent() );
-			UT_ASSERT_EQUAL( first.get(), 1 );
-			UT_ASSERT_EQUAL( last.get(), 4 );
+			UT_EXPECT_TRUE( first.isPresent() );
+			UT_EXPECT_TRUE( last.isPresent() );
+			UT_EXPECT_EQUAL( first.get(), 1 );
+			UT_EXPECT_EQUAL( last.get(), 4 );
 		}
 
-		UT_ASSERT_TRUE( buffer.push( 5 ) );
-		UT_ASSERT_FALSE( buffer.push( 5 ) );
-		UT_ASSERT_FALSE( buffer.isEmpty() );
-		UT_ASSERT_TRUE( buffer.isFull() );
-		UT_ASSERT_EQUAL( buffer.size(), 5UL );
+		UT_EXPECT_TRUE( buffer.push( 5 ) );
+		UT_EXPECT_FALSE( buffer.push( 5 ) );
+		UT_EXPECT_FALSE( buffer.isEmpty() );
+		UT_EXPECT_TRUE( buffer.isFull() );
+		UT_EXPECT_EQUAL( buffer.size(), 5UL );
 
 		int cur;
-		UT_ASSERT_TRUE( buffer.pop( &cur ) );
-		UT_ASSERT_EQUAL( cur, 1 );
-		UT_ASSERT_EQUAL( buffer.size(), 4UL );
-		UT_ASSERT_TRUE( buffer.pop( &cur ) );
-		UT_ASSERT_EQUAL( cur, 2 );
-		UT_ASSERT_EQUAL( buffer.size(), 3UL );
-		UT_ASSERT_TRUE( buffer.pop( &cur ) );
-		UT_ASSERT_EQUAL( cur, 3 );
-		UT_ASSERT_EQUAL( buffer.size(), 2UL );
-		UT_ASSERT_TRUE( buffer.pop( &cur ) );
-		UT_ASSERT_EQUAL( cur, 4 );
-		UT_ASSERT_EQUAL( buffer.size(), 1UL );
-		UT_ASSERT_TRUE( buffer.pop( &cur ) );
-		UT_ASSERT_EQUAL( cur, 5 );
-		UT_ASSERT_EQUAL( buffer.size(), 0UL );
-		UT_ASSERT_FALSE( buffer.pop( &cur ) );
+		UT_EXPECT_TRUE( buffer.pop( &cur ) );
+		UT_EXPECT_EQUAL( cur, 1 );
+		UT_EXPECT_EQUAL( buffer.size(), 4UL );
+		UT_EXPECT_TRUE( buffer.pop( &cur ) );
+		UT_EXPECT_EQUAL( cur, 2 );
+		UT_EXPECT_EQUAL( buffer.size(), 3UL );
+		UT_EXPECT_TRUE( buffer.pop( &cur ) );
+		UT_EXPECT_EQUAL( cur, 3 );
+		UT_EXPECT_EQUAL( buffer.size(), 2UL );
+		UT_EXPECT_TRUE( buffer.pop( &cur ) );
+		UT_EXPECT_EQUAL( cur, 4 );
+		UT_EXPECT_EQUAL( buffer.size(), 1UL );
+		UT_EXPECT_TRUE( buffer.pop( &cur ) );
+		UT_EXPECT_EQUAL( cur, 5 );
+		UT_EXPECT_EQUAL( buffer.size(), 0UL );
+		UT_EXPECT_FALSE( buffer.pop( &cur ) );
 
 		buffer.push( 1 );
 		buffer.push( 2 );
 		buffer.push( 3 );
-		UT_ASSERT_EQUAL( buffer.size(), 3UL );
+		UT_EXPECT_EQUAL( buffer.size(), 3UL );
 
 		for( int i=0; i<9; ++i )
 		{
@@ -161,7 +161,7 @@ class RingBufferTest : public UnitTest
 
 			buffer.push( i );
 			buffer.pop( &dummy );
-			UT_ASSERT_EQUAL( buffer.size(), 3UL );
+			UT_EXPECT_EQUAL( buffer.size(), 3UL );
 		}
 	}
 };

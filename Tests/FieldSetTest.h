@@ -98,7 +98,7 @@ class FieldSetTest : public UnitTest
 		iBinaryStream	istream( buffer );
 		dest.fromBinaryStream( istream );
 
-		UT_ASSERT_EQUAL( dynamic, dest );
+		UT_EXPECT_EQUAL( dynamic, dest );
 	}
 	void testDynamic()
 	{
@@ -106,8 +106,8 @@ class FieldSetTest : public UnitTest
 		double		pid = piv;
 		STRING		pis = piv;
 
-		UT_ASSERT_EQUAL( pis, STRING("3.14") );
-		UT_ASSERT_EQUAL( pid, 3.14 );
+		UT_EXPECT_EQUAL( pis, STRING("3.14") );
+		UT_EXPECT_EQUAL( pid, 3.14 );
 
 	}
 	void testConfigFile()
@@ -121,16 +121,16 @@ class FieldSetTest : public UnitTest
 
 		// reading from a known file
 		fSet2.loadConfigFile("test_data" DIRECTORY_DELIMITER_STRING "test.cfg");
-		UT_ASSERT_EQUAL(fSet1["integer"], fSet2["integer"]);
-		UT_ASSERT_EQUAL(fSet1["string"], fSet2["string"]);
-		UT_ASSERT_EQUAL(fSet1["float"], fSet2["float"]);
+		UT_EXPECT_EQUAL(fSet1["integer"], fSet2["integer"]);
+		UT_EXPECT_EQUAL(fSet1["string"], fSet2["string"]);
+		UT_EXPECT_EQUAL(fSet1["float"], fSet2["float"]);
 
 		// reading from a created file
 		fSet1.saveConfigFile(tmpFile.get());
 		fSet2.loadConfigFile(tmpFile.get());
-		UT_ASSERT_EQUAL(fSet1["integer"], fSet2["integer"]);
-		UT_ASSERT_EQUAL(fSet1["string"], fSet2["string"]);
-		UT_ASSERT_EQUAL(fSet1["float"], fSet2["float"]);
+		UT_EXPECT_EQUAL(fSet1["integer"], fSet2["integer"]);
+		UT_EXPECT_EQUAL(fSet1["string"], fSet2["string"]);
+		UT_EXPECT_EQUAL(fSet1["float"], fSet2["float"]);
 	}
 	virtual void PerformTest()
 	{
@@ -147,24 +147,24 @@ class FieldSetTest : public UnitTest
 		fSet["date"] = gak::Date();
 		fSet["time"] = gak::Time();
 
-		UT_ASSERT_EQUAL( fSet["integer"].getType(), DynamicVar::DV_INTEGER );
-		UT_ASSERT_EQUAL( fSet["string"].getType(), DynamicVar::DV_VARCHAR );
-		UT_ASSERT_EQUAL( fSet["float"].getType(), DynamicVar::DV_FLOAT );
-		UT_ASSERT_EQUAL( fSet["date"].getType(), DynamicVar::DV_DATE );
-		UT_ASSERT_EQUAL( fSet["time"].getType(), DynamicVar::DV_TIME );
+		UT_EXPECT_EQUAL( fSet["integer"].getType(), DynamicVar::DV_INTEGER );
+		UT_EXPECT_EQUAL( fSet["string"].getType(), DynamicVar::DV_VARCHAR );
+		UT_EXPECT_EQUAL( fSet["float"].getType(), DynamicVar::DV_FLOAT );
+		UT_EXPECT_EQUAL( fSet["date"].getType(), DynamicVar::DV_DATE );
+		UT_EXPECT_EQUAL( fSet["time"].getType(), DynamicVar::DV_TIME );
 		STRING	hello = fSet["string"];
-		UT_ASSERT_EQUAL( hello, STRING("Hello World") );
+		UT_EXPECT_EQUAL( hello, STRING("Hello World") );
 		STRING	pi = fSet["float"];
-		UT_ASSERT_EQUAL( pi, STRING("3.14") );
+		UT_EXPECT_EQUAL( pi, STRING("3.14") );
 
 		double result = fSet["integer"] + fSet["float"];
-		UT_ASSERT_EQUAL( result, 5.14 );
+		UT_EXPECT_EQUAL( result, 5.14 );
 		result = fSet["integer"] * fSet["float"];
-		UT_ASSERT_EQUAL( result, 6.28 );
+		UT_EXPECT_EQUAL( result, 6.28 );
 		result = fSet["integer"] - fSet["float"];
-		UT_ASSERT_EQUAL( result, -1.14 );
+		UT_EXPECT_EQUAL( result, -1.14 );
 		result = fSet["float"] / fSet["integer"];
-		UT_ASSERT_EQUAL( result, 1.57 );
+		UT_EXPECT_EQUAL( result, 1.57 );
 
 		double oper1 = 0.1, oper2 = 0.2, oper3 = long(oper1) && long(oper2);
 		std::cout << oper3;

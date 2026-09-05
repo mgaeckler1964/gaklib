@@ -106,38 +106,38 @@ class AiBrainTest : public UnitTest
 
 		// check empty brain
 		size_t count = theBrain.getPairCount(word1, word2);
-		UT_ASSERT_EQUAL(count, 0);
-		UT_ASSERT_EQUAL(theBrain.size(), 0UL);
+		UT_EXPECT_EQUAL(count, 0);
+		UT_EXPECT_EQUAL(theBrain.size(), 0UL);
 
 		// check brain with first item
 		theBrain.addPair(word1, word2);
 		count = theBrain.getPairCount(word1, word2);
-		UT_ASSERT_EQUAL(count, 1);
-		UT_ASSERT_EQUAL(theBrain.size(), 1UL);
+		UT_EXPECT_EQUAL(count, 1);
+		UT_EXPECT_EQUAL(theBrain.size(), 1UL);
 
 		// check brain with second item
 		theBrain.addPair(word1, word2);
 		count = theBrain.getPairCount(word1, word2);
-		UT_ASSERT_EQUAL(count, 2);
-		UT_ASSERT_EQUAL(theBrain.size(), 1UL);
+		UT_EXPECT_EQUAL(count, 2);
+		UT_EXPECT_EQUAL(theBrain.size(), 1UL);
 
 		// check words can be swaped
 		count = theBrain.getPairCount(word2, word1);
-		UT_ASSERT_EQUAL(count, 2);
+		UT_EXPECT_EQUAL(count, 2);
 
 		// check if one word is not yet known
 		count = theBrain.getPairCount(word2, word3);
-		UT_ASSERT_EQUAL(count, 0);
-		UT_ASSERT_EQUAL(theBrain.size(), 1UL);
+		UT_EXPECT_EQUAL(count, 0);
+		UT_EXPECT_EQUAL(theBrain.size(), 1UL);
 
 		// check equal word
 		theBrain.addPair(word2, word2);
 		count = theBrain.getPairCount(word2, word2);
-		UT_ASSERT_EQUAL(count, 0);
-		UT_ASSERT_EQUAL(theBrain.size(), 1UL);
+		UT_EXPECT_EQUAL(count, 0);
+		UT_EXPECT_EQUAL(theBrain.size(), 1UL);
 
 		Brain		cloneBrain;
-		UT_ASSERT_EQUAL(cloneBrain.size(), 0UL);
+		UT_EXPECT_EQUAL(cloneBrain.size(), 0UL);
 
 		{
 			static Critical	section;
@@ -148,35 +148,35 @@ class AiBrainTest : public UnitTest
 			readFromBinaryFile(BRAINFILE, &cloneBrain, BRAINMAGIC, BRAINVERSION, false);
 		}
 
-		UT_ASSERT_EQUAL(cloneBrain.size(), 1UL);
+		UT_EXPECT_EQUAL(cloneBrain.size(), 1UL);
 
 		// check saved and loaded brain
 		count = cloneBrain.getPairCount(word2, word1);
-		UT_ASSERT_EQUAL(count, 2UL);
+		UT_EXPECT_EQUAL(count, 2UL);
 
 		const STRING	testText1 = "the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog handball fussball fcbaiern Martin";
 
 		StringTokens	tokens;
 		tokenString( testText1, Array<STRING>(), ai::IS_ANY, &tokens );
-		UT_ASSERT_EQUAL(tokens.size(), 31UL);
-		UT_ASSERT_EQUAL(cloneBrain.size(), 1UL);
+		UT_EXPECT_EQUAL(tokens.size(), 31UL);
+		UT_EXPECT_EQUAL(cloneBrain.size(), 1UL);
 		cloneBrain.learnFromTokens(testText1, tokens, 5);
-		UT_ASSERT_EQUAL(cloneBrain.size(), 49UL);
+		UT_EXPECT_EQUAL(cloneBrain.size(), 49UL);
 		count = cloneBrain.getPairCount("the", "fcbaiern");
-		UT_ASSERT_GREATEREQ(count, size_t(1UL));
+		UT_EXPECT_GREATEREQ(count, size_t(1UL));
 
 		const STRING	testText2 = "Martin Gäckler lebt in Linz";
 		StringIndex positions;
 		indexString( testText2, Array<STRING>(), ai::IS_ANY, &positions );
 		cloneBrain.learnFromIndex(positions, 10);
-		UT_ASSERT_EQUAL(cloneBrain.size(), 58UL);
+		UT_EXPECT_EQUAL(cloneBrain.size(), 58UL);
 		count = cloneBrain.getPairCount("the", "fcbaiern");
-		UT_ASSERT_GREATEREQ(count, size_t(1UL));
+		UT_EXPECT_GREATEREQ(count, size_t(1UL));
 
 		Set<STRING> partners = cloneBrain.getPartners("Martin");
-		UT_ASSERT_EQUAL(partners.size(), 9UL);
+		UT_EXPECT_EQUAL(partners.size(), 9UL);
 		partners = cloneBrain.getPartners("Gäckler");
-		UT_ASSERT_EQUAL(partners.size(), 4UL);
+		UT_EXPECT_EQUAL(partners.size(), 4UL);
 	}
 	virtual bool canThreadTest()
 	{

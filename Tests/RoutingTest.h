@@ -139,48 +139,48 @@ class RoutingTest : public UnitTest
 		theGraph.addLink( 7, 55, 0, 2 );
 		theGraph.addLink( 8, 56, 2, 0 );
 
-		UT_ASSERT_EQUAL( size_t(6), theGraph.getNumLinks() );
-		UT_ASSERT_EQUAL( size_t(3), theGraph.getNumNodes() );
+		UT_EXPECT_EQUAL( size_t(6), theGraph.getNumLinks() );
+		UT_EXPECT_EQUAL( size_t(3), theGraph.getNumNodes() );
 
 		Array<size_t>	route1 = simpleRouting.route( 0, 2, false ).get().links;
-		UT_ASSERT_EQUAL( route1.size(), size_t( 1 ) );
-		UT_ASSERT_EQUAL( route1[0], size_t( 7 ) );
+		UT_EXPECT_EQUAL( route1.size(), size_t( 1 ) );
+		UT_EXPECT_EQUAL( route1[0], size_t( 7 ) );
 
 		Array<size_t>	route2 = simpleRouting.route( 0, 2, true ).get().links;
-		UT_ASSERT_EQUAL( route2.size(), size_t( 2 ) );
-		UT_ASSERT_EQUAL( route2[0], size_t( 4 ) );
-		UT_ASSERT_EQUAL( route2[1], size_t( 5 ) );
+		UT_EXPECT_EQUAL( route2.size(), size_t( 2 ) );
+		UT_EXPECT_EQUAL( route2[0], size_t( 4 ) );
+		UT_EXPECT_EQUAL( route2[1], size_t( 5 ) );
 
 		{
 			TestScope scope("OEZ_U1, Mangfallplatz, ctBY_DISTANCE");
-			UT_ASSERT_TRUE( routeMVV( OEZ_U1, Mangfallplatz, ctBY_DISTANCE ) );
-			UT_ASSERT_TRUE( routeMVV( Geltendorf, Ebersberg, ctBY_DISTANCE ) );
-			UT_ASSERT_TRUE( routeMVV( Geltendorf, Ebersberg, ctBY_SPEED ) );
+			UT_EXPECT_TRUE( routeMVV( OEZ_U1, Mangfallplatz, ctBY_DISTANCE ) );
+			UT_EXPECT_TRUE( routeMVV( Geltendorf, Ebersberg, ctBY_DISTANCE ) );
+			UT_EXPECT_TRUE( routeMVV( Geltendorf, Ebersberg, ctBY_SPEED ) );
 		}
 		{
 			TestScope scope("Geltendorf, OEZ_U3, ctBY_DISTANCE");
-			UT_ASSERT_TRUE( routeMVV( Geltendorf, OEZ_U3, ctBY_DISTANCE ) );
-			UT_ASSERT_TRUE( routeMVV( Geltendorf, OEZ_U3, ctBY_SPEED ) );
+			UT_EXPECT_TRUE( routeMVV( Geltendorf, OEZ_U3, ctBY_DISTANCE ) );
+			UT_EXPECT_TRUE( routeMVV( Geltendorf, OEZ_U3, ctBY_SPEED ) );
 		}
 		{
 			TestScope scope("Ostbahnhof_S, LaimerPlatz, ctBY_SPEED");
-			UT_ASSERT_TRUE( routeMVV( Ostbahnhof_S, LaimerPlatz, ctBY_SPEED ) );
+			UT_EXPECT_TRUE( routeMVV( Ostbahnhof_S, LaimerPlatz, ctBY_SPEED ) );
 		}
 		{
 			TestScope scope("Ostbahnhof_S, LaimerPlatz, ctBY_DISTANCE");
-			UT_ASSERT_TRUE( routeMVV( Ostbahnhof_S, LaimerPlatz, ctBY_DISTANCE ) );
+			UT_EXPECT_TRUE( routeMVV( Ostbahnhof_S, LaimerPlatz, ctBY_DISTANCE ) );
 		}
 		{
 			TestScope scope("IngolstadtNord, Ostbahnhof_S, ctBY_DISTANCE");
-			UT_ASSERT_FALSE( routeMVV( IngolstadtNord, Ostbahnhof_S, ctBY_DISTANCE ) );
+			UT_EXPECT_FALSE( routeMVV( IngolstadtNord, Ostbahnhof_S, ctBY_DISTANCE ) );
 		}
 		{
 			TestScope scope("Ostbahnhof_S, IngolstadtNord, ctBY_DISTANCE");
-			UT_ASSERT_FALSE( routeMVV( Ostbahnhof_S, IngolstadtNord, ctBY_DISTANCE ) );
+			UT_EXPECT_FALSE( routeMVV( Ostbahnhof_S, IngolstadtNord, ctBY_DISTANCE ) );
 		}
 		{
 			TestScope scope("Ostbahnhof_S, Ostbahnhof_S, ctBY_DISTANCE");
-			UT_ASSERT_TRUE( routeMVV( Ostbahnhof_S, Ostbahnhof_S, ctBY_DISTANCE ) );
+			UT_EXPECT_TRUE( routeMVV( Ostbahnhof_S, Ostbahnhof_S, ctBY_DISTANCE ) );
 		}
 
 		Array<Bahnhoefe>	theSmallMVV;
@@ -194,18 +194,18 @@ class RoutingTest : public UnitTest
 			), 
 			&theSmallMVV 
 		);
-		UT_ASSERT_TRUE( theSmallMVV.hasElement( Marienplatz_U ) );
-		UT_ASSERT_TRUE( theSmallMVV.hasElement( Ostbahnhof_U ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( LaimerPlatz ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( Stachus_U ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( Trudering_U ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( MessestadtOst ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( Odeonsplatz_U3 ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( SendlingerTor_U3 ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( Kolumbusplatz ) );
+		UT_EXPECT_TRUE( theSmallMVV.hasElement( Marienplatz_U ) );
+		UT_EXPECT_TRUE( theSmallMVV.hasElement( Ostbahnhof_U ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( LaimerPlatz ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( Stachus_U ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( Trudering_U ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( MessestadtOst ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( Odeonsplatz_U3 ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( SendlingerTor_U3 ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( Kolumbusplatz ) );
 		
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( Marienplatz_S ) );
-		UT_ASSERT_FALSE( theSmallMVV.hasElement( Ostbahnhof_S ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( Marienplatz_S ) );
+		UT_EXPECT_FALSE( theSmallMVV.hasElement( Ostbahnhof_S ) );
 	}
 
 	bool routeMVV( Bahnhoefe start, Bahnhoefe ende, CostType pt )
@@ -225,11 +225,11 @@ class RoutingTest : public UnitTest
 		Optional<MvvARouting::RouteResult>	starRoute = mvvARouting.route( start, ende, pt );
 		starTime.stop();
 		std::cout << routeTime.get< Seconds<clock_t> >().toString() << " vs. " << starTime.get< Seconds<clock_t> >().toString() << std::endl;
-		UT_ASSERT_EQUAL( route.isPresent(), starRoute.isPresent() );
+		UT_EXPECT_EQUAL( route.isPresent(), starRoute.isPresent() );
 
 		if( route.isPresent() && starRoute.isPresent() )
 		{
-			UT_ASSERT_EQUAL( route.get().cost, starRoute.get().cost );
+			UT_EXPECT_EQUAL( route.get().cost, starRoute.get().cost );
 
 			showRoute( route.get().links );
 			showRoute( starRoute.get().links );

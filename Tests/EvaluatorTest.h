@@ -92,47 +92,47 @@ class EvaluatorTest : public UnitTest
 
 		double	result = evaluator.evaluate( "2 * 3 + 5" );
 		std::cout << result << std::endl;
-		UT_ASSERT_EQUAL( result, 11.0 );
+		UT_EXPECT_EQUAL( result, 11.0 );
 
 		result = evaluator.evaluate( "5 - 3 - 2" );
 		std::cout << result << std::endl;
-		UT_ASSERT_EQUAL( result, 0.0 );
+		UT_EXPECT_EQUAL( result, 0.0 );
 
 		result = evaluator.evaluate( "( 3 + 5 ) * 2" );
 		std::cout << result << std::endl;
-		UT_ASSERT_EQUAL( result, 16.0 );
+		UT_EXPECT_EQUAL( result, 16.0 );
 
 		result = evaluator.evaluate( "( 3 + x ) * 2", 5 );
 		std::cout << result << std::endl;
-		UT_ASSERT_EQUAL( result, 16.0 );
+		UT_EXPECT_EQUAL( result, 16.0 );
 
 		result = evaluator.evaluate( "(+x) * (-x)", 5 );
 		std::cout << result << std::endl;
-		UT_ASSERT_EQUAL( result, -25.0 );
+		UT_EXPECT_EQUAL( result, -25.0 );
 
 		result = evaluator.evaluate( "sin(pi():2)" );
 		std::cout << result << std::endl;
-		UT_ASSERT_EQUAL( result, 1.0 );
+		UT_EXPECT_EQUAL( result, 1.0 );
 
 		result = evaluator.evaluate( "cos(pi)" );
 		std::cout << result << std::endl;
-		UT_ASSERT_EQUAL( result, -1.0 );
+		UT_EXPECT_EQUAL( result, -1.0 );
 
 		result = evaluator.evaluate( "tanh(x)", 0 );
 		std::cout << result << std::endl;
-		UT_ASSERT_EQUAL( result, 0 );
+		UT_EXPECT_EQUAL( result, 0 );
 
 		result = evaluator.evaluate( "x^2 + x*x", 5 );
 		std::cout << result << std::endl;
-		UT_ASSERT_EQUAL( result, 50.0 );
+		UT_EXPECT_EQUAL( result, 50.0 );
 
 		result = evaluator.evaluate( "x! + 5*x", 5 );
 		std::cout << result << std::endl;
-		UT_ASSERT_EQUAL( result, 145.0 );
+		UT_EXPECT_EQUAL( result, 145.0 );
 
-		UT_ASSERT_EXCEPTION( evaluator.evaluate( "1:x", 0 ), DivisionByZeroError );
-		UT_ASSERT_EXCEPTION( evaluator.evaluate( "sqrt(x)", -5 ), InvalidResultError );
-		UT_ASSERT_EXCEPTION( evaluator.evaluate( "x!", 1000 ), InvalidResultError );
+		UT_EXPECT_EXCEPTION( evaluator.evaluate( "1:x", 0 ), DivisionByZeroError );
+		UT_EXPECT_EXCEPTION( evaluator.evaluate( "sqrt(x)", -5 ), InvalidResultError );
+		UT_EXPECT_EXCEPTION( evaluator.evaluate( "x!", 1000 ), InvalidResultError );
 	}
 };
 

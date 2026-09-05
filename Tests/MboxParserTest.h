@@ -113,25 +113,25 @@ class MboxParserTest : public UnitTest
 		mail::loadMboxFile( mboxFile, theMails );
 		mail::MAIL theMail = theMails[theMails.size()-1];
 
-		UT_ASSERT_EQUAL( theMail.subject, mailSubject );
+		UT_EXPECT_EQUAL( theMail.subject, mailSubject );
 
 		if( !getenv( mail::MBOX_FILE ) )
 		{
-			UT_ASSERT_EXCEPTION( 
+			UT_EXPECT_EXCEPTION( 
 				mail::appendMail( "", "martin@gaeckler.at", "martin@gaeckler.de", mailSubject, mailBody ), 
 				LibraryException 
 			);
 		}
 		if( !getenv( mail::FROM ) )
 		{
-			UT_ASSERT_EXCEPTION( 
+			UT_EXPECT_EXCEPTION( 
 				mail::appendMail( mboxFile, "", "martin@gaeckler.de", mailSubject, mailBody ), 
 				LibraryException 
 			);
 		}
 		if( !getenv( mail::TO ) )
 		{
-			UT_ASSERT_EXCEPTION( 
+			UT_EXPECT_EXCEPTION( 
 				mail::appendMail( mboxFile, "martin@gaeckler.at", "", mailSubject, mailBody ),
 				LibraryException 
 			);

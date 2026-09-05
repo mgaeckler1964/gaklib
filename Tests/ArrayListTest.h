@@ -153,8 +153,8 @@ class ArrayListTest : public UnitTest
 			newItem += formatNumber( i );
 		}
 
-		UT_ASSERT_EQUAL( myList.size(), size_t(10) );
-		UT_ASSERT_EQUAL( myArray.size(), size_t(10) );
+		UT_EXPECT_EQUAL( myList.size(), size_t(10) );
+		UT_EXPECT_EQUAL( myArray.size(), size_t(10) );
 
 		for(
 			i=0, myListCursor = myList.getFirstCursor();
@@ -163,7 +163,7 @@ class ArrayListTest : public UnitTest
 		)
 		{
 			const STRING &oldItem = myList[myListCursor];
-			UT_ASSERT_EQUAL( oldItem, myList[i] );
+			UT_EXPECT_EQUAL( oldItem, myList[i] );
 		}
 
 		for(
@@ -173,7 +173,7 @@ class ArrayListTest : public UnitTest
 		)
 		{
 			const STRING &oldItem = *myListCursor;
-			UT_ASSERT_EQUAL( oldItem, myList[i] );
+			UT_EXPECT_EQUAL( oldItem, myList[i] );
 		}
 
 
@@ -201,7 +201,7 @@ class ArrayListTest : public UnitTest
 				next = sortedVals[i];
 				std::cout << next << ' ';
 
-				UT_ASSERT_LESSEQ( last, next );
+				UT_EXPECT_LESSEQ( last, next );
 				last = next;
 			}
 			std::cout << '\n';
@@ -221,7 +221,7 @@ class ArrayListTest : public UnitTest
 				next = sortedVals[i];
 				std::cout << next << ' ';
 
-				UT_ASSERT_LESSEQ( last, next );
+				UT_EXPECT_LESSEQ( last, next );
 				last = next;
 			}
 			std::cout << '\n';
@@ -240,7 +240,7 @@ class ArrayListTest : public UnitTest
 				next = sortedVals[i];
 				std::cout << next << ' ';
 
-				UT_ASSERT_LESSEQ( last, next );
+				UT_EXPECT_LESSEQ( last, next );
 				last = next;
 			}
 			std::cout << '\n';

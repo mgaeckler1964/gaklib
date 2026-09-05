@@ -176,23 +176,23 @@ class BtreeTest : public UnitTest
 	void rebalanceTest(ContainerT &container, bool expectBadInput)
 	{
 		size_t	depth1, depth2;
-		UT_ASSERT_TRUE( container.test(&depth1, false) );
+		UT_EXPECT_TRUE( container.test(&depth1, false) );
 
 		if( expectBadInput )
 		{
-			UT_ASSERT_NOT_EQUAL(container.isBalanced(), btBalanced );
+			UT_EXPECT_NOT_EQUAL(container.isBalanced(), btBalanced );
 		}
 		container.rebalance();
-		UT_ASSERT_EQUAL(container.isBalanced(), btBalanced );
-		UT_ASSERT_TRUE( container.test(&depth2, true) );
+		UT_EXPECT_EQUAL(container.isBalanced(), btBalanced );
+		UT_EXPECT_TRUE( container.test(&depth2, true) );
 
 		if( expectBadInput )
 		{
-			UT_ASSERT_GREATER(depth1, depth2 );
+			UT_EXPECT_GREATER(depth1, depth2 );
 		}
 		else
 		{
-			UT_ASSERT_GREATEREQ(depth1, depth2 );
+			UT_EXPECT_GREATEREQ(depth1, depth2 );
 		}
 	}
 
@@ -223,7 +223,7 @@ class BtreeTest : public UnitTest
 		{
 			Btree<DeleteCounter>	btree;
 
-			UT_ASSERT_EQUAL( counter, 0 );
+			UT_EXPECT_EQUAL( counter, 0 );
 
 			btree.addElement( DeleteCounter( 1, &counter ) );
 			btree.addElement( DeleteCounter( 2, &counter ) );
@@ -236,9 +236,9 @@ class BtreeTest : public UnitTest
 			btree.addElement( DeleteCounter( 5, &counter ) );
 			btree.addElement( DeleteCounter( 4, &counter ) );
 
-			UT_ASSERT_EQUAL( counter, 10 );	// temporary items also count
+			UT_EXPECT_EQUAL( counter, 10 );	// temporary items also count
 		}
-		UT_ASSERT_EQUAL( counter, 20 );
+		UT_EXPECT_EQUAL( counter, 20 );
 	}
 
 	template <typename ContainerT>
@@ -254,7 +254,7 @@ class BtreeTest : public UnitTest
 			while( it != end )
 			{
 				doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while1" );
-				UT_ASSERT_LESSEQ( last, *it );
+				UT_EXPECT_LESSEQ( last, *it );
 				last = *it;
 				++it;
 			} 
@@ -268,7 +268,7 @@ class BtreeTest : public UnitTest
 			while( it != end )
 			{
 				doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while2" );
-				UT_ASSERT_LESSEQ( last, *it );
+				UT_EXPECT_LESSEQ( last, *it );
 				last = *it;
 				++it;
 			} 
@@ -282,7 +282,7 @@ class BtreeTest : public UnitTest
 			while( it != end )
 			{
 				doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while3" );
-				UT_ASSERT_GREATEREQ( last, *it );
+				UT_EXPECT_GREATEREQ( last, *it );
 				last = *it;
 				++it;
 			} 
@@ -296,7 +296,7 @@ class BtreeTest : public UnitTest
 			while( it != end )
 			{
 				doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::while4" );
-				UT_ASSERT_GREATEREQ( last, *it );
+				UT_EXPECT_GREATEREQ( last, *it );
 				last = *it;
 				++it;
 			} 
@@ -326,7 +326,7 @@ class BtreeTest : public UnitTest
 			size_t depth;
 			container.test(&depth, true);
 		}
-		UT_ASSERT_TRUE( container.test(&depth) );
+		UT_EXPECT_TRUE( container.test(&depth) );
 
 		if( doLoopTest )
 		{
@@ -376,7 +376,7 @@ class BtreeTest : public UnitTest
 			}
 		}
 		Btree<STRING>	myTreeCopy = myTree;
-		UT_ASSERT_EQUAL( myTree.size(),myTreeCopy.size() );
+		UT_EXPECT_EQUAL( myTree.size(),myTreeCopy.size() );
 
 		for( 
 			Btree<STRING>::const_iterator it1 = myTree.cbegin(), it2 = myTreeCopy.cbegin(), endIT = myTree.cend();
@@ -384,14 +384,14 @@ class BtreeTest : public UnitTest
 			++it1, ++it2
 		)
 		{
-			UT_ASSERT_EQUAL(*it1, *it2);
+			UT_EXPECT_EQUAL(*it1, *it2);
 		}
 
 		Btree<STRING>	myTreeCopy2 = myTree;
 
 		myTree.clear();
-		UT_ASSERT_EQUAL( myTree.size(), 0 );
-		UT_ASSERT_EQUAL( myTreeCopy.size(), myTreeCopy2.size() );
+		UT_EXPECT_EQUAL( myTree.size(), 0 );
+		UT_EXPECT_EQUAL( myTreeCopy.size(), myTreeCopy2.size() );
 
 		for( 
 			Btree<STRING>::const_iterator it1 = myTreeCopy.cbegin(), it2 = myTreeCopy2.cbegin(), endIT = myTreeCopy.cend();
@@ -399,7 +399,7 @@ class BtreeTest : public UnitTest
 			++it1, ++it2
 		)
 		{
-			UT_ASSERT_EQUAL(*it1, *it2);
+			UT_EXPECT_EQUAL(*it1, *it2);
 		}
 
 
@@ -451,10 +451,10 @@ class BtreeTest : public UnitTest
 			const DirectoryEntry	&listEntry = *it;
 			dirBtree.addElement( listEntry );
 			size_t depth;
-			UT_ASSERT_TRUE( dirBtree.test(&depth) );
+			UT_EXPECT_TRUE( dirBtree.test(&depth) );
 		}
 
-		UT_ASSERT_EQUAL( dirBtree.size(), dirList.size() );
+		UT_EXPECT_EQUAL( dirBtree.size(), dirList.size() );
 		size_t i=0;
 		for( 
 			BtreeList::iterator it = dirBtree.begin(), endit = dirBtree.end();
@@ -463,9 +463,9 @@ class BtreeTest : public UnitTest
 		)
 		{
 			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::for6" );
-			UT_ASSERT_TRUE( dirBtree.hasElement( *it ) );
+			UT_EXPECT_TRUE( dirBtree.hasElement( *it ) );
 		}
-		UT_ASSERT_EQUAL( dirBtree.size(), i );
+		UT_EXPECT_EQUAL( dirBtree.size(), i );
 
 		dirBtree.resort( DirectoryEntry::SORT_SIZE );
 		uint64	lastSize = 0;
@@ -477,10 +477,10 @@ class BtreeTest : public UnitTest
 		)
 		{
 			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::Perform::for7" );
-			UT_ASSERT_LESSEQ( lastSize, it->fileSize );
+			UT_EXPECT_LESSEQ( lastSize, it->fileSize );
 			lastSize = it->fileSize;
 		}
-		UT_ASSERT_EQUAL( dirBtree.size(), i );
+		UT_EXPECT_EQUAL( dirBtree.size(), i );
 
 		while( dirBtree.size() )
 		{
@@ -494,7 +494,7 @@ class BtreeTest : public UnitTest
 			if( it != end )
 				dirBtree.removeElement( *it );
 			size_t depth;
-			UT_ASSERT_TRUE( dirBtree.test( &depth, false ) );
+			UT_EXPECT_TRUE( dirBtree.test( &depth, false ) );
 		}
 
 		TreeMap<int,STRING>						map;
@@ -507,15 +507,15 @@ class BtreeTest : public UnitTest
 		}
 
 		STRING	&value1 = map[5000];
-		UT_ASSERT_FALSE( value1.isEmpty() );
+		UT_EXPECT_FALSE( value1.isEmpty() );
 		map[5000] = "Manche mögens heiss";
 		STRING	&value2 = map[5000];
-		UT_ASSERT_EQUAL( value2, STRING("Manche mögens heiss") );
+		UT_EXPECT_EQUAL( value2, STRING("Manche mögens heiss") );
 
 		STRING	value = map[-20];
-		UT_ASSERT_TRUE( value.isEmpty() );
+		UT_EXPECT_TRUE( value.isEmpty() );
 		value = map[60000];
-		UT_ASSERT_TRUE( value.isEmpty() );
+		UT_EXPECT_TRUE( value.isEmpty() );
 	}
 
 	virtual bool canStressTest()

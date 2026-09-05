@@ -100,19 +100,19 @@ class StrStreamTest : public UnitTest
 			output << hello << '\n';
 			output.flush();
 
-			UT_ASSERT_EQUAL( theResult, STRING("1\n") );
+			UT_EXPECT_EQUAL( theResult, STRING("1\n") );
 
 			output << "The Quick Brown Fox Jumps Over The Lazy Dog\n";
 			output.flush();
 
-			UT_ASSERT_EQUAL( theResult, STRING("1\nThe Quick Brown Fox Jumps Over The Lazy Dog\n") );
+			UT_EXPECT_EQUAL( theResult, STRING("1\nThe Quick Brown Fox Jumps Over The Lazy Dog\n") );
 
 			iSTRINGstream	input( theResult );
 //			istrstream		input( theResult );
 
 			input >> hello;
 
-			UT_ASSERT_EQUAL( hello, 1 );
+			UT_EXPECT_EQUAL( hello, 1 );
 
 			input.unsetf( std::ios_base::skipws );
 
@@ -124,18 +124,18 @@ class StrStreamTest : public UnitTest
 				if( input.eof() )
 					break;
 				std::cout << c;
-				UT_ASSERT_EQUAL( c, theResult[i] );
+				UT_EXPECT_EQUAL( c, theResult[i] );
 				i++;
 			}
 			input.clear();
 
 			input.seekg( 6 );
 			input >> c;
-			UT_ASSERT_EQUAL( c, 'Q' );
+			UT_EXPECT_EQUAL( c, 'Q' );
 
 			input.seekg( 5, input.cur );
 			input >> c;
-			UT_ASSERT_EQUAL( c, 'B' );
+			UT_EXPECT_EQUAL( c, 'B' );
 #if 0
 			input.clear();
 			input.seekg( 0, ios::beg );
@@ -172,28 +172,28 @@ class StrStreamTest : public UnitTest
 
 		output	<< 9 << std::endl;
 		typename ContainerT::value_type expected( '9' );
-		UT_ASSERT_EQUAL( buffer[0U], expected );
-		UT_ASSERT_EQUAL( size_t(buffer.size()), size_t(2) ); 
+		UT_EXPECT_EQUAL( buffer[0U], expected );
+		UT_EXPECT_EQUAL( size_t(buffer.size()), size_t(2) ); 
 
 		typename iStreamT::int_type c = input.get();
 		typename iStreamT::int_type x = '9';
-		UT_ASSERT_EQUAL( c, x );
+		UT_EXPECT_EQUAL( c, x );
 		input.putback( c );
 
 		input >> myTmp;
-		UT_ASSERT_EQUAL( myTmp, 9 );
+		UT_EXPECT_EQUAL( myTmp, 9 );
 
 		input.putback( 'a' );
 		c = input.get();
 		x = 'a';
-		UT_ASSERT_EQUAL( c, x );
+		UT_EXPECT_EQUAL( c, x );
 
 		c = input.get();
 		x = '\n';
-		UT_ASSERT_EQUAL( c, x );
+		UT_EXPECT_EQUAL( c, x );
 
 		c = input.get();
-		UT_ASSERT_EQUAL( c, iStreamT::traits_type::eof() );
+		UT_EXPECT_EQUAL( c, iStreamT::traits_type::eof() );
 	}
 };
 

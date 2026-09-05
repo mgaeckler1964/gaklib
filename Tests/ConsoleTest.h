@@ -90,8 +90,8 @@ class ConsoleTest : public UnitTest
 		unsigned height = getConsoleHeight();
 		ConsoleSize	cSize;
 
-		UT_ASSERT_EQUAL( width, cSize.width );
-		UT_ASSERT_EQUAL( height, cSize.height );
+		UT_EXPECT_EQUAL( width, cSize.width );
+		UT_EXPECT_EQUAL( height, cSize.height );
 	}
 };
 

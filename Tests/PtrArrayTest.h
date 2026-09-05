@@ -127,12 +127,12 @@ class PtrArrayTest : public UnitTest
 		MyClass *item3 = new MyClass;
 		myMapArray.addElement( item3 );
 
-		UT_ASSERT_EQUAL( MyClassCounter, myMapArray.size() );
-		UT_ASSERT_EQUAL( myMapArray[2]->getKey(), item2->getKey() );
-		UT_ASSERT_NULL( myMapArray[0] );
+		UT_EXPECT_EQUAL( MyClassCounter, myMapArray.size() );
+		UT_EXPECT_EQUAL( myMapArray[2]->getKey(), item2->getKey() );
+		UT_EXPECT_NULL( myMapArray[0] );
 		size_t no_index = Container::no_index;
-		UT_ASSERT_EQUAL( myMapArray.getElementIndex( 0 ), no_index );
-		UT_ASSERT_EQUAL( myMapArray.getElementIndex( item2->getKey() ), size_t(1) );
+		UT_EXPECT_EQUAL( myMapArray.getElementIndex( 0 ), no_index );
+		UT_EXPECT_EQUAL( myMapArray.getElementIndex( item2->getKey() ), size_t(1) );
 
 		myMapArray.clear();
 
@@ -148,7 +148,7 @@ class PtrArrayTest : public UnitTest
 
 		delete myPtrArray;
 
-		UT_ASSERT_EQUAL( MyClassCounter, size_t(0) );
+		UT_EXPECT_EQUAL( MyClassCounter, size_t(0) );
 	}
 };
 

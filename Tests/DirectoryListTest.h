@@ -101,7 +101,7 @@ class DirectoryListTest : public UnitTest
 		list.findFiles( SEARCH_PATH SEARCH_PATTERN );
 		
 		// the number of C++ Source files ind CTOOLS here:
-		UT_ASSERT_EQUAL( list.size(), size_t(92) );
+		UT_EXPECT_EQUAL( list.size(), size_t(92) );
 		for( 
 			DirectoryList::const_iterator it = list.cbegin(), endIT = list.cend();
 			it != endIT;
@@ -111,14 +111,14 @@ class DirectoryListTest : public UnitTest
 			const DirectoryEntry		&listEntry = *it;
 			F_STRING					fName = F_STRING(SEARCH_PATH)+listEntry.fileName;
 			DirectoryEntry				theEntry( fName );
-			UT_ASSERT_EQUAL( theEntry.fileName, fName );
-			UT_ASSERT_EQUAL( listEntry.modifiedDate, theEntry.modifiedDate );
+			UT_EXPECT_EQUAL( theEntry.fileName, fName );
+			UT_EXPECT_EQUAL( listEntry.modifiedDate, theEntry.modifiedDate );
 // perhaps this test changes the accessdate 8-(
-//			UT_ASSERT_EQUAL( listEntry.accessDate, theEntry.accessDate );
+//			UT_EXPECT_EQUAL( listEntry.accessDate, theEntry.accessDate );
 		}
 
 		list.findFiles( __FILE__ );
-		UT_ASSERT_EQUAL( list.size(), size_t(1) );
+		UT_EXPECT_EQUAL( list.size(), size_t(1) );
 
 #if defined( NDEBUG ) && !defined( __MACH__ )
 #	if defined( _Windows )
@@ -151,12 +151,12 @@ class DirectoryListTest : public UnitTest
 			++it, ++i
 		)
 		{
-			UT_ASSERT_LESSEQ( lastSize, it->fileSize );
+			UT_EXPECT_LESSEQ( lastSize, it->fileSize );
 			lastSize = it->fileSize;
 		}
 		size_t test;
-		UT_ASSERT_TRUE( list.test(&test) );
-		UT_ASSERT_EQUAL( list.size(), i );
+		UT_EXPECT_TRUE( list.test(&test) );
+		UT_EXPECT_EQUAL( list.size(), i );
 
 		std::cout << "Testing Array" << std::endl;
 		lastSize = 0;
@@ -167,10 +167,10 @@ class DirectoryListTest : public UnitTest
 			++it, ++i
 		)
 		{
-			UT_ASSERT_LESSEQ( lastSize, it->fileSize );
+			UT_EXPECT_LESSEQ( lastSize, it->fileSize );
 			lastSize = it->fileSize;
 		}
-		UT_ASSERT_EQUAL( arrayTree.size(), i );
+		UT_EXPECT_EQUAL( arrayTree.size(), i );
 
 		std::cout << "resort tree" << std::endl;
 		startTime = clock();

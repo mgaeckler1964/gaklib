@@ -97,11 +97,11 @@ class BitFieldTest : public UnitTest
 
 		x <<= TST_BIT5;
 
-		UT_ASSERT_FALSE( x.test( TST_BIT8 ) );
+		UT_EXPECT_FALSE( x.test( TST_BIT8 ) );
 
 		x <<= TST_BIT8;
 
-		UT_ASSERT_TRUE( x.test( TST_BIT8 ) );
+		UT_EXPECT_TRUE( x.test( TST_BIT8 ) );
 	}
 };
 

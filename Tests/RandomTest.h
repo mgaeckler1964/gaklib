@@ -94,8 +94,8 @@ class RandomTest : public UnitTest
 		for( size_t i=0; i<LOOP_COUNT; ++i )
 		{
 			int idx = randomNumber(TEST_SIZE);
-			UT_ASSERT_GREATEREQ(idx,0);
-			UT_ASSERT_LESS(idx, TEST_SIZE );
+			UT_EXPECT_GREATEREQ(idx,0);
+			UT_EXPECT_LESS(idx, TEST_SIZE );
 			if(idx>=0 && idx<TEST_SIZE)
 			{
 				randoms[idx]++;
@@ -104,7 +104,7 @@ class RandomTest : public UnitTest
 		for( size_t i=0; i<TEST_SIZE; ++i )
 		{
 			std::cout << i << ": " << randoms[i] << std::endl;
-			UT_ASSERT_GREATER(randoms[i],0);
+			UT_EXPECT_GREATER(randoms[i],0);
 		}
 	}
 };

@@ -91,13 +91,13 @@ class HostResolverTest : public gak::UnitTest
 		gak::net::HostResolver	theResolver("www.gaeckler.at",80);
 		gak::net::XResolver	theXResolver("www.gaeckler.at",80);
 
-		UT_ASSERT_EQUAL( theResolver.getStringAddr(), theXResolver.getStringAddr() );
+		UT_EXPECT_EQUAL( theResolver.getStringAddr(), theXResolver.getStringAddr() );
 
-		UT_ASSERT_EXCEPTION(
+		UT_EXPECT_EXCEPTION(
 			gak::net::HostResolver("www.not_found.dumpf",80),
 			gak::net::ResolverError
 		);
-		UT_ASSERT_EXCEPTION(
+		UT_EXPECT_EXCEPTION(
 			gak::net::XResolver("www.not_found.dumpf",80),
 			gak::net::ResolverError
 		);

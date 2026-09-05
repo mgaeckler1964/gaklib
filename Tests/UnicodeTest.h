@@ -88,20 +88,20 @@ class UnicodeTest : public UnitTest
 
 		STRING	gak="Martin Gäckler";
 
-		UT_ASSERT_EQUAL( gak.strlen(), size_t(14) );
+		UT_EXPECT_EQUAL( gak.strlen(), size_t(14) );
 		gak = gak.encodeUTF8();
-		UT_ASSERT_EQUAL( gak.strlen(), size_t(15) );
-		UT_ASSERT_EQUAL( gak[8U], char(-61) );
-		UT_ASSERT_EQUAL( gak[9U], char(-92) );
+		UT_EXPECT_EQUAL( gak.strlen(), size_t(15) );
+		UT_EXPECT_EQUAL( gak[8U], char(-61) );
+		UT_EXPECT_EQUAL( gak[9U], char(-92) );
 
 		gak += 'Ä';
-		UT_ASSERT_EQUAL( gak.strlen(), size_t(17) );
+		UT_EXPECT_EQUAL( gak.strlen(), size_t(17) );
 
 		gak += "Gäckler";
-		UT_ASSERT_EQUAL( gak.strlen(), size_t(25) );
+		UT_EXPECT_EQUAL( gak.strlen(), size_t(25) );
 		gak = gak.decodeUTF8();
-		UT_ASSERT_EQUAL( gak.strlen(), size_t(22) );
-		UT_ASSERT_EQUAL( gak, STRING("Martin GäcklerÄGäckler") );
+		UT_EXPECT_EQUAL( gak.strlen(), size_t(22) );
+		UT_EXPECT_EQUAL( gak, STRING("Martin GäcklerÄGäckler") );
 		std::cout << gak << '\n';
 
 		STRING	ansi, utf8, ansiResult;
@@ -113,59 +113,59 @@ class UnicodeTest : public UnitTest
 			utf8 = ansi.encodeUTF8();
 			ansiResult = utf8.decodeUTF8();
 
-			UT_ASSERT_EQUAL( ansi, ansiResult );
+			UT_EXPECT_EQUAL( ansi, ansiResult );
 		}
 
 		STRING	ansiText = "Martin Gäckler";
 		STRING	utf8Source = ansiText.encodeUTF8();
-		UT_ASSERT_EQUAL( ansiText, utf8Source );
+		UT_EXPECT_EQUAL( ansiText, utf8Source );
 
 		{
 			uSTRING tmp( ansiText );
 			STRING	result = tmp.encodeUTF8();
-			UT_ASSERT_EQUAL( ansiText, result );
-			UT_ASSERT_EQUAL( utf8Source, result );
+			UT_EXPECT_EQUAL( ansiText, result );
+			UT_EXPECT_EQUAL( utf8Source, result );
 			result = tmp.toString();
-			UT_ASSERT_EQUAL( ansiText, result );
-			UT_ASSERT_EQUAL( utf8Source, result );
+			UT_EXPECT_EQUAL( ansiText, result );
+			UT_EXPECT_EQUAL( utf8Source, result );
 		}
 
 		{
 			uSTRING tmp( utf8Source );
 			STRING	result = tmp.encodeUTF8();
-			UT_ASSERT_EQUAL( ansiText, result );
-			UT_ASSERT_EQUAL( utf8Source, result );
+			UT_EXPECT_EQUAL( ansiText, result );
+			UT_EXPECT_EQUAL( utf8Source, result );
 			result = tmp.toString();
-			UT_ASSERT_EQUAL( ansiText, result );
-			UT_ASSERT_EQUAL( utf8Source, result );
+			UT_EXPECT_EQUAL( ansiText, result );
+			UT_EXPECT_EQUAL( utf8Source, result );
 		}
 
 		{
 			uSTRING tmp;
 			tmp.decodeUTF8( utf8Source );
 			STRING	result = tmp.encodeUTF8();
-			UT_ASSERT_EQUAL( ansiText, result );
-			UT_ASSERT_EQUAL( utf8Source, result );
+			UT_EXPECT_EQUAL( ansiText, result );
+			UT_EXPECT_EQUAL( utf8Source, result );
 			result = tmp.toString();
-			UT_ASSERT_EQUAL( ansiText, result );
-			UT_ASSERT_EQUAL( utf8Source, result );
+			UT_EXPECT_EQUAL( ansiText, result );
+			UT_EXPECT_EQUAL( utf8Source, result );
 		}
 		{
 			uSTRING tmp = uSTRING().decodeUTF8( utf8Source );
 			STRING	result = tmp.encodeUTF8();
-			UT_ASSERT_EQUAL( ansiText, result );
-			UT_ASSERT_EQUAL( utf8Source, result );
+			UT_EXPECT_EQUAL( ansiText, result );
+			UT_EXPECT_EQUAL( utf8Source, result );
 			result = tmp.toString();
-			UT_ASSERT_EQUAL( ansiText, result );
-			UT_ASSERT_EQUAL( utf8Source, result );
+			UT_EXPECT_EQUAL( ansiText, result );
+			UT_EXPECT_EQUAL( utf8Source, result );
 		}
 		{
 			STRING	result = uSTRING().decodeUTF8( utf8Source ).encodeUTF8();
-			UT_ASSERT_EQUAL( ansiText, result );
-			UT_ASSERT_EQUAL( utf8Source, result );
+			UT_EXPECT_EQUAL( ansiText, result );
+			UT_EXPECT_EQUAL( utf8Source, result );
 			result = uSTRING().decodeUTF8( utf8Source ).toString();
-			UT_ASSERT_EQUAL( ansiText, result );
-			UT_ASSERT_EQUAL( utf8Source, result );
+			UT_EXPECT_EQUAL( ansiText, result );
+			UT_EXPECT_EQUAL( utf8Source, result );
 		}
 	}
 };

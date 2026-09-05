@@ -202,14 +202,14 @@ class ContainerTest : public gak::UnitTest
 
 		gak::Set<STRING>		copySetString = setString;
 		setString.addElements( copySetString );
-		UT_ASSERT_EQUAL( copySetString.size(), setString.size() );
-		UT_ASSERT_EQUAL( copySetString, setString );
+		UT_EXPECT_EQUAL( copySetString.size(), setString.size() );
+		UT_EXPECT_EQUAL( copySetString, setString );
 
 		SortedArray<STRING>		copySortedString = sortedString;
 		sortedString.addElements( copySortedString );
 		for( size_t i=1; i< sortedString.size(); ++i )
 		{
-			UT_ASSERT_LESSEQ( sortedString[i-1], sortedString[i] );
+			UT_EXPECT_LESSEQ( sortedString[i-1], sortedString[i] );
 		}
 		UnorderedPairMap<int,STRING>	unorderedPairMap;
 		PairMap<int,STRING>				orderedPairMap;
@@ -226,10 +226,10 @@ class ContainerTest : public gak::UnitTest
 		testMap( theMap, makeMapItem );
 
 		FixedHeapArray<int> myHeapArray( 123 );
-		UT_ASSERT_EQUAL( myHeapArray.size(), size_t(123) );
+		UT_EXPECT_EQUAL( myHeapArray.size(), size_t(123) );
 
 		FixedArray<int, 666> myLocalArray;
-		UT_ASSERT_EQUAL( myLocalArray.size(), size_t(666) );
+		UT_EXPECT_EQUAL( myLocalArray.size(), size_t(666) );
 
 		{
 			Array< gak::Set<int> >	setArray( 2 );
@@ -317,10 +317,10 @@ class ContainerTest : public gak::UnitTest
 			arrayString.addElement("Hello");
 			arrayString.addElement("World");
 			arrayString2.merge(arrayString);
-			UT_ASSERT_EQUAL(arrayString2.size(), arrayString.size());
+			UT_EXPECT_EQUAL(arrayString2.size(), arrayString.size());
 
 			arrayString2.merge(arrayString);
-			UT_ASSERT_EQUAL(arrayString2.size(), 2*arrayString.size());
+			UT_EXPECT_EQUAL(arrayString2.size(), 2*arrayString.size());
 		}
 	}
 
@@ -338,45 +338,45 @@ class ContainerTest : public gak::UnitTest
 		container.addElement( 7 );
 		container.addElement( 9 );
 
-		UT_ASSERT_EQUAL( isAset ? 5 : 8, container.size() );
+		UT_EXPECT_EQUAL( isAset ? 5 : 8, container.size() );
 
 		ConstIterable<typename ContainerT::const_iterator>	range = container.getRange( 5, 8 );
 		typename ContainerT::const_iterator	it = range.cbegin();
 
 		if( !isAset )
 		{
-			UT_ASSERT_EQUAL( 5, *it ); ++it;
-			UT_ASSERT_EQUAL( 5, *it ); ++it;
+			UT_EXPECT_EQUAL( 5, *it ); ++it;
+			UT_EXPECT_EQUAL( 5, *it ); ++it;
 		}
-		UT_ASSERT_EQUAL( 5, *it ); ++it;
-		UT_ASSERT_EQUAL( 7, *it ); ++it;
+		UT_EXPECT_EQUAL( 5, *it ); ++it;
+		UT_EXPECT_EQUAL( 7, *it ); ++it;
 		if( !isAset )
 		{
-			UT_ASSERT_EQUAL( 7, *it ); ++it;
+			UT_EXPECT_EQUAL( 7, *it ); ++it;
 		}
-		UT_ASSERT_EQUAL( it, range.cend() );;
+		UT_EXPECT_EQUAL( it, range.cend() );;
 
 		range = container.getRange( 7, 11 );
 		it = range.cbegin();
-		UT_ASSERT_EQUAL( 7, *it ); ++it;
+		UT_EXPECT_EQUAL( 7, *it ); ++it;
 		if( !isAset )
 		{
-			UT_ASSERT_EQUAL( 7, *it ); ++it;
+			UT_EXPECT_EQUAL( 7, *it ); ++it;
 		}
-		UT_ASSERT_EQUAL( 9, *it ); ++it;
-		UT_ASSERT_EQUAL( it, range.cend() );;
+		UT_EXPECT_EQUAL( 9, *it ); ++it;
+		UT_EXPECT_EQUAL( it, range.cend() );;
 
 		range = container.getRange( 0, 5 );
 		it = range.cbegin();
-		UT_ASSERT_EQUAL( 1, *it ); ++it;
-		UT_ASSERT_EQUAL( 3, *it ); ++it;
-		UT_ASSERT_EQUAL( it, range.cend() );;
+		UT_EXPECT_EQUAL( 1, *it ); ++it;
+		UT_EXPECT_EQUAL( 3, *it ); ++it;
+		UT_EXPECT_EQUAL( it, range.cend() );;
 
 		range = container.getRange( -9, -1 );
-		UT_ASSERT_EQUAL( range.cbegin(), range.cend() );;
+		UT_EXPECT_EQUAL( range.cbegin(), range.cend() );;
 
 		range = container.getRange( 10, 11 );
-		UT_ASSERT_EQUAL( range.cbegin(), range.cend() );;
+		UT_EXPECT_EQUAL( range.cbegin(), range.cend() );;
 	}
 	template <typename ContainerT>
 	void testSetOperations()
@@ -393,10 +393,10 @@ class ContainerTest : public gak::UnitTest
 		ContainerT	result2 = intersect( array1, array2 );
 		ContainerT	result3 = substract( array1, array2 );
 
-		UT_ASSERT_EQUAL( std::size_t(1), result1.size() );
-		UT_ASSERT_EQUAL( std::size_t(1), result2.size() );
-		UT_ASSERT_EQUAL( std::size_t(0), result3.size() );
-		UT_ASSERT_EQUAL( result1, result2 );
+		UT_EXPECT_EQUAL( std::size_t(1), result1.size() );
+		UT_EXPECT_EQUAL( std::size_t(1), result2.size() );
+		UT_EXPECT_EQUAL( std::size_t(0), result3.size() );
+		UT_EXPECT_EQUAL( result1, result2 );
 	}
 
 	template <typename ContainerT>
@@ -416,9 +416,9 @@ class ContainerTest : public gak::UnitTest
 		ContainerT	result2 = intersect( array1, array2 );
 		ContainerT	result3 = substract( array1, array2 );
 
-		UT_ASSERT_EQUAL( std::size_t(4), result1.size() );
-		UT_ASSERT_EQUAL( std::size_t(2), result2.size() );
-		UT_ASSERT_EQUAL( std::size_t(1), result3.size() );
+		UT_EXPECT_EQUAL( std::size_t(4), result1.size() );
+		UT_EXPECT_EQUAL( std::size_t(2), result2.size() );
+		UT_EXPECT_EQUAL( std::size_t(1), result3.size() );
 	}
 
 	template <typename ContainerT>
@@ -427,10 +427,10 @@ class ContainerTest : public gak::UnitTest
 		ContainerT	container;
 #ifdef __BORLANDC__
 		container.addElement( ContainerT::value_type() );
-		UT_ASSERT_EQUAL( std::size_t(0), container.findElement( ContainerT::value_type() ) );
+		UT_EXPECT_EQUAL( std::size_t(0), container.findElement( ContainerT::value_type() ) );
 #else
 		container.addElement( typename ContainerT::value_type() );
-		UT_ASSERT_EQUAL( std::size_t(0), container.findElement( typename ContainerT::value_type() ) );
+		UT_EXPECT_EQUAL( std::size_t(0), container.findElement( typename ContainerT::value_type() ) );
 #endif
 	}
 
@@ -457,7 +457,7 @@ class ContainerTest : public gak::UnitTest
 			theContainer.push_back( theProducer( int(i) ) );
 			theContainer.push_front( theProducer( int(i) ) );
 		}
-		UT_ASSERT_EQUAL( theContainer.size(), current + size_t(30) );
+		UT_EXPECT_EQUAL( theContainer.size(), current + size_t(30) );
 	}
 	template <class ContainerT, class KeyGenT, class ValueGenT >
 	void fillKeyValueMap( ContainerT &theContainer, KeyGenT keyGen, ValueGenT valueGen )
@@ -468,7 +468,7 @@ class ContainerTest : public gak::UnitTest
 			theContainer.setValue( keyGen(int(i)), valueGen(int(i)) );
 			theContainer[keyGen(int(i))] = valueGen(int(i));
 		}
-		UT_ASSERT_EQUAL( theContainer.size(), current + size_t(20) );
+		UT_EXPECT_EQUAL( theContainer.size(), current + size_t(20) );
 	}
 	template <class ContainerT, class ValueGenT>
 	void fillKeyObjectMap( ContainerT &theContainer, ValueGenT valueGen )
@@ -480,7 +480,7 @@ class ContainerTest : public gak::UnitTest
 			typename ContainerT::key_type key = newVal.getKey();
 			theContainer[key] = newVal;
 		}
-		UT_ASSERT_EQUAL( theContainer.size(), current + size_t(10) );
+		UT_EXPECT_EQUAL( theContainer.size(), current + size_t(10) );
 	}
 
 	template <class ContainerT>
@@ -498,7 +498,7 @@ class ContainerTest : public gak::UnitTest
 		{
 			items.push( *it );
 		}
-		UT_ASSERT_EQUAL( i, theContainer.size() );
+		UT_EXPECT_EQUAL( i, theContainer.size() );
 
 		// walk through with reverse iterator
 		i=0;
@@ -508,9 +508,9 @@ class ContainerTest : public gak::UnitTest
 			++it, ++i 
 		)
 		{
-			UT_ASSERT_EQUAL( *it, items.pop() );
+			UT_EXPECT_EQUAL( *it, items.pop() );
 		}
-		UT_ASSERT_EQUAL( i, theContainer.size() );
+		UT_EXPECT_EQUAL( i, theContainer.size() );
 	}
 
 	template <class ContainerT>
@@ -528,7 +528,7 @@ class ContainerTest : public gak::UnitTest
 		{
 			items.push( *it );
 		}
-		UT_ASSERT_EQUAL( i, theContainer.size() );
+		UT_EXPECT_EQUAL( i, theContainer.size() );
 
 		// walk through with reverse iterator
 		i=0;
@@ -538,16 +538,16 @@ class ContainerTest : public gak::UnitTest
 			++it, ++i 
 		)
 		{
-			UT_ASSERT_EQUAL( *it, items.pop() );
+			UT_EXPECT_EQUAL( *it, items.pop() );
 		}
-		UT_ASSERT_EQUAL( i, theContainer.size() );
+		UT_EXPECT_EQUAL( i, theContainer.size() );
 	}
 
 	template<class ContainerT>
 	void testConstMapAccess( const ContainerT &theContainer )
 	{
 		Array<typename ContainerT::key_type>	keys = theContainer.getKeys();
-		UT_ASSERT_EQUAL( theContainer.size(), keys.size() );
+		UT_EXPECT_EQUAL( theContainer.size(), keys.size() );
 
 		for(
 			typename Array<typename ContainerT::key_type>::iterator it = keys.begin(), endIT = keys.end();
@@ -558,17 +558,17 @@ class ContainerTest : public gak::UnitTest
 			if( !theContainer.hasElement( *it ) )
 				std::cout << "Data not found\n";
 
-			UT_ASSERT_TRUE( theContainer.hasElement( *it ) );
+			UT_EXPECT_TRUE( theContainer.hasElement( *it ) );
 			typename ContainerT::value_type	value = theContainer[*it];
 			typename ContainerT::key_type	key = theContainer.findElement( value );
-			UT_ASSERT_EQUAL( *it, key );
+			UT_EXPECT_EQUAL( *it, key );
 		}
 	}
 	template<class ContainerT>
 	void testMapAccess( ContainerT &theContainer )
 	{
 		Array<typename ContainerT::key_type>	keys = theContainer.getKeys();
-		UT_ASSERT_EQUAL( theContainer.size(), keys.size() );
+		UT_EXPECT_EQUAL( theContainer.size(), keys.size() );
 
 		for(
 			typename Array<typename ContainerT::key_type>::iterator it = keys.begin(), endIT = keys.end();
@@ -576,14 +576,14 @@ class ContainerTest : public gak::UnitTest
 			++it
 		)
 		{
-			UT_ASSERT_TRUE( theContainer.hasElement( *it ) );
+			UT_EXPECT_TRUE( theContainer.hasElement( *it ) );
 			typename ContainerT::value_type	value = theContainer[*it];
 			typename ContainerT::key_type	key = theContainer.findElement( value );
-			UT_ASSERT_EQUAL( *it, key );
+			UT_EXPECT_EQUAL( *it, key );
 
 			theContainer.removeElementByKey( key );
 		}
-		UT_ASSERT_EQUAL( theContainer.size(), size_t(0) );
+		UT_EXPECT_EQUAL( theContainer.size(), size_t(0) );
 	}
 
 	template<class ContainerT, class FunctionT>
@@ -601,7 +601,7 @@ class ContainerTest : public gak::UnitTest
 	void testConstPairMapAccess( const ContainerT &theContainer )
 	{
 		Array<typename ContainerT::key_type>	keys = theContainer.getKeys();
-		UT_ASSERT_EQUAL( theContainer.size(), keys.size() );
+		UT_EXPECT_EQUAL( theContainer.size(), keys.size() );
 
 		for(
 			typename Array<typename ContainerT::key_type>::iterator it = keys.begin(), endIT = keys.end();
@@ -609,7 +609,7 @@ class ContainerTest : public gak::UnitTest
 			++it
 		)
 		{
-			UT_ASSERT_TRUE( theContainer.hasElement( *it ) );
+			UT_EXPECT_TRUE( theContainer.hasElement( *it ) );
 			typename ContainerT::mapped_type	value = theContainer[*it];
 			typename ContainerT::key_type		key = theContainer.findValue( value );
 #ifndef NDEBUG
@@ -620,7 +620,7 @@ class ContainerTest : public gak::UnitTest
 				theContainer.findValue( value );
 			}
 #endif
-			UT_ASSERT_EQUAL( *it, key );
+			UT_EXPECT_EQUAL( *it, key );
 		}
 	}
 
@@ -628,7 +628,7 @@ class ContainerTest : public gak::UnitTest
 	void testPairMapAccess( ContainerT &theContainer )
 	{
 		Array<typename ContainerT::key_type>	keys = theContainer.getKeys();
-		UT_ASSERT_EQUAL( theContainer.size(), keys.size() );
+		UT_EXPECT_EQUAL( theContainer.size(), keys.size() );
 
 		for(
 			typename Array<typename ContainerT::key_type>::iterator it = keys.begin(), endIT = keys.end();
@@ -636,14 +636,14 @@ class ContainerTest : public gak::UnitTest
 			++it
 		)
 		{
-			UT_ASSERT_TRUE( theContainer.hasElement( *it ) );
+			UT_EXPECT_TRUE( theContainer.hasElement( *it ) );
 			typename ContainerT::mapped_type	value = theContainer[*it];
 			typename ContainerT::key_type		key = theContainer.findValue( value );
-			UT_ASSERT_EQUAL( *it, key );
+			UT_EXPECT_EQUAL( *it, key );
 
 			theContainer.removeElementByKey( key );
 		}
-		UT_ASSERT_EQUAL( theContainer.size(), size_t(0) );
+		UT_EXPECT_EQUAL( theContainer.size(), size_t(0) );
 	}
 
 	template <class ContainerT, class KeyGenT, class ValueGenT>

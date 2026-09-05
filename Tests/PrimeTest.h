@@ -142,13 +142,13 @@ class PrimeTest : public UnitTest
 			if( math::isPrime( n ) )
 			{
 				std::cout << n << '\n';
-				UT_ASSERT_EQUAL( n, uint32(4294967291U) );
+				UT_EXPECT_EQUAL( n, uint32(4294967291U) );
 				n=1;
 			}
 			n--;
 		}
 
-		UT_ASSERT_EQUAL( math::ggT( 64, 100 ), 4UL );
+		UT_EXPECT_EQUAL( math::ggT( 64, 100 ), 4UL );
 	}
 };
 

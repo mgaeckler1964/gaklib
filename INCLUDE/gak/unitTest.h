@@ -78,35 +78,35 @@ namespace gak
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-#define UT_ASSERT_TRUE( testItem )	\
+#define UT_EXPECT_TRUE( testItem )	\
 	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem, "false", bool(testItem) )
-#define UT_ASSERT_FALSE( testItem )	\
+#define UT_EXPECT_FALSE( testItem )	\
 	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, "!" #testItem, "true", !bool(testItem) )
-#define UT_ASSERT_NULL( testItem )	\
+#define UT_EXPECT_NULL( testItem )	\
 	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem " == NULL", "!NULL", bool(testItem == NULL) )
-#define UT_ASSERT_NOT_NULL( testItem )	\
+#define UT_EXPECT_NOT_NULL( testItem )	\
 	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem " != NULL", "NULL", bool(testItem != NULL) )
 
-#define UT_ASSERT_RANGE( min, val, max )		\
+#define UT_EXPECT_RANGE( min, val, max )		\
 	gak::assertRange( GetClassName(), __FILE__, __LINE__, #min "<=" #val "<=" #max, min, val, max )
 
-#define UT_ASSERT_EQUAL( i1, i2 )		\
+#define UT_EXPECT_EQUAL( i1, i2 )		\
 	gak::assertEqual( GetClassName(), __FILE__, __LINE__, #i1 "==" #i2, i1, i2 )
-#define UT_ASSERT_NOT_EQUAL( i1, i2 )		\
+#define UT_EXPECT_NOT_EQUAL( i1, i2 )		\
 	gak::assertNotEqual( GetClassName(), __FILE__, __LINE__, #i1 "!=" #i2, i1, i2 )
-#define UT_ASSERT_LESS( i1, i2 )		\
+#define UT_EXPECT_LESS( i1, i2 )		\
 	gak::assertLess( GetClassName(), __FILE__, __LINE__, #i1 "<" #i2, i1, i2 )
-#define UT_ASSERT_LESSEQ( i1, i2 )		\
+#define UT_EXPECT_LESSEQ( i1, i2 )		\
 	gak::assertLessEqual( GetClassName(), __FILE__, __LINE__, #i1 "<=" #i2, i1, i2 )
-#define UT_ASSERT_GREATER( i1, i2 )		\
+#define UT_EXPECT_GREATER( i1, i2 )		\
 	gak::assertGreater( GetClassName(), __FILE__, __LINE__, #i1 ">" #i2, i1, i2 )
-#define UT_ASSERT_GREATEREQ( i1, i2 )		\
+#define UT_EXPECT_GREATEREQ( i1, i2 )		\
 	gak::assertGreaterEqual( GetClassName(), __FILE__, __LINE__, #i1 ">=" #i2, i1, i2 )
 
-#define UT_ASSERT_EQUAL_FLT( i1, i2, maxDev )		\
+#define UT_EXPECT_EQUAL_FLT( i1, i2, maxDev )		\
 	gak::assertEqualFloat( GetClassName(), __FILE__, __LINE__, #i1 "==" #i2, i1, i2, maxDev )
 
-#define UT_ASSERT_EXCEPTION( expr, Except )	\
+#define UT_EXPECT_EXCEPTION( expr, Except )	\
 { \
 	bool	exFound = false; \
 	try \

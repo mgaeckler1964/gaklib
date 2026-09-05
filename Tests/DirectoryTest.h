@@ -106,22 +106,22 @@ class DirectoryTest : public UnitTest
 		std::cout << "Current:\t" << curDir << '\n';
 
 		setcwd( tmp );
-		UT_ASSERT_EQUAL( getcwd(), tmp );
+		UT_EXPECT_EQUAL( getcwd(), tmp );
 
 		setcwd( home );
-		UT_ASSERT_EQUAL( getcwd(), home );
+		UT_EXPECT_EQUAL( getcwd(), home );
 
 		setcwd( docs );
-		UT_ASSERT_EQUAL( getcwd(), docs );
+		UT_EXPECT_EQUAL( getcwd(), docs );
 
 		setcwd( pConfig );
-		UT_ASSERT_EQUAL( getcwd(), pConfig );
+		UT_EXPECT_EQUAL( getcwd(), pConfig );
 
 		setcwd( gConfig );
-		UT_ASSERT_EQUAL( getcwd(), gConfig );
+		UT_EXPECT_EQUAL( getcwd(), gConfig );
 
 		setcwd( curDir );
-		UT_ASSERT_EQUAL( getcwd(), curDir );
+		UT_EXPECT_EQUAL( getcwd(), curDir );
 
 		ArrayOfStrings	usbDrives;
 		getUSBdrives( &usbDrives );
@@ -136,36 +136,36 @@ class DirectoryTest : public UnitTest
 			TempFileName	_( myFile );
 		
 			STDfile fp( myFile, "wb" );
-			UT_ASSERT_NOT_NULL( fp );
+			UT_EXPECT_NOT_NULL( fp );
 			if( fp )
 			{
 				fp.close();
 				int result = strAccess( myFile, 06 );
-				UT_ASSERT_EQUAL( result, 0 );
+				UT_EXPECT_EQUAL( result, 0 );
 				myFile = myFile.convertToCharset( STR_UTF8 );
 				result = strAccess( myFile, 06 );
-				UT_ASSERT_EQUAL( result, 0 );
+				UT_EXPECT_EQUAL( result, 0 );
 			}
 		}
 
 		myFile = "LICENSE"; // "TCGAKLIB.PRJ";
 		int result = strAccess( myFile, 06 );
-		UT_ASSERT_NOT_EQUAL( result, 0 );
+		UT_EXPECT_NOT_EQUAL( result, 0 );
 		if( result )
-			UT_ASSERT_EQUAL( errno, EACCES );
+			UT_EXPECT_EQUAL( errno, EACCES );
 		result = strAccess( myFile, 04 );
-		UT_ASSERT_EQUAL( result, 0 );
+		UT_EXPECT_EQUAL( result, 0 );
 
 		myFile = "GAKDLL32.DEF";
 		DirectoryEntry	theEntry( myFile );
-		UT_ASSERT_TRUE( theEntry.readOnly );
+		UT_EXPECT_TRUE( theEntry.readOnly );
 #ifdef _Windows	/// TODO the following code does not work on linux, fix! 
 		funprotect( myFile );
 		theEntry.findFile( myFile );
-		UT_ASSERT_FALSE( theEntry.readOnly );
+		UT_EXPECT_FALSE( theEntry.readOnly );
 		fprotect( myFile );
 		theEntry.findFile( myFile );
-		UT_ASSERT_TRUE( theEntry.readOnly );
+		UT_EXPECT_TRUE( theEntry.readOnly );
 #endif
 	}
 };

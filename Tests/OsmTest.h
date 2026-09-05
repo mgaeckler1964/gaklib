@@ -183,7 +183,7 @@ class OsmTest : public UnitTest
 			{
 				Array<OSMviewer::node_key_type>	nodes;
 				builder.getRegion( layer1, builder.getFrameBox(0.01), &nodes );
-				UT_ASSERT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2 );
 			}
 
 			writeToBinaryFile(
@@ -209,16 +209,16 @@ class OsmTest : public UnitTest
 			{
 				Array<OSMviewer::node_key_type>	nodes;
 				builder.getRegion( layer2, builder.getFrameBox(0.01), &nodes );
-				UT_ASSERT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2 );
 			}
 			{
 				Set<OsmAreaKeyT>	areas;
 				Array<OsmPlaceKeyT>	places;
 
 				builder.getAreas( layer2, builder.getFrameBox(0.01), &areas );
-				UT_ASSERT_EQUAL( areas.size(), 1 );
+				UT_EXPECT_EQUAL( areas.size(), 1 );
 				builder.getPlaces( layer2, builder.getFrameBox(0.01), &places );
-				UT_ASSERT_EQUAL( places.size(), 1 );
+				UT_EXPECT_EQUAL( places.size(), 1 );
 			}
 
 			writeToBinaryFile(
@@ -237,13 +237,13 @@ class OsmTest : public UnitTest
 
 			{
 				OsmLink &link = builder1.getLink(link3key);
-				UT_ASSERT_EQUAL( link.length, link3.length );
-				UT_ASSERT_EQUAL( link.type, link3.type );
+				UT_EXPECT_EQUAL( link.length, link3.length );
+				UT_EXPECT_EQUAL( link.type, link3.type );
 			}
 
 			OsmNode &node = builder1.getNode(node2key);
-			UT_ASSERT_EQUAL( node.pos.latitude, node2.pos.latitude );
-			UT_ASSERT_EQUAL( node.pos.longitude, node2.pos.longitude );
+			UT_EXPECT_EQUAL( node.pos.latitude, node2.pos.latitude );
+			UT_EXPECT_EQUAL( node.pos.longitude, node2.pos.longitude );
 
 			// it is OK, if there is no exception
 			builder1.getArea( area4key );
@@ -252,7 +252,7 @@ class OsmTest : public UnitTest
 			{
 				Array<OSMviewer::node_key_type>	nodes;
 				builder1.getRegion( layer1, builder1.getFrameBox(0.01), &nodes );
-				UT_ASSERT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2 );
 			}
 
 			OSMbuilder	builder2;
@@ -264,8 +264,8 @@ class OsmTest : public UnitTest
 			builder1.mergeLayer( layer2, layer2, builder2 );
 			{
 				OsmLink &link = builder1.getLink(link9key);
-				UT_ASSERT_EQUAL( link.length, link9.length );
-				UT_ASSERT_EQUAL( link.type, link9.type );
+				UT_EXPECT_EQUAL( link.length, link9.length );
+				UT_EXPECT_EQUAL( link.type, link9.type );
 			}
 		}
 
@@ -280,14 +280,14 @@ class OsmTest : public UnitTest
 
 			{
 				OsmLink &link = osmViewer.getLink(link3key);
-				UT_ASSERT_EQUAL( link.length, link3.length );
-				UT_ASSERT_EQUAL( link.type, link3.type );
+				UT_EXPECT_EQUAL( link.length, link3.length );
+				UT_EXPECT_EQUAL( link.type, link3.type );
 			}
 
 			{
 				OsmNode &node = osmViewer.getNode(node2key);
-				UT_ASSERT_EQUAL( node.pos.latitude, node2.pos.latitude );
-				UT_ASSERT_EQUAL( node.pos.longitude, node2.pos.longitude );
+				UT_EXPECT_EQUAL( node.pos.latitude, node2.pos.latitude );
+				UT_EXPECT_EQUAL( node.pos.longitude, node2.pos.longitude );
 			}
 
 			// it is OK, if there is no exception
@@ -297,10 +297,10 @@ class OsmTest : public UnitTest
 			{
 				Array<OSMviewer::node_key_type>	nodes;
 				osmViewer.getRegion( layer1, osmViewer.getFrameBox(0.01), &nodes );
-				UT_ASSERT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2 );
 				nodes.clear();
 				osmViewer.getRegion( layer2, osmViewer.getBoundingBox(), &nodes );
-				UT_ASSERT_EQUAL( nodes.size(), 0 );
+				UT_EXPECT_EQUAL( nodes.size(), 0 );
 			}
 			{
 				Set<OsmAreaKeyT>	areas;
@@ -308,15 +308,15 @@ class OsmTest : public UnitTest
 
 				// test layer 2 is not yet loaded
 				osmViewer.getAreas( layer2, osmViewer.getFrameBox(0.01), &areas );
-				UT_ASSERT_EQUAL( areas.size(), 0 );
+				UT_EXPECT_EQUAL( areas.size(), 0 );
 				osmViewer.getPlaces( layer2, osmViewer.getFrameBox(0.01), &places );
-				UT_ASSERT_EQUAL( places.size(), 0 );
+				UT_EXPECT_EQUAL( places.size(), 0 );
 
 				// test layer 1 is present
 				osmViewer.getAreas( layer1, osmViewer.getFrameBox(0.01), &areas );
-				UT_ASSERT_EQUAL( areas.size(), 1 );
+				UT_EXPECT_EQUAL( areas.size(), 1 );
 				osmViewer.getPlaces( layer1, osmViewer.getFrameBox(0.01), &places );
-				UT_ASSERT_EQUAL( places.size(), 1 );
+				UT_EXPECT_EQUAL( places.size(), 1 );
 			}
 
 			{
@@ -327,27 +327,27 @@ class OsmTest : public UnitTest
 			{
 				Array<OSMviewer::node_key_type>	nodes;
 				osmViewer.getRegion( layer1, osmViewer.getFrameBox(0.01), &nodes );
-				UT_ASSERT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2 );
 				nodes.clear();
 				osmViewer.getRegion( layer2, osmViewer.getFrameBox(0.01), &nodes );
-				UT_ASSERT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2 );
 			}
 
 
 			{
 				OsmNode &node = osmViewer.getNode(node6key);
-				UT_ASSERT_EQUAL( node.pos.latitude, node6.pos.latitude );
-				UT_ASSERT_EQUAL( node.pos.longitude, node6.pos.longitude );
+				UT_EXPECT_EQUAL( node.pos.latitude, node6.pos.latitude );
+				UT_EXPECT_EQUAL( node.pos.longitude, node6.pos.longitude );
 			}
 			{
 				OsmLink &link = osmViewer.getLink(link8key);
-				UT_ASSERT_EQUAL( link.length, link8.length );
-				UT_ASSERT_EQUAL( link.type, link8.type );
+				UT_EXPECT_EQUAL( link.length, link8.length );
+				UT_EXPECT_EQUAL( link.type, link8.type );
 			}
 			{
 				OsmLink &link = osmViewer.getLink(link9key);
-				UT_ASSERT_EQUAL( link.length, link9.length );
-				UT_ASSERT_EQUAL( link.type, link9.type );
+				UT_EXPECT_EQUAL( link.length, link9.length );
+				UT_EXPECT_EQUAL( link.type, link9.type );
 			}
 
 			osmViewer.getPlace( place11key );
@@ -356,19 +356,19 @@ class OsmTest : public UnitTest
 			{
 				Array<OSMviewer::node_key_type>	nodes;
 				osmViewer.getRegion( layer1, osmViewer.getFrameBox(0.01), &nodes );
-				UT_ASSERT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2 );
 				nodes.clear();
 				osmViewer.getRegion( layer2, osmViewer.getFrameBox(0.01), &nodes );
-				UT_ASSERT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2 );
 			}
 			{
 				Set<OsmAreaKeyT>	areas;
 				Array<OsmPlaceKeyT>	places;
 
 				osmViewer.getAreas( layer2, osmViewer.getFrameBox(0.01), &areas );
-				UT_ASSERT_EQUAL( areas.size(), 1 );
+				UT_EXPECT_EQUAL( areas.size(), 1 );
 				osmViewer.getPlaces( layer2, osmViewer.getFrameBox(0.01), &places );
-				UT_ASSERT_EQUAL( places.size(), 1 );
+				UT_EXPECT_EQUAL( places.size(), 1 );
 			}
 		}
 	}

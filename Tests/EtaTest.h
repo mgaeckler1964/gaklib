@@ -104,43 +104,43 @@ class EtaTest : public UnitTest
 
 		Eta<std::size_t,TestClockProvider>	theEta;
 
-		UT_ASSERT_EQUAL(theEta.getETA(), 0 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 0 );
 		TestClockProvider::s_ticks = clock();
 
 		theEta.addValue(200);
-		UT_ASSERT_EQUAL(theEta.getETA(), 0 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 0 );
 
 		TestClockProvider::inc(10);
 		theEta.addValue(190);
-		UT_ASSERT_EQUAL(theEta.getETA(), 190 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 190 );
 
 		TestClockProvider::inc(10);
 		theEta.addValue(180);
-		UT_ASSERT_EQUAL(theEta.getETA(), 180 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 180 );
 
 		TestClockProvider::inc(10);
 		theEta.addValue(170);
-		UT_ASSERT_EQUAL(theEta.getETA(), 170 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 170 );
 
 		TestClockProvider::inc(10);
 		theEta.addValue(160);
-		UT_ASSERT_EQUAL(theEta.getETA(), 160 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 160 );
 
 		TestClockProvider::inc(10);
 		theEta.addValue(150);
-		UT_ASSERT_EQUAL(theEta.getETA(), 150 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 150 );
 
 		TestClockProvider::inc(5);
 		theEta.addValue(140);
-		UT_ASSERT_LESSEQ(theEta.getETA(), size_t(140) );	// since we become faster but do still the old data to calculate
+		UT_EXPECT_LESSEQ(theEta.getETA(), size_t(140) );	// since we become faster but do still the old data to calculate
 
 		TestClockProvider::inc(5);
 		theEta.addValue(130);
-		UT_ASSERT_LESSEQ(theEta.getETA(), size_t(120) );	// since we become faster but do still the old data to calculate
+		UT_EXPECT_LESSEQ(theEta.getETA(), size_t(120) );	// since we become faster but do still the old data to calculate
 
 		TestClockProvider::inc(5);
 		theEta.addValue(120);
-		UT_ASSERT_LESSEQ(theEta.getETA(), size_t(100) );	// since we become faster but do still the old data to calculate
+		UT_EXPECT_LESSEQ(theEta.getETA(), size_t(100) );	// since we become faster but do still the old data to calculate
 
 		TestClockProvider::inc(5);
 

@@ -89,10 +89,10 @@ class EnsembleTest : public UnitTest
 
 		Quartet<int,int,int,int>	myQuartet(1,2,3,4);
 
-		UT_ASSERT_EQUAL( myQuartet.val1, 1 );
-		UT_ASSERT_EQUAL( myQuartet.val2, 2 );
-		UT_ASSERT_EQUAL( myQuartet.val3, 3 );
-		UT_ASSERT_EQUAL( myQuartet.val4, 4 );
+		UT_EXPECT_EQUAL( myQuartet.val1, 1 );
+		UT_EXPECT_EQUAL( myQuartet.val2, 2 );
+		UT_EXPECT_EQUAL( myQuartet.val3, 3 );
+		UT_EXPECT_EQUAL( myQuartet.val4, 4 );
 	}
 };
 

@@ -91,81 +91,81 @@ class OptionalTest : public UnitTest
 		{
 			Optional<int>	optInt;
 
-			UT_ASSERT_FALSE( optInt );
-			UT_ASSERT_TRUE( !optInt );
-			UT_ASSERT_FALSE( optInt.isPresent() );
-			UT_ASSERT_EQUAL( optInt.orElse( 1 ), 1 );
-			UT_ASSERT_EXCEPTION( optInt.get(), OptionalError );
+			UT_EXPECT_FALSE( optInt );
+			UT_EXPECT_TRUE( !optInt );
+			UT_EXPECT_FALSE( optInt.isPresent() );
+			UT_EXPECT_EQUAL( optInt.orElse( 1 ), 1 );
+			UT_EXPECT_EXCEPTION( optInt.get(), OptionalError );
 
 			optInt = 0;
 
-			UT_ASSERT_TRUE( optInt );
-			UT_ASSERT_FALSE( !optInt );
-			UT_ASSERT_TRUE( optInt.isPresent() );
-			UT_ASSERT_EQUAL( optInt.get(), 0 );
-			UT_ASSERT_EQUAL( optInt.orElse( 1 ), 0 );
+			UT_EXPECT_TRUE( optInt );
+			UT_EXPECT_FALSE( !optInt );
+			UT_EXPECT_TRUE( optInt.isPresent() );
+			UT_EXPECT_EQUAL( optInt.get(), 0 );
+			UT_EXPECT_EQUAL( optInt.orElse( 1 ), 0 );
 		}
 		{
 			const Optional<int>	optInt;
 
-			UT_ASSERT_FALSE( optInt );
-			UT_ASSERT_TRUE( !optInt );
-			UT_ASSERT_FALSE( optInt.isPresent() );
-			UT_ASSERT_EQUAL( optInt.orElse( 1 ), 1 );
-			UT_ASSERT_EXCEPTION( optInt.get(), OptionalError );
+			UT_EXPECT_FALSE( optInt );
+			UT_EXPECT_TRUE( !optInt );
+			UT_EXPECT_FALSE( optInt.isPresent() );
+			UT_EXPECT_EQUAL( optInt.orElse( 1 ), 1 );
+			UT_EXPECT_EXCEPTION( optInt.get(), OptionalError );
 		}
 		{
 			Optional<int>	optInt(0);
 
-			UT_ASSERT_TRUE( optInt );
-			UT_ASSERT_FALSE( !optInt );
-			UT_ASSERT_TRUE( optInt.isPresent() );
-			UT_ASSERT_EQUAL( optInt.get(), 0 );
-			UT_ASSERT_EQUAL( optInt.orElse( 1 ), 0 );
+			UT_EXPECT_TRUE( optInt );
+			UT_EXPECT_FALSE( !optInt );
+			UT_EXPECT_TRUE( optInt.isPresent() );
+			UT_EXPECT_EQUAL( optInt.get(), 0 );
+			UT_EXPECT_EQUAL( optInt.orElse( 1 ), 0 );
 		}
 		{
 			const Optional<int>	optInt(0);
 
-			UT_ASSERT_TRUE( optInt );
-			UT_ASSERT_FALSE( !optInt );
-			UT_ASSERT_TRUE( optInt.isPresent() );
-			UT_ASSERT_EQUAL( optInt.get(), 0 );
-			UT_ASSERT_EQUAL( optInt.orElse( 1 ), 0 );
+			UT_EXPECT_TRUE( optInt );
+			UT_EXPECT_FALSE( !optInt );
+			UT_EXPECT_TRUE( optInt.isPresent() );
+			UT_EXPECT_EQUAL( optInt.get(), 0 );
+			UT_EXPECT_EQUAL( optInt.orElse( 1 ), 0 );
 		}
 		{
 			Optional<int>	optSrc(0);
 			Optional<int>	optInt(optSrc);
 
-			UT_ASSERT_TRUE( optInt );
-			UT_ASSERT_FALSE( !optInt );
-			UT_ASSERT_TRUE( optInt.isPresent() );
-			UT_ASSERT_EQUAL( optInt.get(), 0 );
-			UT_ASSERT_EQUAL( optInt.orElse( 1 ), 0 );
+			UT_EXPECT_TRUE( optInt );
+			UT_EXPECT_FALSE( !optInt );
+			UT_EXPECT_TRUE( optInt.isPresent() );
+			UT_EXPECT_EQUAL( optInt.get(), 0 );
+			UT_EXPECT_EQUAL( optInt.orElse( 1 ), 0 );
 		}
 		{
 			Optional<int>	optInt;
 
-			UT_ASSERT_FALSE( optInt );
-			UT_ASSERT_TRUE( !optInt );
-			UT_ASSERT_FALSE( optInt.isPresent() );
-			UT_ASSERT_EQUAL( optInt.orElse( 1 ), 1 );
-			UT_ASSERT_EXCEPTION( optInt.get(), OptionalError );
+			UT_EXPECT_FALSE( optInt );
+			UT_EXPECT_TRUE( !optInt );
+			UT_EXPECT_FALSE( optInt.isPresent() );
+			UT_EXPECT_EQUAL( optInt.orElse( 1 ), 1 );
+			UT_EXPECT_EXCEPTION( optInt.get(), OptionalError );
 
 			optInt = Optional<int>::of( 0 );
 
-			UT_ASSERT_TRUE( optInt );
-			UT_ASSERT_FALSE( !optInt );
-			UT_ASSERT_TRUE( optInt.isPresent() );
-			UT_ASSERT_EQUAL( optInt.get(), 0 );
-			UT_ASSERT_EQUAL( optInt.orElse( 1 ), 0 );
+			UT_EXPECT_TRUE( optInt );
+			UT_EXPECT_FALSE( !optInt );
+			UT_EXPECT_TRUE( optInt.isPresent() );
+			UT_EXPECT_EQUAL( optInt.get(), 0 );
+			UT_EXPECT_EQUAL( optInt.orElse( 1 ), 0 );
 
 			optInt = Optional<int>();
 
-			UT_ASSERT_FALSE( optInt );
-			UT_ASSERT_TRUE( !optInt );
-			UT_ASSERT_FALSE( optInt.isPresent() );
-			UT_ASSERT_EQUAL( optInt.orElse( 1 ), 1 );
-			UT_ASSERT_EXCEPTION( optInt.get(), OptionalError );
+			UT_EXPECT_FALSE( optInt );
+			UT_EXPECT_TRUE( !optInt );
+			UT_EXPECT_FALSE( optInt.isPresent() );
+			UT_EXPECT_EQUAL( optInt.orElse( 1 ), 1 );
+			UT_EXPECT_EXCEPTION( optInt.get(), OptionalError );
 		}
 	}
 };

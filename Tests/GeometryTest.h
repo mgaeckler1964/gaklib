@@ -97,59 +97,59 @@ class GeometryTest : public UnitTest
 		Point<float>	floatPoint( 5, 10 );
 		Point<double>	doublePoint( floatPoint );
 
-		UT_ASSERT_EQUAL( floatPoint.x, float(doublePoint.x) );
-		UT_ASSERT_EQUAL( floatPoint.y, float(doublePoint.y) );
+		UT_EXPECT_EQUAL( floatPoint.x, float(doublePoint.x) );
+		UT_EXPECT_EQUAL( floatPoint.y, float(doublePoint.y) );
 
 		floatPoint.x = 10;
 		floatPoint.y = 5;
 		doublePoint = floatPoint;
 
-		UT_ASSERT_EQUAL( floatPoint.x, float(doublePoint.x) );
-		UT_ASSERT_EQUAL( floatPoint.y, float(doublePoint.y) );
+		UT_EXPECT_EQUAL( floatPoint.x, float(doublePoint.x) );
+		UT_EXPECT_EQUAL( floatPoint.y, float(doublePoint.y) );
 
 		floatPoint.x = 10;
 		floatPoint.y = 0;
 		PolarPoint<double>	pPoint = floatPoint;
 
-		UT_ASSERT_EQUAL( pPoint.radius, 10.0 );
-		UT_ASSERT_EQUAL( pPoint.angle, 0.0 );
+		UT_EXPECT_EQUAL( pPoint.radius, 10.0 );
+		UT_EXPECT_EQUAL( pPoint.angle, 0.0 );
 
 		doublePoint = pPoint;
-		UT_ASSERT_EQUAL( doublePoint.x, 10.0 );
-		UT_ASSERT_EQUAL( doublePoint.y, 0.0 );
+		UT_EXPECT_EQUAL( doublePoint.x, 10.0 );
+		UT_EXPECT_EQUAL( doublePoint.y, 0.0 );
 
 		floatPoint.x = -10;
 		floatPoint.y = 0;
 		pPoint = floatPoint;
 
-		UT_ASSERT_EQUAL( pPoint.radius, 10.0 );
-		UT_ASSERT_LESS( abs( pPoint.angle - M_PI ), 1e-7 );
+		UT_EXPECT_EQUAL( pPoint.radius, 10.0 );
+		UT_EXPECT_LESS( abs( pPoint.angle - M_PI ), 1e-7 );
 
 		doublePoint = pPoint;
-		UT_ASSERT_LESS( abs(doublePoint.x  +10.0), 1e-7 );
-		UT_ASSERT_LESS( abs(doublePoint.y), 1e-6 );
+		UT_EXPECT_LESS( abs(doublePoint.x  +10.0), 1e-7 );
+		UT_EXPECT_LESS( abs(doublePoint.y), 1e-6 );
 
 		floatPoint.x = 0;
 		floatPoint.y = 10;
 		pPoint = floatPoint;
 
-		UT_ASSERT_EQUAL( pPoint.radius, 10.0 );
-		UT_ASSERT_LESS( abs( pPoint.angle - M_PI/2 ), 1e-7 );
+		UT_EXPECT_EQUAL( pPoint.radius, 10.0 );
+		UT_EXPECT_LESS( abs( pPoint.angle - M_PI/2 ), 1e-7 );
 
 		doublePoint = pPoint;
-		UT_ASSERT_LESS( abs(doublePoint.x), 1e-6 );
-		UT_ASSERT_EQUAL( doublePoint.y, 10.0 );
+		UT_EXPECT_LESS( abs(doublePoint.x), 1e-6 );
+		UT_EXPECT_EQUAL( doublePoint.y, 10.0 );
 
 		floatPoint.x = 0;
 		floatPoint.y = -10;
 		pPoint = floatPoint;
 
-		UT_ASSERT_EQUAL( pPoint.radius, 10.0 );
-		UT_ASSERT_LESS( abs( pPoint.angle + M_PI/2 ), 1e-7 );
+		UT_EXPECT_EQUAL( pPoint.radius, 10.0 );
+		UT_EXPECT_LESS( abs( pPoint.angle + M_PI/2 ), 1e-7 );
 
 		doublePoint = pPoint;
-		UT_ASSERT_LESS( abs(doublePoint.x), 1e-6 );
-		UT_ASSERT_EQUAL( doublePoint.y, -10.0 );
+		UT_EXPECT_LESS( abs(doublePoint.x), 1e-6 );
+		UT_EXPECT_EQUAL( doublePoint.y, -10.0 );
 
 		for( double x=-5; x<=+5; x += 1 )
 		{
@@ -158,8 +158,8 @@ class GeometryTest : public UnitTest
 				Point<double>		kp1( x, y );
 				PolarPoint<double>	pp( kp1 );
 				Point<double>		kp2( pp );
-				UT_ASSERT_EQUAL( kp1.x, kp2.x );
-				UT_ASSERT_EQUAL( kp1.y, kp2.y );
+				UT_EXPECT_EQUAL( kp1.x, kp2.x );
+				UT_EXPECT_EQUAL( kp1.y, kp2.y );
 			}
 		}
 
@@ -170,8 +170,8 @@ class GeometryTest : public UnitTest
 				PolarPoint<double>	pp1( radius, angle );
 				Point<double>		kp( pp1 );
 				PolarPoint<double>	pp2( kp );
-				UT_ASSERT_EQUAL( pp1.radius, pp2.radius );
-				UT_ASSERT_EQUAL( pp1.angle, pp2.angle );
+				UT_EXPECT_EQUAL( pp1.radius, pp2.radius );
+				UT_EXPECT_EQUAL( pp1.angle, pp2.angle );
 			}
 		}
 	}
@@ -180,18 +180,18 @@ class GeometryTest : public UnitTest
 		Point<double>	left( 10, 2 );
 		Point<double>	right( 11, 22 );
 		Point<double>	sum = left + right;
-		UT_ASSERT_EQUAL( sum.x, 21.0 );
-		UT_ASSERT_EQUAL( sum.y, 24.0 );
+		UT_EXPECT_EQUAL( sum.x, 21.0 );
+		UT_EXPECT_EQUAL( sum.y, 24.0 );
 		left += right;
-		UT_ASSERT_EQUAL( left.x, 21.0 );
-		UT_ASSERT_EQUAL( left.y, 24.0 );
+		UT_EXPECT_EQUAL( left.x, 21.0 );
+		UT_EXPECT_EQUAL( left.y, 24.0 );
 
 		Rectangle< Point<double> >	rect( left, right );
 		moveRectangle( &rect, left );
-		UT_ASSERT_EQUAL( rect.topLeft.x, 42.0 );
-		UT_ASSERT_EQUAL( rect.topLeft.y, 48.0 );
-		UT_ASSERT_EQUAL( rect.bottomRight.x, 32.0 );
-		UT_ASSERT_EQUAL( rect.bottomRight.y, 46.0 );
+		UT_EXPECT_EQUAL( rect.topLeft.x, 42.0 );
+		UT_EXPECT_EQUAL( rect.topLeft.y, 48.0 );
+		UT_EXPECT_EQUAL( rect.bottomRight.x, 32.0 );
+		UT_EXPECT_EQUAL( rect.bottomRight.y, 46.0 );
 	}
 };
 
