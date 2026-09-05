@@ -102,6 +102,21 @@ class TemporaryTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "TemporaryTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
+		UT_EXPECT_TRUE( false );
+		UT_EXPECT_FALSE( true );
+		UT_EXPECT_NOT_NULL( nullptr );
+		UT_EXPECT_NULL( GetClassName() );
+		UT_EXPECT_RANGE( int(0), int(-8), int(10) );
+		UT_EXPECT_EQUAL( 50, 621 );
+		UT_EXPECT_EQUAL( double(50.5), double(621.5) );
+		UT_EXPECT_NOT_EQUAL( 50, 50 );
+		UT_EXPECT_LESS(50,50);
+		UT_EXPECT_LESSEQ(51,50);
+		UT_EXPECT_GREATER(50,50);
+		UT_EXPECT_GREATEREQ(49,50);
+		UT_EXPECT_EQUAL_FLT( double(50.5), double(621.5), 1.0 );
+		UT_ASSERT_EQUAL_FLT( double(50.5), double(621.5), 1.0 );
+
 		// my old C++ builder and the old Gnu C++ do not know unique_ptr
 		std::unique_ptr<STRING> myUnique( new STRING );
 		std::auto_ptr<STRING> myAuto( new STRING );

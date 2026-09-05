@@ -49,6 +49,7 @@
 #include <gak/math.h>
 #include <gak/logfile.h>
 #include <gak/thread.h>
+#include <gak/exception.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -79,32 +80,32 @@ namespace gak
 // --------------------------------------------------------------------- //
 
 #define UT_EXPECT_TRUE( testItem )	\
-	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem, "false", bool(testItem) )
+	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem, "false", bool(testItem), false )
 #define UT_EXPECT_FALSE( testItem )	\
-	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, "!" #testItem, "true", !bool(testItem) )
+	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, "!" #testItem, "true", !bool(testItem), false )
 #define UT_EXPECT_NULL( testItem )	\
-	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem " == NULL", "!NULL", bool(testItem == NULL) )
+	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem " == NULL", "!NULL", bool(testItem == NULL), false )
 #define UT_EXPECT_NOT_NULL( testItem )	\
-	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem " != NULL", "NULL", bool(testItem != NULL) )
+	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem " != NULL", "NULL", bool(testItem != NULL), false )
 
 #define UT_EXPECT_RANGE( min, val, max )		\
-	gak::assertRange( GetClassName(), __FILE__, __LINE__, #min "<=" #val "<=" #max, min, val, max )
+	gak::testRange( GetClassName(), __FILE__, __LINE__, #min "<=" #val "<=" #max, min, val, max, false )
 
 #define UT_EXPECT_EQUAL( i1, i2 )		\
-	gak::assertEqual( GetClassName(), __FILE__, __LINE__, #i1 "==" #i2, i1, i2 )
+	gak::testEqual( GetClassName(), __FILE__, __LINE__, #i1 "==" #i2, i1, i2, false )
 #define UT_EXPECT_NOT_EQUAL( i1, i2 )		\
-	gak::assertNotEqual( GetClassName(), __FILE__, __LINE__, #i1 "!=" #i2, i1, i2 )
+	gak::testNotEqual( GetClassName(), __FILE__, __LINE__, #i1 "!=" #i2, i1, i2, false )
 #define UT_EXPECT_LESS( i1, i2 )		\
-	gak::assertLess( GetClassName(), __FILE__, __LINE__, #i1 "<" #i2, i1, i2 )
+	gak::testLess( GetClassName(), __FILE__, __LINE__, #i1 "<" #i2, i1, i2, false )
 #define UT_EXPECT_LESSEQ( i1, i2 )		\
-	gak::assertLessEqual( GetClassName(), __FILE__, __LINE__, #i1 "<=" #i2, i1, i2 )
+	gak::testLessEqual( GetClassName(), __FILE__, __LINE__, #i1 "<=" #i2, i1, i2, false )
 #define UT_EXPECT_GREATER( i1, i2 )		\
-	gak::assertGreater( GetClassName(), __FILE__, __LINE__, #i1 ">" #i2, i1, i2 )
+	gak::testGreater( GetClassName(), __FILE__, __LINE__, #i1 ">" #i2, i1, i2, false )
 #define UT_EXPECT_GREATEREQ( i1, i2 )		\
-	gak::assertGreaterEqual( GetClassName(), __FILE__, __LINE__, #i1 ">=" #i2, i1, i2 )
+	gak::testGreaterEqual( GetClassName(), __FILE__, __LINE__, #i1 ">=" #i2, i1, i2, false )
 
 #define UT_EXPECT_EQUAL_FLT( i1, i2, maxDev )		\
-	gak::assertEqualFloat( GetClassName(), __FILE__, __LINE__, #i1 "==" #i2, i1, i2, maxDev )
+	gak::testEqualFloat( GetClassName(), __FILE__, __LINE__, #i1 "==" #i2, i1, i2, maxDev, false )
 
 #define UT_EXPECT_EXCEPTION( expr, Except )	\
 { \
@@ -119,10 +120,38 @@ namespace gak
 	} \
 	catch( ... ) \
 	{ \
-	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #expr " throws " #Except, #Except " not thrown, bad exception", false ); \
+	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #expr " throws " #Except, #Except " not thrown, bad exception", false, false ); \
 	} \
-	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #expr " throws " #Except, #Except " not thrown", exFound ); \
+	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #expr " throws " #Except, #Except " not thrown", exFound, false ); \
 }
+
+
+#define UT_ASSERT_TRUE( testItem )	\
+	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem, "false", bool(testItem), true )
+#define UT_ASSERT_FALSE( testItem )	\
+	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, "!" #testItem, "true", !bool(testItem), true )
+#define UT_ASSERT_NULL( testItem )	\
+	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem " == NULL", "!NULL", bool(testItem == NULL), true )
+#define UT_ASSERT_NOT_NULL( testItem )	\
+	UnitTest::AddResult( GetClassName(), __FILE__, __LINE__, #testItem " != NULL", "NULL", bool(testItem != NULL), true )
+#define UT_ASSERT_RANGE( min, val, max )		\
+	gak::testRange( GetClassName(), __FILE__, __LINE__, #min "<=" #val "<=" #max, min, val, max, true )
+#define UT_ASSERT_EQUAL( i1, i2 )		\
+	gak::testEqual( GetClassName(), __FILE__, __LINE__, #i1 "==" #i2, i1, i2, true )
+
+#define UT_ASSERT_NOT_EQUAL( i1, i2 )		\
+	gak::testNotEqual( GetClassName(), __FILE__, __LINE__, #i1 "!=" #i2, i1, i2, true )
+#define UT_ASSERT_LESS( i1, i2 )		\
+	gak::testLess( GetClassName(), __FILE__, __LINE__, #i1 "<" #i2, i1, i2, true )
+#define UT_ASSERT_LESSEQ( i1, i2 )		\
+	gak::testLessEqual( GetClassName(), __FILE__, __LINE__, #i1 "<=" #i2, i1, i2, true )
+#define UT_ASSERT_GREATER( i1, i2 )		\
+	gak::testGreater( GetClassName(), __FILE__, __LINE__, #i1 ">" #i2, i1, i2, true )
+#define UT_ASSERT_GREATEREQ( i1, i2 )		\
+	gak::testGreaterEqual( GetClassName(), __FILE__, __LINE__, #i1 ">=" #i2, i1, i2, true )
+#define UT_ASSERT_EQUAL_FLT( i1, i2, maxDev )		\
+	gak::testEqualFloat( GetClassName(), __FILE__, __LINE__, #i1 "==" #i2, i1, i2, maxDev, true )
+	
 
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
@@ -168,6 +197,13 @@ struct StressResult
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+class UnitTestException : public LibraryException
+{
+	public:
+	UnitTestException( const char *testItem ) : LibraryException(STRING("Unit Test Assertion Failed: ").add(testItem) )
+	{}
+};
 
 class UnitTest
 {
@@ -249,7 +285,8 @@ class UnitTest
 		int				srcFileLine,
 		const char		*testItem,
 		const STRING	&actualValue,
-		bool			success
+		bool			success,
+		bool			throwException
 	)
 	{
 		LockGuard	lock( s_testLocker );
@@ -274,6 +311,10 @@ class UnitTest
 		{
 			++s_errorCount;
 			//std::cerr << actualValue << std::endl;
+			if( throwException )
+			{
+				throw UnitTestException(testItem);
+			}
 		}
 	}
 };
@@ -353,10 +394,11 @@ inline std::ostream &operator << ( std::ostream &out, const TestResult &theResul
 }
 
 template <class ITEM>
-void assertRange(
+void testRange(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	const ITEM &minVal, const ITEM &val, const ITEM &maxVal
+	const ITEM &minVal, const ITEM &val, const ITEM &maxVal,
+	bool throwException = false
 )
 {
 	STRING			log;
@@ -366,15 +408,16 @@ void assertRange(
 	logStream << val << " not in [" << minVal << ',' << maxVal << ']';
 	logStream.flush();
 
-	UnitTest::AddResult( className, fileName, line, testItem, log, success );
+	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwException );
 }
 
 template <class ITEM>
-void assertEqualFloat(
+void testEqualFloat(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
 	ITEM i1, ITEM i2,
-	double iMaxDelata
+	double iMaxDelata,
+	bool throwException=false
 )
 {
 	const double	myDeltaFactor = 50;
@@ -390,14 +433,15 @@ void assertEqualFloat(
 	logStream << formatNumber( i1 ) << " != " << formatNumber( i2 ) << " (diff=" << diff << " maxDelta=" << maxDelta << ')';
 	logStream.flush();
 
-	UnitTest::AddResult( className, fileName, line, testItem, log, success );
+	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwException );
 }
 
 template <class ITEM1, class ITEM2> 
-void assertEqual(
+void testEqual(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	const ITEM1 &i1, const ITEM2 &i2
+	const ITEM1 &i1, const ITEM2 &i2,
+	bool throwException = false
 )
 {
 	STRING			log;
@@ -407,31 +451,34 @@ void assertEqual(
 	logStream << i1 << " != " << i2;
 	logStream.flush();
 
-	UnitTest::AddResult( className, fileName, line, testItem, log, success );
+	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwException );
 }
 
 template <>
-inline void assertEqual<double>(
+inline void testEqual<double>(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	const double &i1, const double &i2
+	const double &i1, const double &i2,
+	bool throwException
 )
 {
-	assertEqualFloat( className, fileName, line, testItem, i1, i2, 0 );
+	testEqualFloat( className, fileName, line, testItem, i1, i2, 0, throwException );
 }
 
 template <>
-void assertEqual<const char *>(
+void testEqual<const char *>(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	const char * const &i1, const char * const &i2
+	const char * const &i1, const char * const &i2,
+	bool throwException
 );
 
 template <class ITEM> 
-void assertNotEqual(
+void testNotEqual(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	const ITEM &i1, const ITEM &i2
+	const ITEM &i1, const ITEM &i2,
+	bool throwException
 )
 {
 	STRING			log;
@@ -441,21 +488,23 @@ void assertNotEqual(
 	logStream << i1 << " == " << i2;
 	logStream.flush();
 
-	UnitTest::AddResult( className, fileName, line, testItem, log, success );
+	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwException );
 }
 
 template <> 
-void assertNotEqual(
+void testNotEqual(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	const char * const &i1, const char * const &i2
+	const char * const &i1, const char * const &i2,
+	bool throwException
 );
 
 template <class ITEM> 
-void assertLess(
+void testLess(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	const ITEM &i1, const ITEM &i2
+	const ITEM &i1, const ITEM &i2,
+	bool throwException
 )
 {
 	STRING			log;
@@ -465,14 +514,15 @@ void assertLess(
 	logStream << i1 << " >= " << i2;
 	logStream.flush();
 
-	UnitTest::AddResult( className, fileName, line, testItem, log, success );
+	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwException );
 }
 
 template <class ITEM> 
-void assertLessEqual(
+void testLessEqual(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	const ITEM &i1, const ITEM &i2
+	const ITEM &i1, const ITEM &i2,
+	bool throwException
 )
 {
 	STRING			log;
@@ -482,14 +532,15 @@ void assertLessEqual(
 	logStream << i1 << " > " << i2;
 	logStream.flush();
 
-	UnitTest::AddResult( className, fileName, line, testItem, log, success );
+	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwException );
 }
 
 template <class ITEM> 
-void assertGreater(
+void testGreater(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	const ITEM &i1, const ITEM &i2
+	const ITEM &i1, const ITEM &i2,
+	bool throwException
 )
 {
 	STRING			log;
@@ -499,14 +550,15 @@ void assertGreater(
 	logStream << i1 << " <= " << i2;
 	logStream.flush();
 
-	UnitTest::AddResult( className, fileName, line, testItem, log, success );
+	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwException );
 }
 
 template <class ITEM> 
-void assertGreaterEqual(
+void testGreaterEqual(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	const ITEM &i1, const ITEM &i2
+	const ITEM &i1, const ITEM &i2,
+	bool throwException
 )
 {
 	STRING			log;
@@ -516,7 +568,7 @@ void assertGreaterEqual(
 	logStream << i1 << " < " << i2;
 	logStream.flush();
 
-	UnitTest::AddResult( className, fileName, line, testItem, log, success );
+	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwException );
 }
 
 }	// namespace gak

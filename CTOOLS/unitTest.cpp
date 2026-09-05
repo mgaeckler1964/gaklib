@@ -305,7 +305,7 @@ void UnitTest::ShowNotFound( const SortedArray<const char*> &testsToPerform )
 		std::cout << "Test " << *it << " not found!" << std::endl;
 		AddResult(
 			*it, *it, 0, *it,
-			"Test not found!", false
+			"Test not found!", false, false
 		);
 	}
 }
@@ -353,7 +353,7 @@ bool UnitTest::PerformTest( UnitTest *theTest, bool catchCout )
 	{
 		AddResult(
 			theTest->GetClassName(), theTest->GetClassName(), 0, theTest->GetClassName(),
-			exceptionType + ": " + errorText, false
+			exceptionType + ": " + errorText, false, false
 		);
 
 	}
@@ -597,7 +597,7 @@ void UnitTest::PerformThreadTest()
 	{
 		AddResult(
 			GetClassName(), GetClassName(), 0, GetClassName(),
-			"Exception within PerformThreadTest", false
+			"Exception within PerformThreadTest", false, false
 		);
 	}
 }
@@ -698,10 +698,11 @@ void UnitTest::ThreadTest( SortedArray<const char*> &testsToPerform, bool checkT
 // --------------------------------------------------------------------- //
 
 template <>
-void assertEqual<const char *>(
+void testEqual<const char *>(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	const char * const &i1, const char * const &i2
+	const char * const &i1, const char * const &i2,
+	bool throwExection
 )
 {
 	STRING			log;
@@ -711,14 +712,15 @@ void assertEqual<const char *>(
 	logStream << nvl(i1, (const char *)"NULL") << " != " << nvl(i2, (const char *)"NULL");
 	logStream.flush();
 
-	UnitTest::AddResult( className, fileName, line, testItem, log, success );
+	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwExection );
 }
 
 template <> 
-void assertNotEqual(
+void testNotEqual(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
-	const char * const &i1, const char * const &i2
+	const char * const &i1, const char * const &i2,
+	bool throwException
 )
 {
 	STRING			log;
@@ -728,7 +730,7 @@ void assertNotEqual(
 	logStream << i1 << " == " << i2;
 	logStream.flush();
 
-	UnitTest::AddResult( className, fileName, line, testItem, log, success );
+	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwException );
 }
 
 }	// namespace gak
