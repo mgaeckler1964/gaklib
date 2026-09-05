@@ -166,23 +166,32 @@ struct TestResult
 	const char	*m_scope;
 	STRING		m_actualValue;
 	bool		m_success;
+	bool		m_exception;
 
 	std::ostream &toFmtStream( std::ostream &out ) const
 	{
 		doEnterFunctionEx(gakLogging::llDetail, "TestResult::toFmtStream");
-		doLogValueEx(gakLogging::llDetail, m_srcFileName);
+		doLogValueEx(gakLogging::llDetail, nvl(m_srcFileName, (const char *)"no source") );
 		doLogValueEx(gakLogging::llDetail, m_srcFileLine);
 		doLogValueEx(gakLogging::llDetail, m_className);
-		doLogValueEx(gakLogging::llDetail, m_testItem);
+		doLogValueEx(gakLogging::llDetail, nvl(m_testItem, (const char *)"no test") );
 
-		out << m_srcFileName << ' ' << m_srcFileLine << ' ' << m_className;
+		if(m_srcFileName && *m_srcFileName && m_srcFileLine >= 0 )
+			out << m_srcFileName << ' ' << m_srcFileLine << ' ';
+		out << m_className;
 		if( m_scope && *m_scope )
 		{
 			out << " Scope: " << m_scope;
 		}
-		out << ' ' << (m_success ? "OK" : "FAILED") << ": " << m_testItem
-			<< " found: " << m_actualValue.convertToTerminal()
-		;
+		out << ' ' << (m_success ? "OK" : (m_exception ? "FATAL" : "FAILED"));
+		if( m_testItem )
+		{
+			out << ": " << m_testItem;
+		}
+		if( !m_actualValue.isEmpty() )
+		{
+			out << " found: " << m_actualValue.convertToTerminal();
+		}
 		return out;
 	}
 };
@@ -298,7 +307,8 @@ class UnitTest
 		newResult.m_testItem = testItem;
 		newResult.m_actualValue = actualValue;
 		newResult.m_success = success;
-		
+		newResult.m_exception = throwException;
+
 		if( Thread::isMainThread() )
 		{
 			newResult.m_scope = s_scopes.size() ? s_scopes.top() : "";
@@ -316,6 +326,16 @@ class UnitTest
 				throw UnitTestException(testItem);
 			}
 		}
+	}
+	static void AddClassError(
+		const char		*className,
+		const STRING	&errorMessage
+	)
+	{
+		AddResult(
+			className, nullptr, -1, nullptr,
+			errorMessage, false, false
+		);
 	}
 };
 

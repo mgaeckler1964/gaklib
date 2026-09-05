@@ -303,10 +303,7 @@ void UnitTest::ShowNotFound( const SortedArray<const char*> &testsToPerform )
 	)
 	{
 		std::cout << "Test " << *it << " not found!" << std::endl;
-		AddResult(
-			*it, *it, 0, *it,
-			"Test not found!", false, false
-		);
+		AddClassError( *it, "Test not found!" );
 	}
 }
 
@@ -330,6 +327,10 @@ bool UnitTest::PerformTest( UnitTest *theTest, bool catchCout )
 		exceptionType = "net::SoapRequest::SoapException &myException";
 		errorText =  myException.faultCode +':'+ myException.faultActor +':'+ myException.faultString +':'+ myException.faultDetail;
 	}
+	catch(UnitTestException &e)
+	{
+		exceptionType = "Aborting";
+	}
 	catch( LibraryException &e )
 	{
 		exceptionType = "gak::LibraryException";
@@ -343,7 +344,6 @@ bool UnitTest::PerformTest( UnitTest *theTest, bool catchCout )
 	catch( ... )
 	{
 		exceptionType = "Unknown Exception";
-		errorText = "Unknown";
 	}
 	catcher.release();
 
@@ -351,10 +351,12 @@ bool UnitTest::PerformTest( UnitTest *theTest, bool catchCout )
 	theTest->m_tested = true;
 	if( !exceptionType.isEmpty() || !errorText.isEmpty() )
 	{
-		AddResult(
-			theTest->GetClassName(), theTest->GetClassName(), 0, theTest->GetClassName(),
-			exceptionType + ": " + errorText, false, false
-		);
+		STRING errorMessage = exceptionType;
+		if( !exceptionType.isEmpty() && !errorText.isEmpty() )
+			errorMessage += ": ";
+		errorMessage += errorText;
+
+		AddClassError( theTest->GetClassName(), errorMessage );
 
 	}
 
@@ -595,10 +597,7 @@ void UnitTest::PerformThreadTest()
 	}
 	catch( ... )
 	{
-		AddResult(
-			GetClassName(), GetClassName(), 0, GetClassName(),
-			"Exception within PerformThreadTest", false, false
-		);
+		AddClassError( GetClassName(), "Exception within PerformThreadTest" );
 	}
 }
 
@@ -702,7 +701,7 @@ void testEqual<const char *>(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
 	const char * const &i1, const char * const &i2,
-	bool throwExection
+	bool throwException
 )
 {
 	STRING			log;
@@ -712,7 +711,7 @@ void testEqual<const char *>(
 	logStream << nvl(i1, (const char *)"NULL") << " != " << nvl(i2, (const char *)"NULL");
 	logStream.flush();
 
-	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwExection );
+	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwException );
 }
 
 template <> 
