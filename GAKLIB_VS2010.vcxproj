@@ -98,9 +98,9 @@
     <ClCompile Include="CTOOLS\rfile.cpp" />
     <ClCompile Include="CTOOLS\setcwd.cpp" />
     <ClCompile Include="CTOOLS\sha.cpp" />
-    <ClCompile Include="CTOOLS\SLIST.cpp" />
     <ClCompile Include="CTOOLS\soap.cpp" />
     <ClCompile Include="CTOOLS\socketbuf.cpp" />
+    <ClCompile Include="CTOOLS\sortedList.cpp" />
     <ClCompile Include="CTOOLS\sslSocket.cpp" />
     <ClCompile Include="CTOOLS\strcmpi.c" />
     <ClCompile Include="CTOOLS\strFiles.cpp" />
@@ -223,11 +223,11 @@
     <ClInclude Include="INCLUDE\gak\set.h" />
     <ClInclude Include="INCLUDE\gak\btree.h" />
     <ClInclude Include="INCLUDE\gak\shared.h" />
-    <ClInclude Include="INCLUDE\gak\SLIST.H" />
     <ClInclude Include="INCLUDE\gak\soap.h" />
     <ClInclude Include="INCLUDE\gak\socketbuf.h" />
     <ClInclude Include="INCLUDE\gak\socketServer.h" />
     <ClInclude Include="INCLUDE\gak\sortedArray.h" />
+    <ClInclude Include="INCLUDE\gak\sortedList.h" />
     <ClInclude Include="INCLUDE\gak\sslSocket.h" />
     <ClInclude Include="INCLUDE\gak\stack.h" />
     <ClInclude Include="INCLUDE\gak\stdlib.h" />

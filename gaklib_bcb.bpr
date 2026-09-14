@@ -97,7 +97,8 @@
       ..\..\Object\gaklib\win\bcb\mailParser.obj 
       ..\..\Object\gaklib\win\bcb\mboxParser.obj 
       ..\..\Object\gaklib\win\bcb\GpxUtils.obj 
-      ..\..\Object\gaklib\win\bcb\user.obj"/>
+      ..\..\Object\gaklib\win\bcb\user.obj 
+      ..\..\Object\gaklib\win\bcb\sortedList.obj"/>
     <RESFILES value=""/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>

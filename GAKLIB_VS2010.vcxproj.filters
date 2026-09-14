@@ -96,9 +96,6 @@
     <ClCompile Include="CTOOLS\XPath.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="CTOOLS\SLIST.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="CTOOLS\soap.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -312,6 +309,9 @@
     <ClCompile Include="CTOOLS\user.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="CTOOLS\sortedList.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INCLUDE\gak\aes.h">
@@ -393,9 +393,6 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="INCLUDE\gak\rsa.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="INCLUDE\gak\SLIST.H">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="INCLUDE\gak\soap.h">
@@ -711,6 +708,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="INCLUDE\gak\intl.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="INCLUDE\gak\sortedList.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

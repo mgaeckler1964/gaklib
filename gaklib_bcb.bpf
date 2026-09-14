@@ -108,6 +108,7 @@ USEUNIT("CTOOLS\mailParser.cpp");
 USEUNIT("CTOOLS\mboxParser.cpp");
 USEUNIT("CTOOLS\GpxUtils.cpp");
 USEUNIT("CTOOLS\user.cpp");
+USEUNIT("CTOOLS\sortedList.cpp");
 //---------------------------------------------------------------------------
 #define Library
 

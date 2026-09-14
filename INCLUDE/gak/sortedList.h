@@ -1,6 +1,6 @@
 /*
 		Project:		GAKLIB
-		Module:			SLIST.H
+		Module:			sortedList.H
 		Description:	Sorted linked list
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
@@ -57,13 +57,11 @@ namespace gak
 
 class SortedListEntry : public ListEntry
 {
-	friend class SortedListContainer;
-
 	public:
 	virtual int compare( const SortedListEntry *sortEntry, void *sortOrder ) = 0;
 };
 
-class SortedListContainer : public ListContainer
+class SortedList : public ListContainer
 {
 	public:
 	void sort( void *sortOrder );
