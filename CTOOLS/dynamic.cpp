@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			dynamic.cpp
-		Description:	
+		Description:	Dynamic data type
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -113,17 +113,17 @@ namespace gak
 // ----- class privates ------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-void DynamicVar::clear( void )
+void DynamicVar::clear()
 {
-	if( fieldType == DV_VARCHAR )
+	if( m_fieldType == DV_VARCHAR )
 	{
 		getSTRINGAddress()->~STRING();
 	}
-	else if( fieldType == DV_DATE )
+	else if( m_fieldType == DV_DATE )
 	{
 		getDateAddress()->~Date();
 	}
-	else if( fieldType == DV_TIME )
+	else if( m_fieldType == DV_TIME )
 	{
 		getTimeAddress()->~Time();
 	}
@@ -133,21 +133,21 @@ void DynamicVar::clear( void )
 
 STRING DynamicVar::getString() const
 {
-	if( fieldType == DV_UNDEFINED )
+	if( m_fieldType == DV_UNDEFINED )
 	{
 		return NULL_STRING;
 	}
-	else if( fieldType == DV_VARCHAR )
+	else if( m_fieldType == DV_VARCHAR )
 	{
 		return *getSTRINGAddress();
 	}
-	else if( fieldType == DV_FLOAT )
+	else if( m_fieldType == DV_FLOAT )
 	{
-		return formatFloat( value.floatValue );
+		return formatFloat( m_value.floatValue );
 	}
-	else if( fieldType == DV_INTEGER )
+	else if( m_fieldType == DV_INTEGER )
 	{
-		return formatNumber( value.integer );
+		return formatNumber( m_value.integer );
 	}
 	else
 	{
@@ -155,11 +155,11 @@ STRING DynamicVar::getString() const
 	}
 }
 
-Date DynamicVar::getDate( void ) const
+Date DynamicVar::getDate() const
 {
 	Date	tmpVal;
 
-	if( fieldType == DV_DATE )
+	if( m_fieldType == DV_DATE )
 	{
 		return *getDateAddress();
 	}
@@ -167,11 +167,11 @@ Date DynamicVar::getDate( void ) const
 	return tmpVal;
 }
 
-Time DynamicVar::getTime( void ) const
+Time DynamicVar::getTime() const
 {
 	Time	tmpVal;
 
-	if( fieldType == DV_TIME )
+	if( m_fieldType == DV_TIME )
 	{
 		return *getTimeAddress();
 	}
@@ -217,71 +217,71 @@ DynamicVar DynamicVar::operator + ( const DynamicVar &other ) const
 
 void DynamicVar::toFmtStream( std::ostream &stream ) const
 {
-	if( fieldType == DV_VARCHAR )
+	if( m_fieldType == DV_VARCHAR )
 	{
 		stream << *getSTRINGAddress();
 	}
-	else if( fieldType == DV_DATE )
+	else if( m_fieldType == DV_DATE )
 	{
 		stream << *getDateAddress();
 	}
-	else if( fieldType == DV_TIME )
+	else if( m_fieldType == DV_TIME )
 	{
 		stream << *getTimeAddress();
 	}
-	else if( fieldType == DV_INTEGER )
+	else if( m_fieldType == DV_INTEGER )
 	{
-		stream << value.integer;
+		stream << m_value.integer;
 	}
-	else if( fieldType == DV_FLOAT )
+	else if( m_fieldType == DV_FLOAT )
 	{
-		stream << value.floatValue;
+		stream << m_value.floatValue;
 	}
 }
 
 void DynamicVar::toBinaryStream( std::ostream &stream ) const
 {
-	gak::binaryToBinaryStream( stream, fieldType );
-	if( fieldType == DV_VARCHAR )
+	gak::binaryToBinaryStream( stream, m_fieldType );
+	if( m_fieldType == DV_VARCHAR )
 	{
 		getSTRINGAddress()->toBinaryStream( stream );
 	}
-	else if( fieldType == DV_DATE )
+	else if( m_fieldType == DV_DATE )
 	{
 		getDateAddress()->toBinaryStream( stream );
 	}
-	else if( fieldType == DV_TIME )
+	else if( m_fieldType == DV_TIME )
 	{
 		getTimeAddress()->toBinaryStream( stream );
 	}
 	else
 	{
-		gak::binaryToBinaryStream( stream, value );
+		gak::binaryToBinaryStream( stream, m_value );
 	}
 }
 
 void DynamicVar::fromBinaryStream( std::istream &stream )
 {
 	init();
-	gak::binaryFromBinaryStream( stream, &fieldType );
-	if( fieldType == DV_VARCHAR )
+	gak::binaryFromBinaryStream( stream, &m_fieldType );
+	if( m_fieldType == DV_VARCHAR )
 	{
-		new (this->value.varchar) STRING();
+		new (m_value.varchar) STRING();
 		getSTRINGAddress()->fromBinaryStream( stream );
 	}
-	else if( fieldType == DV_DATE )
+	else if( m_fieldType == DV_DATE )
 	{
-		new (value.dateValue) Date();
+		new (m_value.dateValue) Date();
 		getDateAddress()->fromBinaryStream( stream );
 	}
-	else if( fieldType == DV_TIME )
+	else if( m_fieldType == DV_TIME )
 	{
-		new (value.timeValue) Time();
+		new (m_value.timeValue) Time();
 		getTimeAddress()->fromBinaryStream( stream );
 	}
 	else
 	{
-		gak::binaryFromBinaryStream( stream, &value );
+		gak::binaryFromBinaryStream( stream, &m_value );
 	}
 }
 

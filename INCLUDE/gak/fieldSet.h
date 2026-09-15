@@ -68,8 +68,8 @@ class Named_Field
 	typedef CI_STRING key_type;
 
 	private:
-	CI_STRING	name;
-	DynamicVar	value;
+	CI_STRING	m_name;
+	DynamicVar	m_value;
 
 	public:
 	Named_Field()
@@ -81,52 +81,52 @@ class Named_Field
 	}
 	Named_Field( const Named_Field &source )
 	{
-		setNameValue( source.name, source.value );
+		setNameValue( source.m_name, source.m_value );
 	};
 	Named_Field	&operator = ( const Named_Field &source )
 	{
-		setNameValue( source.name, source.value );
+		setNameValue( source.m_name, source.m_value );
 
 		return *this;
 	}
 
 	void setKey( const CI_STRING &name )
 	{
-		this->name = name;
+		m_name = name;
 	}
 	void setValue( const DynamicVar &value )
 	{
-		this->value = value;
+		m_value = value;
 	}
 	void setNameValue( const char *name, const DynamicVar &value )
 	{
 		setKey( name );
 		setValue( value );
 	}
-	const CI_STRING &getKey( void ) const
+	const CI_STRING &getKey() const
 	{
-		return name;
+		return m_name;
 	}
-	DynamicVar &getValue( void )
+	DynamicVar &getValue()
 	{
-		return value;
+		return m_value;
 	}
-	const DynamicVar &getValue( void ) const
+	const DynamicVar &getValue() const
 	{
-		return value;
+		return m_value;
 	}
-	operator DynamicVar & ( void )
+	operator DynamicVar & ()
 	{
 		return getValue();
 	}
-	DynamicVar::DV_TYPE getType( void ) const
+	DynamicVar::DV_TYPE getType() const
 	{
-		return value.getType();
+		return m_value.getType();
 	}
 
-	int operator ! ( void ) const
+	int operator ! () const
 	{
-		return !value;
+		return !m_value;
 	}
 };
 
@@ -139,7 +139,7 @@ class FieldSet : public UnorderedMap<Named_Field>
 		Named_Field		&elem = createElement();
 		elem.setNameValue( name, value );
 	}
-	std::size_t getNumFields( void ) const
+	std::size_t getNumFields() const
 	{
 		return size();
 	}

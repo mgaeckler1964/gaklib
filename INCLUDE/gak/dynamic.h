@@ -100,7 +100,7 @@ class DynamicVar
 	};
 
 	private:
-	DV_TYPE		fieldType;
+	DV_TYPE		m_fieldType;
 	union value_union
 	{
 		int64		integer;
@@ -108,41 +108,41 @@ class DynamicVar
 		char		dateValue[sizeof( Date )];
 		char		timeValue[sizeof( Time )];
 		char		varchar[sizeof( STRING )];
-	} value;
+	} m_value;
 
 	STRING *getSTRINGAddress()
 	{
-		return reinterpret_cast<STRING*>(value.varchar);
+		return reinterpret_cast<STRING*>(m_value.varchar);
 	}
 	const STRING *getSTRINGAddress() const
 	{
-		return reinterpret_cast<STRING const *>(value.varchar);
+		return reinterpret_cast<STRING const *>(m_value.varchar);
 	}
 	Date *getDateAddress()
 	{
-		return reinterpret_cast<Date*>(value.dateValue);
+		return reinterpret_cast<Date*>(m_value.dateValue);
 	}
 	const Date *getDateAddress() const
 	{
-		return reinterpret_cast<const Date*>(value.dateValue);
+		return reinterpret_cast<const Date*>(m_value.dateValue);
 	}
 	Time *getTimeAddress()
 	{
-		return reinterpret_cast<Time*>(value.timeValue);
+		return reinterpret_cast<Time*>(m_value.timeValue);
 	}
 	const Time *getTimeAddress() const
 	{
-		return reinterpret_cast<const Time*>(value.timeValue);
+		return reinterpret_cast<const Time*>(m_value.timeValue);
 	}
 	STRING getString() const;
-	Date getDate( void ) const;
-	Time getTime( void ) const;
+	Date getDate() const;
+	Time getTime() const;
 
-	void init( void )
+	void init()
 	{
-		fieldType = DV_UNDEFINED;
+		m_fieldType = DV_UNDEFINED;
 	}
-	void clear( void );
+	void clear();
 
 	// conversions
 	//
@@ -158,13 +158,13 @@ class DynamicVar
 #endif
 		if( std::numeric_limits<NUMERIC_T>::is_integer )
 		{
-			fieldType = DV_INTEGER;
-			this->value.integer = int64(value);
+			m_fieldType = DV_INTEGER;
+			m_value.integer = int64(value);
 		}
 		else if( std::numeric_limits<NUMERIC_T>::max_exponent10 )
 		{
-			fieldType = DV_FLOAT;
-			this->value.floatValue = static_cast<FloatType>(value);
+			m_fieldType = DV_FLOAT;
+			m_value.floatValue = static_cast<FloatType>(value);
 		}
 		else
 		{
@@ -189,21 +189,21 @@ class DynamicVar
 	// ================
 	DynamicVar( const STRING &varchar )
 	{
-		fieldType = DV_VARCHAR;
-		new (value.varchar) STRING( varchar );
+		m_fieldType = DV_VARCHAR;
+		new (m_value.varchar) STRING( varchar );
 	}
 	DynamicVar( const char *varchar )
 	{
-		fieldType = DV_VARCHAR;
-		new (value.varchar) STRING( varchar );
+		m_fieldType = DV_VARCHAR;
+		new (m_value.varchar) STRING( varchar );
 	}
 
 	DynamicVar &operator = ( const STRING &varchar )
 	{
 		clear();
 
-		fieldType = DV_VARCHAR;
-		new (value.varchar) STRING( varchar );
+		m_fieldType = DV_VARCHAR;
+		new (m_value.varchar) STRING( varchar );
 
 		return *this;
 	}
@@ -211,8 +211,8 @@ class DynamicVar
 	{
 		clear();
 
-		fieldType = DV_VARCHAR;
-		new (value.varchar) STRING( varchar );
+		m_fieldType = DV_VARCHAR;
+		new (m_value.varchar) STRING( varchar );
 
 		return *this;
 	}
@@ -364,47 +364,47 @@ class DynamicVar
 		return *this;
 	}
 
-	operator char ( void ) const
+	operator char () const
 	{
 		return getNumeric<char>();
 	}
-	operator signed char ( void ) const
+	operator signed char () const
 	{
 		return getNumeric<signed char>();
 	}
-	operator unsigned char ( void ) const
+	operator unsigned char () const
 	{
 		return getNumeric<unsigned char>();
 	}
-	operator signed short ( void ) const
+	operator signed short () const
 	{
 		return getNumeric<signed short>();
 	}
-	operator unsigned short ( void ) const
+	operator unsigned short () const
 	{
 		return getNumeric<unsigned short>();
 	}
-	operator signed int ( void ) const
+	operator signed int () const
 	{
 		return getNumeric<signed int>();
 	}
-	operator unsigned int ( void ) const
+	operator unsigned int () const
 	{
 		return getNumeric<unsigned int>();
 	}
-	operator signed long ( void ) const
+	operator signed long () const
 	{
 		return getNumeric<signed long>();
 	}
-	operator unsigned long ( void ) const
+	operator unsigned long () const
 	{
 		return getNumeric<unsigned long>();
 	}
-	operator int64 ( void ) const
+	operator int64 () const
 	{
 		return getNumeric<int64>();
 	}
-	operator uint64 ( void ) const
+	operator uint64 () const
 	{
 		return getNumeric<uint64>();
 	}
@@ -448,15 +448,15 @@ class DynamicVar
 
 		return *this;
 	}
-	operator float ( void ) const
+	operator float () const
 	{
 		return getNumeric<float>();
 	}
-	operator double ( void ) const
+	operator double () const
 	{
 		return getNumeric<double>();
 	}
-	operator long double ( void ) const
+	operator long double () const
 	{
 		return getNumeric<long double>();
 	}
@@ -465,17 +465,17 @@ class DynamicVar
 	// =============
 	DynamicVar( const Date &dateValue )
 	{
-		fieldType = DV_DATE;
-		new (value.dateValue) Date( dateValue );
+		m_fieldType = DV_DATE;
+		new (m_value.dateValue) Date( dateValue );
 	}
 	DynamicVar &operator = ( const Date &dateValue )
 	{
-		if( fieldType != DV_DATE )
+		if( m_fieldType != DV_DATE )
 		{
 			clear();
 
-			fieldType = DV_DATE;
-			new (value.dateValue) Date( dateValue );
+			m_fieldType = DV_DATE;
+			new (m_value.dateValue) Date( dateValue );
 		}
 		else
 		{
@@ -489,17 +489,17 @@ class DynamicVar
 	// =============
 	DynamicVar( const Time &timeValue )
 	{
-		fieldType = DV_TIME;
-		new (value.timeValue) Time( timeValue );
+		m_fieldType = DV_TIME;
+		new (m_value.timeValue) Time( timeValue );
 	}
 	DynamicVar &operator = ( const Time &timeValue )
 	{
-		if( fieldType != DV_TIME )
+		if( m_fieldType != DV_TIME )
 		{
 			clear();
 
-			fieldType = DV_TIME;
-			new (value.timeValue) Time( timeValue );
+			m_fieldType = DV_TIME;
+			new (m_value.timeValue) Time( timeValue );
 		}
 		else
 		{
@@ -513,44 +513,44 @@ class DynamicVar
 	// =======
 	DynamicVar( const DynamicVar &source )
 	{
-		fieldType = source.fieldType;
-		if( fieldType == DV_VARCHAR )
+		m_fieldType = source.m_fieldType;
+		if( m_fieldType == DV_VARCHAR )
 		{
-			new (value.varchar) STRING( *source.getSTRINGAddress() );
+			new (m_value.varchar) STRING( *source.getSTRINGAddress() );
 		}
-		else if( fieldType == DV_DATE )
+		else if( m_fieldType == DV_DATE )
 		{
-			new (value.dateValue) Date( *source.getDateAddress() );
+			new (m_value.dateValue) Date( *source.getDateAddress() );
 		}
-		else if( fieldType == DV_TIME )
+		else if( m_fieldType == DV_TIME )
 		{
-			new (value.timeValue) Time( *source.getTimeAddress() );
+			new (m_value.timeValue) Time( *source.getTimeAddress() );
 		}
 		else
 		{
-			value = source.value;
+			m_value = source.m_value;
 		}
 	}
 	DynamicVar &operator = ( const DynamicVar &source )
 	{
 		clear();
 
-		fieldType = source.fieldType;
-		if( fieldType == DV_VARCHAR )
+		m_fieldType = source.m_fieldType;
+		if( m_fieldType == DV_VARCHAR )
 		{
-			new (value.varchar) STRING( *source.getSTRINGAddress() );
+			new (m_value.varchar) STRING( *source.getSTRINGAddress() );
 		}
-		else if( fieldType == DV_DATE )
+		else if( m_fieldType == DV_DATE )
 		{
-			new (value.dateValue) Date( *source.getDateAddress() );
+			new (m_value.dateValue) Date( *source.getDateAddress() );
 		}
-		else if( fieldType == DV_TIME )
+		else if( m_fieldType == DV_TIME )
 		{
-			new (value.timeValue) Time( *source.getTimeAddress() );
+			new (m_value.timeValue) Time( *source.getTimeAddress() );
 		}
 		else
 		{
-			value = source.value;
+			m_value = source.m_value;
 		}
 
 		return *this;
@@ -558,13 +558,13 @@ class DynamicVar
 
 	// miscelaneous
 	// =============
-	bool isDefined( void ) const
+	bool isDefined() const
 	{
-		return fieldType != DV_UNDEFINED;
+		return m_fieldType != DV_UNDEFINED;
 	}
-	DV_TYPE getType( void ) const
+	DV_TYPE getType() const
 	{
-		return fieldType;
+		return m_fieldType;
 	}
 	// removing from memory
 	// ====================
@@ -613,14 +613,14 @@ class DynamicVar
 	}
 
 	// logical operators
-	int operator ! ( void ) const
+	int operator ! () const
 	{
-		return fieldType == DV_UNDEFINED
-			|| (fieldType == DV_INTEGER && !value.integer)
-			|| (fieldType == DV_FLOAT && !value.floatValue)
-			|| (fieldType == DV_VARCHAR && !value.varchar);
+		return m_fieldType == DV_UNDEFINED
+			|| (m_fieldType == DV_INTEGER && !m_value.integer)
+			|| (m_fieldType == DV_FLOAT && !m_value.floatValue)
+			|| (m_fieldType == DV_VARCHAR && !m_value.varchar);
 	}
-	operator bool ( void ) const
+	operator bool () const
 	{
 		return !this->operator!();
 	}
@@ -733,21 +733,21 @@ class DynamicVar
 template<typename NUMERIC_T>
 NUMERIC_T DynamicVar::getNumeric() const
 {
-	if( fieldType == DV_UNDEFINED )
+	if( m_fieldType == DV_UNDEFINED )
 	{
 		return NUMERIC_T(0);
 	}
-	else if( fieldType == DV_VARCHAR )
+	else if( m_fieldType == DV_VARCHAR )
 	{
 		return getSTRINGAddress()->getValueN<NUMERIC_T>();
 	}
-	else if( fieldType == DV_INTEGER )
+	else if( m_fieldType == DV_INTEGER )
 	{
-		return NUMERIC_T(value.integer);
+		return NUMERIC_T(m_value.integer);
 	}
-	else if( fieldType == DV_FLOAT )
+	else if( m_fieldType == DV_FLOAT )
 	{
-		return NUMERIC_T(value.floatValue);
+		return NUMERIC_T(m_value.floatValue);
 	}
 	else
 	{
