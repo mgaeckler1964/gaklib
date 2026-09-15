@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			ansiChar.cpp
-		Description:	
+		Description:	Working with the ANSI character set
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -1990,6 +1990,7 @@ static unsigned char calcLower( unsigned char c )
 	
 	return c;
 }
+
 #if CALCULATE
 static void writeTable( std::ostream &stream, unsigned char const table[256], const char *name )
 {
@@ -2244,6 +2245,15 @@ int checkData()
 		{
 			std::cout	<< "Bad lower: " << c << ' '
 						<< short(ansiLowerChars[c]) << " != " << short(calcLower( (unsigned char)c )) << std::endl;
+			return 0;
+		}
+	}
+	for( short c=0; c<=255; ++c )
+	{
+		if( ansiUpperChars[c] != calcUpper( (unsigned char)c ) )
+		{
+			std::cout	<< "Bad upper: " << c << ' '
+						<< short(ansiUpperChars[c]) << " != " << short(calcUpper( (unsigned char)c )) << std::endl;
 			return 0;
 		}
 	}

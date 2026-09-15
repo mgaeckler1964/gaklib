@@ -107,7 +107,7 @@ class Allocator
 		return new OBJ[count];
 	}
 	/// frees a new block of data
-	static void release( OBJ *data )
+	static void free( OBJ *data )
 	{
 		delete [] data;
 	}
@@ -138,12 +138,12 @@ class PODallocator
 	/// @copydoc Allocator::alloc
 	static OBJ *alloc( size_t count )
 	{
-		return static_cast<OBJ*>( calloc( count, sizeof( OBJ ) ) );
+		return static_cast<OBJ*>( std::calloc( count, sizeof( OBJ ) ) );
 	}
-	/// @copydoc Allocator::release
-	static void release( OBJ *data )
+	/// @copydoc Allocator::free
+	static void free( OBJ *data )
 	{
-		free( data );
+		std::free( data );
 	}
 	/// @copydoc Allocator::getData
 	static const OBJ *getData( const MemHandle &data )
@@ -387,7 +387,7 @@ class ArrayBase : public Container
 	{
 		if( m_data )
 		{
-			ALLOCATOR::release( m_data );
+			ALLOCATOR::free( m_data );
 		}
 	}
 
@@ -473,7 +473,7 @@ class ArrayBase : public Container
 	{
 		if( m_data )
 		{
-			ALLOCATOR::release( m_data );
+			ALLOCATOR::free( m_data );
 			m_data = nullptr;
 
 			m_capacity = 0;
@@ -1408,7 +1408,7 @@ void ArrayBase<OBJ, ALLOCATOR>::setCapacity( size_t newCapacity, bool exact )
 					moveAssign( newData[i], m_data[i] );
 				}
 
-				ALLOCATOR::release( m_data );
+				ALLOCATOR::free( m_data );
 				setNumElements( newNumElements );
 			}
 			m_data = newData;
