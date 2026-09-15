@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -93,7 +93,7 @@ class BlockedRingBufferTest : public UnitTest
 		Producer( BlockedRingBuffer<char> &buffer ) : buffer(buffer)
 		{
 		}
-		virtual void ExecuteThread()
+		void ExecuteThread() override
 		{
 			doEnterFunctionEx(gakLogging::llInfo, "BlockedRingBufferTest::Producer::ExecuteThread");
 			Sleep( 2000 );
@@ -114,7 +114,7 @@ class BlockedRingBufferTest : public UnitTest
 		Consumer( BlockedRingBuffer<char> &buffer ) : buffer(buffer)
 		{
 		}
-		virtual void ExecuteThread()
+		void ExecuteThread() override
 		{
 			doEnterFunctionEx(gakLogging::llInfo, "BlockedRingBufferTest::Consumer::ExecuteThread");
 			for( const char *cp = testText; *cp; ++cp )
@@ -129,11 +129,11 @@ class BlockedRingBufferTest : public UnitTest
 		}
 	};
 
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "BlockedRingBufferTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "BlockedRingBufferTest::PerformTest");
 		TestScope scope( "PerformTest" );

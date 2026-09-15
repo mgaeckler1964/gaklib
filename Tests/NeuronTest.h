@@ -78,7 +78,7 @@ namespace gak
 
 class NeuronTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "NeuronTest";
 	}
@@ -269,7 +269,7 @@ class NeuronTest : public UnitTest
 		UT_EXPECT_EQUAL_FLT(output[0], expected0[0], tolerance);
 	}
 
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "NeuronTest::PerformTest");
 		TestScope scope( "PerformTest" );

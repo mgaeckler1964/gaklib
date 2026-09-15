@@ -1,12 +1,12 @@
 /*
-		Project:		
-		Module:			
+		Project:		GAKLIB
+		Module:			DateTest.h
 		Description:	
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -77,7 +77,7 @@ namespace gak
 
 class DateTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "DateTest";
 	}
@@ -94,7 +94,7 @@ class DateTest : public UnitTest
 		UT_EXPECT_EQUAL( theSourceDate, theTarget );
 	}
 
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "DateTest::PerformTest");
 		TestScope scope( "PerformTest" );

@@ -163,7 +163,7 @@ class LibraryException : public std::exception
 	}
 
 	/// returns the error message of this exception
-	virtual const char * what() const throw();
+	const char * what() const throw() override;
 };
 
 /// @brief Base class for memory errors

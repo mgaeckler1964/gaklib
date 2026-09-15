@@ -105,16 +105,16 @@ class HtmlBase : public xml::XmlContainer
 	css::Styles	styles;
 
 	protected:
-	virtual STRING getAttributes( xml::GeneratorMode mode ) const;
+	STRING getAttributes( xml::GeneratorMode mode ) const override;
 
-	HtmlBase( const char *name = NULL )
+	HtmlBase( const char *name = nullptr )
 	{
 		setName( name );
 	}
 
 	public:
 
-	virtual bool isCaseSensitive( void ) const;
+	bool isCaseSensitive() const override;
 
 	void setClass( const char *className )
 	{
@@ -126,7 +126,7 @@ class HtmlBase : public xml::XmlContainer
 		if( name )
 			setStringAttribute( "NAME", name );
 	}
-	STRING getName( void )
+	STRING getName()
 	{
 		return getAttribute( "NAME" );
 	}
@@ -171,12 +171,12 @@ class HtmlBase : public xml::XmlContainer
 			setStringAttribute( "HEIGHT", height );
 	}
 
-	STRING generateDoc( void ) const
+	STRING generateDoc() const
 	{
 		return xml::Element::generate( xml::HTML_MODE );
 	}
 	virtual xml::Validator *getValidSubobjects( ArrayOfStrings *tags );
-	virtual const char *getValidSubobjects( void ) = 0;
+	virtual const char *getValidSubobjects() = 0;
 	virtual bool isValidSubobject( xml::Element *newObject );
 	virtual void getValidAttributes( ArrayOfStrings *names );
 	virtual bool isValidAttribute( const STRING &name );
@@ -188,8 +188,8 @@ class HtmlBase : public xml::XmlContainer
 class BlockElements : public virtual HtmlBase
 {
 	public:
-	virtual bool isInline( void );
-	virtual bool isBlock( void );
+	bool isInline() override;
+	bool isBlock() override;
 };
 
 /*
@@ -198,8 +198,8 @@ class BlockElements : public virtual HtmlBase
 class InlineElements : public virtual HtmlBase
 {
 	public:
-	virtual bool isInline( void );
-	virtual bool isBlock( void );
+	bool isInline() override;
+	bool isBlock() override;
 };
 
 /*
@@ -208,8 +208,8 @@ class InlineElements : public virtual HtmlBase
 class NonVisual : public virtual HtmlBase
 {
 	public:
-	virtual bool isInline( void );
-	virtual bool isBlock( void );
+	bool isInline() override;
+	bool isBlock() override;
 };
 
 /*
@@ -218,7 +218,7 @@ class NonVisual : public virtual HtmlBase
 class WithValue : public virtual HtmlBase
 {
 	public:
-	virtual bool isSimpleTag( void ) const;		// for HTML Generation
+	bool isSimpleTag() const override;		// for HTML Generation
 };
 
 /*
@@ -229,14 +229,14 @@ class WithPCData : public WithValue
 	protected:
 	void addText( const char *htmlCode, bool includeLineFeed = true  );
 
-	WithPCData( const char *text = NULL )
+	WithPCData( const char *text = nullptr )
 	{
 		if( text )
 			addText( text, false );
 	}
 	public:
-	virtual const char *getValidSubobjects( void );
-	virtual bool isValidSubobject( xml::Element *newObject );
+	const char *getValidSubobjects() override;
+	bool isValidSubobject( xml::Element *newObject ) override;
 };
 
 /*
@@ -245,13 +245,13 @@ class WithPCData : public WithValue
 class WithInline : public WithPCData
 {
 	protected:
-	WithInline( const char *text = NULL )
+	WithInline( const char *text = nullptr )
 	{	// cannot use consturctor of WithPCData because this does not
 		// allow line feeds
 		if( text )
 			addText( text );
 	};
-	virtual const char *getValidSubobjects( void );
+	const char *getValidSubobjects() override;
 };
 
 /*
@@ -260,7 +260,7 @@ class WithInline : public WithPCData
 class WithBlock: public WithInline
 {
 	protected:
-	virtual const char *getValidSubobjects( void );
+	const char *getValidSubobjects() override;
 };
 
 /*
@@ -270,9 +270,9 @@ class SimpleTag : public virtual HtmlBase
 {
 	protected:
 
-	virtual const char *getValidSubobjects( void );
-	virtual bool isValidSubobject( xml::Element *newObject );
-	virtual bool isSimpleTag( void ) const;		// for HTML Generation
+	const char *getValidSubobjects() override;
+	bool isValidSubobject( xml::Element *newObject ) override;
+	bool isSimpleTag() const override;		// for HTML Generation
 };
 
 /*
@@ -290,11 +290,11 @@ class SimpleTag : public virtual HtmlBase
 class HEAD : public WithValue, public NonVisual
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual const char *getValidSubobjects( void );
+	STRING getTag() const override;
+	const char *getValidSubobjects() override;
 
-	void setNoCache( void );
-	virtual xml::Element *createNew( void );
+	void setNoCache();
+	xml::Element *createNew() override;
 };
 
 /*
@@ -303,10 +303,10 @@ class HEAD : public WithValue, public NonVisual
 class TITLE : public WithPCData, public NonVisual
 {
 	public:
-	TITLE( const char *htmlCode=NULL ) : WithPCData( htmlCode ) {};
+	TITLE( const char *htmlCode=nullptr ) : WithPCData( htmlCode ) {};
 
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -315,9 +315,9 @@ class TITLE : public WithPCData, public NonVisual
 class META : public SimpleTag, public NonVisual
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -331,7 +331,7 @@ class NO_CACHE_META : public META
 		setStringAttribute( "HTTP-EQUIV", "pragma" );
 		setStringAttribute( "CONTENT", "no-cache" );
 	}
-	virtual xml::Element *createNew( void );
+	xml::Element *createNew() override;
 };
 
 class EXPIRES_META : public META
@@ -342,7 +342,7 @@ class EXPIRES_META : public META
 		setStringAttribute( "HTTP-EQUIV", "expires" );
 		setStringAttribute( "CONTENT", date );
 	}
-	virtual xml::Element *createNew( void );
+	xml::Element *createNew() override;
 };
 
 /*
@@ -351,10 +351,10 @@ class EXPIRES_META : public META
 class CSS_STYLE : public WithPCData, public NonVisual
 {
 	public:
-	virtual STRING	getTag( void ) const;
-	virtual bool	wantScriptCode( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING	getTag() const override;
+	bool	wantScriptCode() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -363,15 +363,15 @@ class CSS_STYLE : public WithPCData, public NonVisual
 class EXTERNAL_CSS : public SimpleTag, public NonVisual
 {
 	public:
-	EXTERNAL_CSS( const char *src=NULL )
+	EXTERNAL_CSS( const char *src=nullptr )
 	{
 		setStringAttribute( "href", src ? src : "" );
 		setStringAttribute( "rel", "stylesheet" );
 		setStringAttribute( "type", "text/css" );
 	}
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -380,8 +380,8 @@ class EXTERNAL_CSS : public SimpleTag, public NonVisual
 class BASE_TARGET : public SimpleTag, public NonVisual
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -390,8 +390,8 @@ class BASE_TARGET : public SimpleTag, public NonVisual
 class BASE_FONT : public SimpleTag, public InlineElements
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -400,10 +400,10 @@ class BASE_FONT : public SimpleTag, public InlineElements
 class FRAMESET : public WithValue, public NonVisual
 {
 	public:
-	virtual const char *getValidSubobjects( void );
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	const char *getValidSubobjects() override;
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -412,9 +412,9 @@ class FRAMESET : public WithValue, public NonVisual
 class FRAME : public SimpleTag, public NonVisual
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -423,17 +423,17 @@ class FRAME : public SimpleTag, public NonVisual
 class IFRAME : public WithBlock, public InlineElements
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 class NOFRAMES : public WithBlock, BlockElements
 {
 	public:
-	virtual STRING	getTag( void ) const;
-	virtual const char *getValidSubobjects( void );
-	virtual xml::Element *createNew( void );
+	STRING	getTag() const override;
+	const char *getValidSubobjects() override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -442,16 +442,16 @@ class NOFRAMES : public WithBlock, BlockElements
 class INDEX : public SimpleTag, public BlockElements
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 class BUTTON : public WithBlock, public InlineElements
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual const char *getValidSubobjects( void );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	const char *getValidSubobjects() override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -460,9 +460,9 @@ class BUTTON : public WithBlock, public InlineElements
 class BODY : public WithBlock, public NonVisual
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -480,13 +480,13 @@ class HTML_TEXT : public WithInline, public InlineElements
 	int		size;
 
 	public:
-	HTML_TEXT( const char *text=NULL ) : WithInline( text )
+	HTML_TEXT( const char *text=nullptr ) : WithInline( text )
 	{
 		bold = underline = italic = false;
 		size=0;
 	}
-	virtual STRING getTag( void ) const;
-	virtual STRING getAttributes( xml::GeneratorMode mode ) const;
+	STRING getTag() const override;
+	STRING getAttributes( xml::GeneratorMode mode ) const override;
 	virtual STRING generate( xml::GeneratorMode mode );
 
 	void setBold( bool newBold = true )
@@ -505,7 +505,7 @@ class HTML_TEXT : public WithInline, public InlineElements
 	{
 		size = newSize;
 	}
-	virtual xml::Element *createNew( void );
+	xml::Element *createNew() override;
 };
 
 /*
@@ -521,13 +521,13 @@ class HEADER : public WithInline, public BlockElements
 	int	level;
 
 	public:
-	HEADER( int level, const char *htmlCode=NULL ) : WithInline( htmlCode )
+	HEADER( int level, const char *htmlCode=nullptr ) : WithInline( htmlCode )
 	{
 		this->level = level;
 	}
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -535,9 +535,9 @@ class HEADER : public WithInline, public BlockElements
 */
 class DIV_BLOCK : public WithBlock, public BlockElements
 {
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -545,8 +545,8 @@ class DIV_BLOCK : public WithBlock, public BlockElements
 */
 class CENTER_BLOCK : public WithBlock, public BlockElements
 {
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -554,9 +554,9 @@ class CENTER_BLOCK : public WithBlock, public BlockElements
 */
 class PARAGRAPH : public WithInline, public BlockElements
 {
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -564,9 +564,9 @@ class PARAGRAPH : public WithInline, public BlockElements
 */
 class ADDRESS : public WithInline, public BlockElements
 {
-	virtual STRING getTag( void ) const;
+	STRING getTag() const override;
 	bool isValidSubobject( xml::Element *newObject );
-	virtual xml::Element *createNew( void );
+	xml::Element *createNew() override;
 };
 
 /*
@@ -574,8 +574,8 @@ class ADDRESS : public WithInline, public BlockElements
 */
 class BLOCKQUOTE : public WithBlock, public BlockElements
 {
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -583,8 +583,8 @@ class BLOCKQUOTE : public WithBlock, public BlockElements
 */
 class HORIZONTAL_LINE : public SimpleTag, public InlineElements
 {
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -592,8 +592,8 @@ class HORIZONTAL_LINE : public SimpleTag, public InlineElements
 */
 class PREFORMATED_TEXT : public WithBlock, public BlockElements
 {
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 
@@ -609,7 +609,7 @@ class PREFORMATED_TEXT : public WithBlock, public BlockElements
 class IMAGE : public SimpleTag, InlineElements
 {
 	public:
-	IMAGE( const char *src = NULL )
+	IMAGE( const char *src = nullptr )
 	{
 		if( src )
 			setImageSource( src );
@@ -618,9 +618,9 @@ class IMAGE : public SimpleTag, InlineElements
 	{
 		setStringAttribute( "SRC", src );
 	}
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -629,9 +629,9 @@ class IMAGE : public SimpleTag, InlineElements
 class IMAGE_MAP : public WithBlock, InlineElements
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual bool isValidSubobject( xml::Element *newObject );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	bool isValidSubobject( xml::Element *newObject ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -640,8 +640,8 @@ class IMAGE_MAP : public WithBlock, InlineElements
 class IMAGE_AREA : public SimpleTag, public NonVisual
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -650,7 +650,7 @@ class IMAGE_AREA : public SimpleTag, public NonVisual
 class ANCHOR : public WithInline, public InlineElements
 {
 	public:
-	ANCHOR( const char *url = NULL, const char *anchor = NULL, const char *target = NULL )
+	ANCHOR( const char *url = nullptr, const char *anchor = nullptr, const char *target = nullptr )
 	{
 		setUrl( url );
 		addAnchor( anchor );
@@ -673,10 +673,10 @@ class ANCHOR : public WithInline, public InlineElements
 			setStringAttribute( "TARGET", target );
 	}
 
-	virtual STRING getTag( void ) const;
-	virtual bool isValidSubobject( xml::Element *newObject );
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	bool isValidSubobject( xml::Element *newObject ) override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -684,9 +684,9 @@ class ANCHOR : public WithInline, public InlineElements
 */
 class LINE_BREAK : public SimpleTag, public InlineElements
 {
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -695,8 +695,8 @@ class LINE_BREAK : public SimpleTag, public InlineElements
 class FONT : public WithInline, InlineElements
 {
 	public:
-	FONT( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
+	FONT( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
 	void setSize( int size, const char *unit = "" )
 	{
 		STRING	sizeAttrib = formatNumber( size );
@@ -705,8 +705,8 @@ class FONT : public WithInline, InlineElements
 
 		setStringAttribute( "size", sizeAttrib );
 	}
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -715,9 +715,9 @@ class FONT : public WithInline, InlineElements
 class ABBREVIATION : public WithInline, InlineElements
 {
 	public:
-	ABBREVIATION( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	ABBREVIATION( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -726,9 +726,9 @@ class ABBREVIATION : public WithInline, InlineElements
 class ACRONYM : public WithInline, InlineElements
 {
 	public:
-	ACRONYM( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	ACRONYM( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const;
+	xml::Element *createNew() override;
 };
 
 
@@ -738,9 +738,9 @@ class ACRONYM : public WithInline, InlineElements
 class BOLD : public WithInline, InlineElements
 {
 	public:
-	BOLD( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	BOLD( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -749,9 +749,9 @@ class BOLD : public WithInline, InlineElements
 class BLINK : public WithInline, InlineElements
 {
 	public:
-	BLINK( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	BLINK( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -760,9 +760,9 @@ class BLINK : public WithInline, InlineElements
 class DIRECTION : public WithInline, InlineElements
 {
 	public:
-	DIRECTION( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	DIRECTION( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -771,9 +771,9 @@ class DIRECTION : public WithInline, InlineElements
 class BIG : public WithInline, InlineElements
 {
 	public:
-	BIG( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	BIG( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -782,9 +782,9 @@ class BIG : public WithInline, InlineElements
 class CITE : public WithInline, InlineElements
 {
 	public:
-	CITE( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	CITE( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -793,9 +793,9 @@ class CITE : public WithInline, InlineElements
 class SOURCE_CODE : public WithInline, InlineElements
 {
 	public:
-	SOURCE_CODE( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	SOURCE_CODE( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -804,9 +804,9 @@ class SOURCE_CODE : public WithInline, InlineElements
 class DEFINITION : public WithInline, InlineElements
 {
 	public:
-	DEFINITION( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	DEFINITION( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -815,9 +815,9 @@ class DEFINITION : public WithInline, InlineElements
 class EMPHASIS : public WithInline, InlineElements
 {
 	public:
-	EMPHASIS( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	EMPHASIS( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -826,9 +826,9 @@ class EMPHASIS : public WithInline, InlineElements
 class ITALIC : public WithInline, InlineElements
 {
 	public:
-	ITALIC( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	ITALIC( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -837,9 +837,9 @@ class ITALIC : public WithInline, InlineElements
 class KEYBOARD : public WithInline, InlineElements
 {
 	public:
-	KEYBOARD( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	KEYBOARD( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -848,9 +848,9 @@ class KEYBOARD : public WithInline, InlineElements
 class QUOTE : public WithInline, InlineElements
 {
 	public:
-	QUOTE( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	QUOTE( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -859,9 +859,9 @@ class QUOTE : public WithInline, InlineElements
 class STRIKE : public WithInline, InlineElements
 {
 	public:
-	STRIKE( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRIKE( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -870,9 +870,9 @@ class STRIKE : public WithInline, InlineElements
 class EXAMPLE : public WithInline, InlineElements
 {
 	public:
-	EXAMPLE( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	EXAMPLE( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -881,9 +881,9 @@ class EXAMPLE : public WithInline, InlineElements
 class SMALL : public WithInline, InlineElements
 {
 	public:
-	SMALL( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	SMALL( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -892,9 +892,9 @@ class SMALL : public WithInline, InlineElements
 class SUBSCRIPT : public WithInline, InlineElements
 {
 	public:
-	SUBSCRIPT( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	SUBSCRIPT( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -903,9 +903,9 @@ class SUBSCRIPT : public WithInline, InlineElements
 class SUPERSCRIPT : public WithInline, InlineElements
 {
 	public:
-	SUPERSCRIPT( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	SUPERSCRIPT( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -914,9 +914,9 @@ class SUPERSCRIPT : public WithInline, InlineElements
 class TYPE_WRITER : public WithInline, InlineElements
 {
 	public:
-	TYPE_WRITER( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	TYPE_WRITER( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -925,9 +925,9 @@ class TYPE_WRITER : public WithInline, InlineElements
 class UNDERLINE : public WithInline, InlineElements
 {
 	public:
-	UNDERLINE( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	UNDERLINE( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -936,9 +936,9 @@ class UNDERLINE : public WithInline, InlineElements
 class VARIABLE : public WithInline, InlineElements
 {
 	public:
-	VARIABLE( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	VARIABLE( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -947,9 +947,9 @@ class VARIABLE : public WithInline, InlineElements
 class STRONG : public WithInline, InlineElements
 {
 	public:
-	STRONG( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRONG( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -969,18 +969,18 @@ class TABLE : public BlockElements, WithValue
 		border=newBorder;
 		cellpadding = newPadding;
 	}
-	virtual STRING getTag( void ) const;
-	virtual STRING getAttributes( xml::GeneratorMode mode ) const;
-	virtual const char *getValidSubobjects( void );
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	STRING getAttributes( xml::GeneratorMode mode ) const override;
+	const char *getValidSubobjects() override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 class TABLE_PART : public NonVisual, WithValue
 {
 	public:
-	virtual const char *getValidSubobjects( void );
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
+	const char *getValidSubobjects() override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
 };
 
 /*
@@ -989,8 +989,8 @@ class TABLE_PART : public NonVisual, WithValue
 class TABLE_HEAD : public TABLE_PART
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -999,8 +999,8 @@ class TABLE_HEAD : public TABLE_PART
 class TABLE_BODY : public TABLE_PART
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1009,8 +1009,8 @@ class TABLE_BODY : public TABLE_PART
 class TABLE_FOOT : public TABLE_PART
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1019,9 +1019,9 @@ class TABLE_FOOT : public TABLE_PART
 class TABLE_CAPTION : public NonVisual, WithInline
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1030,10 +1030,10 @@ class TABLE_CAPTION : public NonVisual, WithInline
 class TABLE_RECORD : public NonVisual, WithValue
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual const char *getValidSubobjects( void );
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	const char *getValidSubobjects() override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1042,9 +1042,9 @@ class TABLE_RECORD : public NonVisual, WithValue
 class TABLE_HEADER_FIELD : public WithBlock, NonVisual
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1060,23 +1060,23 @@ class TABLE_FIELD : public WithBlock, NonVisual
 		colspan=1;
 		nowrap = false;
 	}
-	virtual STRING getTag( void ) const;
-	virtual STRING getAttributes( xml::GeneratorMode mode ) const;
+	STRING getTag() const override;
+	STRING getAttributes( xml::GeneratorMode mode ) const override;
 
 	void setColspan( int colspan )
 	{
 		this->colspan = colspan;
 	}
-	void setNowrap( void )
+	void setNowrap()
 	{
 		nowrap = true;
 	}
-	void clrNowrap( void )
+	void clrNowrap()
 	{
 		nowrap = false;
 	}
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1085,9 +1085,9 @@ class TABLE_FIELD : public WithBlock, NonVisual
 class TABLE_COL : public SimpleTag, NonVisual
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1096,10 +1096,10 @@ class TABLE_COL : public SimpleTag, NonVisual
 class TABLE_COLGROUP : public WithValue, NonVisual
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual const char *getValidSubobjects( void );
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	const char *getValidSubobjects() override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1108,7 +1108,7 @@ class TABLE_COLGROUP : public WithValue, NonVisual
 */
 class ListBase : public BlockElements, WithValue
 {
-	virtual const char *getValidSubobjects( void );
+	const char *getValidSubobjects() override;
 };
 
 /*
@@ -1117,8 +1117,8 @@ class ListBase : public BlockElements, WithValue
 class DIRECTORY_LIST : public ListBase
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1127,8 +1127,8 @@ class DIRECTORY_LIST : public ListBase
 class MENU_LIST : public ListBase
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1137,8 +1137,8 @@ class MENU_LIST : public ListBase
 class NUMERIC_LIST : public ListBase
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1147,8 +1147,8 @@ class NUMERIC_LIST : public ListBase
 class BULLET_LIST : public ListBase
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1157,8 +1157,8 @@ class BULLET_LIST : public ListBase
 class LIST_ENTRY : public WithBlock, NonVisual
 {
 	public:
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1183,28 +1183,28 @@ class FORM : public WithBlock, BlockElements
 	{
 		const char *env;
 
-		if( (env=getenv( "SCRIPT_NAME" )) != NULL )
+		if( (env=getenv( "SCRIPT_NAME" )) != nullptr )
 			setAction( env );
 		setMethod( "POST" );
 	}
 
-	virtual STRING getTag( void ) const;
-	virtual bool isValidSubobject( xml::Element *newObject );
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	bool isValidSubobject( xml::Element *newObject ) override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 class FIELDSET : public WithBlock, BlockElements
 {
-	virtual STRING getTag( void ) const;
-	virtual bool isValidSubobject( xml::Element *newObject );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	bool isValidSubobject( xml::Element *newObject ) override;
+	xml::Element *createNew() override;
 };
 
 class LEGEND : public WithBlock, NonVisual
 {
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1213,9 +1213,9 @@ class LEGEND : public WithBlock, NonVisual
 class LABEL : public WithInline, InlineElements
 {
 	public:
-	LABEL( const char *text = NULL ) : WithInline( text ) {}
-	STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	LABEL( const char *text = nullptr ) : WithInline( text ) {}
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1230,7 +1230,7 @@ class INPUT_FIELD : public SimpleTag, public InlineElements
 						HTML_HIDDEN };
 
 	public:
-	INPUT_FIELD( enum FIELD_TYPE type = HTML_BUTTON, const char *name = NULL, const char *value = NULL, bool checked=false, bool readOnly=false )
+	INPUT_FIELD( enum FIELD_TYPE type = HTML_BUTTON, const char *name = nullptr, const char *value = nullptr, bool checked=false, bool readOnly=false )
 	{
 		setType( type );
 		setValue( value );
@@ -1268,29 +1268,29 @@ class INPUT_FIELD : public SimpleTag, public InlineElements
 	}
 	void setType( enum FIELD_TYPE type );
 
-	void setChecked( void )
+	void setChecked()
 	{
 		setStringAttribute( "checked", "1" );
 	}
 
-	void clrChecked( void )
+	void clrChecked()
 	{
 		deleteAttribute( "checked" );
 	}
 
-	void setReadOnly( void )
+	void setReadOnly()
 	{
 		setStringAttribute( "readonly", "1" );
 	}
 
-	void clrReadOnly( void )
+	void clrReadOnly()
 	{
 		deleteAttribute( "readonly" );
 	}
 
-	virtual STRING getTag( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1299,15 +1299,15 @@ class INPUT_FIELD : public SimpleTag, public InlineElements
 class SELECT : public InlineElements, WithPCData
 {
 	public:
-	SELECT( const char *name = NULL )
+	SELECT( const char *name = nullptr )
 	{
 		setName( name );
 	};
 
-	virtual STRING getTag( void ) const;
-	virtual const char *getValidSubobjects( void );
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	const char *getValidSubobjects() override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1327,19 +1327,19 @@ class SELECT_OPTION : public WithPCData, public NonVisual
 	) : WithPCData( !label.isEmpty() ? label : value ), m_value( value ), m_selected( selected )
 	{
 	}
-	virtual STRING getTag( void ) const;
-	virtual STRING getAttributes( xml::GeneratorMode mode ) const;
+	STRING getTag() const override;
+	STRING getAttributes( xml::GeneratorMode mode ) const override;
 
-	void setSelection( void )
+	void setSelection()
 	{
 		m_selected = true;
 	}
-	void clrSelection( void )
+	void clrSelection()
 	{
 		m_selected = false;
 	}
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1350,7 +1350,7 @@ class TEXTAREA : public WithPCData, public InlineElements
 	unsigned int 	cols, rows;
 
 	public:
-	TEXTAREA( const char *name = NULL, const char *value = NULL, bool readOnly=false )
+	TEXTAREA( const char *name = nullptr, const char *value = nullptr, bool readOnly=false )
 	: WithPCData( value )
 	{
 		rows = cols = 0;
@@ -1366,10 +1366,10 @@ class TEXTAREA : public WithPCData, public InlineElements
 		this->rows = rows;
 	}
 
-	virtual STRING getTag( void ) const;
-	virtual STRING getAttributes( xml::GeneratorMode mode ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	STRING getAttributes( xml::GeneratorMode mode ) const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 
@@ -1401,13 +1401,13 @@ class EMBEDED : public InlineElements, WithBlock
 	{
 		this->archive = archive;
 	}
-	virtual STRING getAttributes( xml::GeneratorMode mode ) const;
-	virtual bool isValidSubobject( xml::Element *newObject );
+	STRING getAttributes( xml::GeneratorMode mode ) const override;
+	bool isValidSubobject( xml::Element *newObject ) override;
 };
 
 class APPLET : public EMBEDED
 {
-	virtual STRING getTag( void ) const;
+	STRING getTag() const override;
 	public:
 	APPLET()
 	{
@@ -1416,13 +1416,13 @@ class APPLET : public EMBEDED
 	: EMBEDED( codebase, code, width, height )
 	{
 	}
-	virtual xml::Element *createNew( void );
+	xml::Element *createNew() override;
 };
 
 class EMBEDED_OBJECT : public EMBEDED
 {
-	virtual STRING getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1445,9 +1445,9 @@ class APPLET_PARAM : public SimpleTag, public NonVisual
 		this->value = value;
 	}
 
-	virtual STRING getTag( void ) const;
-	virtual STRING getAttributes( xml::GeneratorMode mode ) const;
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	STRING getAttributes( xml::GeneratorMode mode ) const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1456,7 +1456,7 @@ class APPLET_PARAM : public SimpleTag, public NonVisual
 class JAVA_SCRIPT : public WithPCData, public InlineElements
 {
 	public:
-	JAVA_SCRIPT( const char *src = NULL, const char *code = NULL ) : WithPCData( code )
+	JAVA_SCRIPT( const char *src = nullptr, const char *code = nullptr ) : WithPCData( code )
 	{
 		setStringAttribute( "language", "javascript" );
 		setSource( src );
@@ -1466,17 +1466,17 @@ class JAVA_SCRIPT : public WithPCData, public InlineElements
 		if( src && *src )
 			setStringAttribute( "SRC", src );
 	}
-	virtual STRING	getTag( void ) const;
-	virtual bool	wantScriptCode( void ) const;
-	virtual void getValidAttributes( ArrayOfStrings *attributes );
-	virtual xml::Element *createNew( void );
+	STRING	getTag() const override;
+	bool	wantScriptCode() const override;
+	void getValidAttributes( ArrayOfStrings *attributes ) override;
+	xml::Element *createNew() override;
 };
 
 class NOSCRIPT : public WithBlock, BlockElements
 {
 	public:
-	virtual STRING	getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING	getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1488,9 +1488,9 @@ class NOSCRIPT : public WithBlock, BlockElements
 class DEFINITION_LIST : public BlockElements, WithValue
 {
 	public:
-	virtual STRING	getTag( void ) const;
-	virtual const char *getValidSubobjects( void );
-	virtual xml::Element *createNew( void );
+	STRING	getTag() const override;
+	const char *getValidSubobjects() override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1499,8 +1499,8 @@ class DEFINITION_LIST : public BlockElements, WithValue
 class DEFINITION_LIST_TERM : public NonVisual, WithInline
 {
 	public:
-	virtual STRING	getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING	getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1509,8 +1509,8 @@ class DEFINITION_LIST_TERM : public NonVisual, WithInline
 class DEFINITION_LIST_DEF : public NonVisual, WithBlock
 {
 	public:
-	virtual STRING	getTag( void ) const;
-	virtual xml::Element *createNew( void );
+	STRING	getTag() const override;
+	xml::Element *createNew() override;
 };
 
 /*
@@ -1524,10 +1524,10 @@ class HTML : public NonVisual, WithValue
 	BODY	*theBody;
 
 	public:
-	HTML( const char *title = NULL )
+	HTML( const char *title = nullptr )
 	{
-		theHead = NULL;
-		theBody = NULL;
+		theHead = nullptr;
+		theBody = nullptr;
 		if( title && *title )
 		{
 			HEAD *theHead = getHead();
@@ -1535,14 +1535,14 @@ class HTML : public NonVisual, WithValue
 			theHead->addObject( new TITLE( title ) );
 		}
 	}
-	HEAD *getHead( void )
+	HEAD *getHead()
 	{
 		if( !theHead )
 			addObject( theHead = new HEAD );
 
 		return theHead;
 	}
-	BODY *getBody( void )
+	BODY *getBody()
 	{
 		if( !theBody )
 			addObject( theBody = new BODY );
@@ -1550,15 +1550,15 @@ class HTML : public NonVisual, WithValue
 		return theBody;
 	}
 
-	void setNoCache( void )
+	void setNoCache()
 	{
 		HEAD *theHead = getHead();
 
 		theHead->setNoCache();
 	}
-	virtual STRING getTag( void ) const;
-	virtual const char *getValidSubobjects( void );
-	virtual xml::Element *createNew( void );
+	STRING getTag() const override;
+	const char *getValidSubobjects() override;
+	xml::Element *createNew() override;
 };
 
 class Document : public xml::Document
@@ -1566,16 +1566,16 @@ class Document : public xml::Document
 	public:
 	Document( const STRING &fileName ) : xml::Document( fileName ) {}
 
-	virtual bool isValidSubobject( xml::Element *newObject );
-	virtual STRING generateDoc( void ) const;
+	bool isValidSubobject( xml::Element *newObject ) override;
+	STRING generateDoc() const override;
 
-	HTML *getHtmlElement( void )
+	HTML *getHtmlElement()
 	{
 		HTML *theElement = dynamic_cast<HTML*>(getElement( "HTML" ) );
 
 		return theElement;
 	}
-	virtual xml::Element *createNew( void );
+	xml::Element *createNew() override;
 };
 
 // --------------------------------------------------------------------- //

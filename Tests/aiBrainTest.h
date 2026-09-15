@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -87,11 +87,11 @@ using ai::tokenString;
 
 class AiBrainTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "AiBrainTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "AiBrainTest::PerformTest");
 		TestScope scope( "PerformTest" );
@@ -178,11 +178,11 @@ class AiBrainTest : public UnitTest
 		partners = cloneBrain.getPartners("Gäckler");
 		UT_EXPECT_EQUAL(partners.size(), 4UL);
 	}
-	virtual bool canThreadTest()
+	bool canThreadTest() override
 	{
 		return true;
 	}
-	virtual UnitTest *duplicate()
+	UnitTest *duplicate() override
 	{
 		return new AiBrainTest( false );
 	}

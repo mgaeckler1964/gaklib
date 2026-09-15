@@ -81,7 +81,7 @@ namespace gak
 
 class FieldSetTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "FieldSetTest";
 	}
@@ -132,7 +132,7 @@ class FieldSetTest : public UnitTest
 		UT_EXPECT_EQUAL(fSet1["string"], fSet2["string"]);
 		UT_EXPECT_EQUAL(fSet1["float"], fSet2["float"]);
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "FieldSetTest::PerformTest");
 		TestScope scope( "PerformTest" );

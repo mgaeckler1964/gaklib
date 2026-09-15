@@ -85,11 +85,11 @@ namespace gak
 
 class CmdlineTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "CmdlineTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "CmdlineTest::PerformTest");
 		TestScope scope( "PerformTest" );

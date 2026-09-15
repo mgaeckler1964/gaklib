@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -84,11 +84,11 @@ using ai::Position;
 
 class IndexerTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "IndexerTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "IndexerTest::PerformTest");
 		TestScope scope( "PerformTest" );
@@ -213,11 +213,11 @@ class IndexerTest : public UnitTest
 		}
 	}
 
-	virtual bool canThreadTest()
+	bool canThreadTest() override
 	{
 		return true;
 	}
-	virtual UnitTest *duplicate()
+	UnitTest *duplicate() override
 	{
 		return new IndexerTest( false );
 	}

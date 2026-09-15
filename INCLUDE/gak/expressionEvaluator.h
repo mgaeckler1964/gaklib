@@ -192,7 +192,7 @@ template <class T>
 class NumericEvaluator : public ExpressionEvaluator<T>
 {
 	protected:
-	virtual void fillOperators( Array< typename ExpressionEvaluator<T>::ExprOperator >	*operators );
+	void fillOperators( Array< typename ExpressionEvaluator<T>::ExprOperator >	*operators ) override;
 
 	public:
 	NumericEvaluator();
@@ -240,10 +240,10 @@ class NumericEvaluator : public ExpressionEvaluator<T>
 
 class MathExpression : public NumericEvaluator<double>
 {
-	virtual void fillOperators( Array<ExprOperator>	*operators );
+	void fillOperators( Array<ExprOperator>	*operators ) override;
 
-	virtual double evaluateConstant( const STRING &constExpression );
-	virtual double evaluateFunction( const STRING &funcExpression, const Array<double> &parameterList );
+	double evaluateConstant( const STRING &constExpression ) override;
+	double evaluateFunction( const STRING &funcExpression, const Array<double> &parameterList ) override;
 
 	double checkResult( double result )
 	{

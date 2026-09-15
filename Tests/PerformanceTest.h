@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -82,7 +82,7 @@ namespace gak
 
 class PerformanceTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "PerformanceTest";
 	}
@@ -110,7 +110,7 @@ class PerformanceTest : public UnitTest
 		endTime = clock() - startTime;
 		std::cout << "Array " << numData << ',' << endTime << std::endl;
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "PerformanceTest::PerformTest");
 		TestScope scope( "PerformTest" );

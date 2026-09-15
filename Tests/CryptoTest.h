@@ -86,11 +86,11 @@ namespace gak
 
 class CryptoTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "CryptoTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "CryptoTest::PerformTest");
 		TestScope scope( "PerformTest" );

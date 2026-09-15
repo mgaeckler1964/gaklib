@@ -104,11 +104,11 @@ struct MySortedListEntry : public SortedListEntry
 
 class SortedListTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "SortedListTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "SortedListTest::PerformTest");
 		TestScope scope( "PerformTest" );

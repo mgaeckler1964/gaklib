@@ -201,11 +201,11 @@ namespace gak
 
 class TemplateTest : public UnitTest
 {
-	virtual const char *GetClassName( void ) const
+	const char *GetClassName( void ) const override
 	{
 		return "TemplateTest";
 	}
-	virtual void PerformTest( void )
+	void PerformTest( void ) override
 	{
 	}
 };

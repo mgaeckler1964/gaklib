@@ -102,11 +102,11 @@ public:
 
 class DirectoryScannerTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "DirectoryScannerTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "DirectoryScannerTest::PerformTest");
 		TestScope scope( "PerformTest" );

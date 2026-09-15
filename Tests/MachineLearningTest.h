@@ -132,11 +132,11 @@ class MachineLearningTest : public UnitTest
 	{
 		return x*m_m + m_d;
 	}
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "MachineLearningTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "MachineLearningTest::PerformTest");
 		TestScope scope( "PerformTest" );

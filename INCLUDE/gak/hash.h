@@ -157,9 +157,9 @@ class MD5Hash : public Hash
 	md5_context		ctx;
 	Digest			digest;
 
-	virtual void init();
-	virtual void update( const void *data, size_t len );
-	virtual void finish();
+	void init() override;
+	void update( const void *data, size_t len ) override;
+	void finish() override;
 
 	public:
 	const Digest &getDigest() const
@@ -182,9 +182,9 @@ class SHA224Hash : public Hash
 	SHA256_CTX		ctx;
 	Digest			digest;
 
-	virtual void init();
-	virtual void update( const void *data, size_t len );
-	virtual void finish();
+	void init() override;
+	void update( const void *data, size_t len ) override;
+	void finish() override;
 
 	public:
 	const Digest &getDigest() const
@@ -202,9 +202,9 @@ class SHA256Hash : public Hash
 	SHA256_CTX		ctx;
 	Digest			digest;
 
-	virtual void init();
-	virtual void update( const void *data, size_t len );
-	virtual void finish();
+	void init() override;
+	void update( const void *data, size_t len ) override;
+	void finish() override;
 
 	public:
 	const Digest &getDigest() const
@@ -222,9 +222,9 @@ class SHA384Hash : public Hash
 	SHA512_CTX		ctx;
 	Digest			digest;
 
-	virtual void init();
-	virtual void update( const void *data, size_t len );
-	virtual void finish();
+	void init() override;
+	void update( const void *data, size_t len ) override;
+	void finish() override;
 
 	public:
 	const Digest &getDigest() const
@@ -242,9 +242,9 @@ class SHA512Hash : public Hash
 	SHA512_CTX		ctx;
 	Digest			digest;
 
-	virtual void init();
-	virtual void update( const void *data, size_t len );
-	virtual void finish();
+	void init() override;
+	void update( const void *data, size_t len ) override;
+	void finish() override;
 
 	public:
 	const Digest &getDigest() const

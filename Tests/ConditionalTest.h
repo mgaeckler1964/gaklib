@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -87,7 +87,7 @@ static const int expectedTime = firstSleep + secondSleep + 2;
 
 class ControllerThread : public Thread
 {
-	virtual void ExecuteThread()
+	void ExecuteThread() override
 	{
 		doEnterFunctionEx( gakLogging::llInfo, "ControllerThread::ExecuteThread" );
 		theConditional.notify();
@@ -107,7 +107,7 @@ class WorkerThread : public Thread
 	{
 		return "ConditionalTest";
 	}
-	virtual void ExecuteThread()
+	void ExecuteThread() override
 	{
 		doEnterFunctionEx( gakLogging::llInfo, "WorkerThread::ExecuteThread" );
 		Sleep( 1000 );
@@ -134,11 +134,11 @@ class WorkerThread : public Thread
 
 class ConditionalTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "ConditionalTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx( gakLogging::llInfo, "ConditionalTest::PerformTest" );
 		TestScope scope( "PerformTest" );

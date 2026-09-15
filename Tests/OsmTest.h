@@ -83,11 +83,11 @@ const STRING osmPath = "C:\\Cache\\OSM";
 class OsmTest : public UnitTest
 {
 	public:
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "OsmTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "OsmTest::PerformTest");
 		TestScope scope( "PerformTest" );

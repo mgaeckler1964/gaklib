@@ -78,11 +78,11 @@ namespace gak
 
 class StringBufferTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "StringBufferTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "StringBufferTest::PerformTest");
 		TestScope scope( "PerformTest" );

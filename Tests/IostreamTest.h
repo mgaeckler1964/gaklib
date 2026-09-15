@@ -82,7 +82,7 @@ namespace gak
 
 class IOstreamTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "IOstreamTest";
 	}
@@ -150,7 +150,7 @@ class IOstreamTest : public UnitTest
 		UT_EXPECT_EQUAL( source, target );
 	}
 
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "IOstreamTest::PerformTest");
 		{

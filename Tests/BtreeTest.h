@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -138,7 +138,7 @@ class DeleteCounter
 };
 class BtreeTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "BtreeTest";
 	}
@@ -405,7 +405,7 @@ class BtreeTest : public UnitTest
 
 	}
 
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::PerformTest" );
 
@@ -518,11 +518,11 @@ class BtreeTest : public UnitTest
 		UT_EXPECT_TRUE( value.isEmpty() );
 	}
 
-	virtual bool canStressTest()
+	bool canStressTest() override
 	{
 		return true;
 	}
-	virtual void StressTest( size_t factor )
+	void StressTest( size_t factor ) override
 	{
 		{
 			doEnterFunctionEx( gakLogging::llInfo, "BtreeTest::PerformTest::<10,5>" );
@@ -536,11 +536,11 @@ class BtreeTest : public UnitTest
 			ContainerTest<2,5>(factor*1024,false,true);
 		}
 	}
-	virtual bool canThreadTest()
+	bool canThreadTest() override
 	{
 		return true;
 	}
-	virtual UnitTest *duplicate()
+	UnitTest *duplicate() override
 	{
 		return new BtreeTest( false );
 	}

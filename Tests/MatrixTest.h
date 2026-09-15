@@ -79,7 +79,7 @@ namespace gak
 
 class MatrixTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "MatrixTest";
 	}
@@ -362,7 +362,7 @@ class MatrixTest : public UnitTest
 		}
 	}
 
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "MatrixTest::PerformTest");
 		TestScope scope( "PerformTest" );

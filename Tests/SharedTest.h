@@ -80,11 +80,11 @@ namespace gak
 
 class SharedTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "SharedTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "SharedTest::PerformTest");
 		TestScope scope( "PerformTest" );

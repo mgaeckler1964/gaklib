@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -91,7 +91,7 @@ class PipelineTest : public UnitTest
 		Producer( oRingStream &cout ) : ProducerThread( cout )
 		{
 		}
-		virtual void ExecuteThread( oRingStream &cout )
+		void ExecuteThread( oRingStream &cout ) override
 		{
 			doEnterFunctionEx(gakLogging::llInfo, "Producer::ExecuteThread");
 			Sleep( 5000 );
@@ -113,7 +113,7 @@ class PipelineTest : public UnitTest
 		Filter( iRingStream &cin, oRingStream &cout ) : FilterThread( cin, cout )
 		{
 		}
-		virtual void ExecuteThread( iRingStream &cin, oRingStream &cout )
+		void ExecuteThread( iRingStream &cin, oRingStream &cout ) override
 		{
 			doEnterFunctionEx(gakLogging::llInfo, "Filter::ExecuteThread");
 			cin.unsetf( std::ios_base::skipws );
@@ -148,7 +148,7 @@ class PipelineTest : public UnitTest
 		Consumer( iRingStream &cin ) : ConsumerThread( cin )
 		{
 		}
-		virtual void ExecuteThread( iRingStream &cin )
+		void ExecuteThread( iRingStream &cin ) override
 		{
 			doEnterFunctionEx(gakLogging::llInfo, "Consumer::ExecuteThread");
 			cin.unsetf( std::ios_base::skipws );
@@ -172,11 +172,11 @@ class PipelineTest : public UnitTest
 		}
 	};
 
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "PipelineTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "PipelineTest::PerformTest");
 		TestScope scope( "PerformTest" );

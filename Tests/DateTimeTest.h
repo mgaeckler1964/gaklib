@@ -76,7 +76,7 @@ namespace gak
 
 class DateTimeTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "DateTimeTest";
 	}
@@ -148,7 +148,7 @@ class DateTimeTest : public UnitTest
 			UT_EXPECT_GREATER( summerDay, summerDayAfter );
 		}
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "DateTimeTest::PerformTest");
 		TestScope scope( "PerformTest" );

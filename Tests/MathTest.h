@@ -62,7 +62,7 @@ namespace gak
 
 class MathTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "MathTest";
 	}
@@ -245,7 +245,7 @@ class MathTest : public UnitTest
 		UT_EXPECT_EQUAL(result1[2], result2[2]);
 	}
 
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "MathTest::PerformTest");
 		TestScope scope( "PerformTest" );

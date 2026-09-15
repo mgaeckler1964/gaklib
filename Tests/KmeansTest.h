@@ -80,7 +80,7 @@ namespace gak
 
 class KmeansTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "KmeansTest";
 	}
@@ -167,7 +167,7 @@ class KmeansTest : public UnitTest
 		UT_EXPECT_EQUAL( theCluster.getValueAt(1).size(), 1);
 	}
 
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "KmeansTest::PerformTest");
 		TestScope scope( "PerformTest" );

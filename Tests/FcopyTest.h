@@ -81,7 +81,7 @@ namespace gak
 
 class FcopyTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "FcopyTest";
 	}
@@ -146,7 +146,7 @@ class FcopyTest : public UnitTest
 
 		// remove( targetFile );
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "FcopyTest::PerformTest");
 		TestScope scope( "PerformTest" );

@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -576,12 +576,12 @@ class Pawn : public Figure
 	public:
 	Pawn( Color color, Position pos, bool moved, Board &board ) : Figure( color, pos, moved, board ) {}
 
-	virtual PotentialDestinations calcPossible();
-	virtual Type getType() const
+	PotentialDestinations calcPossible() override;
+	Type getType() const override
 	{
 		return ftPawn;
 	}
-	virtual int getValue() const
+	int getValue() const override
 	{
 		int moved = movedRows() - 3;
 		if( moved < 0 )
@@ -602,12 +602,12 @@ class Knight : public Figure
 		// knight can gon one step, only, and it is allowed to be sacrified
 		return Figure::checkRange(pos, movement, 1, true);
 	}
-	virtual PotentialDestinations calcPossible();
-	virtual Type getType() const
+	PotentialDestinations calcPossible() override;
+	Type getType() const override
 	{
 		return ftKnight;
 	}
-	virtual int getValue() const
+	int getValue() const override
 	{
 		return KNIGHT_VALUE;
 	}
@@ -618,12 +618,12 @@ class Bishop : public Figure
 	public:
 	Bishop( Color color, Position pos, bool moved, Board &board ) : Figure( color, pos, moved, board ) {}
 
-	virtual PotentialDestinations calcPossible();
-	virtual Type getType() const
+	PotentialDestinations calcPossible() override;
+	Type getType() const override
 	{
 		return ftBishop;
 	}
-	virtual int getValue() const
+	int getValue() const override
 	{
 		return BISHOP_VALUE;
 	}
@@ -634,12 +634,12 @@ class Rook : public Figure
 	public:
 	Rook( Color color, Position pos, bool moved, Board &board ) : Figure( color, pos, moved, board ) {}
 
-	virtual PotentialDestinations calcPossible();
-	virtual Type getType() const
+	PotentialDestinations calcPossible() override;
+	Type getType() const override
 	{
 		return ftRook;
 	}
-	virtual int getValue() const
+	int getValue() const override
 	{
 		return ROOK_VALUE;
 	}
@@ -650,12 +650,12 @@ class Queen : public Figure
 	public:
 	Queen( Color color, Position pos, bool moved, Board &board ) : Figure( color, pos, moved, board ) {}
 
-	virtual PotentialDestinations calcPossible();
-	virtual Type getType() const
+	PotentialDestinations calcPossible() override;
+	Type getType() const override
 	{
 		return ftQueen;
 	}
-	virtual int getValue() const
+	int getValue() const override
 	{
 		return QUEEN_VALUE;
 	}
@@ -684,7 +684,7 @@ class King : public Figure
 		// knight can go one,  only, or two while rochade, and it is NOT allowed to be sacrified
 		return Figure::checkRange(pos, movement, maxCount, false);
 	}
-	virtual PotentialDestinations calcPossible();
+	PotentialDestinations calcPossible() override;
 
 	const Rochade &getEastRochade() const
 	{
@@ -708,11 +708,11 @@ class King : public Figure
 	}
 
 
-	virtual Type getType() const
+	Type getType() const override
 	{
 		return ftKing;
 	}
-	virtual int getValue() const
+	int getValue() const override
 	{
 		return KING_VALUE;
 	}

@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -128,11 +128,11 @@ class ThreadPoolTest : public UnitTest
 {
 	size_t	callCount;
 
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "ThreadPoolTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "ThreadPoolTest::PerformTest");
 		TestScope scope( "PerformTest" );
@@ -228,11 +228,11 @@ class ThreadPoolTest : public UnitTest
 			UT_EXPECT_GREATER( mainData.waiting, 0 );
 		}
 	}
-	virtual bool canThreadTest()
+	bool canThreadTest() override
 	{
 		return true;
 	}
-	virtual UnitTest *duplicate()
+	UnitTest *duplicate() override
 	{
 		return new ThreadPoolTest( false );
 	}

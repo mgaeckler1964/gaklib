@@ -79,7 +79,7 @@ namespace gak
 
 class FmtNumberTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "FmtNumberTest";
 	}
@@ -107,7 +107,7 @@ class FmtNumberTest : public UnitTest
 		UT_EXPECT_EQUAL( buffer.c_str(), (const char *)"-    1.000" );
 	}
 
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "FmtNumberTest::PerformTest");
 		TestScope scope( "PerformTest" );

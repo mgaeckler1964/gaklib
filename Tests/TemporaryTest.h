@@ -93,11 +93,11 @@ static Critical s_consoleCheck;
 
 class TemporaryTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return DISABLED_TEST_PREFIX "TemporaryTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "TemporaryTest::PerformTest");
 		TestScope scope( "PerformTest" );
@@ -152,11 +152,11 @@ class TemporaryTest : public UnitTest
 		UT_EXPECT_LESS( sw2.getMillis(), sw1.getMillis() );
 #endif
 	}
-	virtual bool canThreadTest()
+	bool canThreadTest() override
 	{
 		return true;
 	}
-	virtual UnitTest *duplicate()
+	UnitTest *duplicate() override
 	{
 		return new TemporaryTest( false );
 	}

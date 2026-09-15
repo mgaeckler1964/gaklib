@@ -79,11 +79,11 @@ namespace gak
 
 class EvaluatorTest : public UnitTest
 {
-	virtual const char *GetClassName() const
+	const char *GetClassName() const override
 	{
 		return "EvaluatorTest";
 	}
-	virtual void PerformTest()
+	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "EvaluatorTest::PerformTest");
 		TestScope scope( "PerformTest" );
