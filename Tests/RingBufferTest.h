@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			RingBufferTest.h
-		Description:	
+		Description:	a queue for fast access with two threads
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/

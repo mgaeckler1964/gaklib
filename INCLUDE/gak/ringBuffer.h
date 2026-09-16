@@ -3,10 +3,10 @@
 		Module:			ringBuffer.h
 		Description:	a queue for fast access with two threads
 		Author:			Martin Gäckler
-		Address:		Hopfengasse 15, A-4020 Linz
+		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2021 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -15,7 +15,7 @@
 		You should have received a copy of the GNU General Public License 
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Germany, Munich ``AS IS''
+		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
 		AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 		TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 		PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
@@ -41,6 +41,7 @@
 // --------------------------------------------------------------------- //
 
 #include <gak/optional.h>
+#include <gak/CopyProtection.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -86,7 +87,7 @@ namespace gak
 	@tparam OBJ the item type that is stored in this RingBuffer
 */
 template <class OBJ> 
-class RingBuffer
+class RingBuffer : public CopyProtection
 {
 	public:
 	typedef OBJ	value_type;
@@ -100,10 +101,6 @@ class RingBuffer
 
 	OBJ		*m_lastWrite;
 	bool	m_full;
-
-	// no copy
-	RingBuffer( const RingBuffer& src );
-	const RingBuffer & operator = ( const RingBuffer& src );
 
 	OBJ *inc( OBJ *ptr )
 	{
@@ -129,7 +126,7 @@ class RingBuffer
 		delete[] m_data;
 	}
 	/// returns true, if the buffer is full
-	bool isFull( void ) const
+	bool isFull() const
 	{
 		return m_full;
 	}
@@ -170,7 +167,7 @@ class RingBuffer
 		return true;
 	}
 	/// returns true, if the buffer is empty
-	bool isEmpty( void ) const
+	bool isEmpty() const
 	{
 		return !m_full && m_nextRead == m_nextWrite;
 	}
@@ -180,7 +177,7 @@ class RingBuffer
 		@return true on success (not empty)
 		@see RingBuffer::oldest
 	*/
-	bool pop( OBJ *result=NULL )
+	bool pop( OBJ *result=nullptr )
 	{
 		Optional<OBJ>	ret = oldest();
 
@@ -203,7 +200,7 @@ class RingBuffer
 		@return true on success (not empty)
 		@see RingBuffer::pop
 	*/
-	Optional<OBJ> oldest( void ) const
+	Optional<OBJ> oldest() const
 	{
 		Optional<OBJ>	result;
 		if( !isEmpty() )
@@ -218,7 +215,7 @@ class RingBuffer
 		@return true on success (not empty)
 		@see RingBuffer::oldest
 	*/
-	Optional<OBJ> newest( void ) const
+	Optional<OBJ> newest() const
 	{
 		Optional<OBJ>	result;
 		if( !isEmpty() )
