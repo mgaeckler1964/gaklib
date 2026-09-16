@@ -62,7 +62,7 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-class Named_Field
+class NamedField
 {
 	public:
 	typedef CI_STRING key_type;
@@ -72,18 +72,18 @@ class Named_Field
 	DynamicVar	m_value;
 
 	public:
-	Named_Field()
+	NamedField()
 	{
 	}
-	Named_Field( const char *name, const DynamicVar &value )
+	NamedField( const char *name, const DynamicVar &value )
 	{
 		setNameValue( name, value );
 	}
-	Named_Field( const Named_Field &source )
+	NamedField( const NamedField &source )
 	{
 		setNameValue( source.m_name, source.m_value );
 	};
-	Named_Field	&operator = ( const Named_Field &source )
+	NamedField	&operator = ( const NamedField &source )
 	{
 		setNameValue( source.m_name, source.m_value );
 
@@ -130,13 +130,13 @@ class Named_Field
 	}
 };
 
-class FieldSet : public UnorderedMap<Named_Field>
+class FieldSet : public UnorderedMap<NamedField>
 {
 	public:
 	void updateField( const char *name, const DynamicVar &value );
 	void addField( const char *name, const DynamicVar &value )
 	{
-		Named_Field		&elem = createElement();
+		NamedField		&elem = createElement();
 		elem.setNameValue( name, value );
 	}
 	std::size_t getNumFields() const
@@ -151,11 +151,11 @@ class FieldSet : public UnorderedMap<Named_Field>
 	{
 		return getElementByKey( name ).getValue();
 	}
-	const Named_Field &operator [] ( size_t pos ) const
+	const NamedField &operator [] ( size_t pos ) const
 	{
 		return getConstElementAt( pos );
 	}
-	Named_Field &operator [] ( size_t pos )
+	NamedField &operator [] ( size_t pos )
 	{
 		return getMutableElementAt( pos );
 	}

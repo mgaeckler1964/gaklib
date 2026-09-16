@@ -241,7 +241,7 @@ void HTTPserverResponse::flushData( std::ostream &out, const ArrayOfData &body )
 			++it
 		)
 		{
-			const Named_Field	&cookie = *it;
+			const NamedField	&cookie = *it;
 			STRING value = webEscape(STRING(cookie.getValue()));
 			out << "Set-Cookie: " << cookie.getKey() << '=' << value << m_endln;
 		}

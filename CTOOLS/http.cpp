@@ -725,7 +725,7 @@ void HTTPrequest::addCookies( const FieldSet &cookies )
 		++it
 	)
 	{
-		const Named_Field	&cookie = *it;
+		const NamedField	&cookie = *it;
 		name = cookie.getKey();
 		value = cookie.getValue();
 

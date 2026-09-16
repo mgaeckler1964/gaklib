@@ -51,7 +51,7 @@ namespace gak
 
 void FieldSet::updateField( const char *name, const DynamicVar &value )
 {
-	Named_Field	&theField = getElementByKey( name );
+	NamedField	&theField = getElementByKey( name );
 	theField.setValue( value );
 }
 
@@ -97,7 +97,7 @@ void FieldSet::saveConfigFile( const char *fileName ) const
 	{
 		for( const_iterator it = cbegin(), endIT = cend(); it != endIT; ++it )
 		{
-			const Named_Field	&theField = *it;
+			const NamedField	&theField = *it;
 
 			STRING	name = theField.getKey();
 			STRING	value = theField.getValue();
