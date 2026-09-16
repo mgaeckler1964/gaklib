@@ -104,10 +104,10 @@ struct HOLIDAY
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-static Bitfield			workDays;
-static Array<HOLIDAY>	holidays;
+static Bitfield			s_workDays;
+static Array<HOLIDAY>	s_holidays;
 
-static HOLIDAY defaultHolidays[] =
+static HOLIDAY s_defaultHolidays[] =
 {
 	{ 0,  1, Date::JANUARY,           0, Date::UNDEFINED_DAY,   0,	"Neujahr" },
 	{ 0,  6, Date::JANUARY,           0, Date::UNDEFINED_DAY,   0,	"Hl. Drei Könige" },
@@ -176,7 +176,7 @@ void Date::loadHolidays( const char *fileName )
 {
 	int		c;
 
-	if( holidays.size() )	// do nothing if loaded allready
+	if( s_holidays.size() )	// do nothing if loaded allready
 	{
 		return;
 	}
@@ -222,7 +222,7 @@ void Date::loadHolidays( const char *fileName )
 			}
 			*cp = '\0';
 
-			holidays.createElement() = holiday;
+			s_holidays.createElement() = holiday;
 		}
 	}
 	else
@@ -230,21 +230,21 @@ void Date::loadHolidays( const char *fileName )
 		std::ofstream fp( fileName );
 		if( fp )
 		{
-			FOR_EACH( i, defaultHolidays,
+			FOR_EACH( i, s_defaultHolidays,
 			{
-				fp	<< (int)defaultHolidays[i].mode << ','
-					<< (int)defaultHolidays[i].day << ','
-					<< (int)defaultHolidays[i].month << ','
-					<< (int)defaultHolidays[i].offset << ','
-					<< (int)defaultHolidays[i].weekDay << ','
-					<< defaultHolidays[i].workDay << ','
-					<< defaultHolidays[i].name 
+				fp	<< (int)s_defaultHolidays[i].mode << ','
+					<< (int)s_defaultHolidays[i].day << ','
+					<< (int)s_defaultHolidays[i].month << ','
+					<< (int)s_defaultHolidays[i].offset << ','
+					<< (int)s_defaultHolidays[i].weekDay << ','
+					<< s_defaultHolidays[i].workDay << ','
+					<< s_defaultHolidays[i].name 
 				;
 			});
 		}
-		FOR_EACH( i, defaultHolidays,
+		FOR_EACH( i, s_defaultHolidays,
 		{
-			holidays.createElement() = defaultHolidays[i];
+			s_holidays.createElement() = s_defaultHolidays[i];
 		});
 	}
 }
@@ -315,48 +315,48 @@ size_t Date::findHoliday( void ) const
 	Date		holiday( false );
 	WeekDay		weekDay;
 
-	if( !holidays.size() )
+	if( !s_holidays.size() )
 	{
 		loadHolidays();
 	}
 
-	for( i=0; i<holidays.size(); i++ )
+	for( i=0; i<s_holidays.size(); i++ )
 	{
-		if( holidays[i].mode == 2 )				// relative to mother's day
+		if( s_holidays[i].mode == 2 )				// relative to mother's day
 		{
 			holiday = mothersDay;
 		}
-		else if( holidays[i].mode == 1 )		// relative to eastern
+		else if( s_holidays[i].mode == 1 )		// relative to eastern
 		{
 			holiday = eastern;
 		}
-		else if( holidays[i].mode == 0 )
+		else if( s_holidays[i].mode == 0 )
 		{
-			holiday.setDate( holidays[i].day, holidays[i].month, getYear() );
+			holiday.setDate( s_holidays[i].day, s_holidays[i].month, getYear() );
 		}
 
-		if( holidays[i].weekDay != UNDEFINED_DAY )
+		if( s_holidays[i].weekDay != UNDEFINED_DAY )
 		{
 			// find next special week day
 			weekDay = holiday.weekDay();
-			if( weekDay < holidays[i].weekDay )
+			if( weekDay < s_holidays[i].weekDay )
 			{
-				holiday += holidays[i].weekDay - weekDay;
+				holiday += s_holidays[i].weekDay - weekDay;
 			}
-			else if( weekDay > holidays[i].weekDay )
+			else if( weekDay > s_holidays[i].weekDay )
 			{
-				holiday += 7- (weekDay-holidays[i].weekDay);
+				holiday += 7- (weekDay-s_holidays[i].weekDay);
 			}
 		}
 
 		// respect the offset
-		if( holidays[i].offset > 0 )
+		if( s_holidays[i].offset > 0 )
 		{
-			holiday += unsigned(holidays[i].offset);
+			holiday += unsigned(s_holidays[i].offset);
 		}
-		else if( holidays[i].offset < 0 )
+		else if( s_holidays[i].offset < 0 )
 		{
-			holiday -= unsigned(-holidays[i].offset);
+			holiday -= unsigned(-s_holidays[i].offset);
 		}
 
 		// compare with my time
@@ -384,9 +384,9 @@ size_t Date::findHoliday( void ) const
 
 double Date::isWorkDay( unsigned long sinceEpoch ) const
 {
-	if( !workDays )
+	if( !s_workDays )
 	{
-		workDays = workDays << MONDAY << TUESDAY << WENDSDAY << THURSDAY << FRIDAY;
+		s_workDays = s_workDays << MONDAY << TUESDAY << WENDSDAY << THURSDAY << FRIDAY;
 	}
 	if( !sinceEpoch )
 	{
@@ -394,14 +394,14 @@ double Date::isWorkDay( unsigned long sinceEpoch ) const
 	}
 	WeekDay	dayOfWeek = weekDay( sinceEpoch );
 
-	double	workDay = workDays.test( dayOfWeek ) ? 1 : 0;
+	double	workDay = s_workDays.test( dayOfWeek ) ? 1 : 0;
 
 	if( workDay )
 	{
 		size_t	holiday = findHoliday();
-		if( holiday < holidays.size() )
+		if( holiday < s_holidays.size() )
 		{
-			workDay = holidays[holiday].workDay;
+			workDay = s_holidays[holiday].workDay;
 		}
 	}
 
@@ -413,9 +413,9 @@ const char *Date::holiday( void ) const
 	std::size_t	i=findHoliday();
 
 	// return result if found
-	if( i < holidays.size() )
+	if( i < s_holidays.size() )
 	{
-		return holidays[i].name;
+		return s_holidays[i].name;
 	}
 	else
 	{
