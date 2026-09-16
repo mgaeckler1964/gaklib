@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			BitFieldTest.h
-		Description:	
+		Description:	A bitfield with up to 32 bits
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -93,15 +93,49 @@ class BitFieldTest : public UnitTest
 		doEnterFunctionEx(gakLogging::llInfo, "BitFieldTest::PerformTest");
 		TestScope scope( "PerformTest" );
 
-		Bitfield x;
+		Bitfield x, x2, x3;
 
-		x <<= TST_BIT5;
+		// setting
+		UT_EXPECT_FALSE( x.test( TST_BIT5 ) );
+		UT_EXPECT_FALSE( x.test( TST_BIT8 ) );
+		x.set( TST_BIT5 );
+		UT_EXPECT_TRUE( x.test( TST_BIT5 ) );
+		UT_EXPECT_FALSE( x.test( TST_BIT8 ) );
+		x <<= TST_BIT8;
+		UT_EXPECT_TRUE( x.test( TST_BIT5 ) );
+		UT_EXPECT_TRUE( x.test( TST_BIT8 ) );
 
+		// setting
+		x.clear( TST_BIT5 );
+		UT_EXPECT_FALSE( x.test( TST_BIT5 ) );
+		UT_EXPECT_TRUE( x.test( TST_BIT8 ) );
+		x >>= TST_BIT8;
+		UT_EXPECT_FALSE( x.test( TST_BIT5 ) );
 		UT_EXPECT_FALSE( x.test( TST_BIT8 ) );
 
-		x <<= TST_BIT8;
+		// OR
+		x.set( TST_BIT5 );
+		x2.set( TST_BIT8 );
+		x3 = x | x2;
+		std::cout << "\nOR\n" << x << '\n' << x2 << '\n' << x3 << std::endl;
+		UT_EXPECT_TRUE( x3.test( TST_BIT5 ) );
+		UT_EXPECT_TRUE( x3.test( TST_BIT8 ) );
 
-		UT_EXPECT_TRUE( x.test( TST_BIT8 ) );
+		// AND
+		x.set( TST_BIT8 );
+		x3 = x & x2;
+		std::cout << "\nAND\n" << x << '\n' << x2 << '\n' << x3 << std::endl;
+		UT_EXPECT_FALSE( x3.test( TST_BIT5 ) );
+		UT_EXPECT_TRUE( x3.test( TST_BIT8 ) );
+
+		// XOR
+		x.set( TST_BIT8 );
+		x2.set( TST_BIT1 );
+		x3 = x ^ x2;
+		std::cout << "\nXOR\n" << x << '\n' << x2 << '\n' << x3 << std::endl;
+		UT_EXPECT_TRUE( x3.test( TST_BIT5 ) );
+		UT_EXPECT_FALSE( x3.test( TST_BIT8 ) );
+		UT_EXPECT_TRUE( x3.test( TST_BIT1 ) );
 	}
 };
 

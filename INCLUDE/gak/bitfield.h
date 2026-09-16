@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			bitfield.h
-		Description:	
+		Description:	A bitfield with up to 32 bits
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -41,6 +41,8 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+#include <iostream>
+
 #include <gak/types.h>
 
 // --------------------------------------------------------------------- //
@@ -79,29 +81,29 @@ namespace gak
 
 class Bitfield
 {
-	uint32	field;
+	uint32	m_bits;
 
 	public:
-	Bitfield( uint32 field = 0 )
+	Bitfield( uint32 bits = 0 )
 	{
-		this->field = field;
+		m_bits = bits;
 	}
 	Bitfield( const Bitfield &source )
 	{
-		this->field = source.field;
+		m_bits = source.m_bits;
 	}
 
 	void set( int bit )
 	{
-		field |= 1<<bit;
+		m_bits |= 1<<bit;
 	}
 	void clear( int bit )
 	{
-		field &= ~(1<<bit);
+		m_bits &= ~(1<<bit);
 	}
 	uint32 test( int bit ) const
 	{
-		return field & (1<<bit);
+		return m_bits & (1<<bit);
 	}
 
 	Bitfield operator << ( int bit ) const
@@ -133,7 +135,7 @@ class Bitfield
 		return *this;
 	}
 
-	Bitfield operator & ( const Bitfield &source )
+	Bitfield operator & ( const Bitfield &source ) const
 	{
 		Bitfield result( *this );
 		result &= source;
@@ -142,12 +144,12 @@ class Bitfield
 	}
 	const Bitfield &operator &= ( const Bitfield &source )
 	{
-		this->field &= source.field;
+		m_bits &= source.m_bits;
 
 		return *this;
 	}
 
-	Bitfield operator | ( const Bitfield &source )
+	Bitfield operator | ( const Bitfield &source ) const
 	{
 		Bitfield result( *this );
 		result |= source;
@@ -156,12 +158,12 @@ class Bitfield
 	}
 	const Bitfield &operator |= ( const Bitfield &source )
 	{
-		this->field |= source.field;
+		m_bits |= source.m_bits;
 
 		return *this;
 	}
 
-	Bitfield operator ^ ( const Bitfield &source )
+	Bitfield operator ^ ( const Bitfield &source ) const
 	{
 		Bitfield result( *this );
 		result ^= source;
@@ -170,14 +172,14 @@ class Bitfield
 	}
 	const Bitfield &operator ^= ( const Bitfield &source )
 	{
-		this->field ^= source.field;
+		m_bits ^= source.m_bits;
 
 		return *this;
 	}
 
-	operator uint32 ( void ) const
+	operator uint32 () const
 	{
-		return field;
+		return m_bits;
 	}
 };
 
@@ -232,6 +234,20 @@ class Bitfield
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+inline std::ostream & operator << ( std::ostream &out, const Bitfield &in )
+{
+	const uint32	flags = in;
+	uint32			flag = 0X80000000;
+
+	while( flag )
+	{
+		out << ((flags & flag) ? '1' : '0');
+		flag >>= 1;
+	}
+
+	return out;
+}
 
 }	// namespace gak
 
