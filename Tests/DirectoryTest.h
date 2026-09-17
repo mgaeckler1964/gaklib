@@ -156,7 +156,7 @@ class DirectoryTest : public UnitTest
 		result = strAccess( myFile, 04 );
 		UT_EXPECT_EQUAL( result, 0 );
 
-		myFile = "GAKDLL32.DEF";
+		myFile = TEST_PATH("GAKDLL32.DEF");
 		DirectoryEntry	theEntry( myFile );
 		UT_EXPECT_TRUE( theEntry.readOnly );
 #ifdef _Windows	/// TODO the following code does not work on linux, fix! 

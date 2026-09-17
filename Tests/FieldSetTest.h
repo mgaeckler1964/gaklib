@@ -120,7 +120,7 @@ class FieldSetTest : public UnitTest
 		fSet1["float"] = 3.14;
 
 		// reading from a known file
-		fSet2.loadConfigFile("test_data" DIRECTORY_DELIMITER_STRING "test.cfg");
+		fSet2.loadConfigFile(TEST_PATH("test.cfg"));
 		UT_EXPECT_EQUAL(fSet1["integer"], fSet2["integer"]);
 		UT_EXPECT_EQUAL(fSet1["string"], fSet2["string"]);
 		UT_EXPECT_EQUAL(fSet1["float"], fSet2["float"]);

@@ -165,7 +165,7 @@ class FcopyTest : public UnitTest
 
 			{ TestScope _( __FILE__ "true" );		copyFileTest( __FILE__, targetFile, true ); }
 			{ TestScope _( "LICENSE" );				copyFileTest( "LICENSE", targetFile, true ); }
-			{ TestScope _( "GAKDLL32.DEF true" );	copyFileTest( "GAKDLL32.DEF", targetFile, true ); }
+			{ TestScope _( "GAKDLL32.DEF true" );	copyFileTest( TEST_PATH("GAKDLL32.DEF"), targetFile, true ); }
 		}
 
 		STRING targetFile = STRING(getTempPath()) + DIRECTORY_DELIMITER_STRING "FcopyTest" DIRECTORY_DELIMITER_STRING "copy.txt";
@@ -173,10 +173,10 @@ class FcopyTest : public UnitTest
 		{ TestScope _( __FILE__ "false" );	copyFileTest( __FILE__, targetFile, false ); }
 
 		/* this file was changed in summer time */
-		{ TestScope _( "test_data" DIRECTORY_DELIMITER_STRING "mac.txt" );	copyFileTest( "test_data" DIRECTORY_DELIMITER_STRING "mac.txt", targetFile, false ); }
+		{ TestScope _( TEST_PATH("mac.txt") );	copyFileTest( TEST_PATH("mac.txt"), targetFile, false ); }
 
 		/* this file was changed in winter time */
-		{ TestScope _( "GAKDLL32.DEF false" );	copyFileTest( "GAKDLL32.DEF", targetFile, false ); }
+		{ TestScope _( "GAKDLL32.DEF false" );	copyFileTest( TEST_PATH("GAKDLL32.DEF"), targetFile, false ); }
 
 		STRING	tmpFile = getTempPath() + DIRECTORY_DELIMITER_STRING "test.dat";
 		bool	deleteOnExit = false;

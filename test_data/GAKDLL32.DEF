@@ -1,0 +1,11 @@
+NAME			GAKDLL32
+
+DESCRIPTION		'32-Bit GAKLIB as DLL'
+
+CODE			LOADONCALL
+DATA			PRELOAD
+
+EXPORTS
+;				fcopy				@10
+;				glib_chk			@20
+

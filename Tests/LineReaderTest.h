@@ -85,9 +85,9 @@ class LineReaderTest : public UnitTest
 	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "LineReaderTest::PerformTest");
-		test( "test_data" DIRECTORY_DELIMITER_STRING "msdos.txt" );
-		test( "test_data" DIRECTORY_DELIMITER_STRING "unix.txt" );
-		test( "test_data" DIRECTORY_DELIMITER_STRING "mac.txt" );
+		test( TEST_PATH("msdos.txt") );
+		test( TEST_PATH("unix.txt") );
+		test( TEST_PATH("mac.txt") );
 	}
 	void test( const char *fName )
 	{

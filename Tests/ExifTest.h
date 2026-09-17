@@ -90,7 +90,7 @@ class ExifTest : public UnitTest
 
 		ImageMetaData	metaData;
 
-		STRING	fileName = "test_data" DIRECTORY_DELIMITER_STRING "2013-01-28_10-58-39_32122.jpg";
+		STRING	fileName = TEST_PATH("2013-01-28_10-58-39_32122.jpg");
 
 		bool imageRead = readImageMetaData( fileName, &metaData );
 

@@ -856,7 +856,7 @@ class StringTest : public UnitTest
 	void FileTests()
 	{
 		STRING myUtf8;
-		myUtf8.readFromFile( "test_data" DIRECTORY_DELIMITER_STRING "utf8bom.txt" );
+		myUtf8.readFromFile( TEST_PATH("utf8bom.txt") );
 		UT_EXPECT_EQUAL( myUtf8.getCharSet(), STR_UTF8 );
 	}
 

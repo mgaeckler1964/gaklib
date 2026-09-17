@@ -78,6 +78,7 @@ OBJECTS=${OBJDIR}/acls.o \
 	${OBJDIR}/sha.o \
 	${OBJDIR}/soap.o \
 	${OBJDIR}/socketbuf.o \
+	${OBJDIR}/sortedList.o \
 	${OBJDIR}/sslSocket.o \
 	${OBJDIR}/strcmpi.o \
 	${OBJDIR}/Strgclas.o \

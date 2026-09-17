@@ -452,8 +452,8 @@ static STRING buildDiffFile(
 				diff += formatNumber( curLine1.lineNo+1, 5 );
 				diff += ' ';
 				diff += formatNumber( curLine2.lineNo+1, 5 );
-				diff += ' ';
 #if 0			// for better debugging
+				diff += ' ';
 				diff += formatNumber( curLine1.comparedLine+1, 5 );
 				diff += ' ';
 				diff += formatNumber( curLine2.comparedLine+1, 5 );
@@ -461,7 +461,6 @@ static STRING buildDiffFile(
 				diff += formatNumber( curLine1.chksum() );
 				diff += ' ';
 				diff += formatNumber( curLine2.chksum() );
-				diff += ' ';
 
 				if(curLine1.lineNo != curLine2.comparedLine || curLine2.lineNo != curLine1.comparedLine )
 					diff += "=========================================";

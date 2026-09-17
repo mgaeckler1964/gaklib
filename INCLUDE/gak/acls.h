@@ -6,7 +6,7 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -95,78 +95,76 @@ namespace gak
 
 class FileSecurity
 {
-	STRING	fileName;
+	STRING	m_fileName;
 
 #ifdef  _Windows
-	PSECURITY_DESCRIPTOR	pSD;
-	PSID					pSidOwner;
-	PSID					pSidGroup;
-	PACL					pDACL;
-//	PACL					pSACL;
+	PSECURITY_DESCRIPTOR	m_pSD;
+	PSID					m_pSidOwner;
+	PSID					m_pSidGroup;
+	PACL					m_pDACL;
 
 	static DWORD getSidName( PSID pSid, STRING *name );
 
-	void free( void )
+	void free()
 	{
-		if( pSD != NULL )
+		if( m_pSD != nullptr )
 		{
-			LocalFree( pSD );
+			LocalFree( m_pSD );
 		}
-		pSD = NULL;
+		m_pSD = nullptr;
 	}
 
 #else
-	struct stat				info;
-	bool					dataLoaded;
+	struct stat				m_info;
+	bool					m_dataLoaded;
 #endif
 	public:
 	FileSecurity()
 	{
 #ifdef  _Windows
-		pSD = NULL;
-		pSidOwner = NULL;
-		pSidGroup = NULL;
-		pDACL = NULL;
-//		pSACL = NULL;
+		m_pSD = nullptr;
+		m_pSidOwner = nullptr;
+		m_pSidGroup = nullptr;
+		m_pDACL = nullptr;
 #else
-		dataLoaded = false;
+		m_dataLoaded = false;
 #endif
 	}
 	~FileSecurity()
 	{
 #ifdef  _Windows
-		if( pSD != NULL )
+		if( m_pSD != nullptr )
 		{
-			LocalFree( pSD );
+			LocalFree( m_pSD );
 		}
 #endif
 	}
 
 	void loadFromFile( const STRING &fileName )
 	{
-		this->fileName = fileName;
+		m_fileName = fileName;
 #ifdef  _Windows
 		free();
 		DWORD dwRtnCode = GetNamedSecurityInfo(
 			fileName,
 			SE_FILE_OBJECT,
 			OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION|DACL_SECURITY_INFORMATION,
-			&pSidOwner,
-			&pSidGroup,
-			&pDACL,
-			NULL,
-			&pSD
+			&m_pSidOwner,
+			&m_pSidGroup,
+			&m_pDACL,
+			nullptr,
+			&m_pSD
 		);
 		if( dwRtnCode != ERROR_SUCCESS )
 			throw StatReadError( fileName );
 #else
-		if( !strStat(fileName, &info) )
+		if( !strStat(fileName, &m_info) )
 		{
-			dataLoaded = true;
+			m_dataLoaded = true;
 		}
 		else
 		{
-			dataLoaded = false;
+			m_dataLoaded = false;
 			throw StatReadError( fileName );
 		}
 #endif
@@ -174,16 +172,16 @@ class FileSecurity
 	void saveToFile( const STRING &fileName )
 	{
 #ifdef  _Windows
-		if( pSD )
+		if( m_pSD )
 		{
 			DWORD dwRtnCode = SetNamedSecurityInfo(
 				fileName,
 				SE_FILE_OBJECT,
 				OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION|DACL_SECURITY_INFORMATION,
-				pSidOwner,
-				pSidGroup,
-				pDACL,
-				NULL
+				m_pSidOwner,
+				m_pSidGroup,
+				m_pDACL,
+				nullptr
 			);
 			if( dwRtnCode != ERROR_SUCCESS )
 			{
@@ -195,9 +193,9 @@ class FileSecurity
 /*@*/		throw StatReadError( fileName ).addNTerror();
 		}
 #else
-		if( dataLoaded )
+		if( m_dataLoaded )
 		{
-			if( chown( fileName, info.st_uid, info.st_gid ) || chmod( fileName, info.st_mode ) )
+			if( chown( fileName, m_info.st_uid, m_info.st_gid ) || chmod( fileName, m_info.st_mode ) )
 			{
 /*@*/			throw StatWriteError( fileName ).addCerror();
 			}
@@ -209,60 +207,60 @@ class FileSecurity
 #endif
 	}
 
-	STRING getOwner( void )
+	STRING getOwner()
 	{
 		STRING ownerName;
 #ifdef  _Windows
-		if( pSD && pSidOwner )
+		if( m_pSD && m_pSidOwner )
 		{
-			DWORD errCode = getSidName( pSidOwner, &ownerName );
+			DWORD errCode = getSidName( m_pSidOwner, &ownerName );
 			if( errCode )
 			{
-/*@*/			throw StatReadError( fileName).addNTerror( errCode );
+/*@*/			throw StatReadError( m_fileName).addNTerror( errCode );
 			}
 		}
 		else
 		{
-/*@*/		throw StatReadError( fileName );
+/*@*/		throw StatReadError( m_fileName );
 		}
 #else
 		struct passwd *pw;
-		if( dataLoaded && (pw = getpwuid(info.st_uid)) != NULL )
+		if( m_dataLoaded && (pw = getpwuid(m_info.st_uid)) != nullptr )
 		{
 			ownerName = pw->pw_name;
 		}
 		else
 		{
-/*@*/		throw StatReadError( fileName ).addCerror();
+/*@*/		throw StatReadError( m_fileName ).addCerror();
 		}
 #endif
 		return ownerName;
 	}
-	STRING getGroup( void )
+	STRING getGroup()
 	{
 		STRING	groupName;
 #ifdef  _Windows
-		if( pSD && pSidGroup )
+		if( m_pSD && m_pSidGroup )
 		{
-			DWORD errCode = getSidName( pSidGroup, &groupName );
+			DWORD errCode = getSidName( m_pSidGroup, &groupName );
 			if( errCode )
 			{
-/*@*/			throw StatReadError( fileName ).addNTerror( errCode );
+/*@*/			throw StatReadError( m_fileName ).addNTerror( errCode );
 			}
 		}
 		else
 		{
-/*@*/		throw StatReadError( fileName );
+/*@*/		throw StatReadError( m_fileName );
 		}
 #else
 		struct group  *gr;
-		if( dataLoaded && (gr = getgrgid(info.st_gid)) != NULL )
+		if( m_dataLoaded && (gr = getgrgid(m_info.st_gid)) != nullptr )
 		{
 			groupName = gr->gr_name;
 		}
 		else
 		{
-/*@*/		throw StatReadError( fileName );
+/*@*/		throw StatReadError( m_fileName );
 		}
 #endif
 		return groupName;

@@ -58,6 +58,8 @@
 #include <gak/unitTest.h>
 #include <gak/directory.h>
 
+#define TEST_PATH(fName)	"test_data" DIRECTORY_DELIMITER_STRING fName
+
 #include "Tests/SortedListTest.h"
 #include "Tests/StringBufferTest.h"
 #include "Tests/KmeansTest.h"
