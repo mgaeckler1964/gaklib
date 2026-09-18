@@ -722,7 +722,7 @@ void WSDLimporter::writeCppClass( const STRING &directory )
 		{
 			fp << "// "<<fileName<<"\n"
 				"// Generated from file "<<theWSDURL<<"\n"
-				"// (c) 1988-2026 by Martin Gäckler, Munich\n\n"
+				"// (c) 1988-2026 by Martin Gäckler, Linz, Austria\n\n"
 				"#include <gak/numericString.h>\n"
 				"#include \""<<className<<".h\"\n"
 			;

@@ -1,7 +1,8 @@
 /*
 		Project:		GAKLIB
 		Module:			changeManager.h
-		Description:	
+		Description:	A change managers informs all connected viewers/editor 
+						about changes
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -83,7 +84,7 @@ class ChangeManager;
 
 class DocumentViewer
 {
-	ChangeManager *manager;
+	ChangeManager *m_manager;
 
 	public:
 	DocumentViewer( ChangeManager *manager );
@@ -97,12 +98,12 @@ class DocumentViewer
 	virtual void handleDelete( void *document, void *tem ) = 0;
 
 	void setPosition( void *position );
-	void setChanged( void *item=NULL );
+	void setChanged( void *item=nullptr );
 	void setNew( void *item );
 	void setDelete( void *item );
 
 	bool operator = ( bool val );
-	operator bool ( void ) const;
+	operator bool () const;
 };
 
 typedef ArrayOfPointer<DocumentViewer>	DocumentViewers;
@@ -115,7 +116,7 @@ class ChangeManager
 	DocumentViewers	m_theViewer;
 
 	public:
-	ChangeManager( void *document=NULL )
+	ChangeManager( void *document=nullptr )
 	{
 		doEnterFunction("ChangeManager");
 		setDocument( document );
@@ -127,11 +128,11 @@ class ChangeManager
 		m_theDocument = document;
 		clrChanged();
 	}
-	bool isChanged( void ) const
+	bool isChanged() const
 	{
 		return m_changed;
 	}
-	void clrChanged( void )
+	void clrChanged()
 	{
 		m_changed = false;
 	}
@@ -143,7 +144,7 @@ class ChangeManager
 	void unregisterViewer( DocumentViewer *delViewer );
 
 	void setPosition( DocumentViewer *source, void *position );
-	void setChanged( DocumentViewer *source=NULL, void *item=NULL );
+	void setChanged( DocumentViewer *source=nullptr, void *item=nullptr );
 	void setNew( DocumentViewer *source, void *item );
 	void setDelete( DocumentViewer *source, void *item );
 
@@ -160,7 +161,7 @@ class ChangeManager
 
 		return val;
 	}
-	operator bool ( void ) const
+	operator bool () const
 	{
 		return m_changed;
 	}
@@ -193,48 +194,48 @@ class ChangeManager
 inline DocumentViewer::DocumentViewer( ChangeManager *manager )
 {
 	doEnterFunction("DocumentViewer::DocumentViewer");
-	this->manager = manager;
+	m_manager = manager;
 	manager->registerViewer( this );
 }
 
 inline bool DocumentViewer::operator = ( bool val )
 {
 	if( val )
-		manager->setChanged( this );
+		m_manager->setChanged( this );
 	else
-		manager->clrChanged();
+		m_manager->clrChanged();
 
 	return val;
 }
 
 inline void DocumentViewer::setDocument( void *document )
 {
-	manager->setDocument( document );
+	m_manager->setDocument( document );
 }
 
 inline void DocumentViewer::setPosition( void *position )
 {
-	manager->setPosition( this, position );
+	m_manager->setPosition( this, position );
 }
 
 inline void DocumentViewer::setChanged( void *item )
 {
-	manager->setChanged( this, item );
+	m_manager->setChanged( this, item );
 }
 
 inline void DocumentViewer::setNew( void *item )
 {
-	manager->setNew( this, item );
+	m_manager->setNew( this, item );
 }
 
 inline void DocumentViewer::setDelete( void *item )
 {
-	manager->setDelete( this, item );
+	m_manager->setDelete( this, item );
 }
 
-inline DocumentViewer::operator bool ( void ) const
+inline DocumentViewer::operator bool () const
 {
-	return manager->isChanged();
+	return m_manager->isChanged();
 }
 
 // --------------------------------------------------------------------- //
