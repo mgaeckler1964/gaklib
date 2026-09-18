@@ -2,6 +2,9 @@
 		Project:		GAKLIB
 		Module:			access.cpp
 		Description:	My version for access and _waccess for windows
+						I'm using my own implementation because my is more
+						stable with some file systems than Borland's and
+						Microsoft's implementation in Windows
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -64,10 +67,6 @@
 #endif
 
 using namespace gak;
-
-/// @cond
-namespace std
-{
 
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
@@ -137,6 +136,16 @@ namespace std
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+#ifdef __BORLANDC__
+
+/*
+	Borland C++ Builder defined this function in namsepace std in order to swap
+	my implementation, i have to define my implementation in namespace std, too
+*/
+namespace std
+{
+#endif
+
 extern "C" int access( const char *fName, int mode )
 {
 	FStype fType = fileType( fName );
@@ -179,8 +188,9 @@ extern "C" int _waccess( const wchar_t *fName, int mode )
 	return -1;
 }
 
+#ifdef __BORLANDC__
 }	// namespace std
-/// @endcond
+#endif
 
 #ifdef __BORLANDC__
 #	pragma option -RT.
