@@ -42,6 +42,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 #include <gak/string.h>
 #include <gak/strFiles.h>
@@ -148,8 +149,8 @@ __declspec(deprecated("Migrate to C++ I/O"))
 	{
 		if( m_fp )
 		{
-			fclose( m_fp );
-			m_fp = NULL;
+			std::fclose( m_fp );
+			m_fp = nullptr;
 		}
 	}
 };
@@ -194,7 +195,7 @@ class Buffer : public CopyProtection
 	*/
 	Buffer( size_t size )
 	{
-		m_buff = static_cast<TYPE*>(::malloc(size));
+		m_buff = static_cast<TYPE*>(std::malloc(size));
 	}
 	/**
 		@brief Constructs a pointer object from an allocated memory.
@@ -206,14 +207,14 @@ class Buffer : public CopyProtection
 	*/
 	Buffer( size_t itemCount, const TYPE & )
 	{
-		m_buff = static_cast<TYPE*>(::calloc(itemCount, sizeof(TYPE)));
+		m_buff = static_cast<TYPE*>(std::calloc(itemCount, sizeof(TYPE)));
 	}
 
 	/// Destructor, frees the memory block
 	~Buffer()
 	{
 		if( m_buff )
-			::free( m_buff );
+			std::free( m_buff );
 	}
 	/// Returns true if pointer is valid
 	operator bool ()
@@ -272,7 +273,7 @@ class Buffer : public CopyProtection
 	{
 		if( m_buff )
 		{
-			::free( m_buff );
+			std::free( m_buff );
 			m_buff = nullptr;
 		}
 
@@ -281,14 +282,14 @@ class Buffer : public CopyProtection
 	/// resizes the buffer
 	void resize(size_t newSize)
 	{
-		m_buff = static_cast<TYPE*>(realloc(m_buff, newSize));
+		m_buff = static_cast<TYPE*>(std::realloc(m_buff, newSize));
 	}
 
 	/// resizes the buffer but frees the old and callocs a new buffer
 	void calloc(size_t count, size_t size)
 	{
 		free();
-		m_buff = static_cast<TYPE*>(::calloc(count, size));
+		m_buff = static_cast<TYPE*>(std::calloc(count, size));
 	}
 
 	/// returns the pointer and gives up the ownership of the address
