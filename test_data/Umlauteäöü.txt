@@ -1,0 +1,1 @@
+﻿Dies ist ein Test mit Dateien mit Umlauten im Namen und im Text ÄÖÜäöüß.

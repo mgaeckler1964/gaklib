@@ -1,12 +1,12 @@
 /*
 		Project:		GAKLIB
 		Module:			fProtect.cpp
-		Description:	
+		Description:	Write protection for files
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
 		This program is free software: you can redistribute it and/or modify  
 		it under the terms of the GNU General Public License as published by  
@@ -199,6 +199,7 @@ void fprotect( const STRING &fileName )
 		unsigned long attr = GetAttributes( wPath, fileName );
 		if( !(attr & FILE_ATTRIBUTE_READONLY) )
 		{
+			attr |= FILE_ATTRIBUTE_READONLY;
 			SetAttributes( wPath, fileName, attr );
 		}
 	}
@@ -249,6 +250,34 @@ void funprotect( const STRING &fileName )
 	if( !(attr & S_IWUSR))
 		SetAttributes( utfName, attr | S_IWUSR );
 #endif
+}
+
+bool fisprotected( const STRING &fileName )
+{
+#if defined( _Windows )
+	unsigned long attr;
+	if( fileName.getCharSet() == STR_UTF8 )
+	{
+		uSTRING	wPath;
+
+		wPath.decodeUTF8( fileName );
+		attr = GetAttributes( wPath, fileName );
+	}
+	else
+	{
+		attr = GetAttributes( fileName );
+	}
+	if( attr & FILE_ATTRIBUTE_READONLY )
+	{
+		return true;
+	}
+#elif defined( __MACH__ ) || defined( __unix__ )
+	STRING		utfName = fileName.convertToCharset( STR_UTF8 );
+	mode_t attr = GetAttributes( utfName );
+	if( !(attr & S_IWUSR))
+		return true;
+#endif
+	return false;
 }
 
 }	// namespace gak

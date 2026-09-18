@@ -142,7 +142,11 @@ class DirectoryList : public Btree< DirectoryEntry, DynamicComparator<DirectoryE
 void flink( const STRING &source, const STRING &destination );
 
 /* from fProtect.cpp */
+/// check if file is write protected (read-only)
+bool fisprotected( const STRING &file );
+/// disallow writing
 void fprotect( const STRING &file );
+/// allow writing
 void funprotect( const STRING &file );
 
 /* from dircopy.cpp */
@@ -150,7 +154,6 @@ void dcopy( const STRING &source, const STRING &destination );
 
 /* from dirlink.cpp */
 size_t dlink( const STRING &source, const STRING &destination, const DlinkOptions *options=NULL );
-
 
 /* from makepath.cpp */
 void makePath( const STRING &path );

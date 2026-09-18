@@ -163,9 +163,20 @@ class DirectoryTest : public UnitTest
 		funprotect( myFile );
 		theEntry.findFile( myFile );
 		UT_EXPECT_FALSE( theEntry.readOnly );
+		UT_EXPECT_FALSE(fisprotected(myFile) );
 		fprotect( myFile );
 		theEntry.findFile( myFile );
 		UT_EXPECT_TRUE( theEntry.readOnly );
+		UT_EXPECT_TRUE(fisprotected(myFile) );
+
+		STRING umlautPath = TEST_PATH("Umlauteäöü.txt");
+		umlautPath = umlautPath.convertToCharset( STR_UTF8 );
+		fprotect( umlautPath );
+		UT_EXPECT_TRUE(fisprotected(umlautPath) );
+		funprotect( umlautPath );
+		UT_EXPECT_FALSE(fisprotected(umlautPath) );
+		fprotect( umlautPath );
+		UT_EXPECT_TRUE(fisprotected(umlautPath) );
 #endif
 	}
 };
