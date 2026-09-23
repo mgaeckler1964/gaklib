@@ -162,6 +162,7 @@ class FmtNumberTest : public UnitTest
 
 		UT_EXPECT_EQUAL( STRING("   0.005"), formatFloat(  0.005, 8, 3 ) );
 		UT_EXPECT_EQUAL( STRING("  -0.005"), formatFloat( -0.005, 8, 3 ) );
+		UT_EXPECT_EQUAL( STRING("   0.000"), formatFloat( 0, 8, 3 ) );
 		UT_EXPECT_EQUAL( STRING("   0.00500"), formatFloat(  0.005, 10, 5 ) );
 		UT_EXPECT_EQUAL( STRING("  -0.00500"), formatFloat( -0.005, 10, 5 ) );
 

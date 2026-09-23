@@ -291,6 +291,11 @@ namespace internal
 				result.stripRightChar( '.' );
 			}
 		}
+		else
+		{
+			result = decPoint;
+			result += STRING('0', precision);
+		}
 		return result;
 	}
 }
