@@ -211,6 +211,7 @@
     <ClInclude Include="INCLUDE\gak\operators.h" />
     <ClInclude Include="INCLUDE\gak\optional.h" />
     <ClInclude Include="INCLUDE\gak\osm.h" />
+    <ClInclude Include="INCLUDE\gak\physic.h" />
     <ClInclude Include="INCLUDE\gak\pipeline.h" />
     <ClInclude Include="INCLUDE\gak\priorityQueue.h" />
     <ClInclude Include="INCLUDE\gak\progParser.h" />

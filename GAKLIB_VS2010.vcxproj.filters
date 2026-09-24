@@ -713,6 +713,9 @@
     <ClInclude Include="INCLUDE\gak\sortedList.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="INCLUDE\gak\physic.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="INCLUDE\gak\memory">
