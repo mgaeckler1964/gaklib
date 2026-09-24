@@ -529,6 +529,12 @@ class BasicStopWatch
 		}
 	}
 
+	/// returns true if stop watch is currently running
+	bool isRunning() const
+	{
+		return m_isRunning;
+	}
+
 	/**
 		@brief returns the execution time of the stop watch
 		@tparam TimerT The type of the clock ticks
