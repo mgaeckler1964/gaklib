@@ -291,7 +291,7 @@ namespace internal
 				result.stripRightChar( '.' );
 			}
 		}
-		else
+		else if( precision > 0 )
 		{
 			result = decPoint;
 			result += STRING('0', precision);
