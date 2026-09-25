@@ -266,42 +266,41 @@ class ReverseIterator : public std::iterator<std::random_access_iterator_tag, ty
 		return this->theData[index];
 	}
 
-#if 0
-	/// TODO check we can delete that no longer used stuff
+	// these compare functions are required for some functions
+	// in the template library that do not use my compare operators
 	bool operator == (const ReverseIterator &oper) const
 	{
-		return oper.theData == this->theData;
+		return oper.m_data == this->m_data;
 	}
-	bool operator != (const ReverseIterator &oper) const
+	bool operator != (const ReverseIterator<ReferenceT> &oper) const
 	{
-		return oper.theData != this->theData;
+		return oper.m_data != this->m_data;
 	}
 
 	bool operator <  (const ReverseIterator &oper) const
 	{
-		return oper.theData < this->theData;
+		return oper.m_data < this->m_data;
 	}
 	bool operator <= (const ReverseIterator &oper) const
 	{
-		return oper.theData <= this->theData;
+		return oper.m_data <= this->m_data;
 	}
 	bool operator >= (const ReverseIterator &oper) const
 	{
-		return oper.theData >= this->theData;
+		return oper.m_data >= this->m_data;
 	}
 	bool operator >  (const ReverseIterator &oper) const
 	{
-		return oper.theData > this->theData;
+		return oper.m_data > this->m_data;
 	}
-#endif
 	int compare( const ReverseIterator &oper) const
 	{
 		if( m_data < oper.m_data )
-			return -1;
+			return 1;
 		else if( m_data == oper.m_data )
 			return 0;
 		else
-			return 1;
+			return -1;
 	}
 };
 

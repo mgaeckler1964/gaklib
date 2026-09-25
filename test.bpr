@@ -106,7 +106,7 @@ Item0=..\..\object\gaklib\test\bcb\
 DebugSourceDirs=.
 
 [Parameters]
-RunParams=FmtNumberTest PhysicTest
+RunParams=AlgorithmTest DirectoryTest DirectoryScannerTest
 HostApplication=
 RemoteHost=
 RemotePath=
