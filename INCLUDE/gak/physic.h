@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			physic.h
-		Description:	Some physical constants and methodes
+		Description:	Some physical constants and methods
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -64,7 +64,7 @@ namespace physic
 // ----- constants ----------------------------------------------------- //
 // --------------------------------------------------------------------- //
 	
-const double GRAVITATION_CONST	= 6.674e-11;
+const double GRAVITATION_CONST	= 6.67430e-11;
 const double MASS_MOON			= 7.34581e22;
 const double RADIUS_MOON		= 1737400;	
 
@@ -73,31 +73,31 @@ const double RADIUS_MOON		= 1737400;
 // --------------------------------------------------------------------- //
 
 /*
-	the gravity from one small object to a large object (planet)
+	the gravity acceleration from one small object to a large object (planet)
 */
 /**
 	calculate the gravity from one mass to another large object
-	@param dist the distance from center to center
+	@param distance the distance from center to center
 	@param mass the planet's mass [kg]
 */
-inline double gravityAccelerationFromDistance( double dist, double mass )
+inline double gravityAccelerationFromDistance( double distance, double mass )
 {
-	return GRAVITATION_CONST * mass / (dist*dist);
+	return GRAVITATION_CONST * mass / (distance*distance);
 }
 
 /**
-	calculate the gravity from one mass to another large object
+	calculate the gravity acceleration from one mass to another large object
 	@param height the height from the small object above the ground of the planet [m]
 	@param radius the planet's radius [m]
 	@param mass the planet's mass [kg]
 */
 inline double gravityAccelerationFromHeight( double height, double radius, double mass )
 {
-	const double dist = radius + height;
-	return gravityAccelerationFromDistance( dist, mass );
+	const double distance = radius + height;
+	return gravityAccelerationFromDistance( distance, mass );
 }
 
-/// calculate the medium gravity on the moon for a specific height
+/// calculate the medium gravity acceleration on the moon for a specific height
 inline double moonAcceleration( double height )
 {
 	return gravityAccelerationFromHeight( height, RADIUS_MOON, MASS_MOON );
@@ -107,7 +107,7 @@ inline double moonAcceleration( double height )
 	the gravity between two objects
 */
 /**
-	calculate the gravity between two mass objects
+	calculate the gravity acceleration between two mass objects
 	@param dist the distance from center to center
 	@param mass1 the first planet's mass [kg]
 	@param mass2 the second planet's mass [kg]
@@ -117,6 +117,16 @@ inline double gravityAccelerationFromDistance( double distance, double mass1, do
 	return gravityAccelerationFromDistance(distance, mass1) + gravityAccelerationFromDistance(distance, mass2);
 }
 
+/**
+	calculate the gravity force between two mass objects
+	@param dist the distance from center to center
+	@param mass1 the first planet's mass [kg]
+	@param mass2 the second planet's mass [kg]
+*/
+inline double gravityForce( double distance, double mass1, double mass2 )
+{
+	return GRAVITATION_CONST * mass1 * mass2 / (distance*distance);
+}
 
 /*
 	movement
@@ -137,6 +147,12 @@ inline double distance( double startSpeed, double accel, double time )
 inline double speed( double startSpeed, double accel, double time )
 {
 	return startSpeed + accel * time;
+}
+
+/// calculate the acceleration from mass and force
+inline double acceleration( double mass, double force )
+{
+	return force/mass;
 }
 
 // --------------------------------------------------------------------- //

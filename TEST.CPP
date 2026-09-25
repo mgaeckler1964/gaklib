@@ -60,6 +60,8 @@
 
 #define TEST_PATH(fName)	"test_data" DIRECTORY_DELIMITER_STRING fName
 
+#include "Tests/PhysicTest.h"
+
 #include "Tests/SortedListTest.h"
 #include "Tests/StringBufferTest.h"
 #include "Tests/KmeansTest.h"

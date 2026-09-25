@@ -182,6 +182,7 @@
     <ClInclude Include="Tests\OsmTest.h" />
     <ClInclude Include="Tests\PathTest.h" />
     <ClInclude Include="Tests\PerformanceTest.h" />
+    <ClInclude Include="Tests\PhysicTest.h" />
     <ClInclude Include="Tests\PipelineTest.h" />
     <ClInclude Include="Tests\PrimeTest.h" />
     <ClInclude Include="Tests\PriorityQueueTest.h" />

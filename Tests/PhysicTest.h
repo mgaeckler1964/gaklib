@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
-		Module:			fmtNumber.cpp
-		Description:	format numbers
+		Module:			PhysicTest.h
+		Description:	Some physical constants and methods
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -29,7 +29,6 @@
 		SUCH DAMAGE.
 */
 
-
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -38,7 +37,10 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <gak/fmtNumber.h>
+#include <iostream>
+#include <gak/unitTest.h>
+
+#include <gak/physic.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -74,6 +76,32 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+class PhysicTest : public UnitTest
+{
+	virtual const char *GetClassName() const
+	{
+		return "PhysicTest";
+	}
+	virtual void PerformTest()
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "PhysicTest::PerformTest");
+		TestScope scope( "PerformTest" );
+
+		double mass1 = physic::MASS_MOON;
+		double mass2 = 500;
+		double height = 1000;
+		double dist = physic::RADIUS_MOON+height;
+
+		double accel1 = physic::gravityAccelerationFromDistance( dist, mass1 );
+		double force = physic::gravityForce( dist, mass1, mass2 );
+		double accel2 = physic::acceleration( mass2, force );
+		double accel3 = physic::moonAcceleration( height );
+
+		UT_EXPECT_EQUAL(accel1, accel2);
+		UT_EXPECT_EQUAL(accel1, accel3);
+	}
+};
+
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -81,6 +109,8 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+static PhysicTest myPhysicTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -117,7 +147,7 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- class virtuals ------------------------------------------------ //
 // --------------------------------------------------------------------- //
-
+   
 // --------------------------------------------------------------------- //
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -125,42 +155,6 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-STRING formatFloat( double value, int fieldLength, int precision, char thousand, char decPoint )
-{
-	if( precision >= 0 )
-	{
-		if( value > 0 )
-		{
-			value += 5*pow( 10.0, double(-precision-1) );
-		}
-		else if( value < 0 )
-		{
-			value -= 5*pow( 10.0, double(-precision-1) );
-		}
-	}
-
-	STRING	result = internal::formatNumber2( value, 0, 0, thousand );
-
-	if( precision != 0 )
-	{
-		result += internal::formatFraction( value, precision, decPoint );
-	}
-
-	while( int(result.strlen()) < fieldLength )
-	{
-		result = STRING( ' ' ) + result;
-	}
-
-	return result;
-}
-
-STRING formatBool( bool value )
-{
-	STRING	result = value ? "true" : "false";
-
-	return result;
-}
 
 }	// namespace gak
 
@@ -170,4 +164,3 @@ STRING formatBool( bool value )
 #	pragma option -a.
 #	pragma option -p.
 #endif
-

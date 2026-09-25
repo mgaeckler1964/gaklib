@@ -251,5 +251,8 @@
     <ClInclude Include="Tests\SortedListTest.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\PhysicTest.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
