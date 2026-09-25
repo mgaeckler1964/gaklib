@@ -109,6 +109,7 @@ USEUNIT("CTOOLS\mboxParser.cpp");
 USEUNIT("CTOOLS\GpxUtils.cpp");
 USEUNIT("CTOOLS\user.cpp");
 USEUNIT("CTOOLS\sortedList.cpp");
+USEUNIT("CTOOLS\physic.cpp");
 //---------------------------------------------------------------------------
 #define Library
 

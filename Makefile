@@ -68,6 +68,7 @@ OBJECTS=${OBJDIR}/acls.o \
 	${OBJDIR}/mathExpression.o \
 	${OBJDIR}/mboxParser.o \
 	${OBJDIR}/md5.o \
+	${OBJDIR}/physic.o \
 	${OBJDIR}/prime.o \
 	${OBJDIR}/progParser.o \
 	${OBJDIR}/quantities.o \

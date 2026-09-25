@@ -1,6 +1,6 @@
 /*
 		Project:		GAKLIB
-		Module:			PhysicTest.h
+		Module:			physic.cpp
 		Description:	Some physical constants and methods
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
@@ -37,9 +37,6 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
-#include <iostream>
-#include <gak/unitTest.h>
-
 #include <gak/physic.h>
 
 // --------------------------------------------------------------------- //
@@ -59,6 +56,8 @@
 
 namespace gak
 {
+namespace physic
+{
 
 // --------------------------------------------------------------------- //
 // ----- constants ----------------------------------------------------- //
@@ -76,43 +75,6 @@ namespace gak
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-class PhysicTest : public UnitTest
-{
-	virtual const char *GetClassName() const
-	{
-		return "PhysicTest";
-	}
-	virtual void PerformTest()
-	{
-		doEnterFunctionEx(gakLogging::llInfo, "PhysicTest::PerformTest");
-		TestScope scope( "PerformTest" );
-
-		double mass1 = physic::MASS_MOON;
-		double mass2 = 500;
-		double height = 1000;
-		double dist = physic::RADIUS_MOON+height;
-
-		double accel1 = physic::gravityAccelerationFromDistance( dist, mass1 );
-		double force = physic::gravityForce( dist, mass1, mass2 );
-		double accel2 = physic::acceleration( mass2, force );
-		double accel3 = physic::moonAcceleration( height );
-
-		UT_EXPECT_EQUAL(accel1, accel2);
-		UT_EXPECT_EQUAL(accel1, accel3);
-
-		UT_EXPECT_EQUAL( physic::acceleratedTime( 0, 2, 100 ), 10.0 );
-		UT_EXPECT_EQUAL( physic::acceleratedTime( 20, -2, 100 ), 10.0 );
-		UT_EXPECT_LESS( physic::acceleratedTime( 20, -2, 100.000000000001 ), 0.0 );
-		UT_EXPECT_EQUAL( physic::acceleratedTime( 20, -2, 75 ), 5.0 );
-		UT_EXPECT_EQUAL( physic::acceleratedTime( 10, 0, 100 ), 10.0 );
-		UT_EXPECT_LESS( physic::acceleratedTime( 10, 1e-8, 100 ), 10.0 );
-		UT_EXPECT_EQUAL( physic::acceleratedTime( 10, 1e-9, 100 ), 10.0 );
-		UT_EXPECT_EQUAL( physic::acceleratedTime( 10, 0, 0 ), 0.0 );
-		UT_EXPECT_EQUAL( physic::acceleratedTime( 10, +10, 0 ), 0.0 );
-		UT_EXPECT_EQUAL( physic::acceleratedTime( 10, -10, 0 ), 0.0 );
-	}
-};
-
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -120,8 +82,6 @@ class PhysicTest : public UnitTest
 // --------------------------------------------------------------------- //
 // ----- module static data -------------------------------------------- //
 // --------------------------------------------------------------------- //
-
-static PhysicTest myPhysicTest;
 
 // --------------------------------------------------------------------- //
 // ----- class static data --------------------------------------------- //
@@ -167,7 +127,40 @@ static PhysicTest myPhysicTest;
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-}	// namespace gak
+double acceleratedTime( double startSpeed, double accel, double distance )
+{
+	if( !distance )
+		return 0;
+	if( math::abs(accel) <= 1e-9 )
+		return linearTime( startSpeed, distance );
+
+	double result;
+	double disc = startSpeed*startSpeed + 2 * accel * distance;
+	if( disc >= 0 )
+	{
+		if( accel >= 0 )
+		{
+			result = (-startSpeed + std::sqrt(disc ))/accel;
+		}
+		else
+		{
+			double res1 = (-startSpeed + std::sqrt(disc ))/accel;
+			double res2 = (-startSpeed - std::sqrt(disc ))/accel;
+			if( res1 > 0 && res2 > 0 )
+				result = math::min( res1, res2 );
+			if( res1 > 0 )
+				result = res1;
+			else
+				result = res2;
+		}
+	}
+	else
+		result = -1;
+	return result;
+}
+
+}	// namespace physic
+}	//namespace gak
 
 #ifdef __BORLANDC__
 #	pragma option -RT.
@@ -175,3 +168,4 @@ static PhysicTest myPhysicTest;
 #	pragma option -a.
 #	pragma option -p.
 #endif
+

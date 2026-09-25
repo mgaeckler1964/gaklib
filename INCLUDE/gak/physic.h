@@ -40,6 +40,10 @@
 // ----- includes ------------------------------------------------------ //
 // --------------------------------------------------------------------- //
 
+#include <assert.h>
+#include <cmath>
+#include <gak/math.h>
+
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -155,6 +159,14 @@ inline double acceleration( double mass, double force )
 	return force/mass;
 }
 
+inline double linearTime( double speed, double distance )
+{
+	if( speed > 0 )
+		return distance/speed;
+	else
+		return -1;
+}
+
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -178,6 +190,8 @@ inline double acceleration( double mass, double force )
 // --------------------------------------------------------------------- //
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+double acceleratedTime( double startSpeed, double accel, double distance );
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
@@ -215,14 +229,14 @@ inline double acceleration( double mass, double force )
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+}	// namespace physic
+}	//namespace gak
+
 #ifdef __BORLANDC__
 #	pragma option -RT.
 #	pragma option -b.
 #	pragma option -a.
 #	pragma option -p.
 #endif
-
-}	// namespace physic
-}	//namespace gak
 
 #endif	// GAK_PHYSIC_H

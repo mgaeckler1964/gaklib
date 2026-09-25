@@ -312,6 +312,9 @@
     <ClCompile Include="CTOOLS\sortedList.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="CTOOLS\physic.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INCLUDE\gak\aes.h">

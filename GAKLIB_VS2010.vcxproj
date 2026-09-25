@@ -90,6 +90,7 @@
     <ClCompile Include="CTOOLS\mboxParser.cpp" />
     <ClCompile Include="CTOOLS\md5.c" />
     <ClCompile Include="CTOOLS\openssl.c" />
+    <ClCompile Include="CTOOLS\physic.cpp" />
     <ClCompile Include="CTOOLS\prime.cpp" />
     <ClCompile Include="CTOOLS\progParser.cpp" />
     <ClCompile Include="CTOOLS\quantities.cpp" />
