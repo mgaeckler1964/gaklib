@@ -517,7 +517,7 @@ VectorT1 vectorSum( const VectorT1 &vec1, const VectorT2 &vec2 )
 }
 
 template <typename NumberT>
-NumberT project( const Duo<NumberT, NumberT> &inRange, NumberT val, const Duo<NumberT,NumberT> &outRange )
+NumberT scale( const Duo<NumberT, NumberT> &inRange, NumberT val, const Duo<NumberT,NumberT> &outRange )
 {
 	NumberT factor = (outRange.val2 - outRange.val1) / (inRange.val2 - inRange.val1);
 
