@@ -202,7 +202,7 @@ class PODarray : public Array< OBJ, PODallocator<OBJ> >
 		@brief creates a new array
 		@param [in] initialSize the number of items to create immediately
 	*/
-	PODarray( size_t initialSize=0 ) : Array<OBJ, PODallocator<OBJ> >( initialSize )
+	explicit PODarray( size_t initialSize=0 ) : Array<OBJ, PODallocator<OBJ> >( initialSize )
 	{
 	}
 	/**

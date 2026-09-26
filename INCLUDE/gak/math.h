@@ -149,6 +149,12 @@ inline ValueT normalize( ValueT value, int *exponent )
 	return value * factor;
 }
 
+template <typename ResultT, typename FloatT>
+inline ResultT float2Int( FloatT val )
+{
+	return ResultT( val+0.5 );
+}
+
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -319,7 +325,11 @@ struct MinMax : private Duo<NUMBER,NUMBER>
 			test(*it);
 		}
 	}
-
+	void reset()
+	{
+		this->val1 = std::numeric_limits<NUMBER>::max();
+		this->val2 = std::numeric_limits<NUMBER>::lowest();
+	}
 	void test( NUMBER val )
 	{
 		if( val < this->val1 )
@@ -347,6 +357,11 @@ struct MinMax : private Duo<NUMBER,NUMBER>
 	NUMBER getMidRange() const
 	{
 		return (getMax() - getMin())/2;
+	}
+
+	const Duo<NUMBER,NUMBER> &getDuo() const
+	{
+		return *this;
 	}
 };
 
@@ -499,6 +514,14 @@ VectorT1 vectorSum( const VectorT1 &vec1, const VectorT2 &vec2 )
 		result.push_back(*it2 );
 	}
 	return result;
+}
+
+template <typename NumberT>
+NumberT project( const Duo<NumberT, NumberT> &inRange, NumberT val, const Duo<NumberT,NumberT> &outRange )
+{
+	NumberT factor = (outRange.val2 - outRange.val1) / (inRange.val2 - inRange.val1);
+
+	return (val-inRange.val1) * factor + outRange.val1;
 }
 
 }	// namespace math
