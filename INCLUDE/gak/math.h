@@ -394,6 +394,25 @@ struct Mean : private Duo<NUMBER, std::size_t>
 	}
 };
 
+template <typename NumberT>
+class Scale
+{
+	Duo<NumberT, NumberT>	m_inRange,
+							m_outRange;
+	NumberT					m_factor; 
+	public:
+	Scale( const Duo<NumberT, NumberT> &inRange, const Duo<NumberT,NumberT> &outRange ) : m_inRange(inRange), m_outRange(outRange)
+	{
+		m_factor = (outRange.val2 - outRange.val1) / (inRange.val2 - inRange.val1);
+	}
+
+	NumberT operator() ( NumberT val)
+	{
+		return (val-m_inRange.val1) * m_factor + m_outRange.val1;
+	}
+};
+
+
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
 // --------------------------------------------------------------------- //
@@ -514,14 +533,6 @@ VectorT1 vectorSum( const VectorT1 &vec1, const VectorT2 &vec2 )
 		result.push_back(*it2 );
 	}
 	return result;
-}
-
-template <typename NumberT>
-NumberT scale( const Duo<NumberT, NumberT> &inRange, NumberT val, const Duo<NumberT,NumberT> &outRange )
-{
-	NumberT factor = (outRange.val2 - outRange.val1) / (inRange.val2 - inRange.val1);
-
-	return (val-inRange.val1) * factor + outRange.val1;
 }
 
 }	// namespace math

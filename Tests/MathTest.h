@@ -263,22 +263,30 @@ class MathTest : public UnitTest
 		intValue =  int(fltValue);
 		UT_EXPECT_EQUAL( intValue, -3 );
 
-
 		fltValue = 3.1415;
-		intValue =  gak::math::round<int>(fltValue);
+		intValue =  math::round<int>(fltValue);
 		UT_EXPECT_EQUAL( intValue, 3 );
 
 		fltValue = 3.500001;
-		intValue =  gak::math::round<int>(fltValue);
+		intValue =  math::round<int>(fltValue);
 		UT_EXPECT_EQUAL( intValue, 4 );
 
 		fltValue = -3.1415;
-		intValue =  gak::math::round<int>(fltValue);
+		intValue =  math::round<int>(fltValue);
 		UT_EXPECT_EQUAL( intValue, -3 );
 
 		fltValue = -3.500001;
-		intValue =  gak::math::round<int>(fltValue);
+		intValue =  math::round<int>(fltValue);
 		UT_EXPECT_EQUAL( intValue, -4 );
+	}
+	template <typename NumberT>
+	void scaleTest()
+	{
+		Duo<NumberT, NumberT>	in( -3, 9 ), out( 99, 15);
+		math::Scale<NumberT>	scale( in, out );
+
+		UT_EXPECT_EQUAL( scale( -3 ), NumberT(99) );
+		UT_EXPECT_EQUAL( scale( 9 ), NumberT(15) );
 	}
 	void PerformTest() override
 	{
@@ -292,7 +300,17 @@ class MathTest : public UnitTest
 		vectorSumTest();
 
 		AllGeoTests();
+
 		roundTest();
+		{
+			TestScope _( "int" );
+			scaleTest<int>();
+		}
+
+		{
+			TestScope _( "double" );
+			scaleTest<double>();
+		}
 	}
 };
 
