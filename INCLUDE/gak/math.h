@@ -150,9 +150,9 @@ inline ValueT normalize( ValueT value, int *exponent )
 }
 
 template <typename ResultT, typename FloatT>
-inline ResultT float2Int( FloatT val )
+inline ResultT round( FloatT val )
 {
-	return ResultT( val+0.5 );
+	return val >= 0 ? ResultT( val+0.5 ) : ResultT( val-0.5 ) ;
 }
 
 // --------------------------------------------------------------------- //

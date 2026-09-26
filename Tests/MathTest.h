@@ -245,6 +245,41 @@ class MathTest : public UnitTest
 		UT_EXPECT_EQUAL(result1[2], result2[2]);
 	}
 
+	void roundTest()
+	{
+		double fltValue = 3.1415;
+		int intValue =  int(fltValue);
+		UT_EXPECT_EQUAL( intValue, 3 );
+
+		fltValue = 3.500001;
+		intValue =  int(fltValue);
+		UT_EXPECT_EQUAL( intValue, 3 );
+
+		fltValue = -3.1415;
+		intValue =  int(fltValue);
+		UT_EXPECT_EQUAL( intValue, -3 );
+
+		fltValue = -3.500001;
+		intValue =  int(fltValue);
+		UT_EXPECT_EQUAL( intValue, -3 );
+
+
+		fltValue = 3.1415;
+		intValue =  gak::math::round<int>(fltValue);
+		UT_EXPECT_EQUAL( intValue, 3 );
+
+		fltValue = 3.500001;
+		intValue =  gak::math::round<int>(fltValue);
+		UT_EXPECT_EQUAL( intValue, 4 );
+
+		fltValue = -3.1415;
+		intValue =  gak::math::round<int>(fltValue);
+		UT_EXPECT_EQUAL( intValue, -3 );
+
+		fltValue = -3.500001;
+		intValue =  gak::math::round<int>(fltValue);
+		UT_EXPECT_EQUAL( intValue, -4 );
+	}
 	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "MathTest::PerformTest");
@@ -257,6 +292,7 @@ class MathTest : public UnitTest
 		vectorSumTest();
 
 		AllGeoTests();
+		roundTest();
 	}
 };
 
