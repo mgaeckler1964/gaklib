@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			optional.h
-		Description:	
+		Description:	Optional values like std::Optional
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -93,7 +93,7 @@ class Optional
 			m_isSet = false;
 		}
 	}
-	void set( const OBJ &src )
+	OBJ &set( const OBJ &src )
 	{
 		if( !m_isSet )
 		{
@@ -104,7 +104,9 @@ class Optional
 		{
 			*reinterpret_cast<OBJ*>(m_buffer) = src;
 		}
+		return *reinterpret_cast<OBJ*>(m_buffer);
 	}
+
 	void set( const Optional<OBJ> &src )
 	{
 		if( !m_isSet && !src.m_isSet )
@@ -246,6 +248,64 @@ class Optional
 	static Optional<OBJ> of( const OBJ &src )
 	{
 		return Optional<OBJ>( src );
+	}
+
+	OBJ &create()
+	{
+		if( !m_isSet )
+		{
+			new (m_buffer) OBJ();
+			m_isSet = true;
+		}
+		else
+		{
+			*reinterpret_cast<OBJ*>(m_buffer) = OBJ();
+		}
+		return *reinterpret_cast<OBJ*>(m_buffer);
+	}
+	template <typename ParamT1>
+	OBJ &create( const ParamT1 &param1 )
+	{
+		if( !m_isSet )
+		{
+			new (m_buffer) OBJ(param1);
+			m_isSet = true;
+		}
+		else
+		{
+			*reinterpret_cast<OBJ*>(m_buffer) = OBJ(param1);
+		}
+		return *reinterpret_cast<OBJ*>(m_buffer);
+	}
+
+	template <typename ParamT1, typename ParamT2>
+	OBJ &create( const ParamT1 &param1, const ParamT2 &param2 )
+	{
+		if( !m_isSet )
+		{
+			new (m_buffer) OBJ(param1, param2);
+			m_isSet = true;
+		}
+		else
+		{
+			*reinterpret_cast<OBJ*>(m_buffer) = OBJ(param1, param2);
+		}
+		return *reinterpret_cast<OBJ*>(m_buffer);
+	}
+
+	template <typename ParamT1, typename ParamT2, typename ParamT3>
+	OBJ &create( const ParamT1 &param1, const ParamT2 &param2, const ParamT3 &param3 )
+	{
+		if( !m_isSet )
+		{
+			new (m_buffer) OBJ(param1, param2, param3);
+			m_isSet = true;
+		}
+		else
+		{
+			*reinterpret_cast<OBJ*>(m_buffer) = OBJ(param1, param2, param3);
+		}
+		return *reinterpret_cast<OBJ*>(m_buffer);
 	}
 };
 

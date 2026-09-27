@@ -1,7 +1,7 @@
 /*
 		Project:		GAKLIB
 		Module:			OptionalTest.h
-		Description:	
+		Description:	Optional values like std::Optional
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
@@ -28,7 +28,6 @@
 		OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 		SUCH DAMAGE.
 */
-
 
 // --------------------------------------------------------------------- //
 // ----- switches ------------------------------------------------------ //
@@ -76,6 +75,23 @@ namespace gak
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+enum UsedConstructor
+{
+	ucEmpty, ucOneParam, ucTwoParam, ucThreeParam
+};
+
+struct MyValue
+{
+	UsedConstructor	constUsed;
+	int m_dummy1;
+	double m_dummy2;
+	const char *m_dummy3;
+	MyValue() : constUsed(ucEmpty) {}
+	MyValue( int dummy1 ) : constUsed(ucOneParam), m_dummy1(dummy1) {}
+	MyValue( int dummy1, double dummy2 ) : constUsed(ucTwoParam), m_dummy1(dummy1), m_dummy2(dummy2) {}
+	MyValue( int dummy1, double dummy2, const char *dummy3 ) : constUsed(ucThreeParam), m_dummy1(dummy1), m_dummy2(dummy2), m_dummy3(dummy3) {}
+};
 
 class OptionalTest : public UnitTest
 {
@@ -166,6 +182,73 @@ class OptionalTest : public UnitTest
 			UT_EXPECT_FALSE( optInt.isPresent() );
 			UT_EXPECT_EQUAL( optInt.orElse( 1 ), 1 );
 			UT_EXPECT_EXCEPTION( optInt.get(), OptionalError );
+		}
+		{
+			{
+				Optional<MyValue>	optVal;
+
+				optVal.create();
+				UT_EXPECT_TRUE( optVal );
+				UT_ASSERT_EQUAL( optVal.get().constUsed, ucEmpty );
+
+				optVal.create( 666 );
+				UT_EXPECT_TRUE( optVal );
+				UT_ASSERT_EQUAL( optVal.get().constUsed, ucOneParam );
+				UT_ASSERT_EQUAL( optVal.get().m_dummy1, 666 );
+
+				optVal.create();
+				UT_EXPECT_TRUE( optVal );
+				UT_ASSERT_EQUAL( optVal.get().constUsed, ucEmpty );
+			}
+			{
+				Optional<MyValue>	optVal;
+
+				optVal.create( 666 );
+				UT_EXPECT_TRUE( optVal );
+				UT_ASSERT_EQUAL( optVal.get().constUsed, ucOneParam );
+				UT_ASSERT_EQUAL( optVal.get().m_dummy1, 666 );
+			}
+
+			{
+				Optional<MyValue>	optVal;
+
+				optVal.create( 666, 999.0 );
+				UT_EXPECT_TRUE( optVal );
+				UT_ASSERT_EQUAL( optVal.get().constUsed, ucTwoParam );
+				UT_ASSERT_EQUAL( optVal.get().m_dummy1, 666 );
+				UT_ASSERT_EQUAL( optVal.get().m_dummy2, 999.0 );
+
+				optVal.create();
+				UT_EXPECT_TRUE( optVal );
+				UT_ASSERT_EQUAL( optVal.get().constUsed, ucEmpty );
+
+				optVal.create( 666, 999.0 );
+				UT_EXPECT_TRUE( optVal );
+				UT_ASSERT_EQUAL( optVal.get().constUsed, ucTwoParam );
+				UT_ASSERT_EQUAL( optVal.get().m_dummy1, 666 );
+				UT_ASSERT_EQUAL( optVal.get().m_dummy2, 999.0 );
+			}
+			{
+				Optional<MyValue>	optVal;
+
+				optVal.create( 666, 999.0, (const char *)"dummy" );
+				UT_EXPECT_TRUE( optVal );
+				UT_ASSERT_EQUAL( optVal.get().constUsed, ucThreeParam );
+				UT_ASSERT_EQUAL( optVal.get().m_dummy1, 666 );
+				UT_ASSERT_EQUAL( optVal.get().m_dummy2, 999.0 );
+				UT_ASSERT_EQUAL( optVal.get().m_dummy3, (const char *)"dummy" );
+
+				optVal.create();
+				UT_EXPECT_TRUE( optVal );
+				UT_ASSERT_EQUAL( optVal.get().constUsed, ucEmpty );
+
+				optVal.create( 666, 999.0, (const char *)"dummy" );
+				UT_EXPECT_TRUE( optVal );
+				UT_ASSERT_EQUAL( optVal.get().constUsed, ucThreeParam );
+				UT_ASSERT_EQUAL( optVal.get().m_dummy1, 666 );
+				UT_ASSERT_EQUAL( optVal.get().m_dummy2, 999.0 );
+				UT_ASSERT_EQUAL( optVal.get().m_dummy3, (const char *)"dummy" );
+			}
 		}
 	}
 };
