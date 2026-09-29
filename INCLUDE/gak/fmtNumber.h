@@ -47,7 +47,6 @@
 #include <gak/string.h>
 #include <gak/stack.h>
 #include <gak/math.h>
-#include <gak/StringBuffer.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -86,11 +85,95 @@ static const size_t NUMBER_BUFFER_WIDTH=128;
 // ----- type definitions ---------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-typedef BaseBuffer<NUMBER_BUFFER_WIDTH>	NumberBuffer;
-
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+template <size_t BUFFER_SIZE>
+class BaseBuffer
+{
+	protected:
+	char	m_buffer[BUFFER_SIZE+1];	// let there be space for the 0 byte
+	size_t	m_len;
+
+	public:
+	BaseBuffer() : m_len(0) {}
+
+	// adding a character
+	BaseBuffer &addDigit( char digit )
+	{
+		m_buffer[m_len++] = digit;
+		return *this;
+	}
+
+	BaseBuffer &operator += ( char digit )
+	{
+		addDigit( digit );
+		return *this;
+	}
+
+	// adding a C-string
+	protected:
+	BaseBuffer &addCP ( const char *cp, size_t len )
+	{
+		assert(len == strlen(cp));
+
+		strcpy( m_buffer+m_len, cp );
+		m_len += len;
+
+		return *this;
+	}
+
+	public:
+	BaseBuffer &addCP ( const char *cp )
+	{
+		return addCP(cp, strlen(cp));
+	}
+	template <typename T, size_t N>
+	BaseBuffer &add (const T (&arr)[N])
+	{
+		addCP( arr, N-1 );
+
+		return *this;
+	}
+	template <typename T, size_t N>
+	BaseBuffer &operator += (const T (&arr)[N])
+	{
+		addCP( arr, N-1 );
+
+		return *this;
+	}
+
+#ifdef __BORLANDC__
+	BaseBuffer &add( const char *arr )
+	{
+		addCP( arr, strlen(arr) );
+		return *this;
+	}
+	BaseBuffer &operator += (const char *arr)
+	{
+		addCP( arr, strlen(arr) );
+		return *this;
+	}
+#endif
+
+	const char *c_str()
+	{
+		m_buffer[m_len]=0;
+		return m_buffer;
+	}
+	size_t size() const
+	{
+		return m_len;
+	}
+	BaseBuffer &clear()
+	{
+		m_len = 0;
+		return *this;
+	}
+};
+
+typedef BaseBuffer<NUMBER_BUFFER_WIDTH>	NumberBuffer;
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //

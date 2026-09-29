@@ -105,6 +105,9 @@ class StringBufferTest : public UnitTest
 
 		tmpBuffer.clear();
 		UT_EXPECT_EQUAL(*tmpBuffer.c_str(), 0);
+
+		tmpBuffer.addNumber( 1005, 5, '0', ' ' );
+		UT_EXPECT_EQUAL(tmpBuffer.c_str(), (const char *)"1 005");
 	}
 };
 

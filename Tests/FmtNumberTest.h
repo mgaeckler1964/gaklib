@@ -119,6 +119,7 @@ class FmtNumberTest : public UnitTest
 		UT_EXPECT_EQUAL( STRING("0.9999999"), formatNumber( 0.9999999 ) );
 		UT_EXPECT_EQUAL( STRING("0.09999999"), formatNumber( 0.09999999 ) );
 		UT_EXPECT_EQUAL( STRING("0.009999999"), formatNumber( 0.009999999 ) );
+		UT_EXPECT_EQUAL( STRING("00000"), formatNumber( 0, 5, '0' ) );
 
 		UT_EXPECT_EQUAL( STRING("-999.999990000000025"), formatNumber( -999.999990000000025 ) );
 		UT_EXPECT_EQUAL( STRING("-0.009999999"), formatNumber( -0.009999999 ) );
