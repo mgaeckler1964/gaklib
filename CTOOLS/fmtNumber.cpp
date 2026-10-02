@@ -128,39 +128,11 @@ namespace gak
 
 STRING formatFloat( double value, int fieldLength, int precision, char thousand, char decPoint )
 {
-	if( precision >= 0 )
-	{
-		if( value > 0 )
-		{
-			value += 5*pow( 10.0, double(-precision-1) );
-		}
-		else if( value < 0 )
-		{
-			value -= 5*pow( 10.0, double(-precision-1) );
-		}
-	}
-
-	STRING	result = internal::formatNumber2( value, 0, 0, thousand );
-
-	if( precision != 0 )
-	{
-		result += internal::formatFraction( value, precision, decPoint );
-	}
-
-	while( int(result.strlen()) < fieldLength )
-	{
-		result = STRING( ' ' ) + result;
-	}
-
-	return result;
+	NumberBuffer	result;
+	formatFloatFast( &result, value, fieldLength, precision, thousand, decPoint );
+	return STRING( result.c_str(), result.size() );
 }
 
-STRING formatBool( bool value )
-{
-	STRING	result = value ? "true" : "false";
-
-	return result;
-}
 
 }	// namespace gak
 

@@ -108,6 +108,20 @@ class StringBufferTest : public UnitTest
 
 		tmpBuffer.addNumber( 1005, 5, '0', ' ' );
 		UT_EXPECT_EQUAL(tmpBuffer.c_str(), (const char *)"1 005");
+
+		StringBuffer<128>	largeBuffer;
+		UT_EXPECT_EQUAL( formatFloatFast( &largeBuffer, 666.125 ), (const char *)"666.125" );
+
+		UT_EXPECT_EXCEPTION( formatNumberFast( &tmpBuffer, -12345 ), IndexError );
+		UT_EXPECT_EXCEPTION( formatFloatFast( &tmpBuffer, 666, 6 ), IndexError );
+		UT_EXPECT_EXCEPTION( formatFloatFast( &tmpBuffer, 666, 0, 3), IndexError );
+		UT_EXPECT_EXCEPTION( formatFloatFast( &tmpBuffer, 666, 0, 6), IndexError );
+
+		STRING tmp = StringBuffer<128>().addCP("Hello").addFloat( 666666.125, 12, 3, '.', ',' ).c_str();
+		UT_EXPECT_EQUAL(tmp, "Hello 666.666,125");
+
+		tmp = StringBuffer<128>().addCP("Hello").addFloat( -666666.125, 12, 3, '.', ',' ).c_str();
+		UT_EXPECT_EQUAL(tmp, "Hello-666.666,125");
 	}
 };
 

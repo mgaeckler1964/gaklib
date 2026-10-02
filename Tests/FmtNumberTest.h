@@ -83,19 +83,7 @@ class FmtNumberTest : public UnitTest
 	{
 		return "FmtNumberTest";
 	}
-	void binaryTest(long value1)
-	{
-		doEnterFunctionEx(gakLogging::llInfo, "FmtNumberTest::binaryTest");
-		
-		long value2 = formatBinary( value1, 16, 16 ).getValueN<long>(16);
-		UT_EXPECT_EQUAL( value1, value2 );
 
-		if( value1 > std::numeric_limits<long>::min() )
-		{	// formatNumber cannot handle the min value
-			value2 = formatNumber( value1, 16 ).getValueN<long>(10);
-			UT_EXPECT_EQUAL( value1, value2 );
-		}
-	}
 	void numberBufferTest()
 	{
 		NumberBuffer	buffer;
@@ -105,14 +93,12 @@ class FmtNumberTest : public UnitTest
 
 		formatNumberFast( &buffer, -1000, 10, ' ', '.' );
 		UT_EXPECT_EQUAL( buffer.c_str(), (const char *)"-    1.000" );
+
+		formatFloatFast( &buffer, 666666, 12, 3, '.', ',' );
+		UT_EXPECT_EQUAL( buffer.c_str(), (const char *)" 666.666,000" );
 	}
-
-	void PerformTest() override
+	void formatNumberTest()
 	{
-		doEnterFunctionEx(gakLogging::llInfo, "FmtNumberTest::PerformTest");
-		TestScope scope( "PerformTest" );
-		numberBufferTest();
-
 		UT_EXPECT_EQUAL( STRING("999.999990000000025"), formatNumber( 999.999990000000025 ) );
 		UT_EXPECT_EQUAL( STRING("99.999999000000003"), formatNumber( 99.999999000000003 ) );
 		UT_EXPECT_EQUAL( STRING("9.999999900000001"), formatNumber( 9.999999900000001 ) );
@@ -141,7 +127,9 @@ class FmtNumberTest : public UnitTest
 
 		UT_EXPECT_EQUAL( STRING( "9 999"), formatNumber(  9999, 3, ' ', ' ' ) );
 		UT_EXPECT_EQUAL( STRING("-9 999"), formatNumber( -9999, 3, ' ', ' ' ) );
-
+	}
+	void formatFloatTest()
+	{
 		UT_EXPECT_EQUAL( STRING("999.999990000000025"), formatFloat( 999.999990000000025 ) );
 		UT_EXPECT_EQUAL( STRING("99.999999000000003"), formatFloat( 99.999999000000003 ) );
 		UT_EXPECT_EQUAL( STRING("9.999999900000001"), formatFloat( 9.999999900000001 ) );
@@ -169,6 +157,30 @@ class FmtNumberTest : public UnitTest
 
 		UT_EXPECT_EQUAL( STRING("    9 999,9900"), formatFloat( 9999.99, 14, 4, ' ', ',' ) );
 		UT_EXPECT_EQUAL( STRING("   -9 999,9900"), formatFloat( -9999.99, 14, 4, ' ', ',' ) );
+	}
+
+	void binaryTest(long value1)
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "FmtNumberTest::binaryTest");
+		
+		long value2 = formatBinary( value1, 16, 16 ).getValueN<long>(16);
+		UT_EXPECT_EQUAL( value1, value2 );
+
+		if( value1 > std::numeric_limits<long>::min() )
+		{	// formatNumber cannot handle the min value
+			value2 = formatNumber( value1, 16 ).getValueN<long>(10);
+			UT_EXPECT_EQUAL( value1, value2 );
+		}
+	}
+
+	void PerformTest() override
+	{
+		doEnterFunctionEx(gakLogging::llInfo, "FmtNumberTest::PerformTest");
+		TestScope scope( "PerformTest" );
+		numberBufferTest();
+		formatNumberTest();
+		formatFloatTest();
+
 
 		{
 			TestScope scope("min");

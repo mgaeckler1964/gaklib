@@ -96,6 +96,24 @@ class StringBuffer : public BaseBuffer<BUFFER_SIZE>
 		Super::addDigit( digit );
 		return *this;
 	}
+	StringBuffer &addDigit( char digit,  size_t count )
+	{
+		if( this->m_len+count >= BUFFER_SIZE )
+			throw IndexError();
+		Super::addDigit( digit, count );
+		return *this;
+	}
+
+	StringBuffer &insDigit( char digit, size_t startPos, size_t count )
+	{
+		if( this->m_len+count >= BUFFER_SIZE )
+			throw IndexError();
+		if( startPos >= this->m_len )
+			throw IndexError();
+		Super::insDigit( digit, startPos, count );
+		return *this;
+	}
+
 	StringBuffer &operator += ( char digit )
 	{
 		addDigit( digit );
@@ -134,6 +152,11 @@ class StringBuffer : public BaseBuffer<BUFFER_SIZE>
 		addCP( arr, N-1 );
 		return *this;
 	}
+	StringBuffer &addBB ( const StringBuffer &bb )
+	{
+		return addCP( bb.m_buffer, bb.m_len );
+	}
+
 #ifdef __BORLANDC__
 	StringBuffer &add( const char *arr )
 	{
@@ -155,7 +178,20 @@ class StringBuffer : public BaseBuffer<BUFFER_SIZE>
 		appendNumberFast( this, value, fieldLength, filler, thousand );
 		return *this;
 	}
+	template <typename NUMBER_T>
+	StringBuffer &addFloat(
+		NUMBER_T value, int fieldLength=0, int prec=0, char thousand=0, char decimal='.'
+	)
+	{
+		appendFloatFast( this, value, fieldLength, prec, thousand, decimal );
+		return *this;
+	}
 
+	void assertAdd( size_t additional )
+	{
+		if( additional > this->remain() )
+			throw IndexError();
+	}
 };
 
 // --------------------------------------------------------------------- //

@@ -66,6 +66,8 @@
 #ifdef _MSC_VER
 #	pragma warning ( push )
 #	pragma warning ( disable: 4127 )	// Bedingter Ausdruck ist konstant
+#	pragma warning ( disable: 4996 )	// 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead.
+
 #endif
 
 namespace gak
@@ -80,6 +82,11 @@ static const size_t NUMBER_BUFFER_WIDTH=128;
 // --------------------------------------------------------------------- //
 // ----- macros -------------------------------------------------------- //
 // --------------------------------------------------------------------- //
+
+inline const char *formatBool( bool value )
+{
+	return value ? "true" : "false";
+}
 
 // --------------------------------------------------------------------- //
 // ----- type definitions ---------------------------------------------- //
@@ -105,6 +112,23 @@ class BaseBuffer
 		m_buffer[m_len++] = digit;
 		return *this;
 	}
+	BaseBuffer &addDigit( char digit, size_t count )
+	{
+		for( size_t i=0; i<count; ++i )
+			m_buffer[m_len++] = digit;
+		return *this;
+	}
+	BaseBuffer &insDigit( char digit, size_t startPos, size_t count )
+	{
+		char *start = m_buffer+startPos;
+		char *target = start+count;
+		memmove( target, start, m_len );
+		for( char *cp=start; cp<target; ++cp )
+			*cp = digit;
+		m_len += count;
+		return *this;
+	}
+	
 
 	BaseBuffer &operator += ( char digit )
 	{
@@ -116,9 +140,7 @@ class BaseBuffer
 	protected:
 	BaseBuffer &addCP ( const char *cp, size_t len )
 	{
-		assert(len == strlen(cp));
-
-		strcpy( m_buffer+m_len, cp );
+		strncpy( m_buffer+m_len, cp, len );
 		m_len += len;
 
 		return *this;
@@ -144,6 +166,11 @@ class BaseBuffer
 		return *this;
 	}
 
+	BaseBuffer &addBB ( const BaseBuffer &bb )
+	{
+		return addCP( bb.m_buffer, bb.m_len );
+	}
+
 #ifdef __BORLANDC__
 	BaseBuffer &add( const char *arr )
 	{
@@ -157,6 +184,19 @@ class BaseBuffer
 	}
 #endif
 
+	BaseBuffer &stripRight( int digit )
+	{
+		if( m_len > 0)
+		{
+			const char *cp = m_buffer+m_len-1;
+			while( *cp == digit )
+			{
+				--cp;
+				--m_len;
+			}
+		}
+		return *this;
+	}
 	const char *c_str()
 	{
 		m_buffer[m_len]=0;
@@ -166,10 +206,24 @@ class BaseBuffer
 	{
 		return m_len;
 	}
+	size_t remain() const
+	{
+		return BUFFER_SIZE - size();
+	}
+
 	BaseBuffer &clear()
 	{
 		m_len = 0;
 		return *this;
+	}
+
+	void assertAdd( size_t 
+#if !defined( NDEBUG ) || defined( _DEBUG )
+		additional 
+#endif
+	)
+	{
+		assert( additional <= remain() );
 	}
 };
 
@@ -192,7 +246,6 @@ typedef BaseBuffer<NUMBER_BUFFER_WIDTH>	NumberBuffer;
 // --------------------------------------------------------------------- //
 
 STRING formatFloat( double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.' );
-STRING formatBool( bool value );
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
@@ -228,7 +281,7 @@ namespace internal
 			if( thousand && value )
 			{
 				numDigits++;
-				if( !(numDigits % 3) )
+				if( !(numDigits % 3) && value >= 1 )
 				{
 					tmp.push( thousand );
 				}
@@ -255,30 +308,24 @@ namespace internal
 		}
 	}
 
-	template <class UNSIGNED_T> 
-	STRING formatUnsigned(
-		UNSIGNED_T value, int fieldLength, char filler, char thousand
+	template <typename NUMBER_BUFFER_T, class UNSIGNED_T> 
+	void formatUnsigned(
+		NUMBER_BUFFER_T *result, UNSIGNED_T value, int fieldLength, char filler, char thousand
 	)
 	{
-		NumberBuffer	tmpBuffer;
-		STRING			result;
+		formatUnsigned2(result, value, fieldLength, filler, thousand);
 
-		formatUnsigned2(&tmpBuffer, value, fieldLength, filler, thousand);
-
-		int count = int(fieldLength-tmpBuffer.size()); 
-		result.setMinSize( math::max<int>(int(tmpBuffer.size()), fieldLength ) );
+		int count = int(fieldLength-result->size()); 
 		if( count>0 )
 		{
-			result.add( filler, count );
+			result->insDigit( filler, 0, count );
 		}
-		result += tmpBuffer.c_str();
-
-		return result;
+		return;
 	}
 
-	template <class NUMBER_T>
-	STRING formatNumber2(
-		NUMBER_T value, int fieldLength, char filler, char thousand
+	template <typename NUMBER_BUFFER_T, class NUMBER_T>
+	void formatNumber2(
+		NUMBER_BUFFER_T *result, NUMBER_T value, int fieldLength, char filler, char thousand
 	)
 	{
 	#if defined( __BORLANDC__ )
@@ -290,28 +337,29 @@ namespace internal
 
 		if( value >= 0 )
 		{
-			return formatUnsigned( value, fieldLength, filler, thousand );
+			formatUnsigned( result, value, fieldLength, filler, thousand );
+			return;
 		}
 		else
 		{
+			NUMBER_BUFFER_T	tmp;
 			if( filler == '0' || !filler )
 			{
-				return '-' + formatUnsigned( 
-					NUMBER_T(value * (-1)), fieldLength-1, filler, thousand 
-				);
+				formatUnsigned( &tmp, NUMBER_T(value * (-1)), fieldLength-1, filler, thousand );
+				result->addDigit('-').addBB( tmp );
+				return;
 			}
 			else
 			{
-				STRING	result = '-' + formatUnsigned( 
-					NUMBER_T(value * (-1)), 0, 0, thousand 
-				);
-				int		count = int(fieldLength-result.strlen());
+				formatUnsigned( &tmp, NUMBER_T(value * (-1)), 0, 0, thousand );
+				result->clear();
+
+				int		count = int(fieldLength-tmp.size())-1;
 				if( count >  0 )
 				{
-					result.insChar( 0, filler, count );
+					result->addDigit( filler, count );
 				}
-
-				return result;
+				result->addDigit( '-' ).addBB(tmp);
 			}
 		}
 
@@ -323,25 +371,25 @@ namespace internal
 	#endif
 	}
 
-	template <class NUMBER_T>
-	STRING formatFraction( NUMBER_T value, int precision, char decPoint )
+	template <typename NUMBER_BUFFER_T, class NUMBER_T>
+	void formatFraction( NUMBER_BUFFER_T *result, NUMBER_T value, int precision, char decPoint )
 	{
 		assert( precision != 0 );
 
-		STRING	result;
 		int		exponent;
 		int		maxCount = std::numeric_limits<NUMBER_T>::digits10;
 		value = fabs( value );
 		bool	countZero = (value >= 1);
 		value -= floor( value );
 
+		result->clear();
+		result->addDigit( decPoint );
 		value = math::normalize( value, &exponent );
 		if( value )
 		{
-			result = decPoint;
 			int		numZeros = -exponent -1;
 
-			if( precision < 0 )
+			if( precision < 0 )	// do we need all fraction digits?
 			{
 				value += 5*pow( 10.0, double(-maxCount) );
 				if( !countZero )
@@ -357,29 +405,27 @@ namespace internal
 			for( int i=0; i<numZeros && maxCount > 0; ++i )
 			{
 				--maxCount;
-				result += '0';
+				result->addDigit( '0' );
 			}
 			while( value && maxCount > 0 )
 			{
 				--maxCount;
 
-				result += '0' + int(value);
+				result->addDigit( char('0' + int(value)) );
 				value -= floor( value );
 				value *= 10;
 			}
 
-			if( precision < 0 )
+			if( precision < 0 )	// do we need all fraction digits?
 			{
-				result.stripRightChar( '0' );
-				result.stripRightChar( '.' );
+				result->stripRight( '0' )
+					.stripRight( '.' );
 			}
 		}
 		else if( precision > 0 )
 		{
-			result = decPoint;
-			result += STRING('0', precision);
+			result->addDigit('0', precision);
 		}
-		return result;
 	}
 }
 /// @endcond
@@ -416,7 +462,6 @@ namespace internal
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
-
 
 /*
 	-------------------------------------------------------------------------------------------------
@@ -500,7 +545,9 @@ inline STRING formatNumber(
 	NUMBER_T value, int fieldLength=0, char filler='0', char thousand=0, char /* decPoint */ ='.'
 )
 {
-	return internal::formatNumber2( value, fieldLength, filler, thousand );
+	NumberBuffer result;
+	internal::formatNumber2( &result, value, fieldLength, filler, thousand );
+	return STRING( result.c_str(), result.size() );
 }
 
 template <>
@@ -508,7 +555,9 @@ inline STRING formatNumber(
 	bool value, int fieldLength, char filler, char thousand, char /* decPoint */
 )
 {
-	return internal::formatUnsigned( value ? 1U : 0U, fieldLength, filler, thousand );
+	NumberBuffer result;
+	internal::formatUnsigned( &result, value ? 1U : 0U, fieldLength, filler, thousand );
+	return STRING( result.c_str(), result.size() );
 }
 
 template <>
@@ -549,14 +598,58 @@ inline STRING formatNumber<>(
 	return formatFloat( double(value), fieldLength, -1, thousand, decPoint );
 }
 
+template <typename NUMBER_BUFFER_T>
+const char *appendFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.' )
+{
+	size_t startPos = result->size();
+	result->assertAdd( fieldLength );
+	if( precision >= 0 )
+	{
+		if( value > 0 )
+		{
+			value += 5*pow( 10.0, double(-precision-1) );
+		}
+		else if( value < 0 )
+		{
+			value -= 5*pow( 10.0, double(-precision-1) );
+		}
+	}
+
+	internal::formatNumber2( result, value, 0, 0, thousand );
+
+	if( precision != 0 )
+	{
+		NUMBER_BUFFER_T	tmp;
+		internal::formatFraction( &tmp, value, precision, decPoint );
+		result->addBB( tmp );
+	}
+
+	if( startPos )
+		fieldLength += int(startPos);
+	if( int(result->size()) < fieldLength )
+	{
+		result->insDigit( ' ', startPos, fieldLength - result->size() );
+	}
+	return result->c_str();
+}
+
+template <typename NUMBER_BUFFER_T>
+const char *formatFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.' )
+{
+	result->clear();
+	result->assertAdd( fieldLength );
+	return appendFloatFast( result, value, fieldLength, precision, thousand, decPoint );
+}
+
 template <typename NUMBER_BUFFER_T, typename NUMBER_T>
 inline const char * appendNumberFast(
 	NUMBER_BUFFER_T *result, NUMBER_T value, int fieldLength=0, char filler=0, char thousand=0
 )
 {
+	result->assertAdd( fieldLength );
 	if( value < 0 )
 	{
-		(*result) += '-';
+		result->addDigit('-');
 		--fieldLength;
 		value = -value;
 	}
@@ -570,6 +663,7 @@ inline const char * formatNumberFast(
 )
 {
 	result->clear();
+	result->assertAdd( fieldLength );
 	return appendNumberFast(result, value, fieldLength, filler, thousand);
 }
 
