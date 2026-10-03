@@ -117,6 +117,10 @@ class StringBufferTest : public UnitTest
 		UT_EXPECT_EXCEPTION( formatFloatFast( &tmpBuffer, 666, 0, 3), IndexError );
 		UT_EXPECT_EXCEPTION( formatFloatFast( &tmpBuffer, 666, 0, 6), IndexError );
 
+		UT_EXPECT_EQUAL(tmpBuffer.clear().insDigit( '0', 0, 5 ).c_str(), (const char *)"00000");
+		UT_EXPECT_EXCEPTION(tmpBuffer.clear().insDigit( '0', 0, 6 ).c_str(), IndexError);	// too large
+		UT_EXPECT_EXCEPTION(tmpBuffer.clear().insDigit( '0', 3, 1 ).c_str(), IndexError);	// beyond end
+
 		STRING tmp = StringBuffer<128>().addCP("Hello").addFloat( 666666.125, 12, 3, '.', ',' ).c_str();
 		UT_EXPECT_EQUAL(tmp, "Hello 666.666,125");
 

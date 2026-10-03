@@ -96,6 +96,9 @@ class FmtNumberTest : public UnitTest
 
 		formatFloatFast( &buffer, 666666, 12, 3, '.', ',' );
 		UT_EXPECT_EQUAL( buffer.c_str(), (const char *)" 666.666,000" );
+
+		buffer.clear().add("Hello World").addNumber( 666 ).addDigit(' ').addFloat(666,0,3);
+		UT_EXPECT_EQUAL( buffer.c_str(), (const char *)"Hello World666 666.000" );
 	}
 	void formatNumberTest()
 	{

@@ -101,7 +101,7 @@ template<typename T>
 inline T abs( T a )
 {
 #if defined _MSC_VER
-	#	pragma warning ( disable: 4146 )
+	#	pragma warning ( disable: 4146 )		// warning C4146: Einem vorzeichenlosen Typ wurde ein unärer Minus-Operator zugewiesen. Das Ergebnis ist weiterhin vorzeichenlos
 #endif
 	return a < 0 ? -a : a;
 #if defined _MSC_VER

@@ -122,7 +122,7 @@ class BaseBuffer
 	{
 		char *start = m_buffer+startPos;
 		char *target = start+count;
-		memmove( target, start, m_len );
+		memmove( target, start, m_len-startPos );
 		for( char *cp=start; cp<target; ++cp )
 			*cp = digit;
 		m_len += count;
@@ -183,6 +183,16 @@ class BaseBuffer
 		return *this;
 	}
 #endif
+
+	// add a number
+	template <typename NUMBER_T>
+	BaseBuffer &addNumber(
+		NUMBER_T value, int fieldLength=0, char filler=0, char thousand=0
+	);
+	template <typename NUMBER_T>
+	BaseBuffer &addFloat(
+		NUMBER_T value, int fieldLength=0, int prec=0, char thousand=0, char decimal='.'
+	);
 
 	BaseBuffer &stripRight( int digit )
 	{
@@ -246,6 +256,16 @@ typedef BaseBuffer<NUMBER_BUFFER_WIDTH>	NumberBuffer;
 // --------------------------------------------------------------------- //
 
 STRING formatFloat( double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.' );
+
+template <typename NUMBER_BUFFER_T>
+const char *appendFloatFast( 
+	NUMBER_BUFFER_T *result, double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.' 
+);
+
+template <typename NUMBER_BUFFER_T, typename NUMBER_T>
+inline const char * appendNumberFast(
+	NUMBER_BUFFER_T *result, NUMBER_T value, int fieldLength=0, char filler=0, char thousand=0
+);
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //
@@ -459,6 +479,27 @@ namespace internal
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
+// add a number
+template <size_t BUFFER_SIZE>
+template <typename NUMBER_T>
+BaseBuffer<BUFFER_SIZE> &BaseBuffer<BUFFER_SIZE>::addNumber(
+	NUMBER_T value, int fieldLength, char filler, char thousand
+)
+{
+	appendNumberFast( this, value, fieldLength, filler, thousand );
+	return *this;
+}
+
+template <size_t BUFFER_SIZE>
+template <typename NUMBER_T>
+BaseBuffer<BUFFER_SIZE> &BaseBuffer<BUFFER_SIZE>::addFloat(
+	NUMBER_T value, int fieldLength, int prec, char thousand, char decimal
+)
+{
+	appendFloatFast( this, value, fieldLength, prec, thousand, decimal );
+	return *this;
+}
+
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -599,7 +640,7 @@ inline STRING formatNumber<>(
 }
 
 template <typename NUMBER_BUFFER_T>
-const char *appendFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.' )
+const char *appendFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLength, int precision, char thousand, char decPoint )
 {
 	size_t startPos = result->size();
 	result->assertAdd( fieldLength );
@@ -643,15 +684,15 @@ const char *formatFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLen
 
 template <typename NUMBER_BUFFER_T, typename NUMBER_T>
 inline const char * appendNumberFast(
-	NUMBER_BUFFER_T *result, NUMBER_T value, int fieldLength=0, char filler=0, char thousand=0
+	NUMBER_BUFFER_T *result, NUMBER_T value, int fieldLength, char filler, char thousand
 )
 {
 	result->assertAdd( fieldLength );
-	if( value < 0 )
+	if( std::numeric_limits<NUMBER_T>::is_signed && value < 0 )
 	{
 		result->addDigit('-');
 		--fieldLength;
-		value = -value;
+		value = math::abs(value);
 	}
 	internal::formatUnsigned2( result, value, fieldLength, filler, thousand );
 	return result->c_str();

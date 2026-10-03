@@ -83,11 +83,25 @@ namespace gak
 // --------------------------------------------------------------------- //
 
 template <size_t BUFFER_SIZE=128>
-class StringBuffer : public BaseBuffer<BUFFER_SIZE>
+class StringBuffer : private BaseBuffer<BUFFER_SIZE>
 {
 	typedef BaseBuffer<BUFFER_SIZE>	Super;
 
 	public:
+#ifndef __BORLANDC__
+	using Super::c_str;
+	using Super::size;
+#else
+	const char *c_str()
+	{
+		return Super::c_str();
+	}
+	size_t size() const
+	{
+		return Super::size();
+	}
+#endif
+
 	// adding a character
 	StringBuffer &addDigit( char digit )
 	{
@@ -106,9 +120,9 @@ class StringBuffer : public BaseBuffer<BUFFER_SIZE>
 
 	StringBuffer &insDigit( char digit, size_t startPos, size_t count )
 	{
-		if( this->m_len+count >= BUFFER_SIZE )
+		if( this->m_len+count > BUFFER_SIZE )
 			throw IndexError();
-		if( startPos >= this->m_len )
+		if( startPos > this->m_len )
 			throw IndexError();
 		Super::insDigit( digit, startPos, count );
 		return *this;
@@ -191,6 +205,16 @@ class StringBuffer : public BaseBuffer<BUFFER_SIZE>
 	{
 		if( additional > this->remain() )
 			throw IndexError();
+	}
+	StringBuffer &stripRight( int digit )
+	{
+		Super::stripRight( digit );
+		return *this;
+	}
+	StringBuffer &clear()
+	{
+		Super::clear();
+		return *this;
 	}
 };
 
