@@ -127,6 +127,18 @@ class SortedArray : public ArrayBase<OBJ, ALLOCATOR>
 	{
 	}
 
+	/**
+		@brief creates a new array 
+		@param [in] arr  the C-Array to use for initialisation of the array
+		@param [in] comparator the comparator
+	*/
+	template <typename T, size_t N>
+	SortedArray(T (&arr)[N],  const Comparator &comparator = Comparator() )
+	: m_comparator( comparator )
+	{
+		addElements( arr, N );
+	}
+
 	/*
 	-------------------------------------------------------------------------
 		Memory

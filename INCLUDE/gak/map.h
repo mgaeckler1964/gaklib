@@ -339,6 +339,16 @@ class Map : public SortedArray<OBJ, KeyComparator<typename OBJ::key_type,OBJ>, A
 	{
 	}
 
+	/**
+		@brief creates a new map
+		@param [in] arr  the C-Array to use for initialisation of the map
+	*/
+	template <typename T, size_t N>
+	Map(T (&arr)[N] )
+	{
+		addElements( arr, N );
+	}
+
 	/// @copydoc ArrayBase::getConstElementAt
 	const mapped_type &getElementAt( size_t pos ) const
 	{
@@ -625,6 +635,22 @@ class PairMap : public Map< KeyValuePair<KEY, VALUE>, ALLOCATOR >
 	typedef KEY		key_type;
 	/// the type of the user data
 	typedef VALUE	mapped_type;
+
+	/**
+		@brief creates a new map
+		@param [in] arr  the C-Array to use for initialisation of the map
+	*/
+	template <typename T, size_t N>
+	PairMap(T (&arr)[N] )
+	{
+		addElements( arr, N );
+	}
+
+	/**
+		@brief creates an empty map
+	*/
+	PairMap()
+	{}
 
 	/// @copydoc UnorderedPairMap::setValue
 	void setValue( const key_type &key, const mapped_type &value )
