@@ -636,6 +636,9 @@ class PairMap : public Map< KeyValuePair<KEY, VALUE>, ALLOCATOR >
 	/// the type of the user data
 	typedef VALUE	mapped_type;
 
+	/// The type if the data stored in this Container
+	typedef typename Super::value_type		value_type;
+
 	/**
 		@brief creates a new map
 		@param [in] arr  the C-Array to use for initialisation of the map
