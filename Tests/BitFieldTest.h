@@ -136,6 +136,12 @@ class BitFieldTest : public UnitTest
 		UT_EXPECT_TRUE( x3.test( TST_BIT5 ) );
 		UT_EXPECT_FALSE( x3.test( TST_BIT8 ) );
 		UT_EXPECT_TRUE( x3.test( TST_BIT1 ) );
+
+		// NOT ~
+		x.set(TST_BIT8).set(TST_BIT1);
+		x2 = ~x;
+		std::cout << "\n~NOT\n" << x << '\n' << x2 << std::endl;
+		UT_EXPECT_EQUAL( uint32(x), ~uint32(x2) );
 	}
 };
 

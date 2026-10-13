@@ -397,21 +397,27 @@ struct Mean : private Duo<NUMBER, std::size_t>
 template <typename NumberT>
 class Scale
 {
-	Duo<NumberT, NumberT>	m_inRange,
-							m_outRange;
-	NumberT					m_factor; 
 	public:
-	Scale( const Duo<NumberT, NumberT> &inRange, const Duo<NumberT,NumberT> &outRange ) : m_inRange(inRange), m_outRange(outRange)
+	typedef Duo<NumberT, NumberT>	Pair;
+
+	private:
+	Pair	m_inRange,
+			m_outRange;
+	NumberT	m_factor; 
+
+	public:
+	Scale( const Pair &inRange, const Pair &outRange ) : m_inRange(inRange), m_outRange(outRange)
 	{
 		m_factor = (outRange.val2 - outRange.val1) / (inRange.val2 - inRange.val1);
 	}
 
-	NumberT operator() ( NumberT val)
+	NumberT operator() ( NumberT val) const
 	{
 		return (val-m_inRange.val1) * m_factor + m_outRange.val1;
 	}
 };
 
+typedef Scale<double>	DoubleScale;
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //

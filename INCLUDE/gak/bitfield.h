@@ -83,6 +83,10 @@ class Bitfield
 {
 	uint32	m_bits;
 
+	uint32 get( int bit ) const
+	{
+		return 1<<bit;
+	}
 	public:
 	Bitfield( uint32 bits = 0 )
 	{
@@ -93,17 +97,19 @@ class Bitfield
 		m_bits = source.m_bits;
 	}
 
-	void set( int bit )
+	Bitfield &set( int bit )
 	{
-		m_bits |= 1<<bit;
+		m_bits |= get(bit);
+		return *this;
 	}
-	void clear( int bit )
+	Bitfield &clear( int bit )
 	{
-		m_bits &= ~(1<<bit);
+		m_bits &= ~get(bit);
+		return *this;
 	}
 	uint32 test( int bit ) const
 	{
-		return m_bits & (1<<bit);
+		return m_bits & get(bit);
 	}
 
 	Bitfield operator << ( int bit ) const
@@ -177,9 +183,24 @@ class Bitfield
 		return *this;
 	}
 
+	Bitfield operator ~ () const
+	{
+		return Bitfield( ~m_bits );
+	}
+
 	operator uint32 () const
 	{
 		return m_bits;
+	}
+
+	void fromBinaryStream( std::istream &stream )
+	{
+		gak::fromBinaryStream( stream, &m_bits );
+	}
+
+	void toBinaryStream( std::ostream &stream ) const
+	{
+		gak::toBinaryStream( stream, m_bits );
 	}
 };
 
