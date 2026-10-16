@@ -43,6 +43,7 @@
 
 #include <iostream>
 
+#include <gak/iostream.h>
 #include <gak/types.h>
 
 // --------------------------------------------------------------------- //
