@@ -65,6 +65,7 @@ OBJECTS=${OBJDIR}/acls.o \
 	${OBJDIR}/logfile.o \
 	${OBJDIR}/mailParser.o \
 	${OBJDIR}/makePath.o \
+	${OBJDIR}/math.o \
 	${OBJDIR}/mathExpression.o \
 	${OBJDIR}/mboxParser.o \
 	${OBJDIR}/md5.o \

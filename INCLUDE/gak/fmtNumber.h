@@ -118,8 +118,16 @@ class BaseBuffer
 			m_buffer[m_len++] = digit;
 		return *this;
 	}
+
+#if defined( __GNUC__ )
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
 	BaseBuffer &insDigit( char digit, size_t startPos, size_t count )
 	{
+		assert( startPos <= m_len );
+		assert( m_len+count <= BUFFER_SIZE );
+
 		char *start = m_buffer+startPos;
 		char *target = start+count;
 		memmove( target, start, m_len-startPos );
@@ -129,6 +137,9 @@ class BaseBuffer
 		return *this;
 	}
 	
+#if defined( __GNUC__ )
+#	pragma GCC diagnostic pop
+#endif
 
 	BaseBuffer &operator += ( char digit )
 	{
@@ -140,6 +151,8 @@ class BaseBuffer
 	protected:
 	BaseBuffer &addCP ( const char *cp, size_t len )
 	{
+		assert( m_len+len <= BUFFER_SIZE );
+
 		strncpy( m_buffer+m_len, cp, len );
 		m_len += len;
 

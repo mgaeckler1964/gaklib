@@ -161,6 +161,12 @@ inline ResultT round( FloatT val )
 
 typedef FixedArray<unsigned long, numPrimeFactors>	PrimeFactorBuffer;
 
+struct ProgressTriggerFactor
+{
+	double	trigger,
+			factor;
+};
+
 // --------------------------------------------------------------------- //
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
@@ -450,6 +456,8 @@ MixedFraction operator + ( const MixedFraction &n1, const MixedFraction &n2 );
 MixedFraction operator - ( const MixedFraction &n1, const MixedFraction &n2 );
 MixedFraction operator * ( const MixedFraction &n1, const MixedFraction &n2 );
 MixedFraction operator / ( const MixedFraction &n1, const MixedFraction &n2 );
+
+double progressiveFactor( double factor, const ProgressTriggerFactor triggerValues[] );
 
 // --------------------------------------------------------------------- //
 // ----- module functions ---------------------------------------------- //

@@ -108,7 +108,7 @@ class DirectoryScannerTest : public UnitTest
 	}
 	void PerformTest() override
 	{
-		const size_t CPP_COUNT=92;		// the number of c++ files in CTOOLS
+		const size_t CPP_COUNT=93;		// the number of c++ files in CTOOLS
 		const size_t H_COUNT=134;		// the number of header files in include
 		const size_t T_COUNT=81;		// the number of header files in TESTS
 

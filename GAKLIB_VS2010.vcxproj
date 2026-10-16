@@ -86,6 +86,7 @@
     <ClCompile Include="CTOOLS\logfile.cpp" />
     <ClCompile Include="CTOOLS\mailParser.cpp" />
     <ClCompile Include="CTOOLS\makePath.cpp" />
+    <ClCompile Include="CTOOLS\math.cpp" />
     <ClCompile Include="CTOOLS\mathExpression.cpp" />
     <ClCompile Include="CTOOLS\mboxParser.cpp" />
     <ClCompile Include="CTOOLS\md5.c" />

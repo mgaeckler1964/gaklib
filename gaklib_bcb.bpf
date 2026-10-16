@@ -110,6 +110,7 @@ USEUNIT("CTOOLS\GpxUtils.cpp");
 USEUNIT("CTOOLS\user.cpp");
 USEUNIT("CTOOLS\sortedList.cpp");
 USEUNIT("CTOOLS\physic.cpp");
+USEUNIT("CTOOLS\math.cpp");
 //---------------------------------------------------------------------------
 #define Library
 

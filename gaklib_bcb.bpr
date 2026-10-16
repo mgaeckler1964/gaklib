@@ -99,7 +99,7 @@
       ..\..\Object\gaklib\win\bcb\GpxUtils.obj 
       ..\..\Object\gaklib\win\bcb\user.obj 
       ..\..\Object\gaklib\win\bcb\sortedList.obj 
-      ..\..\Object\gaklib\win\bcb\physic.obj"/>
+      ..\..\Object\gaklib\win\bcb\physic.obj ..\..\Object\gaklib\win\bcb\math.obj"/>
     <RESFILES value=""/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>

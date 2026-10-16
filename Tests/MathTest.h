@@ -288,6 +288,23 @@ class MathTest : public UnitTest
 		UT_EXPECT_EQUAL( scale( -3 ), NumberT(99) );
 		UT_EXPECT_EQUAL( scale( 9 ), NumberT(15) );
 	}
+	void progressiveFactorTest() const
+	{
+		static gak::math::ProgressTriggerFactor	myFactors[] =
+		{
+			{ 10, 0.1 },
+			{ 20, 0.5 },
+			{ 0, 0.9 }
+		};
+
+		double result = gak::math::progressiveFactor( 5, myFactors );
+		UT_EXPECT_EQUAL( result, 0.5 );
+		result = gak::math::progressiveFactor( 15, myFactors );
+		UT_EXPECT_EQUAL( result, 10*0.1+5*0.5 );
+		result = gak::math::progressiveFactor( 35, myFactors );
+		UT_EXPECT_EQUAL( result, 10*0.1+10*0.5+15*0.9 );
+	}
+
 	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "MathTest::PerformTest");
@@ -311,6 +328,7 @@ class MathTest : public UnitTest
 			TestScope _( "double" );
 			scaleTest<double>();
 		}
+		progressiveFactorTest();
 	}
 };
 

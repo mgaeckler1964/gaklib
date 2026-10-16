@@ -83,10 +83,10 @@ struct MySortedListEntry : public SortedListEntry
 		soNAME, soAGE
 	};
 
-	char *name;
+	const char *name;
 	int age;
 
-	MySortedListEntry(char *name, int age ) : name(name), age(age) {};
+	MySortedListEntry(const char *name, int age ) : name(name), age(age) {};
 
 	int compare( const SortedListEntry *sortEntry, void *sortOrder )
 	{
