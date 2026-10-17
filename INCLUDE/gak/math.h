@@ -421,6 +421,11 @@ class Scale
 	{
 		return (val-m_inRange.val1) * m_factor + m_outRange.val1;
 	}
+
+	NumberT revert( NumberT sc ) const
+	{
+		return (sc-m_outRange.val1)/m_factor + m_inRange.val1;
+	}
 };
 
 typedef Scale<double>	DoubleScale;

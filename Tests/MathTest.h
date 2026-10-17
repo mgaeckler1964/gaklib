@@ -282,11 +282,23 @@ class MathTest : public UnitTest
 	template <typename NumberT>
 	void scaleTest()
 	{
-		Duo<NumberT, NumberT>	in( -3, 9 ), out( 99, 15);
+		const NumberT fromIn = -3;
+		const NumberT toIn = 9;
+		const NumberT medIn = (fromIn+toIn)/2;
+
+		const NumberT fromOut = 99;
+		const NumberT toOut = -21;
+		const NumberT medOut = (fromOut+toOut)/2;
+
+		Duo<NumberT, NumberT>	in( fromIn, toIn ), out( fromOut, toOut);
 		math::Scale<NumberT>	scale( in, out );
 
-		UT_EXPECT_EQUAL( scale( -3 ), NumberT(99) );
-		UT_EXPECT_EQUAL( scale( 9 ), NumberT(15) );
+		UT_EXPECT_EQUAL( scale( fromIn ), fromOut );
+		UT_EXPECT_EQUAL( scale( toIn ), toOut );
+		UT_EXPECT_EQUAL( scale( medIn ), medOut );
+
+		UT_EXPECT_EQUAL( fromIn, scale.revert(fromOut) );
+		UT_EXPECT_EQUAL( toIn, scale.revert(toOut) );
 	}
 	void progressiveFactorTest() const
 	{

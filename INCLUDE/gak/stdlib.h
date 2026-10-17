@@ -284,9 +284,13 @@ class Buffer : public CopyProtection
 	{
 		m_buff = static_cast<TYPE*>(std::realloc(m_buff, newSize));
 	}
+	void resize(size_t count, bool)
+	{
+		resize(m_buff, count*sizeof(TYPE));
+	}
 
 	/// resizes the buffer but frees the old and callocs a new buffer
-	void calloc(size_t count, size_t size)
+	void calloc(size_t count, size_t size=sizeof(TYPE))
 	{
 		free();
 		m_buff = static_cast<TYPE*>(std::calloc(count, size));
