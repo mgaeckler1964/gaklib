@@ -152,7 +152,11 @@ inline ValueT normalize( ValueT value, int *exponent )
 template <typename ResultT, typename FloatT>
 inline ResultT round( FloatT val )
 {
-	return val >= 0 ? ResultT( val+0.5 ) : ResultT( val-0.5 ) ;
+	return std::numeric_limits<ResultT>::is_integer
+		? (val >= 0 
+			? ResultT( val+0.5 ) 
+			: ResultT( val-0.5 ))
+		: ResultT(val);
 }
 
 // --------------------------------------------------------------------- //
@@ -400,7 +404,7 @@ struct Mean : private Duo<NUMBER, std::size_t>
 	}
 };
 
-template <typename NumberT>
+template <typename NumberT, typename FactorT=double>
 class Scale
 {
 	public:
@@ -409,22 +413,24 @@ class Scale
 	private:
 	Pair	m_inRange,
 			m_outRange;
-	NumberT	m_factor; 
+	FactorT	m_factor;
 
 	public:
 	Scale( const Pair &inRange, const Pair &outRange ) : m_inRange(inRange), m_outRange(outRange)
 	{
-		m_factor = (outRange.val2 - outRange.val1) / (inRange.val2 - inRange.val1);
+		assert( FactorT(inRange.val2 - inRange.val1) != 0 && "Keine Funktion" );
+		m_factor = FactorT(outRange.val2 - outRange.val1) / FactorT(inRange.val2 - inRange.val1);
 	}
 
 	NumberT operator() ( NumberT val) const
 	{
-		return (val-m_inRange.val1) * m_factor + m_outRange.val1;
+		return round<NumberT>(FactorT(val-m_inRange.val1) * m_factor) + m_outRange.val1;
 	}
 
 	NumberT revert( NumberT sc ) const
 	{
-		return (sc-m_outRange.val1)/m_factor + m_inRange.val1;
+		assert( m_factor != 0 && "Funktion nicht umkehrbar" );
+		return round<NumberT>(FactorT(sc-m_outRange.val1)/m_factor) + m_inRange.val1;
 	}
 };
 

@@ -119,7 +119,7 @@ class BaseBuffer
 		return *this;
 	}
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && __GNUC__ > 4
 	#pragma GCC diagnostic push
 	#pragma GCC diagnostic ignored "-Wstringop-overflow"
 #endif
@@ -137,7 +137,7 @@ class BaseBuffer
 		return *this;
 	}
 	
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && __GNUC__ > 4
 #	pragma GCC diagnostic pop
 #endif
 

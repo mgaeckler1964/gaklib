@@ -287,11 +287,11 @@ class MathTest : public UnitTest
 		const NumberT medIn = (fromIn+toIn)/2;
 
 		const NumberT fromOut = 99;
-		const NumberT toOut = -21;
+		const NumberT toOut = -66;
 		const NumberT medOut = (fromOut+toOut)/2;
 
-		Duo<NumberT, NumberT>	in( fromIn, toIn ), out( fromOut, toOut);
-		math::Scale<NumberT>	scale( in, out );
+		Duo<NumberT, NumberT>			in( fromIn, toIn ), out( fromOut, toOut);
+		math::Scale<NumberT, double>	scale( in, out );
 
 		UT_EXPECT_EQUAL( scale( fromIn ), fromOut );
 		UT_EXPECT_EQUAL( scale( toIn ), toOut );
