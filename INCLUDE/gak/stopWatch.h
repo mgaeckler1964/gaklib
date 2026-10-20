@@ -6,13 +6,13 @@
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
-		Copyright:		(c) 1988-2025 Martin Gäckler
+		Copyright:		(c) 1988-2026 Martin Gäckler
 
-		This program is free software: you can redistribute it and/or modify  
-		it under the terms of the GNU General Public License as published by  
+		This program is free software: you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
 		the Free Software Foundation, version 3.
 
-		You should have received a copy of the GNU General Public License 
+		You should have received a copy of the GNU General Public License
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
@@ -130,7 +130,7 @@ class MilliSeconds
 	}
 
 	/// returns the total number of milliseconds
-	BaseT get( void ) const
+	BaseT get() const
 	{
 		return m_milliSeconds;
 	}
@@ -167,32 +167,32 @@ class MilliSeconds
 	}
 
 	/// returns the number of milli seconds that are less than a seconds
-	BaseT millisPart( void ) const
+	BaseT millisPart() const
 	{
 		return get() % MILLIS_PER_SECOND;
 	}
 	/// returns the number of seconds that are less than a minute
-	BaseT secondsPart( void ) const
+	BaseT secondsPart() const
 	{
 		return asSeconds() % SECONDS_PER_MINUTE;
 	}
 	/// returns the number of minutes that are less than a hour
-	BaseT minutesPart( void ) const
+	BaseT minutesPart() const
 	{
 		return asMinutes() % MINUTES_PER_HOUR;
 	}
 	/// returns the number of hours that are less than a day
-	BaseT hoursPart( void ) const
+	BaseT hoursPart() const
 	{
 		return asHours() % HOURS_PER_DAY;
 	}
 	/// returns the number of days that are less than a week
-	BaseT daysPart( void ) const
+	BaseT daysPart() const
 	{
 		return asDays() % DAYS_PER_WEEK;
 	}
 	/// returns the number of weeks
-	BaseT weeksPart( void ) const
+	BaseT weeksPart() const
 	{
 		return asWeeks();
 	}
@@ -242,7 +242,7 @@ class Seconds : public MilliSeconds<BaseT>
 		return *this;
 	}
 	/// returns the ellapse time in seconds
-	BaseT get( void ) const
+	BaseT get() const
 	{
 		return this->asSeconds();
 	}
@@ -285,7 +285,7 @@ class Minutes : public Seconds<BaseT>
 		return *this;
 	}
 	/// returns the ellapse time in minutes
-	BaseT get( void ) const
+	BaseT get() const
 	{
 		return this->asMinutes();
 	}
@@ -328,7 +328,7 @@ class Hours : public Minutes<BaseT>
 		return *this;
 	}
 	/// returns the ellapse time in hours
-	BaseT get( void ) const
+	BaseT get() const
 	{
 		return this->asHours();
 	}
@@ -371,7 +371,7 @@ class Days : public Hours<BaseT>
 		return *this;
 	}
 	/// returns the scalar representing the ellapsed time in days
-	BaseT get( void ) const
+	BaseT get() const
 	{
 		return this->asDays();
 	}
@@ -408,7 +408,7 @@ class Weeks : public Days<BaseT>
 		return *this;
 	}
 	/// returns the scalar representing the ellapsed time in week
-	BaseT get( void ) const
+	BaseT get() const
 	{
 		return this->asWeeks();
 	}
@@ -442,14 +442,18 @@ struct UserTimeClock : private TimeConverter
 	typedef std::clock_t	ClockTicks;
 
 	/// return execution (user) time in ms
-	static ClockTicks clock( void )
+	static ClockTicks clock()
 	{
 #ifdef _Windows
-		return getMillis( std::clock() );
+		LARGE_INTEGER frequency, counter;
+		QueryPerformanceFrequency(&frequency);
+		QueryPerformanceCounter(&counter);
+		return ClockTicks(( frequency.QuadPart == 1000 ) ? counter.QuadPart : counter.QuadPart*1000 / frequency.QuadPart);
+//		return getMillis( std::clock() );
 #else
-		static time_t	s_startTime = std::time( NULL );
+		static time_t	s_startTime = std::time(nullptr);
 
-		std::time_t	now = std::time( NULL );
+		std::time_t	now = std::time(nullptr);
 		now -= s_startTime;
 
 		struct timeval tv;
@@ -472,7 +476,7 @@ struct CpuTimeClock : private TimeConverter
 	typedef std::clock_t	ClockTicks;
 
 	/// return execution (cpu) time in ms
-	static ClockTicks clock( void )
+	static ClockTicks clock()
 	{
 		return getMillis( std::clock() );
 	}
@@ -541,7 +545,7 @@ class BasicStopWatch
 		@see MilliSeconds, Seconds, Minutes, Hours, Days, Weeks
 	*/
 	template <typename TimerT>
-	TimerT get( void ) const
+	TimerT get() const
 	{
 		return TimerT( MilliSeconds<std::clock_t>( getMillis() ) );
 	}
@@ -563,11 +567,11 @@ class BasicAutoStopWatch
 	BasicStopWatch<ClockT> &m_sw;
 public:
 
-	BasicAutoStopWatch(BasicStopWatch<ClockT> &sw) : m_sw(sw) 
+	BasicAutoStopWatch(BasicStopWatch<ClockT> &sw) : m_sw(sw)
 	{
 		sw.start();
 	}
-	~BasicAutoStopWatch() 
+	~BasicAutoStopWatch()
 	{
 		m_sw.stop();
 	}
@@ -626,7 +630,7 @@ typedef BasicAutoStopWatch<CpuTimeClock>	CpuAutoStopWatch;
 // --------------------------------------------------------------------- //
 // ----- class virtuals ------------------------------------------------ //
 // --------------------------------------------------------------------- //
-   
+
 // --------------------------------------------------------------------- //
 // ----- class publics ------------------------------------------------- //
 // --------------------------------------------------------------------- //

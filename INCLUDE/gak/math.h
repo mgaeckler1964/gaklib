@@ -416,7 +416,7 @@ class Scale
 	FactorT	m_factor;
 
 	public:
-	Scale( const Pair &inRange, const Pair &outRange ) : m_inRange(inRange), m_outRange(outRange)
+	Scale( const Pair &inRange=Pair(0,1), const Pair &outRange=Pair(0,1) ) : m_inRange(inRange), m_outRange(outRange)
 	{
 		assert( FactorT(inRange.val2 - inRange.val1) != 0 && "Keine Funktion" );
 		m_factor = FactorT(outRange.val2 - outRange.val1) / FactorT(inRange.val2 - inRange.val1);

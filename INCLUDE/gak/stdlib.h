@@ -286,7 +286,7 @@ class Buffer : public CopyProtection
 	}
 	void resize(size_t count, bool)
 	{
-		resize(m_buff, count*sizeof(TYPE));
+		resize(count*sizeof(TYPE));
 	}
 
 	/// resizes the buffer but frees the old and callocs a new buffer
