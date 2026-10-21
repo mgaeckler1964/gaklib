@@ -180,6 +180,8 @@ namespace gak
 #define arraySize( array )	(cArraySize( array ))
 #endif
 #define FOR_EACH(idx, array, body)		for( size_t idx=0; idx<arraySize( array ); ++idx ) { body }
+#define nextIndex( arr, i ) ((i+1)%arraySize(arr))
+#define prevIndex( arr, i ) ((i) ? (i)-1 : arraySize(arr)-1)
 
 #if defined( _WIN32 ) && defined( _MSC_VER )
 #define _pascal /* dummy */

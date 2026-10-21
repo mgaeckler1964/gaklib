@@ -98,6 +98,26 @@ struct Duo
 		}
 		return 0;
 	}
+	bool in( TYPE1 val ) const
+	{
+		return val1 <= val && val < val2;
+	}
+	bool inCO( TYPE1 val ) const
+	{
+		return val1 <= val && val < val2;
+	}
+	bool inCC( TYPE1 val ) const
+	{
+		return val1 <= val && val <= val2;
+	}
+	bool inOO( TYPE1 val ) const
+	{
+		return val1 < val && val < val2;
+	}
+	bool inOC( TYPE1 val ) const
+	{
+		return val1 < val && val <= val2;
+	}
 };
 
 template<class TYPE1, class TYPE2, class TYPE3>
