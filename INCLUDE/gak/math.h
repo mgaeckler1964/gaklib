@@ -43,6 +43,7 @@
 #include <math.h>		// otherwise i will loose isnan on Mac
 #include <iostream>
 #include <limits>
+#include <assert.h>
 
 #include <gak/fixedArray.h>
 #include <gak/ensemble.h>
