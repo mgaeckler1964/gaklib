@@ -432,25 +432,65 @@ void testRange(
 }
 
 template <class ITEM>
+bool compareFloat( ITEM i1, ITEM i2, double *ioMaxDelta, ITEM *odiff )
+{
+	double maxDelta = *ioMaxDelta;
+	if( !maxDelta )
+	{
+		const double	myDeltaFactor = 50;
+		int				exponent = math::getExponent(i1);
+		int				maxExp = exponent - std::numeric_limits<ITEM>::digits10;
+		*ioMaxDelta = maxDelta = myDeltaFactor * pow( 10.0, maxExp );
+	}
+	ITEM	diff = *odiff = fabs(i1 - i2);
+
+	return diff < maxDelta;
+}
+
+template <class ITEM>
 void testEqualFloat(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
 	ITEM i1, ITEM i2,
-	double iMaxDelata,
+	double maxDelta,
 	bool throwException=false
 )
 {
-	const double	myDeltaFactor = 50;
-	int				exponent = math::getExponent(i1);
-	int				maxExp = exponent - std::numeric_limits<ITEM>::digits10;
-	double			maxDelta = iMaxDelata ? iMaxDelata : myDeltaFactor * pow( 10.0, maxExp );
+	ITEM			diff;
+	bool			success = compareFloat(i1,i2,&maxDelta, &diff);
 
 	STRING			log;
 	oSTRINGstream	logStream( log );
-	ITEM			diff = fabs(i1 - i2);
-	bool			success = (diff < maxDelta);
 
 	logStream << formatNumber( i1 ) << " != " << formatNumber( i2 ) << " (diff=" << diff << " maxDelta=" << maxDelta << ')';
+	logStream.flush();
+
+	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwException );
+}
+
+template <>
+inline void testEqualFloat(
+	const char *className, const char *fileName, int line,
+	const char *testItem,
+	math::Complex i1, math::Complex i2,
+	double iMaxDelta,
+	bool throwException
+)
+{
+	double			maxDeltaR = iMaxDelta;
+	double			diffR;
+	bool			successR = compareFloat(i1.r,i2.r,&maxDeltaR, &diffR);
+
+	double			maxDeltaI = iMaxDelta;
+	double			diffI;
+	bool			successI = compareFloat(i1.i,i2.i,&maxDeltaI, &diffI);
+
+	STRING			log;
+	oSTRINGstream	logStream( log );
+
+	bool			success = successR && successI;
+
+	logStream << i1 << " != " << i2 << " (diffR=" << diffR << " diffI=" << diffI << " maxDeltaR=" << maxDeltaR  << " maxDeltaI=" << maxDeltaI << ')';
 	logStream.flush();
 
 	UnitTest::AddResult( className, fileName, line, testItem, log, success, throwException );
@@ -475,10 +515,21 @@ void testEqual(
 }
 
 template <>
-inline void testEqual<double>(
+inline void testEqual<>(
 	const char *className, const char *fileName, int line,
 	const char *testItem,
 	const double &i1, const double &i2,
+	bool throwException
+)
+{
+	testEqualFloat( className, fileName, line, testItem, i1, i2, 0, throwException );
+}
+
+template <>
+inline void testEqual<>(
+	const char *className, const char *fileName, int line,
+	const char *testItem,
+	const math::Complex &i1, const math::Complex &i2,
 	bool throwException
 )
 {

@@ -62,6 +62,8 @@ namespace gak
 
 class MathTest : public UnitTest
 {
+	typedef math::Complex Complex;
+
 	const char *GetClassName() const override
 	{
 		return "MathTest";
@@ -202,7 +204,7 @@ class MathTest : public UnitTest
 		mean.add( 0.0 );
 		mean.add( 0.0 );
 		UT_EXPECT_EQUAL( 4.0, mean.getMean() );
-		UT_EXPECT_EQUAL( 4, mean.getCount() );
+		UT_EXPECT_EQUAL( 4UL, mean.getCount() );
 
 		{
 			int tmp[] = { 3,16,8 };
@@ -317,6 +319,23 @@ class MathTest : public UnitTest
 		UT_EXPECT_EQUAL( result, 10*0.1+10*0.5+15*0.9 );
 	}
 
+	void complexTest() const
+	{
+		Complex a(5,3), b(4,2);
+		Complex c = a+b;
+		UT_EXPECT_EQUAL( c, Complex(9,5) );
+
+		c = a-b;
+		UT_EXPECT_EQUAL( c, Complex(1,1) );
+
+		c = a*b;
+		UT_EXPECT_EQUAL( c, Complex(14,22) );
+
+		c = a/b;
+		UT_EXPECT_EQUAL( c.r, 1.3 );
+		UT_EXPECT_EQUAL( c.i, 0.1 );
+		UT_EXPECT_EQUAL( c, Complex(1.3,0.1) );
+	}
 	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "MathTest::PerformTest");
@@ -341,6 +360,7 @@ class MathTest : public UnitTest
 			scaleTest<double>();
 		}
 		progressiveFactorTest();
+		complexTest();
 	}
 };
 

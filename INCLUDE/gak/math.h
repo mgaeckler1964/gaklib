@@ -47,6 +47,7 @@
 
 #include <gak/fixedArray.h>
 #include <gak/ensemble.h>
+#include <gak/compare.h>
 
 // --------------------------------------------------------------------- //
 // ----- imported datas ------------------------------------------------ //
@@ -179,8 +180,8 @@ struct ProgressTriggerFactor
 struct MixedFraction;
 struct Fraction
 {
-	long			numerator;
-	unsigned long	denominator;
+	long			numerator;			// dividend
+	unsigned long	denominator;		// divisor
 
 	explicit Fraction( long newNumerator, unsigned long newDenominator=1 )
 		: numerator(newNumerator), denominator(newDenominator)
@@ -223,7 +224,7 @@ struct Fraction
 		return tmp.reziprok();
 	}
 
-	operator double ( void ) const
+	operator double () const
 	{
 		return double(numerator) / double(denominator);
 	}
@@ -233,7 +234,7 @@ struct Fraction
 		return numerator == right.numerator && denominator == right.denominator;
 	}
 
-	private:
+private:
 	void readMixedFraction( const MixedFraction &src );
 };
 
@@ -295,7 +296,7 @@ struct MixedFraction
 		return result;
 	}
 
-	operator double ( void ) const
+	operator double () const
 	{
 		return double(integer) + double(fraction);
 	}
@@ -305,13 +306,91 @@ struct MixedFraction
 		return integer == right.integer && fraction == right.fraction;
 	}
 
-	private:
+private:
 	void readFraction( const Fraction &src )
 	{
 		integer = src.numerator/long(src.denominator);
 		fraction.numerator = src.numerator%long(src.denominator);
 		fraction.denominator = src.denominator;
 	}
+};
+
+struct Complex
+{
+	double	r, i;
+
+	Complex( double r, double i ) : r(r), i(i) {}
+
+	Complex &operator += ( const Complex &oper )
+	{
+		r += oper.r;
+		i += oper.i;
+		return *this;
+	}
+	Complex operator + ( const Complex &oper ) const
+	{
+		Complex result = *this;
+		result += oper;
+		return result;
+	}
+
+	Complex &operator -= ( const Complex &oper )
+	{
+		r -= oper.r;
+		i -= oper.i;
+		return *this;
+	}
+	Complex operator - ( const Complex &oper ) const
+	{
+		Complex result = *this;
+		result -= oper;
+		return result;
+	}
+
+	Complex &operator *= ( const Complex &oper )
+	{
+		double rn = r*oper.r-i*oper.i;
+		double in = r*oper.i+i*oper.r;
+		r = rn;
+		i = in;
+		return *this;
+	}
+	Complex operator * ( const Complex &oper ) const
+	{
+		Complex result = *this;
+		result *= oper;
+		return result;
+	}
+
+	Complex &operator /= ( const Complex &oper )
+	{
+		double divisor = oper.r*oper.r + oper.i*oper.i;
+		double divR = r*oper.r + i*oper.i;
+		double divI = i*oper.r - r*oper.i;
+		r = divR/divisor;
+		i = divI/divisor;
+		return *this;
+	}
+	Complex operator / ( const Complex &oper ) const
+	{
+		Complex result = *this;
+		result /= oper;
+		return result;
+	}
+
+	int compare( const Complex &oper ) const
+	{
+		int result = gak::compare( r, oper.r );
+		if( !result )
+			result = gak::compare( i, oper.i );
+		return result;
+	}
+};
+
+inline std::ostream & operator << (std::ostream &out, const Complex &val )
+{
+	out << '(' << val.r << '+' << val.i << "i)";
+	return out;
 };
 
 template <typename NUMBER>
@@ -408,15 +487,15 @@ struct Mean : private Duo<NUMBER, std::size_t>
 template <typename NumberT, typename FactorT=double>
 class Scale
 {
-	public:
+public:
 	typedef Duo<NumberT, NumberT>	Pair;
 
-	private:
+private:
 	Pair	m_inRange,
 			m_outRange;
 	FactorT	m_factor;
 
-	public:
+public:
 	Scale( const Pair &inRange=Pair(0,1), const Pair &outRange=Pair(0,1) ) : m_inRange(inRange), m_outRange(outRange)
 	{
 		assert( FactorT(inRange.val2 - inRange.val1) != 0 && "Keine Funktion" );
