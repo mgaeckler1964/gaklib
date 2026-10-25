@@ -140,7 +140,7 @@ class NeuronTest : public UnitTest
 		ai::NeuronNetwork<>	netWork = createNetwork();
 
 		netWork.calculate( input, &output );
-		UT_EXPECT_EQUAL( 1, output.size() ); 
+		UT_EXPECT_EQUAL( 1UL, output.size() ); 
 		UT_EXPECT_EQUAL( output[0], 0 );				// by default the neurons are off
 
 		ai::BaseValues	weights1, weights2;
@@ -155,7 +155,7 @@ class NeuronTest : public UnitTest
 		netWork.setWeights( 2, 0, weights2 );
 
 		netWork.calculate( input, &output );
-		UT_EXPECT_EQUAL( 1, output.size() ); 
+		UT_EXPECT_EQUAL( 1UL, output.size() ); 
 		UT_EXPECT_EQUAL( output[0], float(tanh(weights2[0]*tanh(tanh(0.5f)))) );
 	}
 

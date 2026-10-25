@@ -191,7 +191,7 @@ class ChessTest : public UnitTest
 		);
 		chess::King *king = chess.getCurKing();
 		const chess::PotentialDestinations &targets = king->getPossible();
-		UT_EXPECT_EQUAL(targets.numTargets, 1);
+		UT_EXPECT_EQUAL(targets.numTargets, 1UL);
 		UT_EXPECT_EQUAL(targets.hasCaptures, true);
 
 		chess.findBest(2, &quality);
@@ -389,7 +389,7 @@ class ChessTest : public UnitTest
 
 		chess::King *king = chess.getWhiteK();
 		const chess::PotentialDestinations	&result = king->getPossible();
-		UT_EXPECT_EQUAL( result.numTargets, 2 );
+		UT_EXPECT_EQUAL( result.numTargets, 2UL );
 
 		const chess::King::Rochade &eastRochade = king->getEastRochade();
 

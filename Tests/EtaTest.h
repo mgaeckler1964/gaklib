@@ -104,31 +104,31 @@ class EtaTest : public UnitTest
 
 		Eta<std::size_t,TestClockProvider>	theEta;
 
-		UT_EXPECT_EQUAL(theEta.getETA(), 0 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 0U );
 		TestClockProvider::s_ticks = clock();
 
 		theEta.addValue(200);
-		UT_EXPECT_EQUAL(theEta.getETA(), 0 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 0U );
 
 		TestClockProvider::inc(10);
 		theEta.addValue(190);
-		UT_EXPECT_EQUAL(theEta.getETA(), 190 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 190U );
 
 		TestClockProvider::inc(10);
 		theEta.addValue(180);
-		UT_EXPECT_EQUAL(theEta.getETA(), 180 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 180U );
 
 		TestClockProvider::inc(10);
 		theEta.addValue(170);
-		UT_EXPECT_EQUAL(theEta.getETA(), 170 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 170U );
 
 		TestClockProvider::inc(10);
 		theEta.addValue(160);
-		UT_EXPECT_EQUAL(theEta.getETA(), 160 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 160U );
 
 		TestClockProvider::inc(10);
 		theEta.addValue(150);
-		UT_EXPECT_EQUAL(theEta.getETA(), 150 );
+		UT_EXPECT_EQUAL(theEta.getETA(), 150U );
 
 		TestClockProvider::inc(5);
 		theEta.addValue(140);
@@ -143,7 +143,6 @@ class EtaTest : public UnitTest
 		UT_EXPECT_LESSEQ(theEta.getETA(), size_t(100) );	// since we become faster but do still the old data to calculate
 
 		TestClockProvider::inc(5);
-
 	}
 };
 

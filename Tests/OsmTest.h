@@ -183,7 +183,7 @@ class OsmTest : public UnitTest
 			{
 				Array<OSMviewer::node_key_type>	nodes;
 				builder.getRegion( layer1, builder.getFrameBox(0.01), &nodes );
-				UT_EXPECT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2UL );
 			}
 
 			writeToBinaryFile(
@@ -209,16 +209,16 @@ class OsmTest : public UnitTest
 			{
 				Array<OSMviewer::node_key_type>	nodes;
 				builder.getRegion( layer2, builder.getFrameBox(0.01), &nodes );
-				UT_EXPECT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2UL );
 			}
 			{
 				Set<OsmAreaKeyT>	areas;
 				Array<OsmPlaceKeyT>	places;
 
 				builder.getAreas( layer2, builder.getFrameBox(0.01), &areas );
-				UT_EXPECT_EQUAL( areas.size(), 1 );
+				UT_EXPECT_EQUAL( areas.size(), 1UL );
 				builder.getPlaces( layer2, builder.getFrameBox(0.01), &places );
-				UT_EXPECT_EQUAL( places.size(), 1 );
+				UT_EXPECT_EQUAL( places.size(), 1UL );
 			}
 
 			writeToBinaryFile(
@@ -252,7 +252,7 @@ class OsmTest : public UnitTest
 			{
 				Array<OSMviewer::node_key_type>	nodes;
 				builder1.getRegion( layer1, builder1.getFrameBox(0.01), &nodes );
-				UT_EXPECT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2UL );
 			}
 
 			OSMbuilder	builder2;
@@ -297,10 +297,10 @@ class OsmTest : public UnitTest
 			{
 				Array<OSMviewer::node_key_type>	nodes;
 				osmViewer.getRegion( layer1, osmViewer.getFrameBox(0.01), &nodes );
-				UT_EXPECT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2UL );
 				nodes.clear();
 				osmViewer.getRegion( layer2, osmViewer.getBoundingBox(), &nodes );
-				UT_EXPECT_EQUAL( nodes.size(), 0 );
+				UT_EXPECT_EQUAL( nodes.size(), 0UL );
 			}
 			{
 				Set<OsmAreaKeyT>	areas;
@@ -308,15 +308,15 @@ class OsmTest : public UnitTest
 
 				// test layer 2 is not yet loaded
 				osmViewer.getAreas( layer2, osmViewer.getFrameBox(0.01), &areas );
-				UT_EXPECT_EQUAL( areas.size(), 0 );
+				UT_EXPECT_EQUAL( areas.size(), 0UL );
 				osmViewer.getPlaces( layer2, osmViewer.getFrameBox(0.01), &places );
-				UT_EXPECT_EQUAL( places.size(), 0 );
+				UT_EXPECT_EQUAL( places.size(), 0UL );
 
 				// test layer 1 is present
 				osmViewer.getAreas( layer1, osmViewer.getFrameBox(0.01), &areas );
-				UT_EXPECT_EQUAL( areas.size(), 1 );
+				UT_EXPECT_EQUAL( areas.size(), 1UL );
 				osmViewer.getPlaces( layer1, osmViewer.getFrameBox(0.01), &places );
-				UT_EXPECT_EQUAL( places.size(), 1 );
+				UT_EXPECT_EQUAL( places.size(), 1UL );
 			}
 
 			{
@@ -327,10 +327,10 @@ class OsmTest : public UnitTest
 			{
 				Array<OSMviewer::node_key_type>	nodes;
 				osmViewer.getRegion( layer1, osmViewer.getFrameBox(0.01), &nodes );
-				UT_EXPECT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2UL );
 				nodes.clear();
 				osmViewer.getRegion( layer2, osmViewer.getFrameBox(0.01), &nodes );
-				UT_EXPECT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2UL );
 			}
 
 
@@ -356,19 +356,19 @@ class OsmTest : public UnitTest
 			{
 				Array<OSMviewer::node_key_type>	nodes;
 				osmViewer.getRegion( layer1, osmViewer.getFrameBox(0.01), &nodes );
-				UT_EXPECT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2UL );
 				nodes.clear();
 				osmViewer.getRegion( layer2, osmViewer.getFrameBox(0.01), &nodes );
-				UT_EXPECT_EQUAL( nodes.size(), 2 );
+				UT_EXPECT_EQUAL( nodes.size(), 2UL );
 			}
 			{
 				Set<OsmAreaKeyT>	areas;
 				Array<OsmPlaceKeyT>	places;
 
 				osmViewer.getAreas( layer2, osmViewer.getFrameBox(0.01), &areas );
-				UT_EXPECT_EQUAL( areas.size(), 1 );
+				UT_EXPECT_EQUAL( areas.size(), 1UL );
 				osmViewer.getPlaces( layer2, osmViewer.getFrameBox(0.01), &places );
-				UT_EXPECT_EQUAL( places.size(), 1 );
+				UT_EXPECT_EQUAL( places.size(), 1UL );
 			}
 		}
 	}

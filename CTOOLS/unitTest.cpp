@@ -327,11 +327,11 @@ bool UnitTest::PerformTest( UnitTest *theTest, bool catchCout )
 		exceptionType = "net::SoapRequest::SoapException &myException";
 		errorText =  myException.faultCode +':'+ myException.faultActor +':'+ myException.faultString +':'+ myException.faultDetail;
 	}
-	catch(UnitTestException &e)
+	catch(UnitTestException &)
 	{
 		exceptionType = "Aborting";
 	}
-	catch( LibraryException &e )
+	catch(LibraryException &e)
 	{
 		exceptionType = "gak::LibraryException";
 		errorText = e.what();

@@ -338,7 +338,7 @@ class ContainerTest : public gak::UnitTest
 		container.addElement( 7 );
 		container.addElement( 9 );
 
-		UT_EXPECT_EQUAL( isAset ? 5 : 8, container.size() );
+		UT_EXPECT_EQUAL( isAset ? 5UL : 8UL, container.size() );
 
 		ConstIterable<typename ContainerT::const_iterator>	range = container.getRange( 5, 8 );
 		typename ContainerT::const_iterator	it = range.cbegin();

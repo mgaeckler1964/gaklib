@@ -90,13 +90,13 @@ class StringBufferTest : public UnitTest
 		StringBuffer<5>	tmpBuffer;
 		const char *cd = "cd";
 
-		UT_EXPECT_EQUAL(tmpBuffer.size(), 0);
+		UT_EXPECT_EQUAL(tmpBuffer.size(), 0UL);
 		tmpBuffer += "ab";
-		UT_EXPECT_EQUAL(tmpBuffer.size(), 2);
+		UT_EXPECT_EQUAL(tmpBuffer.size(), 2UL);
 		tmpBuffer.addCP(cd);
-		UT_EXPECT_EQUAL(tmpBuffer.size(), 4);
+		UT_EXPECT_EQUAL(tmpBuffer.size(), 4UL);
 		tmpBuffer += 'e';
-		UT_EXPECT_EQUAL(tmpBuffer.size(), 5);
+		UT_EXPECT_EQUAL(tmpBuffer.size(), 5UL);
 		UT_EXPECT_EQUAL(tmpBuffer.c_str(), (const char *)"abcde");
 
 		UT_EXPECT_EXCEPTION( tmpBuffer += 'f', IndexError );

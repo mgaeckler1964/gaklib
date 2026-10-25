@@ -94,13 +94,13 @@ class KmeansTest : public UnitTest
 		gak::Array<int>		testData( test );
 
 		gak::PairMap< int, gak::Array<const int*> >	theCluster = ai::kMeans(testData, 3);
-		UT_EXPECT_EQUAL( theCluster.size(), 3);
+		UT_EXPECT_EQUAL( theCluster.size(), 3UL);
 		UT_EXPECT_EQUAL( theCluster.getKeyAt(0), 8);
 		UT_EXPECT_EQUAL( theCluster.getKeyAt(1), 102);
 		UT_EXPECT_EQUAL( theCluster.getKeyAt(2), 571);
-		UT_EXPECT_EQUAL( theCluster.getValueAt(0).size(), 9);
-		UT_EXPECT_EQUAL( theCluster.getValueAt(1).size(), 4);
-		UT_EXPECT_EQUAL( theCluster.getValueAt(2).size(), 6);
+		UT_EXPECT_EQUAL( theCluster.getValueAt(0).size(), 9UL);
+		UT_EXPECT_EQUAL( theCluster.getValueAt(1).size(), 4UL);
+		UT_EXPECT_EQUAL( theCluster.getValueAt(2).size(), 6UL);
 	}
 	void MeanTest()
 	{
@@ -112,7 +112,7 @@ class KmeansTest : public UnitTest
 		math::Mean<int>	mean( testData.cbegin(), testData.cend() );
 
 		gak::PairMap< int, gak::Array<const int*> >	theCluster = ai::kMeans(testData, 1);
-		UT_EXPECT_EQUAL( theCluster.size(), 1);
+		UT_EXPECT_EQUAL( theCluster.size(), 1UL);
 		UT_EXPECT_EQUAL( theCluster.getKeyAt(0), mean.getMean());
 		UT_EXPECT_EQUAL( theCluster.getValueAt(0).size(), testData.size());
 	}
@@ -124,7 +124,7 @@ class KmeansTest : public UnitTest
 		gak::Array<int>		testData( test );
 
 		gak::PairMap< int, gak::Array<const int*> >	theCluster = ai::kMeans(testData, 3);
-		UT_EXPECT_EQUAL( theCluster.size(), 1);
+		UT_EXPECT_EQUAL( theCluster.size(), 1UL);
 		UT_EXPECT_EQUAL( theCluster.getKeyAt(0), 5);
 		UT_EXPECT_EQUAL( theCluster.getValueAt(0).size(), testData.size());
 	}
@@ -137,17 +137,17 @@ class KmeansTest : public UnitTest
 
 		// too many cluster 
 		gak::PairMap< int, gak::Array<const int*> >	theCluster = ai::kMeans(testData, 6);
-		UT_EXPECT_EQUAL( theCluster.size(), 0);
+		UT_EXPECT_EQUAL( theCluster.size(), 0UL);
 
 		// exact cluster count
 		theCluster = ai::kMeans(testData, 5);
-		UT_EXPECT_EQUAL( theCluster.size(), 5);
+		UT_EXPECT_EQUAL( theCluster.size(), 5UL);
 
 		// duplicate value
 		testData.push_back( 1 );
 		theCluster = ai::kMeans(testData, 6);			// we want 6 cluster
-		UT_EXPECT_EQUAL( theCluster.size(), 5);			// but get 5, only
-		UT_EXPECT_EQUAL( theCluster[1].size(), 2);
+		UT_EXPECT_EQUAL( theCluster.size(), 5UL);			// but get 5, only
+		UT_EXPECT_EQUAL( theCluster[1].size(), 2UL);
 	}
 
 	template <typename GeoT>
@@ -162,9 +162,9 @@ class KmeansTest : public UnitTest
 		testData.push_back(point3);
 
 		gak::PairMap< GeoT, gak::Array<const GeoT*> >	theCluster = ai::kMeans(testData, 2);
-		UT_EXPECT_EQUAL( theCluster.size(), 2);
-		UT_EXPECT_EQUAL( theCluster.getValueAt(0).size(), 2);
-		UT_EXPECT_EQUAL( theCluster.getValueAt(1).size(), 1);
+		UT_EXPECT_EQUAL( theCluster.size(), 2UL);
+		UT_EXPECT_EQUAL( theCluster.getValueAt(0).size(), 2UL);
+		UT_EXPECT_EQUAL( theCluster.getValueAt(1).size(), 1UL);
 	}
 
 	void PerformTest() override
