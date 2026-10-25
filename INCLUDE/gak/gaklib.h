@@ -171,7 +171,7 @@
 namespace gak 
 {
 	template <typename T, size_t N>
-	size_t cppArraySize(T (&)[N]) {
+	size_t cppArraySize(const T (&)[N]) {
 		return N;
 	}
 }
