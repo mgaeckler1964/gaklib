@@ -116,7 +116,7 @@ class FmtNumberTest : public UnitTest
 		UT_EXPECT_EQUAL( STRING("  0.05"), formatNumber( 0.05, 6 ) );
 		UT_EXPECT_EQUAL( STRING(" -0.05"), formatNumber( -0.05, 6 ) );
 		UT_EXPECT_EQUAL( STRING("-0.005"), formatNumber( -0.005, 6 ) );
-		UT_EXPECT_EQUAL( STRING("-0.0005"), formatNumber( -0.0005, 6 ) );
+		UT_EXPECT_EQUAL( STRING(" -5e-4"), formatNumber( -0.0005, 6 ) );
 
 		UT_EXPECT_EQUAL( STRING("9999"), formatNumber( 9999 ) );
 		UT_EXPECT_EQUAL( STRING("-9999"), formatNumber( -9999 ) );
@@ -160,6 +160,27 @@ class FmtNumberTest : public UnitTest
 
 		UT_EXPECT_EQUAL( STRING("    9 999,9900"), formatFloat( 9999.99, 14, 4, ' ', ',' ) );
 		UT_EXPECT_EQUAL( STRING("   -9 999,9900"), formatFloat( -9999.99, 14, 4, ' ', ',' ) );
+
+		UT_EXPECT_EQUAL( STRING("1e17"), formatFloat( 1e17 ) );
+		UT_EXPECT_EQUAL( STRING("10000000000000000"), formatFloat( 1e16 ) );
+
+		UT_EXPECT_EQUAL( STRING("-1e17"), formatFloat( -1e17 ) );
+		UT_EXPECT_EQUAL( STRING("-10000000000000000"), formatFloat( -1e16 ) );
+
+		const double verySmallNum = 1.5e-16;
+		const double smallNum = 1.5e-15;
+		UT_EXPECT_EQUAL( STRING("1.5e-16"), formatFloat( verySmallNum ) );								// too small -> use scientific
+		UT_EXPECT_EQUAL( STRING("0.0000000000000015"), formatFloat( smallNum ) );
+		UT_EXPECT_EQUAL( STRING("1,5e-15"), formatFloat( smallNum, 0, -1, 0, ',', true ) );				// use scientific on demand
+		UT_EXPECT_EQUAL( STRING("         1,5e-15"), formatFloat( smallNum, 16, -1, 0, ',' ) );			// use scientific due to field size
+		UT_EXPECT_EQUAL( STRING("0,000000000000002"), formatFloat( smallNum, 17, -1, 0, ',' ) );
+		UT_EXPECT_EQUAL( STRING("0,0000000000000015"), formatFloat( smallNum, 18, -1, 0, ',' ) );
+		UT_EXPECT_EQUAL( STRING(" 0,0000000000000015"), formatFloat( smallNum, 19, -1, 0, ',' ) );
+
+		UT_EXPECT_EQUAL( STRING("         -1,5e-15"), formatFloat( -smallNum, 17, -1, 0, ',' ) );		// use scientific due to field size
+		UT_EXPECT_EQUAL( STRING("-0,000000000000002"), formatFloat( -smallNum, 18, -1, 0, ',' ) );
+		UT_EXPECT_EQUAL( STRING("-0,0000000000000015"), formatFloat( -smallNum, 19, -1, 0, ',' ) );
+		UT_EXPECT_EQUAL( STRING(" -0,0000000000000015"), formatFloat( -smallNum, 20, -1, 0, ',' ) );
 	}
 
 	void binaryTest(long value1)

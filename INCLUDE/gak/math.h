@@ -319,7 +319,7 @@ struct Complex
 {
 	double	r, i;
 
-	Complex( double r, double i ) : r(r), i(i) {}
+	explicit Complex( double r, double i=0 ) : r(r), i(i) {}
 
 	Complex &operator += ( const Complex &oper )
 	{

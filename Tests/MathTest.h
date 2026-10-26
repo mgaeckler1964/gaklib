@@ -218,7 +218,7 @@ class MathTest : public UnitTest
 			UT_EXPECT_EQUAL(minMax.getRange(), 13);
 			UT_EXPECT_EQUAL(minMax.getMidRange(), 6);
 
-			UT_EXPECT_EQUAL(mean.getCount(), 3);
+			UT_EXPECT_EQUAL(mean.getCount(), 3UL);
 			UT_EXPECT_EQUAL(mean.getMean(), 9);
 		}
 	}
@@ -332,14 +332,24 @@ class MathTest : public UnitTest
 		UT_EXPECT_EQUAL( c, Complex(14,22) );
 
 		c = a/b;
-		UT_EXPECT_EQUAL( c.r, 1.3 );
-		UT_EXPECT_EQUAL( c.i, 0.1 );
 		UT_EXPECT_EQUAL( c, Complex(1.3,0.1) );
+
+		a = Complex(5);
+		b = Complex(4);
+
+		c = a*b;
+		UT_EXPECT_EQUAL( c, Complex(20) );
+
+		c = a/b;
+		UT_EXPECT_EQUAL( c, Complex(1.25) );
 	}
 	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "MathTest::PerformTest");
 		TestScope scope( "PerformTest" );
+
+		UT_EXPECT_EQUAL( 1e-306, 0.0 );
+		UT_EXPECT_EQUAL( 0.0, 1e-306 );
 
 		getExponentTest();
 		normalizeTest();

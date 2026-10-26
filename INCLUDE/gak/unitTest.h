@@ -432,19 +432,23 @@ void testRange(
 }
 
 template <class ITEM>
-bool compareFloat( ITEM i1, ITEM i2, double *ioMaxDelta, ITEM *odiff )
+ITEM diffFloat( ITEM i1, ITEM i2, double *ioMaxDelta )
 {
 	double maxDelta = *ioMaxDelta;
 	if( !maxDelta )
 	{
-		const double	myDeltaFactor = 50;
-		int				exponent = math::getExponent(i1);
-		int				maxExp = exponent - std::numeric_limits<ITEM>::digits10;
-		*ioMaxDelta = maxDelta = myDeltaFactor * pow( 10.0, maxExp );
+		const double myDeltaFactor = 50;
+		if( i1 )
+		{
+			const int exponent = math::getExponent(i1);
+			const int maxExp = math::max( std::numeric_limits<ITEM>::min_exponent10, exponent - std::numeric_limits<ITEM>::digits10 );
+			maxDelta = pow( 10.0, maxExp );
+		}
+		else
+			maxDelta = pow( 10.0, std::numeric_limits<ITEM>::min_exponent10 );
+		*ioMaxDelta = maxDelta * myDeltaFactor;
 	}
-	ITEM	diff = *odiff = fabs(i1 - i2);
-
-	return diff < maxDelta;
+	return fabs(i1 - i2);
 }
 
 template <class ITEM>
@@ -456,8 +460,8 @@ void testEqualFloat(
 	bool throwException=false
 )
 {
-	ITEM			diff;
-	bool			success = compareFloat(i1,i2,&maxDelta, &diff);
+	const ITEM		diff = diffFloat(i1,i2,&maxDelta);
+	const bool		success = diff < maxDelta;
 
 	STRING			log;
 	oSTRINGstream	logStream( log );
@@ -478,17 +482,17 @@ inline void testEqualFloat(
 )
 {
 	double			maxDeltaR = iMaxDelta;
-	double			diffR;
-	bool			successR = compareFloat(i1.r,i2.r,&maxDeltaR, &diffR);
+	const double	diffR = diffFloat(i1.r,i2.r,&maxDeltaR);
+	const bool		successR = diffR < maxDeltaR;
 
 	double			maxDeltaI = iMaxDelta;
-	double			diffI;
-	bool			successI = compareFloat(i1.i,i2.i,&maxDeltaI, &diffI);
+	const double	diffI = diffFloat(i1.i,i2.i,&maxDeltaI);
+	const bool		successI = diffI < maxDeltaI;
 
 	STRING			log;
 	oSTRINGstream	logStream( log );
 
-	bool			success = successR && successI;
+	const bool		success = successR && successI;
 
 	logStream << i1 << " != " << i2 << " (diffR=" << diffR << " diffI=" << diffI << " maxDeltaR=" << maxDeltaR  << " maxDeltaI=" << maxDeltaI << ')';
 	logStream.flush();

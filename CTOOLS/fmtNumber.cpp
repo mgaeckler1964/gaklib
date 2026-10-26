@@ -126,10 +126,10 @@ namespace gak
 // ----- entry points -------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-STRING formatFloat( double value, int fieldLength, int precision, char thousand, char decPoint )
+STRING formatFloat( double value, int fieldLength, int precision, char thousand, char decPoint, bool scientific )
 {
 	NumberBuffer	result;
-	formatFloatFast( &result, value, fieldLength, precision, thousand, decPoint );
+	formatFloatFast( &result, value, fieldLength, precision, thousand, decPoint, scientific );
 	return STRING( result.c_str(), result.size() );
 }
 

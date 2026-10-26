@@ -204,7 +204,7 @@ class BaseBuffer
 	);
 	template <typename NUMBER_T>
 	BaseBuffer &addFloat(
-		NUMBER_T value, int fieldLength=0, int prec=0, char thousand=0, char decimal='.'
+		NUMBER_T value, int fieldLength=0, int prec=0, char thousand=0, char decimal='.', bool scientific=false
 	);
 
 	BaseBuffer &stripRight( int digit )
@@ -268,11 +268,11 @@ typedef BaseBuffer<NUMBER_BUFFER_WIDTH>	NumberBuffer;
 // ----- prototypes ---------------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-STRING formatFloat( double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.' );
+STRING formatFloat( double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.', bool scientific=false );
 
 template <typename NUMBER_BUFFER_T>
 const char *appendFloatFast( 
-	NUMBER_BUFFER_T *result, double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.' 
+	NUMBER_BUFFER_T *result, double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.', bool scientific=false 
 );
 
 template <typename NUMBER_BUFFER_T, typename NUMBER_T>
@@ -405,7 +405,7 @@ namespace internal
 	}
 
 	template <typename NUMBER_BUFFER_T, class NUMBER_T>
-	void formatFraction( NUMBER_BUFFER_T *result, NUMBER_T value, int precision, char decPoint )
+	void formatFraction( NUMBER_BUFFER_T *result, NUMBER_T value, int precision, char decPoint, bool strip )
 	{
 		assert( precision != 0 );
 
@@ -449,7 +449,7 @@ namespace internal
 				value *= 10;
 			}
 
-			if( precision < 0 )	// do we need all fraction digits?
+			if( precision < 0 || strip )	// do we need all fraction digits?
 			{
 				result->stripRight( '0' )
 					.stripRight( '.' );
@@ -458,6 +458,10 @@ namespace internal
 		else if( precision > 0 )
 		{
 			result->addDigit('0', precision);
+		}
+		else
+		{
+			result->clear();
 		}
 	}
 }
@@ -506,10 +510,10 @@ BaseBuffer<BUFFER_SIZE> &BaseBuffer<BUFFER_SIZE>::addNumber(
 template <size_t BUFFER_SIZE>
 template <typename NUMBER_T>
 BaseBuffer<BUFFER_SIZE> &BaseBuffer<BUFFER_SIZE>::addFloat(
-	NUMBER_T value, int fieldLength, int prec, char thousand, char decimal
+	NUMBER_T value, int fieldLength, int prec, char thousand, char decimal, bool scientific
 )
 {
-	appendFloatFast( this, value, fieldLength, prec, thousand, decimal );
+	appendFloatFast( this, value, fieldLength, prec, thousand, decimal, scientific );
 	return *this;
 }
 
@@ -653,10 +657,47 @@ inline STRING formatNumber<>(
 }
 
 template <typename NUMBER_BUFFER_T>
-const char *appendFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLength, int precision, char thousand, char decPoint )
+const char *appendFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLength, int precision, char thousand, char decPoint, bool scientific )
 {
 	size_t startPos = result->size();
 	result->assertAdd( fieldLength );
+	bool	stripTrailing0=false;
+	int exponent;
+	double	normal = math::normalize(value, &exponent);
+	int expected;
+	if( exponent < 0 )
+	{
+		// value=0.1 => exp=-1, string length 3 
+		expected = -exponent + 2;				// space from decPoint and leading 0
+	}
+	else
+		expected = exponent+1;					// space for pos numbers is exponent +1
+
+	const int expectedSign = (value<0) 
+		? expected+1							// space for negative sign
+		: expected;
+
+	if( scientific || (fieldLength && fieldLength < expectedSign) || expected > std::numeric_limits<double>::max_digits10 )
+	{
+		NUMBER_BUFFER_T	tmp = NUMBER_BUFFER_T().addDigit('e').addNumber(exponent);
+		if( fieldLength>0 )
+			fieldLength -= tmp.size();
+		appendFloatFast(result, normal, fieldLength, precision, thousand, decPoint );
+		result->stripRight(decPoint);
+		result->addBB( tmp );
+/***/	return result->c_str();
+	}
+
+	if( fieldLength > 0 && precision < 0 )
+	{
+		if( exponent > 0 )
+			precision = fieldLength - exponent;
+		else
+			precision = fieldLength - 2;
+		if( value < 0 )
+			--precision;
+		stripTrailing0=true;
+	}
 	if( precision >= 0 )
 	{
 		if( value > 0 )
@@ -674,9 +715,11 @@ const char *appendFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLen
 	if( precision != 0 )
 	{
 		NUMBER_BUFFER_T	tmp;
-		internal::formatFraction( &tmp, value, precision, decPoint );
+		internal::formatFraction( &tmp, value, precision, decPoint, stripTrailing0 );
 		result->addBB( tmp );
 	}
+
+
 
 	if( startPos )
 		fieldLength += int(startPos);
@@ -688,11 +731,11 @@ const char *appendFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLen
 }
 
 template <typename NUMBER_BUFFER_T>
-const char *formatFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.' )
+const char *formatFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLength=0, int precision=-1, char thousand=0, char decPoint='.', bool scientific=false )
 {
 	result->clear();
 	result->assertAdd( fieldLength );
-	return appendFloatFast( result, value, fieldLength, precision, thousand, decPoint );
+	return appendFloatFast( result, value, fieldLength, precision, thousand, decPoint, scientific );
 }
 
 template <typename NUMBER_BUFFER_T, typename NUMBER_T>

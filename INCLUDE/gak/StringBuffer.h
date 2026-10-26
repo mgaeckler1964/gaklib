@@ -194,10 +194,10 @@ class StringBuffer : private BaseBuffer<BUFFER_SIZE>
 	}
 	template <typename NUMBER_T>
 	StringBuffer &addFloat(
-		NUMBER_T value, int fieldLength=0, int prec=0, char thousand=0, char decimal='.'
+		NUMBER_T value, int fieldLength=0, int prec=0, char thousand=0, char decimal='.', bool scientific=false
 	)
 	{
-		appendFloatFast( this, value, fieldLength, prec, thousand, decimal );
+		appendFloatFast( this, value, fieldLength, prec, thousand, decimal, scientific );
 		return *this;
 	}
 
