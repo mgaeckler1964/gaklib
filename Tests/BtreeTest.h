@@ -223,7 +223,7 @@ class BtreeTest : public UnitTest
 		{
 			Btree<DeleteCounter>	btree;
 
-			UT_EXPECT_EQUAL( counter, 0 );
+			UT_EXPECT_EQUAL( counter, 0UL );
 
 			btree.addElement( DeleteCounter( 1, &counter ) );
 			btree.addElement( DeleteCounter( 2, &counter ) );
@@ -236,9 +236,9 @@ class BtreeTest : public UnitTest
 			btree.addElement( DeleteCounter( 5, &counter ) );
 			btree.addElement( DeleteCounter( 4, &counter ) );
 
-			UT_EXPECT_EQUAL( counter, 10 );	// temporary items also count
+			UT_EXPECT_EQUAL( counter, 10UL );	// temporary items also count
 		}
-		UT_EXPECT_EQUAL( counter, 20 );
+		UT_EXPECT_EQUAL( counter, 20UL );
 	}
 
 	template <typename ContainerT>
@@ -390,7 +390,7 @@ class BtreeTest : public UnitTest
 		Btree<STRING>	myTreeCopy2 = myTree;
 
 		myTree.clear();
-		UT_EXPECT_EQUAL( myTree.size(), 0 );
+		UT_EXPECT_EQUAL( myTree.size(), 0UL );
 		UT_EXPECT_EQUAL( myTreeCopy.size(), myTreeCopy2.size() );
 
 		for( 

@@ -132,8 +132,8 @@ class ThreadDirScannerTest : public UnitTest
 		myScanner("Java");
 
 		// We expect to find these 4 files in this sort order (it is sorted by name):
-		UT_EXPECT_EQUAL(g_count,5);
-		UT_EXPECT_EQUAL(g_filesFound.size(),5);
+		UT_EXPECT_EQUAL(g_count,5UL);
+		UT_EXPECT_EQUAL(g_filesFound.size(),5UL);
 		
 		UT_EXPECT_NOT_EQUAL( g_filesFound.no_index, g_filesFound.findElement("Java" DIRECTORY_DELIMITER_STRING "com" DIRECTORY_DELIMITER_STRING "gaklib" DIRECTORY_DELIMITER_STRING "Lock.java") );
 		UT_EXPECT_NOT_EQUAL( g_filesFound.no_index, g_filesFound.findElement("Java" DIRECTORY_DELIMITER_STRING "com" DIRECTORY_DELIMITER_STRING "gaklib" DIRECTORY_DELIMITER_STRING "MessageBox.java") );

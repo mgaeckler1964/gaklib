@@ -348,16 +348,16 @@ class MatrixTest : public UnitTest
 			PODmatrix<int>	mat1(3,5), mat2(4,3);
 			PODmatrix<int>	result = matrixProduct( mat1, mat2 );
 
-			UT_EXPECT_EQUAL(result.getNumCols(), 4);
-			UT_EXPECT_EQUAL(result.getNumRows(), 5);
+			UT_EXPECT_EQUAL(result.getNumCols(), 4UL);
+			UT_EXPECT_EQUAL(result.getNumRows(), 5UL);
 		}
 		{
 			PODmatrix<int>	mat1(3,1), mat2(1,3);
 			mat1(0,0) = 1;
 			mat2(0,0) = 1;
 			PODmatrix<int>	result = matrixProduct( mat1, mat2 );
-			UT_EXPECT_EQUAL(result.getNumCols(), 1);
-			UT_EXPECT_EQUAL(result.getNumRows(), 1);
+			UT_EXPECT_EQUAL(result.getNumCols(), 1UL);
+			UT_EXPECT_EQUAL(result.getNumRows(), 1UL);
 			UT_EXPECT_EQUAL(result(0,0), 1);
 		}
 	}

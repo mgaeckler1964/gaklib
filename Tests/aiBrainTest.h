@@ -106,34 +106,34 @@ class AiBrainTest : public UnitTest
 
 		// check empty brain
 		size_t count = theBrain.getPairCount(word1, word2);
-		UT_EXPECT_EQUAL(count, 0);
+		UT_EXPECT_EQUAL(count, 0UL);
 		UT_EXPECT_EQUAL(theBrain.size(), 0UL);
 
 		// check brain with first item
 		theBrain.addPair(word1, word2);
 		count = theBrain.getPairCount(word1, word2);
-		UT_EXPECT_EQUAL(count, 1);
+		UT_EXPECT_EQUAL(count, 1UL);
 		UT_EXPECT_EQUAL(theBrain.size(), 1UL);
 
 		// check brain with second item
 		theBrain.addPair(word1, word2);
 		count = theBrain.getPairCount(word1, word2);
-		UT_EXPECT_EQUAL(count, 2);
+		UT_EXPECT_EQUAL(count, 2UL);
 		UT_EXPECT_EQUAL(theBrain.size(), 1UL);
 
 		// check words can be swaped
 		count = theBrain.getPairCount(word2, word1);
-		UT_EXPECT_EQUAL(count, 2);
+		UT_EXPECT_EQUAL(count, 2UL);
 
 		// check if one word is not yet known
 		count = theBrain.getPairCount(word2, word3);
-		UT_EXPECT_EQUAL(count, 0);
+		UT_EXPECT_EQUAL(count, 0UL);
 		UT_EXPECT_EQUAL(theBrain.size(), 1UL);
 
 		// check equal word
 		theBrain.addPair(word2, word2);
 		count = theBrain.getPairCount(word2, word2);
-		UT_EXPECT_EQUAL(count, 0);
+		UT_EXPECT_EQUAL(count, 0UL);
 		UT_EXPECT_EQUAL(theBrain.size(), 1UL);
 
 		Brain		cloneBrain;

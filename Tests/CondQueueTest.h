@@ -114,7 +114,7 @@ class CondQueueTest : public UnitTest
 		myQueue.wait(10000);
 		sw.stop();
 		UT_EXPECT_LESS(sw.getMillis(), clock_t(1111));
-		UT_EXPECT_EQUAL(myQueue.size(), 1);
+		UT_EXPECT_EQUAL(myQueue.size(), 1UL);
 		UT_EXPECT_EQUAL(myQueue.pop(), 666);
 	}
 };
