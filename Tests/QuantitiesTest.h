@@ -162,9 +162,27 @@ class QuantitiesTest : public UnitTest
 		feet = yard;
 		UT_EXPECT_EQUAL( 3.0, feet.m_value );
 
-		InterMile	iMile = 1.;
+		InterMile	iMile = 1;
 		meter = iMile;
 		UT_EXPECT_EQUAL( 1609.344, meter.m_value );
+
+		UsGallon	gallonStart(1);
+		UT_EXPECT_EQUAL( 1, gallonStart );
+		Liter		liter(gallonStart);
+		UT_EXPECT_EQUAL( 3.785411784, liter );
+		UsGallon	gallonEnd(liter);
+		UT_EXPECT_EQUAL( 1, gallonEnd );
+
+		Pinte		pinteStart(1);
+		UT_EXPECT_EQUAL( 1, pinteStart );
+		liter = pinteStart;
+		UT_EXPECT_EQUAL( 0.56826128524935, liter );
+		Pinte	pinteEnd(liter);
+		UT_EXPECT_EQUAL( 1, pinteEnd );
+
+		UT_EXPECT_EQUAL(gallonStart.getUnit(), "gal");
+		UT_EXPECT_EQUAL(pinteStart.getUnit(), "pt");
+		UT_EXPECT_EQUAL(liter.getUnit(), "l" );
 
 		Show();
 	}

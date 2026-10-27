@@ -107,8 +107,8 @@ enum SIquantitiy
 // ----- class definitions --------------------------------------------- //
 // --------------------------------------------------------------------- //
 
-extern const char *siPrefixe[];
-extern const char *siUnits[];
+extern const char * const SI_PREFIXE[];
+extern const char * const SI_UNITS[];
 
 /*
 	Prefixe (Kilos, Mega ...)
@@ -118,7 +118,7 @@ struct SIprefixTraits
 {
 	static const char *getPrefix()
 	{
-		return siPrefixe[PREFIX];
+		return SI_PREFIXE[PREFIX];
 	}
 	static ValueT getFactor()
 	{
@@ -163,9 +163,10 @@ typedef SIprefixTraits<SI_UNIT,PICO,siPICO>		PikoUnit;
 template <SIquantitiy THE_QUANTITY>
 struct QuantityTraits
 {
+
 	static const char *getSIunit()
 	{
-		return siUnits[THE_QUANTITY];
+		return SI_UNITS[THE_QUANTITY];
 	}
 	static const char *getUnit()
 	{
@@ -223,6 +224,15 @@ struct UsGallonUnit : public Volume
 	}
 };
 
+struct PinteUnit : public Volume
+{
+	static const char *getUnit()
+	{
+		return "pt";
+	}
+};
+
+
 /*
 	the main class template
 */
@@ -234,6 +244,9 @@ struct UnitValue
 	ValueT	m_value;
 
 	UnitValue( ValueT value=0 ) : m_value( value )
+	{
+	}
+	UnitValue( int value ) : m_value(ValueT(value))
 	{
 	}
 	template <typename UnitT>
@@ -308,7 +321,10 @@ struct UnitValue
 	{
 		m_value = PrefixTraitsT::getUnitValue( baseValue );
 	}
-
+	operator ValueT () const
+	{
+		return m_value;
+	}
 	static ValueT getFactor()
 	{
 		return PrefixTraitsT::getPrefix();
@@ -365,9 +381,13 @@ typedef UnitValue<MilesUnit,InterMilePrefix>	InterMile;
 typedef UnitValue<Volume,BaseUnit>	Liter;
 
 // none SI
+// 1 US.liquid galllon
 typedef SIprefixTraits<3785411784,1000000000, siBASE>	UsGallonPrefix;
 typedef UnitValue<UsGallonUnit, UsGallonPrefix>			UsGallon;
 
+// Imperial Pinte (GB and Ireland)
+typedef SIprefixTraits<56826128524935,100000000000000, siBASE>			PintePrefix;
+typedef UnitValue<PinteUnit, PintePrefix>								Pinte;
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
@@ -440,13 +460,13 @@ SIprefix getMatchingPrefix( ValueT value )
 template <typename ValueT>
 inline const char *getMatchingPrefixText( ValueT value )
 {
-	return siPrefixe[ getMatchingPrefix( value ) ];
+	return SI_PREFIXE[ getMatchingPrefix( value ) ];
 }
 
 template <>
 inline const char *getMatchingPrefixText( SIprefix prefix )
 {
-	return siPrefixe[ prefix ];
+	return SI_PREFIXE[ prefix ];
 }
 
 template <typename ValueT>
