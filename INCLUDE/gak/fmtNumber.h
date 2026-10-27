@@ -681,7 +681,7 @@ const char *appendFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLen
 	{
 		NUMBER_BUFFER_T	tmp = NUMBER_BUFFER_T().addDigit('e').addNumber(exponent);
 		if( fieldLength>0 )
-			fieldLength -= tmp.size();
+			fieldLength -= int(tmp.size());
 		appendFloatFast(result, normal, fieldLength, precision, thousand, decPoint );
 		result->stripRight(decPoint);
 		result->addBB( tmp );

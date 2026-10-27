@@ -181,6 +181,11 @@ class FmtNumberTest : public UnitTest
 		UT_EXPECT_EQUAL( STRING("-0,000000000000002"), formatFloat( -smallNum, 18, -1, 0, ',' ) );
 		UT_EXPECT_EQUAL( STRING("-0,0000000000000015"), formatFloat( -smallNum, 19, -1, 0, ',' ) );
 		UT_EXPECT_EQUAL( STRING(" -0,0000000000000015"), formatFloat( -smallNum, 20, -1, 0, ',' ) );
+
+		UT_EXPECT_EQUAL(STRING("31,415000"), formatFloat( 31.415, 0, 6, 0, ',' ) );
+		UT_EXPECT_EQUAL(STRING("31,415000"), formatFloat( 31.415, 9, 6, 0, ',' ) );
+		UT_EXPECT_EQUAL(STRING(" 31,415000"), formatFloat( 31.415, 10, 6, 0, ',' ) );
+		UT_EXPECT_EQUAL(STRING("31,415000"), formatFloat( 31.415, 7, 6, 0, ',' ) );
 	}
 
 	void binaryTest(long value1)

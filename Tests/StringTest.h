@@ -378,6 +378,10 @@ class StringTest : public UnitTest
 			UT_EXPECT_EQUAL( result, -9913.56 );
 		}
 		{
+			STRING		text = "1,5e308";
+			UT_EXPECT_EQUAL( text.getValueE<double>(10, ','), 1.5e308 );
+		}
+		{
 			STRING		text = "1,798e308";
 			UT_EXPECT_EXCEPTION( text.getValueE<double>(10, ','), FloatOverflowError );
 		}
