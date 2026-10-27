@@ -100,7 +100,7 @@ enum SIprefix
 
 enum SIquantitiy
 {
-	siMETER
+	siMETER, siLITER
 };
 
 // --------------------------------------------------------------------- //
@@ -110,6 +110,9 @@ enum SIquantitiy
 extern const char *siPrefixe[];
 extern const char *siUnits[];
 
+/*
+	Prefixe (Kilos, Mega ...)
+*/
 template <int64 FACTOR, int64 DIVISOR, SIprefix PREFIX, typename ValueT=double>
 struct SIprefixTraits
 {
@@ -154,6 +157,9 @@ typedef SIprefixTraits<SI_UNIT,MICRO,siMICRO>	MicroUnit;
 typedef SIprefixTraits<SI_UNIT,NANO,siNANO>		NanoUnit;
 typedef SIprefixTraits<SI_UNIT,PICO,siPICO>		PikoUnit;
 
+/* 
+	unit types
+*/
 template <SIquantitiy THE_QUANTITY>
 struct QuantityTraits
 {
@@ -169,7 +175,11 @@ struct QuantityTraits
 };
 
 typedef QuantityTraits<siMETER>	Distance;
+typedef QuantityTraits<siLITER>	Volume;
 
+/*
+	Distance units
+*/
 struct InchUnit : public Distance
 {
 	static const char *getUnit()
@@ -202,6 +212,20 @@ struct MilesUnit : public Distance
 	}
 };
 
+/*
+	Volume units
+*/
+struct UsGallonUnit : public Volume
+{
+	static const char *getUnit()
+	{
+		return "gal";
+	}
+};
+
+/*
+	the main class template
+*/
 template <typename QuantityTraitsT, typename PrefixTraitsT, typename ValueT=double>
 struct UnitValue
 {
@@ -304,6 +328,9 @@ struct UnitValue
 	static const SIquantitiy si_quantity = QuantityTraitsT::si_quantity;
 };
 
+/*
+	distance types
+*/
 typedef UnitValue<Distance,TeraUnit>	TeraMeter;
 typedef UnitValue<Distance,GigaUnit>	GigaMeter;
 typedef UnitValue<Distance,MegaUnit>	MegaMeter;
@@ -318,6 +345,7 @@ typedef UnitValue<Distance,MicroUnit>	MicroMeter;
 typedef UnitValue<Distance,NanoUnit>	NanoMeter;
 typedef UnitValue<Distance,PikoUnit>	PicoMeter;
 
+/// none SI
 typedef SIprefixTraits<254,100 * CENTI, siBASE>	InchPrefix;
 typedef UnitValue<InchUnit, InchPrefix>			Inch;
 
@@ -329,6 +357,17 @@ typedef UnitValue<YardUnit, YardPrefix>			Yard;
 
 typedef SIprefixTraits<1609344,1000, siBASE>	InterMilePrefix;
 typedef UnitValue<MilesUnit,InterMilePrefix>	InterMile;
+
+
+/*
+	volume types
+*/
+typedef UnitValue<Volume,BaseUnit>	Liter;
+
+// none SI
+typedef SIprefixTraits<3785411784,1000000000, siBASE>	UsGallonPrefix;
+typedef UnitValue<UsGallonUnit, UsGallonPrefix>			UsGallon;
+
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //
