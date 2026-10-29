@@ -83,9 +83,9 @@ const char * const SI_PREFIXE[] =
 	"p", "n", "~", "m", "c", "d", "", "D", "h", "k", "M", "G", "T"
 };
 
-const char * const SI_UNITS[] =
+const char * const SI_UNITS[] =	// the number of items must match enum SIquantitiy
 {
-	"m", "l"
+	"m", "l", "w"
 };
 
 // --------------------------------------------------------------------- //

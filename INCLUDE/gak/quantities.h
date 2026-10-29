@@ -98,9 +98,9 @@ enum SIprefix
 	siDECA, siHECTO, siKILO, siMEGA, siGIGA, siTERA
 };
 
-enum SIquantitiy
+enum SIquantitiy		// the number of items must match array SI_UNITS
 {
-	siMETER, siLITER
+	siMETER, siLITER, siWATT
 };
 
 // --------------------------------------------------------------------- //
@@ -177,6 +177,8 @@ struct QuantityTraits
 
 typedef QuantityTraits<siMETER>	Distance;
 typedef QuantityTraits<siLITER>	Volume;
+typedef QuantityTraits<siWATT>	Power;
+
 
 /*
 	Distance units
@@ -231,6 +233,18 @@ struct PinteUnit : public Volume
 		return "pt";
 	}
 };
+
+/*
+	Power units
+*/
+struct HorsePowerUnit : public Power
+{
+	static const char *getUnit()
+	{
+		return "ps";
+	}
+};
+
 
 
 /*
@@ -388,6 +402,18 @@ typedef UnitValue<UsGallonUnit, UsGallonPrefix>			UsGallon;
 // Imperial Pinte (GB and Ireland)
 typedef SIprefixTraits<56826128524935,100000000000000, siBASE>			PintePrefix;
 typedef UnitValue<PinteUnit, PintePrefix>								Pinte;
+
+
+/*
+	Power types
+*/
+typedef UnitValue<Power,BaseUnit>	Watt;
+typedef UnitValue<Power,KiloUnit>	KiloWatt;
+//0,73549875
+typedef SIprefixTraits<73549875,100000, siBASE>				HorsePowerPrefix;
+typedef UnitValue<HorsePowerUnit, HorsePowerPrefix>			HorsePower;
+
+
 
 // --------------------------------------------------------------------- //
 // ----- exported datas ------------------------------------------------ //

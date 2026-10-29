@@ -169,20 +169,27 @@ class QuantitiesTest : public UnitTest
 		UsGallon	gallonStart(1);
 		UT_EXPECT_EQUAL( 1, gallonStart );
 		Liter		liter(gallonStart);
-		UT_EXPECT_EQUAL( 3.785411784, liter );
+		UT_EXPECT_EQUAL( 3.785411784, double(liter) );
 		UsGallon	gallonEnd(liter);
 		UT_EXPECT_EQUAL( 1, gallonEnd );
 
 		Pinte		pinteStart(1);
 		UT_EXPECT_EQUAL( 1, pinteStart );
 		liter = pinteStart;
-		UT_EXPECT_EQUAL( 0.56826128524935, liter );
+		UT_EXPECT_EQUAL( 0.56826128524935, double(liter) );
 		Pinte	pinteEnd(liter);
 		UT_EXPECT_EQUAL( 1, pinteEnd );
 
 		UT_EXPECT_EQUAL(gallonStart.getUnit(), "gal");
 		UT_EXPECT_EQUAL(pinteStart.getUnit(), "pt");
 		UT_EXPECT_EQUAL(liter.getUnit(), "l" );
+
+		HorsePower	psStart(150);
+		UT_EXPECT_EQUAL( 150, psStart );
+		KiloWatt	watt(psStart);
+		UT_EXPECT_EQUAL( 110.3248125, double(watt) );
+		HorsePower	psEnd(watt);
+		UT_EXPECT_EQUAL( 150, psEnd );
 
 		Show();
 	}
