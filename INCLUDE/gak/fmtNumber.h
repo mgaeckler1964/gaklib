@@ -677,7 +677,12 @@ const char *appendFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLen
 		? expected+1							// space for negative sign
 		: expected;
 
-	if( scientific || (fieldLength && fieldLength < expectedSign) || expected > std::numeric_limits<double>::max_digits10 )
+#ifdef __BORLANDC__
+	const int max_digits10 = std::numeric_limits<double>::digits10;
+#else
+	const int max_digits10 = std::numeric_limits<double>::max_digits10;
+#endif
+	if( scientific || (fieldLength && fieldLength < expectedSign) || expected > max_digits10 )
 	{
 		NUMBER_BUFFER_T	tmp = NUMBER_BUFFER_T().addDigit('e').addNumber(exponent);
 		if( fieldLength>0 )

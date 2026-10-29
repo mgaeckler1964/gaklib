@@ -91,37 +91,113 @@ class QuantitiesTest : public UnitTest
 
 		const double baseValue = 9.1234567890123456789;
 
-		TeraMeter tera = baseValue;
-		UT_EXPECT_EQUAL( baseValue, tera.m_value );
-		UT_EXPECT_EQUAL( baseValue*1.0e12, tera.getBaseValue() );
-		GigaMeter giga = baseValue;
-		UT_EXPECT_EQUAL( baseValue, giga.m_value );
-		UT_EXPECT_EQUAL( baseValue*1.0e9, giga.getBaseValue() );
-		MegaMeter mega = baseValue;
-		UT_EXPECT_EQUAL( baseValue, mega.m_value );
-		UT_EXPECT_EQUAL( baseValue*1.0e6, mega.getBaseValue() );
-		KiloMeter kilo = baseValue;
-		UT_EXPECT_EQUAL( baseValue, kilo.m_value );
-		UT_EXPECT_EQUAL( baseValue*1.0e3, kilo.getBaseValue() );
-		Meter meter = baseValue;
-		UT_EXPECT_EQUAL( baseValue, meter.m_value );
-		UT_EXPECT_EQUAL( baseValue*1.0e0, meter.getBaseValue() );
-		MilliMeter milli = baseValue;
-		UT_EXPECT_EQUAL( baseValue, milli.m_value );
-		UT_EXPECT_EQUAL( baseValue*1.0e-3, milli.getBaseValue() );
-		MicroMeter micro = baseValue;
-		UT_EXPECT_EQUAL( baseValue, micro.m_value );
-		UT_EXPECT_EQUAL( baseValue*1.0e-6, micro.getBaseValue() );
-		NanoMeter nano = baseValue;
-		UT_EXPECT_EQUAL( baseValue, nano.m_value );
-		UT_EXPECT_EQUAL( baseValue*1.0e-9, nano.getBaseValue() );
-		PicoMeter pico = baseValue;
-		UT_EXPECT_EQUAL( baseValue, pico.m_value );
-		UT_EXPECT_EQUAL( baseValue*1.0e-12, pico.getBaseValue() );
-
-		kilo = 126.0;
-		meter = 3.6;
-		milli = kilo + meter;
+		{
+			TeraMeter tera = baseValue;
+			UT_EXPECT_EQUAL( baseValue, tera.m_value );
+			UT_EXPECT_EQUAL( 1.0e12, tera.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e12, tera.getBaseValue() );
+			UT_EXPECT_EQUAL(tera.getUnit(), "m" );
+			UT_EXPECT_EQUAL(tera.getPrefix(), "T" );
+		}
+		{
+			GigaMeter giga = baseValue;
+			UT_EXPECT_EQUAL( baseValue, giga.m_value );
+			UT_EXPECT_EQUAL( 1.0e9, giga.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e9, giga.getBaseValue() );
+			UT_EXPECT_EQUAL(giga.getUnit(), "m" );
+			UT_EXPECT_EQUAL(giga.getPrefix(), "G" );
+		}
+		{
+			MegaMeter mega = baseValue;
+			UT_EXPECT_EQUAL( baseValue, mega.m_value );
+			UT_EXPECT_EQUAL( 1.0e6, mega.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e6, mega.getBaseValue() );
+			UT_EXPECT_EQUAL(mega.getUnit(), "m" );
+			UT_EXPECT_EQUAL(mega.getPrefix(), "M" );
+		}
+		{
+			KiloMeter kilo = baseValue;
+			UT_EXPECT_EQUAL( baseValue, kilo.m_value );
+			UT_EXPECT_EQUAL( 1.0e3, kilo.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e3, kilo.getBaseValue() );
+			UT_EXPECT_EQUAL(kilo.getUnit(), "m" );
+			UT_EXPECT_EQUAL(kilo.getPrefix(), "k" );
+		}
+		{
+			HectoMeter hecto = baseValue;
+			UT_EXPECT_EQUAL( baseValue, hecto.m_value );
+			UT_EXPECT_EQUAL( 1.0e2, hecto.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e2, hecto.getBaseValue() );
+			UT_EXPECT_EQUAL(hecto.getUnit(), "m" );
+			UT_EXPECT_EQUAL(hecto.getPrefix(), "h" );
+		}
+		{
+			DecaMeter deca = baseValue;
+			UT_EXPECT_EQUAL( baseValue, deca.m_value );
+			UT_EXPECT_EQUAL( 1.0e1, deca.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e1, deca.getBaseValue() );
+			UT_EXPECT_EQUAL(deca.getUnit(), "m" );
+			UT_EXPECT_EQUAL(deca.getPrefix(), "D" );
+		}
+		{
+			Meter meter = baseValue;
+			UT_EXPECT_EQUAL( baseValue, meter.m_value );
+			UT_EXPECT_EQUAL( 1.0e0, meter.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e0, meter.getBaseValue() );
+			UT_EXPECT_EQUAL(meter.getUnit(), "m" );
+			UT_EXPECT_EQUAL(meter.getPrefix(), "" );
+		}
+		{
+			DeciMeter deci = baseValue;
+			UT_EXPECT_EQUAL( baseValue, deci.m_value );
+			UT_EXPECT_EQUAL( 1.0e-1, deci.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e-1, deci.getBaseValue() );
+			UT_EXPECT_EQUAL(deci.getUnit(), "m" );
+			UT_EXPECT_EQUAL(deci.getPrefix(), "d" );
+		}
+		{
+			CentiMeter centi = baseValue;
+			UT_EXPECT_EQUAL( baseValue, centi.m_value );
+			UT_EXPECT_EQUAL( 1.0e-2, centi.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e-2, centi.getBaseValue() );
+			UT_EXPECT_EQUAL(centi.getUnit(), "m" );
+			UT_EXPECT_EQUAL(centi.getPrefix(), "c" );
+		}
+		{
+			MilliMeter milli = baseValue;
+			UT_EXPECT_EQUAL( baseValue, milli.m_value );
+			UT_EXPECT_EQUAL( 1.0e-3, milli.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e-3, milli.getBaseValue() );
+			UT_EXPECT_EQUAL(milli.getUnit(), "m" );
+			UT_EXPECT_EQUAL(milli.getPrefix(), "m" );
+		}
+		{
+			MicroMeter micro = baseValue;
+			UT_EXPECT_EQUAL( baseValue, micro.m_value );
+			UT_EXPECT_EQUAL( 1.0e-6, micro.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e-6, micro.getBaseValue() );
+			UT_EXPECT_EQUAL(micro.getUnit(), "m" );
+			UT_EXPECT_EQUAL(micro.getPrefix(), "~" );
+		}
+		{
+			NanoMeter nano = baseValue;
+			UT_EXPECT_EQUAL( baseValue, nano.m_value );
+			UT_EXPECT_EQUAL( 1.0e-9, nano.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e-9, nano.getBaseValue() );
+			UT_EXPECT_EQUAL(nano.getUnit(), "m" );
+			UT_EXPECT_EQUAL(nano.getPrefix(), "n" );
+		}
+		{
+			PicoMeter pico = baseValue;
+			UT_EXPECT_EQUAL( baseValue, pico.m_value );
+			UT_EXPECT_EQUAL( 1.0e-12, pico.getFactor() );
+			UT_EXPECT_EQUAL( baseValue*1.0e-12, pico.getBaseValue() );
+			UT_EXPECT_EQUAL(pico.getUnit(), "m" );
+			UT_EXPECT_EQUAL(pico.getPrefix(), "p" );
+		}
+		KiloMeter	kilo = 126.0;
+		Meter		meter = 3.6;
+		MilliMeter	milli = kilo + meter;
 		UT_EXPECT_EQUAL( (126e3+3.6)*1000., milli.m_value );
 
 		milli = kilo - meter;
@@ -170,6 +246,7 @@ class QuantitiesTest : public UnitTest
 		UT_EXPECT_EQUAL( 1, gallonStart );
 		Liter		liter(gallonStart);
 		UT_EXPECT_EQUAL( 3.785411784, double(liter) );
+		UT_EXPECT_EQUAL( 1, Liter::getFactor() );
 		UsGallon	gallonEnd(liter);
 		UT_EXPECT_EQUAL( 1, gallonEnd );
 
@@ -177,6 +254,7 @@ class QuantitiesTest : public UnitTest
 		UT_EXPECT_EQUAL( 1, pinteStart );
 		liter = pinteStart;
 		UT_EXPECT_EQUAL( 0.56826128524935, double(liter) );
+		UT_EXPECT_EQUAL( 0.56826128524935, Pinte::getFactor() );
 		Pinte	pinteEnd(liter);
 		UT_EXPECT_EQUAL( 1, pinteEnd );
 

@@ -319,6 +319,7 @@ class MathTest : public UnitTest
 		UT_EXPECT_EQUAL( result, 10*0.1+10*0.5+15*0.9 );
 	}
 
+#ifndef __BORLANDC__	// stupid borland does not compile
 	void complexTest() const
 	{
 		Complex a(5,3), b(4,2);
@@ -343,6 +344,8 @@ class MathTest : public UnitTest
 		c = a/b;
 		UT_EXPECT_EQUAL( c, Complex(1.25) );
 	}
+#endif
+
 	void PerformTest() override
 	{
 		doEnterFunctionEx(gakLogging::llInfo, "MathTest::PerformTest");
@@ -370,7 +373,9 @@ class MathTest : public UnitTest
 			scaleTest<double>();
 		}
 		progressiveFactorTest();
+#ifndef __BORLANDC__	// stupid borland does not compile
 		complexTest();
+#endif
 	}
 };
 

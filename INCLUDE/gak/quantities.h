@@ -253,7 +253,7 @@ struct HorsePowerUnit : public Power
 template <typename QuantityTraitsT, typename PrefixTraitsT, typename ValueT=double>
 struct UnitValue
 {
-	typedef UnitValue<QuantityTraitsT, PrefixTraitsT, ValueT>	MyUnitType;
+	typedef UnitValue<QuantityTraitsT, PrefixTraitsT, ValueT>	SelfT;
 
 	ValueT	m_value;
 
@@ -281,14 +281,14 @@ struct UnitValue
 		return *this;
 	}
 
-	MyUnitType operator + ( ValueT value ) const
+	SelfT operator + ( ValueT value ) const
 	{
-		return MyUnitType( m_value + value );
+		return SelfT( m_value + value );
 	}
 	template <typename UnitT>
-	MyUnitType operator + ( const UnitT &value ) const
+	SelfT operator + ( const UnitT &value ) const
 	{
-		return MyUnitType(
+		return SelfT(
 			PrefixTraitsT::getUnitValue( getBaseValue() + value.getBaseValue())
 		);
 	}
@@ -304,14 +304,14 @@ struct UnitValue
 		return *this;
 	}
 
-	MyUnitType operator - ( ValueT value ) const
+	SelfT operator - ( ValueT value ) const
 	{
-		return MyUnitType( m_value - value );
+		return SelfT( m_value - value );
 	}
 	template <typename UnitT>
-	MyUnitType operator - ( const UnitT &value ) const
+	SelfT operator - ( const UnitT &value ) const
 	{
-		return MyUnitType(
+		return SelfT(
 			PrefixTraitsT::getUnitValue( getBaseValue() - value.getBaseValue())
 		);
 	}
@@ -341,7 +341,7 @@ struct UnitValue
 	}
 	static ValueT getFactor()
 	{
-		return PrefixTraitsT::getPrefix();
+		return PrefixTraitsT::getFactor();
 	}
 	static const char *getPrefix()
 	{
