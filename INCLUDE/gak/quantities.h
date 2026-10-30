@@ -122,21 +122,21 @@ struct SIprefixTraits
 	}
 	static ValueT getFactor()
 	{
-		ValueT	factor = FACTOR;
-		ValueT	divisor = DIVISOR;
-		ValueT	result = factor / divisor;
+		static const ValueT	factor = FACTOR;
+		static const ValueT	divisor = DIVISOR;
+		static const ValueT	result = factor / divisor;
 		return result;
 	}
 	static ValueT getBaseBalue( ValueT value )
 	{
-		ValueT factor = getFactor();
-		ValueT result = value * factor;
+		static const ValueT factor = getFactor();
+		const ValueT result = value * factor;
 
 		return result;
 	}
 	static ValueT getUnitValue( ValueT baseValue )
 	{
-		ValueT factor = getFactor();
+		static const ValueT factor = getFactor();
 		ValueT result = baseValue / factor;
 
 		return result;
