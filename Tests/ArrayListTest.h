@@ -112,13 +112,14 @@ class ArrayListTest : public UnitTest
 	}
 	struct LenPrint
 	{
-		static void perform( const STRING &src )
+		static bool perform( const STRING &src )
 		{
 			std::cout << "len "<< src << " = " << src.strlen() << '\n';
+			return false;
 		}
-		void operator() ( const STRING &src ) const
+		bool operator() ( const STRING &src ) const
 		{
-			perform( src );
+			return perform( src );
 		}
 	};
 

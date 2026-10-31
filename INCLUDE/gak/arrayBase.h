@@ -866,56 +866,65 @@ class ArrayBase : public Container
 		@param [in] begin first data to process
 		@param [in] end first data to terminate loop
 		@param [in] func address of a function  or lambda that accepts an item
+		@return true if the loop was broken
 	*/
 	template <class IteratorT, class F> 
-	void forEach( IteratorT begin, IteratorT end, const F &func ) const;
+	bool forEach( IteratorT begin, IteratorT end, const F &func ) const;
 
 	/**
 		@brief performs a function for each element
 		@param [in] func address of a function  or lambda that accepts an item
+		@return true if the loop was broken
 	*/
 	template <class F> 
-	void forEach( const F &func )
+	bool forEach( const F &func )
 	{
-		forEach( begin(), end(), func );
+		return forEach( begin(), end(), func );
 	}
 
 	/**
 		@brief performs a function for each element
 		@param [in] func address of a function or lambda that accepts an item
+		@return true if the loop was broken
 	*/
 	template <class F> 
-	void forEach( const F &func ) const
+	bool forEach( const F &func ) const
 	{
-		forEach( cbegin(), cend(), func );
+		return forEach( cbegin(), cend(), func );
 	}
 
 #if !defined( __BORLANDC__ ) || __BORLANDC__ > 0x551
 	/**
 		@brief performs a function for each element
 		@tparam F class with a static member function perform that accepts an item
+		@return true if the loop was broken
 	*/
 	template <class F> 
-	void forEach()
+	bool forEach()
 	{
 		OBJ	*dataPtr = getDataBuffer();
 		for( size_t i=0; i<size(); i++ )
 		{
-			F::perform( *dataPtr++ );
+			if( F::perform( *dataPtr++ ) )
+				return true;
 		}
+		return false;
 	}
 	/**
 		@brief performs a function for each element
 		@tparam F class with a static member function perform that accepts an item
+		@return true if the loop was broken
 	*/
 	template <class F> 
-	void forEach() const
+	bool forEach() const
 	{
 		const OBJ	*dataPtr = getDataBuffer();
 		for( size_t i=0; i<size(); i++ )
 		{
-			F::perform( *dataPtr++ );
+			if( F::perform( *dataPtr++ ) )
+				return true;
 		}
+		return false;
 	}
 #endif
 	///@}
@@ -1217,12 +1226,14 @@ OBJ &ArrayBase<OBJ, ALLOCATOR>::getOrCreateElementAt(size_t pos)
 
 template <class OBJ, class ALLOCATOR>
 	template <class IteratorT, class F>
-void ArrayBase<OBJ, ALLOCATOR>::forEach( IteratorT dataPtr, IteratorT endPtr, const F &func ) const
+bool ArrayBase<OBJ, ALLOCATOR>::forEach( IteratorT dataPtr, IteratorT endPtr, const F &func ) const
 {
 	while( dataPtr!=endPtr )
 	{
-		func( *dataPtr++ );
+		if( func( *dataPtr++ ) )
+			return true;
 	}
+	return false;
 }
 
 template <class OBJ, class ALLOCATOR>
