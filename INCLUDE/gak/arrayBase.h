@@ -863,17 +863,32 @@ class ArrayBase : public Container
 
 	/**
 		@brief performs a function for each element
-		@param [in] func address of a function that accepts an item
+		@param [in] begin first data to process
+		@param [in] end first data to terminate loop
+		@param [in] func address of a function  or lambda that accepts an item
 	*/
-	template <class F> 
-	void forEach( const F &func );
+	template <class IteratorT, class F> 
+	void forEach( IteratorT begin, IteratorT end, const F &func ) const;
 
 	/**
 		@brief performs a function for each element
-		@param [in] func address of a function that accepts an item
+		@param [in] func address of a function  or lambda that accepts an item
 	*/
 	template <class F> 
-	void forEach( const F &func ) const;
+	void forEach( const F &func )
+	{
+		forEach( begin(), end(), func );
+	}
+
+	/**
+		@brief performs a function for each element
+		@param [in] func address of a function or lambda that accepts an item
+	*/
+	template <class F> 
+	void forEach( const F &func ) const
+	{
+		forEach( cbegin(), cend(), func );
+	}
 
 #if !defined( __BORLANDC__ ) || __BORLANDC__ > 0x551
 	/**
@@ -1201,24 +1216,10 @@ OBJ &ArrayBase<OBJ, ALLOCATOR>::getOrCreateElementAt(size_t pos)
 // --------------------------------------------------------------------- //
 
 template <class OBJ, class ALLOCATOR>
-	template <class F>
-void ArrayBase<OBJ, ALLOCATOR>::forEach( const F &func )
+	template <class IteratorT, class F>
+void ArrayBase<OBJ, ALLOCATOR>::forEach( IteratorT dataPtr, IteratorT endPtr, const F &func ) const
 {
-	OBJ *dataPtr = getDataBuffer();
-	OBJ *endPtr = dataPtr + size();
-	while( dataPtr<endPtr )
-	{
-		func( *dataPtr++ );
-	}
-}
-
-template <class OBJ, class ALLOCATOR>
-	template <class F>
-void ArrayBase<OBJ, ALLOCATOR>::forEach( const F &func ) const
-{
-	const OBJ *dataPtr = getDataBuffer();
-	const OBJ *endPtr = dataPtr + size();
-	while( dataPtr<endPtr )
+	while( dataPtr!=endPtr )
 	{
 		func( *dataPtr++ );
 	}
