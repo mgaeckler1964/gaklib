@@ -1204,8 +1204,9 @@ template <class OBJ, class ALLOCATOR>
 	template <class F>
 void ArrayBase<OBJ, ALLOCATOR>::forEach( const F &func )
 {
-	OBJ	*dataPtr = getDataBuffer();
-	for( size_t i=0; i<size(); i++ )
+	OBJ *dataPtr = getDataBuffer();
+	OBJ *endPtr = dataPtr + size();
+	while( dataPtr<endPtr )
 	{
 		func( *dataPtr++ );
 	}
@@ -1215,8 +1216,9 @@ template <class OBJ, class ALLOCATOR>
 	template <class F>
 void ArrayBase<OBJ, ALLOCATOR>::forEach( const F &func ) const
 {
-	const OBJ	*dataPtr = getDataBuffer();
-	for( size_t i=0; i<size(); i++ )
+	const OBJ *dataPtr = getDataBuffer();
+	const OBJ *endPtr = dataPtr + size();
+	while( dataPtr<endPtr )
 	{
 		func( *dataPtr++ );
 	}
