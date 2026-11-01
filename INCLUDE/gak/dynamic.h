@@ -171,8 +171,8 @@ class DynamicVar
 			throw InvalidConversionError();
 		}
 #ifdef __BORLANDC__
-#   pragma warn +ccc
-#	pragma warn +rch
+#   pragma warn .ccc
+#	pragma warn .rch
 #endif
 	}
 

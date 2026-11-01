@@ -41,8 +41,8 @@
 #	pragma warn -inl
 #	pragma warn -csu
 #	include <stdexcep.h>
-#	pragma warn +inl
-#	pragma warn +csu
+#	pragma warn .inl
+#	pragma warn .csu
 #else
 #	include <exception>
 #endif

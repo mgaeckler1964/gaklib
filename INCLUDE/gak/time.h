@@ -334,7 +334,7 @@ inline std::ostream &operator << ( std::ostream &stream, const Time &time )
 #	pragma option -a.
 #	pragma option -p.
 
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 
 #ifdef _MSC_VER

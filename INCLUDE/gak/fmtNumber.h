@@ -628,7 +628,7 @@ inline STRING formatNumber<>(
 #endif
 	return "0x" + formatBinary( value, 16, fieldLength, filler );
 #if defined( __BORLANDC__ )
-#	pragma warn -8027
+#	pragma warn .8027
 #endif
 }
 

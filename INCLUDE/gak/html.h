@@ -1591,8 +1591,8 @@ class Document : public xml::Document
 #	pragma option -p.
 #	pragma option -a.
 
-#	pragma warn +hid
-#	pragma warn +inl
+#	pragma warn .hid
+#	pragma warn .inl
 #endif
 #ifdef _MSC_VER
 #	pragma warning( pop )

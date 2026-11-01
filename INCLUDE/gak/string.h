@@ -1036,7 +1036,7 @@ inline std::istream &operator >> ( std::istream &theStream, STRING &destination 
 #	pragma option -a.
 #	pragma option -p.
 
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 
 #ifdef _MSC_VER

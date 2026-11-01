@@ -409,9 +409,9 @@ inline NUMERIC getValue( const char *cp, char decPoint, char thousand, unsigned 
 }
 
 #ifdef __BORLANDC__
-#	pragma warn +rch
-#	pragma warn +ccc
-#	pragma warn +inl
+#	pragma warn .rch
+#	pragma warn .ccc
+#	pragma warn .inl
 #endif
 
 }	// namespace internal

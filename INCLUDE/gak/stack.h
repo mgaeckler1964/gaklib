@@ -177,7 +177,7 @@ class Stack : private SuperT
 #endif
 		return obj;
 #ifdef __BORLANDC__
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 	}
 

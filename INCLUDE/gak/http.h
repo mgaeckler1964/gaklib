@@ -503,7 +503,7 @@ STRING webEscape( const char *cp );
 #	pragma option -p.
 #	pragma option -a.
 
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 
 #endif

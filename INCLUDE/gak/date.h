@@ -925,7 +925,7 @@ inline JulianDate gregorian2JulianDate( const Date &gregorianDate )
 #	pragma option -a.
 #	pragma option -p.
 
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 
 #ifdef _MSC_VER

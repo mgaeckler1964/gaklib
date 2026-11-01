@@ -208,7 +208,7 @@ class MilliSeconds
 #endif
 		return formatNumber( part ? millisPart() : get() ) + "ms";
 #ifdef __BORLANDC__
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 	}
 
@@ -257,7 +257,7 @@ class Seconds : public MilliSeconds<BaseT>
 #endif
 		return formatNumber( part ? this->secondsPart() : get() ) + "s " + MilliSeconds<BaseT>::toString( true );
 #ifdef __BORLANDC__
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 	}
 };
@@ -300,7 +300,7 @@ class Minutes : public Seconds<BaseT>
 #endif
 		return formatNumber( part ? this->minutesPart() : get() ) + "m " + Seconds<BaseT>::toString( true );
 #ifdef __BORLANDC__
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 	}
 };
@@ -343,7 +343,7 @@ class Hours : public Minutes<BaseT>
 #endif
 		return formatNumber( part ? this->hoursPart() : get() ) + "h " + Minutes<BaseT>::toString( true );
 #ifdef __BORLANDC__
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 	}
 };

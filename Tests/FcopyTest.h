@@ -274,6 +274,6 @@ static FcopyTest myFcopyTest;
 #	pragma option -a.
 #	pragma option -p.
 
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 

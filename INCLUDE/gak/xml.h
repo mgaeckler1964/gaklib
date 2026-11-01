@@ -924,7 +924,7 @@ inline void Element::remove()
 #	pragma option -a.
 #	pragma option -p.
 
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 
 #endif

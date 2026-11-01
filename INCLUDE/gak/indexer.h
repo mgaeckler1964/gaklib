@@ -104,7 +104,7 @@ inline bool isSpecialIndex( const STRING &index )
 	return index.size() > 1 && (index[0U] == ' ' || index[index.size()-1] == ' ');
 }
 #ifdef __BORLANDC__
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 
 /// TODO PairMap has performance problems with large database. Analyse whether we should remove the option to use a pairmap

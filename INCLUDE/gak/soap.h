@@ -336,7 +336,7 @@ class SoapRequest : public HTTPrequest
 #	pragma option -p.
 #	pragma option -a.
 
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 
 #ifdef _MSC_VER

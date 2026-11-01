@@ -204,7 +204,7 @@ inline F_STRING removeExtension( const F_STRING &complete )
 }
 
 #ifdef __BORLANDC__
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 
 /* from directory.cpp */

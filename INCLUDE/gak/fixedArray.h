@@ -361,8 +361,8 @@ std::ostream &operator << ( std::ostream &stream, const FixedArray<OBJ, SIZE> &a
 #	pragma option -a.
 #	pragma option -p.
 
-#   pragma warn +ccc
-#	pragma warn +rch
+#   pragma warn .ccc
+#	pragma warn .rch
 #endif
 
 #endif

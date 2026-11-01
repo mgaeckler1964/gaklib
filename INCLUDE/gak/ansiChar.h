@@ -132,7 +132,7 @@ static const unsigned char CONTROL_CHAR=0x40;
 			return c>=0 && c<=127;
 		}
 	#ifdef __BORLANDC__
-		#pragma warn +ccc
+		#pragma warn .ccc
 	#endif
 #else
 	#define isAscii( c )	((c)>=0 && (c)<=127)
