@@ -448,14 +448,10 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 		);
 		this->mergeTile(*tileMap);
 		const typename TileT::place_container_type &places = tileMap->getAllPlaces();
-		for(
-			typename TileT::place_container_type::const_iterator it = places.cbegin(), endIT = places.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER( typename TileT::place_container_type, places, it, 
 		{
 			addPlace(it->getKey(), it->getValue() );
-		}
+		});
 		const typename TileT::area_container_type &areas = tileMap->getAllAreas();
 		FOR_EACH_CITER( typename TileT::area_container_type, areas, it,
 		{
@@ -624,15 +620,10 @@ void BasicOpenStreetMap<MapT, IndexT>::getPlaces(
 				float(region.topLeft.latitude)
 			)
 		);
-		for(
-			typename Layer::const_iterator	it = rangeValues.cbegin(),
-				endIT = rangeValues.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER(typename Layer, rangeValues, it, 
 		{
 			latNodes.addElement( it->nodeID );
-		}
+		});
 	}
 	lonNodes.sort( FixedComparator<OsmNodeKeyT>() );
 	latNodes.sort( FixedComparator<OsmNodeKeyT>() );
@@ -668,15 +659,10 @@ void BasicOpenStreetMap<MapT, IndexT>::getAreas(
 			)
 		);
 
-		for(
-			typename Layer::const_iterator	it = rangeValues.cbegin(),
-				endIT = rangeValues.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER( typename Layer, rangeValues, it, 
 		{
 			lonAreas.addElement( it->nodeID );
-		}
+		});
 	}
 
 	if( m_latAreaIndex.hasElement(layerKey) )
@@ -690,15 +676,10 @@ void BasicOpenStreetMap<MapT, IndexT>::getAreas(
 				float(region.topLeft.latitude)
 			)
 		);
-		for(
-			typename Layer::const_iterator	it = rangeValues.cbegin(),
-				endIT = rangeValues.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER( typename Layer, rangeValues, it, 
 		{
 			latAreas.addElement( it->nodeID );
-		}
+		});
 	}
 	lonAreas.sort( FixedComparator<OsmAreaKeyT>() );
 	latAreas.sort( FixedComparator<OsmAreaKeyT>() );

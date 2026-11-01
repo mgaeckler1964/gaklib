@@ -190,7 +190,7 @@ size_t readFIELD_SET( std::istream &is, ArrayOfStrings &fieldDef, FieldSet *reco
 
 	readCSVLine( is, &fieldData );
 
-	return createFIELD_SET( fieldDef, fieldData, record );;
+	return createFIELD_SET( fieldDef, fieldData, record );
 }
 
 }	// namespace gak

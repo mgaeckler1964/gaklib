@@ -341,14 +341,11 @@ class NeuronNetwork : public Array< NeuronLayer<ACTIVATION_T> >
 	NeuronNetwork( const PODarray<std::size_t> &numNeurons ) : Array< NeuronLayer<ACTIVATION_T> >(numNeurons.size()) 
 	{
 		typename BaseT::iterator myIT = this->begin();
-		for(
-			typename Array<std::size_t>::const_iterator it = numNeurons.cbegin(), endIT = numNeurons.cend();
-			it != endIT;
-			++it, ++myIT
-		)
+		FOR_EACH_CITER(Array<std::size_t>, numNeurons, it,
 		{
 			myIT->setSize(*it);
-		}
+			++myIT;
+		});
 	}
 	double getLoss(const BaseValues &actual, const BaseValues &expected)
 	{

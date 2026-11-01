@@ -380,7 +380,7 @@ int SocketStreambuf::underflow( void )
 			}
 			else if( count < 0 )
 			{
-				m_socketError = WSAGetLastError();;
+				m_socketError = WSAGetLastError();
 			}
 		}
 	}

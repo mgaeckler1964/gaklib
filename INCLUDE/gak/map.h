@@ -990,14 +990,10 @@ ResultT getKeys( const MAP &map )
 	ResultT	result;
 
 	result.setMinSize( map.size() );
-	for( 
-		typename MAP::const_iterator it = map.cbegin(), endIT = map.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER( typename MAP, map, it,
 	{
 		result.addElement( it->getKey() );
-	}
+	});
 
 	return result;
 }
@@ -1005,17 +1001,13 @@ ResultT getKeys( const MAP &map )
 template <class MAP>
 bool hasElement( const MAP &map, const typename MAP::key_type &key )
 {
-	for(
-		typename MAP::const_iterator it = map.cbegin(), endIT = map.cend();
-		it != endIT;
-		++it 
-	)
+	FOR_EACH_CITER( typename MAP, map, it,
 	{
 		if( it->getKey() == key )
 		{
 			return true;
 		}
-	}
+	});
 
 	return false;
 }
@@ -1024,17 +1016,13 @@ template <class MAP>
 typename MAP::key_type findValue( const MAP &map, const typename MAP::mapped_type &value )
 {
 	typedef typename MAP::key_type KeyT;
-	for(
-		typename MAP::const_iterator it = map.cbegin(), endIT = map.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER( typename MAP, map, it,
 	{
 		if( it->getValue() == value )
 		{
 			return it->getKey();
 		}
-	}
+	});
 
 	return KeyT();
 }

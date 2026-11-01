@@ -357,7 +357,7 @@ class ContainerTest : public gak::UnitTest
 		{
 			UT_EXPECT_EQUAL( 7, *it ); ++it;
 		}
-		UT_EXPECT_EQUAL( it, range.cend() );;
+		UT_EXPECT_EQUAL( it, range.cend() );
 
 		range = container.getRange( 7, 11 );
 		it = range.cbegin();
@@ -373,13 +373,13 @@ class ContainerTest : public gak::UnitTest
 		it = range.cbegin();
 		UT_EXPECT_EQUAL( 1, *it ); ++it;
 		UT_EXPECT_EQUAL( 3, *it ); ++it;
-		UT_EXPECT_EQUAL( it, range.cend() );;
+		UT_EXPECT_EQUAL( it, range.cend() );
 
 		range = container.getRange( -9, -1 );
-		UT_EXPECT_EQUAL( range.cbegin(), range.cend() );;
+		UT_EXPECT_EQUAL( range.cbegin(), range.cend() );
 
 		range = container.getRange( 10, 11 );
-		UT_EXPECT_EQUAL( range.cbegin(), range.cend() );;
+		UT_EXPECT_EQUAL( range.cbegin(), range.cend() );
 	}
 	template <typename ContainerT>
 	void testSetOperations()
@@ -520,14 +520,11 @@ class ContainerTest : public gak::UnitTest
 
 		// walk through with iterator
 		size_t i=0;
-		for(
-			typename ContainerT::const_iterator	it = theContainer.cbegin(), endIT = theContainer.cend();
-			it != endIT; 
-			++it, ++i 
-		)
+		FOR_EACH_CITER( typename ContainerT, theContainer, it, 
 		{
 			items.push( *it );
-		}
+			++i;
+		});
 		UT_EXPECT_EQUAL( i, theContainer.size() );
 
 		// walk through with reverse iterator

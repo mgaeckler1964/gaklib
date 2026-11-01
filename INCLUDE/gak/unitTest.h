@@ -423,7 +423,7 @@ void testRange(
 {
 	STRING			log;
 	oSTRINGstream	logStream( log );
-	bool			success = minVal <= val && val <= maxVal;;
+	bool			success = minVal <= val && val <= maxVal;
 
 	logStream << val << " not in [" << minVal << ',' << maxVal << ']';
 	logStream.flush();

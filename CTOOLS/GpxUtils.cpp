@@ -493,7 +493,7 @@ STRING GPXtrack::LoadCrpTrack( const STRING &crpFilename )
 				minute,
 				second;
 
-	double		speedKm, speedM, lastSpeed, acceleration;;
+	double		speedKm, speedM, lastSpeed, acceleration;
 	int			lastDistance, distance, heightDistance;
 	double		sphereDistance, gradient;
 	double		temperature;

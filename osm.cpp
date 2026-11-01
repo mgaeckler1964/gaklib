@@ -330,15 +330,10 @@ struct XmlProcessor : public XmlNullProcessor
 	static void printCounter( std::ostream &out, const STRING name, const ValueCounter &counter )
 	{
 		out << name.padCopy( 32, STR_P_LEFT ) << "----------------------------------------\n";
-		for(
-			XmlProcessor::ValueCounter::const_iterator it = counter.cbegin(),
-				endIT = counter.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER( XmlProcessor::ValueCounter, counter, it,
 		{
 			out << it->getKey().padCopy( 32, STR_P_LEFT ) << ": " << it->getValue() << '\n';
-		}
+		});
 	}
 
 	STRING getTileFileName( tileid_t tileID ) const
@@ -367,55 +362,55 @@ struct XmlProcessor : public XmlNullProcessor
 	}
 	bool hasArea( OsmAreaKeyT id ) const
 	{
-		for(MapData::const_iterator it = m_map.cbegin(), endIT = m_map.cend(); it != endIT; ++it ) 
+		FOR_EACH_CITER(MapData, m_map, it,
 		{
 			if( it->getValue().hasArea( id ) )
 				return true;
-		}
+		});
 		return false;
 	}
 	size_t getNumNodes() const
 	{
 		size_t numNodes = 0;
-		for(MapData::const_iterator it = m_map.cbegin(), endIT = m_map.cend(); it != endIT; ++it ) 
+		FOR_EACH_CITER(MapData, m_map, it,
 		{
 			numNodes += it->getValue().getNumNodes();
-		}
+		});
 		return numNodes;
 	}
 	size_t getNumAreas() const
 	{
 		size_t numAreas = 0;
-		for(MapData::const_iterator it = m_map.cbegin(), endIT = m_map.cend(); it != endIT; ++it ) 
+		FOR_EACH_CITER(MapData, m_map, it,
 		{
 			numAreas += it->getValue().getNumAreas();
-		}
+		});
 		return numAreas;
 	}
 	size_t getNumPlaces() const
 	{
 		size_t numPlaces = 0;
-		for(MapData::const_iterator it = m_map.cbegin(), endIT = m_map.cend(); it != endIT; ++it ) 
+		FOR_EACH_CITER(MapData, m_map, it,
 		{
 			numPlaces += it->getValue().getNumPlaces();
-		}
+		});
 		return numPlaces;
 	}
 	size_t getNumLinks() const
 	{
 		size_t numLinks = 0;
-		for(MapData::const_iterator it = m_map.cbegin(), endIT = m_map.cend(); it != endIT; ++it ) 
+		FOR_EACH_CITER(MapData, m_map, it,
 		{
 			numLinks += it->getValue().getNumLinks();
-		}
+		});
 		return numLinks;
 	}
 	void saveTiles()
 	{
-		for(MapData::const_iterator it = m_map.cbegin(), endIT = m_map.cend(); it != endIT; ++it ) 
+		FOR_EACH_CITER(MapData, m_map, it,
 		{
 			writeToBinaryFile( getTileFileName(it->getKey()), it->getValue(), OSM_MAGIC2, VERSION_MAGIC, owmOverwrite );
-		}
+		});
 	}
 	void initItem()
 	{
@@ -947,7 +942,7 @@ struct XmlProcessor : public XmlNullProcessor
 		WayPoints::const_iterator	it = way.m_wayPoints.cbegin(), 
 									endIT = way.m_wayPoints.cend();
 		OsmNodeKeyT					startNodeID = *it;
-		OsmNode						startNode = addWayPoint( startNodeID, way.type );;
+		OsmNode						startNode = addWayPoint( startNodeID, way.type );
 		++it;
 		do
 		{
@@ -1101,15 +1096,11 @@ struct XmlProcessor : public XmlNullProcessor
 		Area	area;
 		area.points.setCapacity( areaNodes.size(), true );
 
-		for( 
-			WayPoints::const_iterator it = areaNodes.cbegin(), endIT = areaNodes.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER(WayPoints, areaNodes, it,
 		{
 			const OsmNode &node = m_allNodes[*it];
 			area.points.addElement( node.getPosition() );
-		}
+		});
 
 		map.addArea( areaID, areaType, area );
 		{
@@ -1358,10 +1349,7 @@ static STRING osm( const CommandLine &cmdLine, const STRING &iOsmFile)
 				<< "List of Tiles:" 
 				<< std::endl;
 	size_t count1 = 0;
-	for( 
-		Array<tileid_t>::const_iterator it = tileIDs1.cbegin(), endIT = tileIDs1.cend();
-		it != endIT;
-		++it )
+	FOR_EACH_CITER(Array<tileid_t>, tileIDs1, it, 
 	{
 		if( count1 )
 		{
@@ -1373,13 +1361,10 @@ static STRING osm( const CommandLine &cmdLine, const STRING &iOsmFile)
 		}
 		std::cout << *it;
 		++count1;
-	}
+	});
 
 	size_t count2 = 0;
-	for( 
-		TileIDsSet::const_iterator it = tileIDs2.cbegin(), endIT = tileIDs2.cend();
-		it != endIT;
-		++it )
+	FOR_EACH_CITER(TileIDsSet, tileIDs2, it,
 	{
 		if( count2 )
 		{
@@ -1391,7 +1376,7 @@ static STRING osm( const CommandLine &cmdLine, const STRING &iOsmFile)
 		}
 		std::cout << *it;
 		++count2;
-	}
+	});
 	return mapFile;
 }
 

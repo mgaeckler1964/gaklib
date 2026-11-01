@@ -567,7 +567,7 @@ int Board::evaluateMovements(Movements &movements, int maxLevel)
 
 	--maxLevel;
 	int minVal = std::numeric_limits<int>::max();
-	int maxVal = std::numeric_limits<int>::min();;
+	int maxVal = std::numeric_limits<int>::min();
 	flipTurn();
 	for(
 		Movements::iterator it = movements.begin(), endIT = movements.end();
@@ -1313,7 +1313,7 @@ void Board::generateFromString(const STRING &string )
 				if(isWhiteTurn(newColor))
 					m_whiteK = static_cast<King*>(fig);
 				else
-					m_blackK = static_cast<King*>(fig);;
+					m_blackK = static_cast<King*>(fig);
 			}
 		}
 	}
@@ -1349,7 +1349,7 @@ void Board::clone( const Board &src )
 				if(isWhiteTurn(newColor))
 					m_whiteK = static_cast<King*>(fig);
 				else
-					m_blackK = static_cast<King*>(fig);;
+					m_blackK = static_cast<King*>(fig);
 			}
 		}
 	}

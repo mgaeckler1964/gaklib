@@ -626,7 +626,7 @@ void UnitTest::ThreadTest( SortedArray<const char*> &testsToPerform, bool checkT
 		if( theTest->canThreadTest() && (!testFilter || testIndex != testsToPerform.no_index ))
 		{
 			std::cout << "Threading " << std::setw(width) << (i++) << '/' << numElements << ' ' 
-					  << STRING(theTest->GetClassName()).pad(TEST_NAME_WIDTH, STR_P_RIGHT ) << std::flush;;
+					  << STRING(theTest->GetClassName()).pad(TEST_NAME_WIDTH, STR_P_RIGHT ) << std::flush;
 			bool errFlag = ThreadTest( theTest, &muliThreadTestPool );
 			if( !errFlag && checkTested )
 				addToTested(theTest->GetClassName());
