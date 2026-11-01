@@ -114,8 +114,8 @@ class Array : public ArrayBase<OBJ, ALLOCATOR>
 		@brief creates a new array 
 		@param [in] arr  the C-Array to use for initialisation of the array
 	*/
-	template <typename T, size_t N>
-	Array(T (&arr)[N]) : Super(arr)
+	template <size_t N>
+	Array(const OBJ (&arr)[N]) : Super(arr)
 	{
 	}
 
@@ -209,8 +209,8 @@ class PODarray : public Array< OBJ, PODallocator<OBJ> >
 		@brief creates a new array 
 		@param [in] arr  the C-Array to use for initialisation of the array
 	*/
-	template <typename T, size_t N>
-	PODarray(T (&arr)[N]) : Super(arr)
+	template <size_t N>
+	PODarray(const OBJ (&arr)[N]) : Super(arr)
 	{
 	}
 };

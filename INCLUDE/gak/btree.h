@@ -65,10 +65,10 @@
 #	pragma option -pc
 #endif
 
-#ifdef __BORLANDC__
-#	define SAFER_BTREE	1
-#else
+#ifdef NDEBUG
 #	define SAFER_BTREE	0
+#else
+#	define SAFER_BTREE	1
 #endif
 
 namespace gak
@@ -861,18 +861,12 @@ class Btree : public Container
 		// cannot change data
 		operator const OBJ * () const
 		{
-#if SAFER_BTREE
-			if( !this->value )
-				throw IndexError();
-#endif
+			// we must not check for null values here
 			return &this->value->m_data;
 		}
 		const OBJ *operator -> () const
 		{
-#if SAFER_BTREE
-			if( !this->value )
-				throw IndexError();
-#endif
+			// we must not check for null values here
 			return &this->value->m_data;
 		}
 		const OBJ & operator * () const

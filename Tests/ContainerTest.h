@@ -1,18 +1,18 @@
 /*
 		Project:		GAKLIB
 		Module:			ContainerTest.h
-		Description:	
+		Description:
 		Author:			Martin Gäckler
 		Address:		Hofmannsthalweg 14, A-4030 Linz
 		Web:			https://www.gaeckler.at/
 
 		Copyright:		(c) 1988-2026 Martin Gäckler
 
-		This program is free software: you can redistribute it and/or modify  
-		it under the terms of the GNU General Public License as published by  
+		This program is free software: you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
 		the Free Software Foundation, version 3.
 
-		You should have received a copy of the GNU General Public License 
+		You should have received a copy of the GNU General Public License
 		along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 		THIS SOFTWARE IS PROVIDED BY Martin Gäckler, Linz, Austria ``AS IS''
@@ -308,6 +308,7 @@ class ContainerTest : public gak::UnitTest
 			TestScope scope("SortedArray<int>");
 			testGetRange< SortedArray<int> >(false);
 		}
+
 		{
 			TestScope scope("Btree<int>");
 			testGetRange< Btree<int> >(true);
@@ -322,6 +323,8 @@ class ContainerTest : public gak::UnitTest
 			arrayString2.merge(arrayString);
 			UT_EXPECT_EQUAL(arrayString2.size(), 2*arrayString.size());
 		}
+
+		forEachTest();
 	}
 
 	template <typename ContainerT>
@@ -364,7 +367,7 @@ class ContainerTest : public gak::UnitTest
 			UT_EXPECT_EQUAL( 7, *it ); ++it;
 		}
 		UT_EXPECT_EQUAL( 9, *it ); ++it;
-		UT_EXPECT_EQUAL( it, range.cend() );;
+		UT_EXPECT_EQUAL( it, range.cend() );
 
 		range = container.getRange( 0, 5 );
 		it = range.cbegin();
@@ -673,6 +676,47 @@ class ContainerTest : public gak::UnitTest
 			}
 		}
 	}
+
+	void forEachTest()
+	{
+		const int testInts[] = { 1,2,3,4,5 };
+
+		// the variant for good old C compiler
+		int testSum = 0;
+		FOR_EACH( idx, testInts, {
+			testSum += testInts[idx];
+		});
+		UT_EXPECT_EQUAL( testSum, 15 );
+
+		// the C++-98 Version with modifying iterator
+		testSum = 0;
+		gak::Array<int>	testArray( testInts );
+		FOR_EACH_ITER( gak::Array<int>, testArray, it, {
+			testSum += *it;
+			*it *= 2;
+		});
+		UT_EXPECT_EQUAL( testSum, 15 );
+
+		// the C++-98 Version with const iterator
+		testSum = 0;
+		FOR_EACH_CITER( gak::Array<int>, testArray, it, {
+			testSum += *it;
+		});
+		UT_EXPECT_EQUAL( testSum, 30 );
+
+#if __cplusplus>=201703 || (defined(_MSC_VER) && _MSC_VER >= 1600)
+		// the modern C++ Version
+		testSum = 0;
+		testArray.forEach( [&](int val) -> bool
+		{
+			testSum += val;
+			return val >= 8;
+		});
+		UT_EXPECT_EQUAL( testSum, 20 );
+#endif
+
+	}
+
 };
 
 // --------------------------------------------------------------------- //
@@ -737,6 +781,6 @@ static ContainerTest myContainerTest;
 #	pragma option -a.
 #	pragma option -p.
 
-#	pragma warn +inl
+#	pragma warn .inl
 #endif
 

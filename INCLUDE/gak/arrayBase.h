@@ -351,8 +351,8 @@ class ArrayBase : public Container
 		@brief creates a new array 
 		@param [in] arr  the C-Array to use for initialisation of the array
 	*/
-	template <typename T, size_t N>
-	ArrayBase(T (&arr)[N])
+	template <size_t N>
+	ArrayBase(const OBJ (&arr)[N])
 	{
 		forget();
 		addElements( arr, N );
@@ -1498,6 +1498,15 @@ template <class OBJ> std::istream &operator >> ( std::istream &source, ArrayBase
 
 }	// namespace gak
 
+// here are two for each loops for compiler that do not know lambdas
+#define FOR_EACH_ITER( ArrayT, theArray, it, body )										\
+	for( ArrayT::iterator it=theArray.begin(), endIT=theArray.end(); it!=endIT; ++it )	\
+	{ body }
+
+#define FOR_EACH_CITER( ArrayT, theArray, it, body )												\
+	for( ArrayT::const_iterator it=theArray.cbegin(), endIT=theArray.cend(); it!=endIT; ++it )	\
+	{ body }
+		
 #ifdef _MSC_VER
 #	pragma warning ( pop )
 #endif
@@ -1509,8 +1518,8 @@ template <class OBJ> std::istream &operator >> ( std::istream &source, ArrayBase
 #	pragma option -p.
 #	pragma option -a.
 
-#   pragma warn +ccc
-#	pragma warn +rch
+#   pragma warn .ccc
+#	pragma warn .rch
 #endif
 
 #endif	// GAK_ARRAY_BASE_H
