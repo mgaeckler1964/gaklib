@@ -1500,11 +1500,11 @@ template <class OBJ> std::istream &operator >> ( std::istream &source, ArrayBase
 
 // here are two for each loops for compiler that do not know lambdas
 #define FOR_EACH_ITER( ArrayT, theArray, it, body )										\
-	for( ArrayT::iterator it=theArray.begin(), endIT=theArray.end(); it!=endIT; ++it )	\
+	for( ArrayT::iterator it=(theArray).begin(), endIT=(theArray).end(); it!=endIT; ++it )	\
 	{ body }
 
 #define FOR_EACH_CITER( ArrayT, theArray, it, body )												\
-	for( ArrayT::const_iterator it=theArray.cbegin(), endIT=theArray.cend(); it!=endIT; ++it )	\
+	for( ArrayT::const_iterator it=(theArray).cbegin(), endIT=(theArray).cend(); it!=endIT; ++it )	\
 	{ body }
 		
 #ifdef _MSC_VER

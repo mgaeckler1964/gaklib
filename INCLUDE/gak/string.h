@@ -97,8 +97,10 @@
 
 #define STR_NOT_FOUND ((size_t)-1)
 
+#ifdef __BORLANDC__	// stupid C++ Builder does not like the constant variables, it confused the precompiled header
 #define NULL_STRING		STRING( (const char *)0 )
 #define EMPTY_STRING	STRING( "" )
+#endif
 
 
 /* --------------------------------------------------------------------- */
@@ -1024,6 +1026,11 @@ inline std::istream &operator >> ( std::istream &theStream, STRING &destination 
 	destination.readLine( theStream );
 	return theStream;
 }
+
+#ifndef __BORLANDC__
+const STRING NULL_STRING=STRING( (const char *)0 );
+const STRING EMPTY_STRING=STRING( "" );
+#endif
 
 
 } // namespace gak
