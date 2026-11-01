@@ -258,11 +258,7 @@ void UnitTest::PerformTests( const char *argv[] )
 		SortedArray<const char*>	excludes;
 		excludes.moveFrom( testsToPerform );
 
-		for( 
-			Array<UnitTest*>::const_iterator it = theTestItems.cbegin(), endIT = theTestItems.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER(Array<UnitTest*>, theTestItems, it, 
 		{
 			UnitTest	*theTest = *it;
 			if( !theTest->isDisabled() )
@@ -276,7 +272,7 @@ void UnitTest::PerformTests( const char *argv[] )
 					testsToPerform.addElement( theTest->GetClassName() );
 				}
 			}
-		}
+		});
 	}
 
 	if( checkTested && alreadyTested.size() && !testsToPerform.size() )
@@ -296,15 +292,11 @@ void UnitTest::PerformTests( const char *argv[] )
 
 void UnitTest::ShowNotFound( const SortedArray<const char*> &testsToPerform )
 {
-	for( 
-		SortedArray<const char*>::const_iterator it = testsToPerform.cbegin(), endIT = testsToPerform.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER( SortedArray<const char*>, testsToPerform, it,
 	{
 		std::cout << "Test " << *it << " not found!" << std::endl;
 		AddClassError( *it, "Test not found!" );
-	}
+	});
 }
 
 /*
@@ -386,11 +378,7 @@ void UnitTest::PerformTests( SortedArray<const char*> &testsToPerform, bool catc
 	std::size_t				numElements = testFilter ? testFilter : theTestItems.size();
 	std::size_t				width = math::getExponent( double(numElements) )+1;
 	std::size_t				numDisabledTests = 0;
-	for( 
-		Array<UnitTest*>::const_iterator it = theTestItems.cbegin(), endIT = theTestItems.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER(Array<UnitTest*>, theTestItems, it,
 	{
 		UnitTest	*theTest = *it;
 		size_t		testIndex = testsToPerform.findElement( theTest->GetClassName() );
@@ -413,7 +401,7 @@ void UnitTest::PerformTests( SortedArray<const char*> &testsToPerform, bool catc
 				testsToPerform.removeElementAt( testIndex );
 			}
 		}
-	}
+	});
 	ShowNotFound(testsToPerform);
 	std::cout << numDisabledTests << " disabled test(s)" << std::endl;
 }
@@ -429,11 +417,7 @@ void UnitTest::PrintResult()
 
 	const Array<UnitTest*>	&theTestItems = getTheTestItems();
 	std::cout << "\nExecution Time(s):\n";
-	for( 
-		Array<UnitTest*>::const_iterator it = theTestItems.cbegin(), endIT = theTestItems.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER( Array<UnitTest*>, theTestItems, it,
 	{
 
 		const UnitTest	*theTest = *it;
@@ -443,15 +427,11 @@ void UnitTest::PrintResult()
 					  << ' ' << theTest->m_ellapsedTime.toString() << std::endl;
 			numTestedClasses++;
 		}
-	}
+	});
 
 	std::cout << "\nError(s):\n";
 	std::size_t	errorCount = 0;
-	for( 
-		Array<TestResult>::const_iterator it = s_theTestResults.cbegin(), endIT = s_theTestResults.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER( Array<TestResult>, s_theTestResults, it,
 	{
 		const TestResult	&theResult = *it;
 		if( !theResult.m_success )
@@ -460,7 +440,7 @@ void UnitTest::PrintResult()
 			std::cout << theResult << '\n';
 			failedClasses += STRING(theResult.m_className);
 		}
-	}
+	});
 	if( !errorCount )
 	{
 		std::cout << "None 8-)" << std::endl;
@@ -468,12 +448,10 @@ void UnitTest::PrintResult()
 	if( failedClasses.size() )
 	{
 		std::cout << "\nFailed Class(es):\n";
-		for( 
-			Set<STRING>::const_iterator it = failedClasses.cbegin(), endIT = failedClasses.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER( Set<STRING>, failedClasses, it,
+		{
 			std::cout << *it << '\n';
+		});
 	}
 
 	std::cout	<< "\nSummary:\n" 
@@ -483,13 +461,10 @@ void UnitTest::PrintResult()
 				<< errorCount << " error(s)\n"
 	;
 
-	for( 
-		Array<StressResult>::const_iterator it = s_theStressResults.cbegin(), endIT = s_theStressResults.cend(); 
-		it != endIT;
-		++it )
+	FOR_EACH_CITER( Array<StressResult>, s_theStressResults, it,
 	{
 		std::cout << it->testName << '\t' << it->goodCount << ' ' << it->goodTime << '\t' << it->badCount << ' ' << it->badTime << std::endl;
-	}
+	});
 	if( !errorCount )
 		std::cout << "\nCongratulations!!!!\n";
 }
@@ -549,11 +524,8 @@ void UnitTest::StressTests( SortedArray<const char*> &testsToPerform, bool check
 	std::size_t				numElements = testFilter ? testFilter : theTestItems.size();
 	std::size_t				width = math::getExponent( double(numElements) )+1;
 	std::size_t				numDisabledTests = 0;
-	for( 
-		Array<UnitTest*>::const_iterator it = theTestItems.cbegin(), endIT = theTestItems.cend();
-		it != endIT;
-		++it
-	)
+
+	FOR_EACH_CITER(Array<UnitTest*>, theTestItems, it, 
 	{
 		UnitTest	*theTest = *it;
 		size_t		testIndex = testsToPerform.findElement( theTest->GetClassName() );
@@ -576,7 +548,7 @@ void UnitTest::StressTests( SortedArray<const char*> &testsToPerform, bool check
 				testsToPerform.removeElementAt( testIndex );
 			}
 		}
-	}
+	});
 	ShowNotFound(testsToPerform);
 	std::cout << numDisabledTests << " disabled test(s)" << std::endl;
 }
@@ -641,11 +613,7 @@ void UnitTest::ThreadTest( SortedArray<const char*> &testsToPerform, bool checkT
 
 	muliThreadTestPool.start();
 
-	for( 
-		Array<UnitTest*>::const_iterator it = theTestItems.cbegin(), endIT = theTestItems.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER(Array<UnitTest*>, theTestItems, it, 
 	{
 		UnitTest	*theTest = *it;
 		size_t		testIndex = testsToPerform.findElement( theTest->GetClassName() );
@@ -668,7 +636,7 @@ void UnitTest::ThreadTest( SortedArray<const char*> &testsToPerform, bool checkT
 				testsToPerform.removeElementAt( testIndex );
 			}
 		}
-	}
+	});
 	muliThreadTestPool.flush();
 	muliThreadTestPool.shutdown();
 

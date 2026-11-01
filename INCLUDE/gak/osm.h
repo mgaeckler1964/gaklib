@@ -457,14 +457,10 @@ class BasicOpenStreetMap : public GeoGraph<OsmNode, OsmLink, MapT, IndexT, OsmLa
 			addPlace(it->getKey(), it->getValue() );
 		}
 		const typename TileT::area_container_type &areas = tileMap->getAllAreas();
-		for(
-			typename TileT::area_container_type::const_iterator it = areas.cbegin(), endIT = areas.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER( typename TileT::area_container_type, areas, it,
 		{
 			addArea(it->getKey(), it->getValue() );
-		}
+		});
 		this->mergeIndex(m_lonPlaceIndex, tileMap->getLonPlaceIndex());
 		this->mergeIndex(m_latPlaceIndex, tileMap->getLatPlaceIndex());
 		this->mergeIndex(m_lonAreaIndex, tileMap->getLonAreaIndex());
@@ -611,15 +607,10 @@ void BasicOpenStreetMap<MapT, IndexT>::getPlaces(
 			)
 		);
 
-		for(
-			typename Layer::const_iterator	it = rangeValues.cbegin(),
-				endIT = rangeValues.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER( typename Layer, rangeValues, it, 
 		{
 			lonNodes.addElement( it->nodeID );
-		}
+		});
 	}
 
 	if( m_latPlaceIndex.hasElement(layerKey) )
@@ -719,11 +710,7 @@ void BasicOpenStreetMap<MapT, IndexT>::addArea( OsmAreaKeyT key, OsmLayerKeyT la
 {
 	addArea(key, newArea);
 
-	for(
-		Area::const_iterator it = newArea.cbegin(), endIT = newArea.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER(Area, newArea, it, 
 	{
 		float	 longitude = it->longitude;
 		float	 latitude = it->latitude;
@@ -736,7 +723,7 @@ void BasicOpenStreetMap<MapT, IndexT>::addArea( OsmAreaKeyT key, OsmLayerKeyT la
 		m_latAreaIndex[layerKey].addElement(
 			PositionValue( latitude, key )
 		);
-	}
+	});
 }
 
 // --------------------------------------------------------------------- //

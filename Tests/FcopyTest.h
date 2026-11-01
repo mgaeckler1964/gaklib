@@ -154,11 +154,7 @@ class FcopyTest : public UnitTest
 		ArrayOfStrings	usbDrives;
 
 		getUSBdrives( &usbDrives );
-		for(
-			ArrayOfStrings::iterator it = usbDrives.begin(), endIT = usbDrives.end();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_ITER( ArrayOfStrings, usbDrives, it,
 		{
 			STRING	targetFile = *it;
 			targetFile += "FcopyTest.tmp";
@@ -166,7 +162,7 @@ class FcopyTest : public UnitTest
 			{ TestScope _( __FILE__ "true" );		copyFileTest( __FILE__, targetFile, true ); }
 			{ TestScope _( "LICENSE" );				copyFileTest( "LICENSE", targetFile, true ); }
 			{ TestScope _( "GAKDLL32.DEF true" );	copyFileTest( TEST_PATH("GAKDLL32.DEF"), targetFile, true ); }
-		}
+		});
 
 		STRING targetFile = STRING(getTempPath()) + DIRECTORY_DELIMITER_STRING "FcopyTest" DIRECTORY_DELIMITER_STRING "copy.txt";
 

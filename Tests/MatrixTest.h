@@ -137,24 +137,16 @@ class MatrixTest : public UnitTest
 			(const_)iterator over the entire matrix
 		*/
 		i = 0;
-		for( 
-			Matrix<int>::iterator it = mat.begin(), endIT = mat.end();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_ITER(Matrix<int>, mat, it,
 		{
 			*it = i++;
-		}
+		});
 
 		i = 0;
-		for( 
-			Matrix<int>::const_iterator it = mat.cbegin(), endIT = mat.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER(Matrix<int>, mat, it,
 		{
 			UT_EXPECT_EQUAL( *it, i++ );
-		}
+		});
 
 		/*
 			(const_)reverse_iterator over the entire matrix

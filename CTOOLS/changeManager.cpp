@@ -142,85 +142,65 @@ ChangeManager::~ChangeManager()
 void ChangeManager::unregisterViewer( DocumentViewer *delViewer )
 {
 	doEnterFunction("ChangeManager::unregisterViewer");
-	for(
-		DocumentViewers::iterator it =  m_theViewer.begin(), endIT = m_theViewer.end();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_ITER(DocumentViewers,m_theViewer,it,
 	{
 		if( *it == delViewer )
 		{
 			m_theViewer.erase( it );
 			break;
 		}
-	}
+	});
 }
 
 void ChangeManager::setPosition( DocumentViewer *source, void *position )
 {
-	for(
-		DocumentViewers::iterator it =  m_theViewer.begin(), endIT = m_theViewer.end();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_ITER(DocumentViewers,m_theViewer,it,
 	{
 		DocumentViewer *theViewer = *it;
 		if( theViewer != source )
 		{
 			theViewer->handlePositionChange( m_theDocument, position );
 		}
-	}
+	});
 }
 void ChangeManager::setChanged( DocumentViewer *source, void *item )
 {
 	m_changed = true;
 
-	for(
-		DocumentViewers::iterator it =  m_theViewer.begin(), endIT = m_theViewer.end();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_ITER(DocumentViewers,m_theViewer,it,
 	{
 		DocumentViewer *theViewer = *it;
 		if( theViewer != source )
 		{
 			theViewer->handleChange( m_theDocument, item );
 		}
-	}
+	});
 }
 void ChangeManager::setNew( DocumentViewer *source, void *item )
 {
 	m_changed = true;
 
-	for(
-		DocumentViewers::iterator it =  m_theViewer.begin(), endIT = m_theViewer.end();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_ITER(DocumentViewers,m_theViewer,it,
 	{
 		DocumentViewer *theViewer = *it;
 		if( theViewer != source )
 		{
 			theViewer->handleNew( m_theDocument, item );
 		}
-	}
+	});
 }
 void ChangeManager::setDelete( DocumentViewer *source, void *item )
 {
 	m_changed = true;
 
-	for(
-		DocumentViewers::iterator it =  m_theViewer.begin(), endIT = m_theViewer.end();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_ITER(DocumentViewers,m_theViewer,it,
 	{
 		DocumentViewer *theViewer = *it;
 		if( theViewer != source )
 		{
 			theViewer->handleDelete( m_theDocument, item );
 		}
-	}
+	});
 }
 // --------------------------------------------------------------------- //
 // ----- entry points -------------------------------------------------- //

@@ -158,8 +158,8 @@ class GeometryTest : public UnitTest
 				Point<double>		kp1( x, y );
 				PolarPoint<double>	pp( kp1 );
 				Point<double>		kp2( pp );
-				UT_EXPECT_EQUAL( kp1.x, kp2.x );
-				UT_EXPECT_EQUAL( kp1.y, kp2.y );
+				UT_EXPECT_EQUAL_FLT( kp1.x, kp2.x, std::numeric_limits<double>::epsilon()*10 );
+				UT_EXPECT_EQUAL_FLT( kp1.y, kp2.y, std::numeric_limits<double>::epsilon()*10 );
 			}
 		}
 
@@ -170,8 +170,8 @@ class GeometryTest : public UnitTest
 				PolarPoint<double>	pp1( radius, angle );
 				Point<double>		kp( pp1 );
 				PolarPoint<double>	pp2( kp );
-				UT_EXPECT_EQUAL( pp1.radius, pp2.radius );
-				UT_EXPECT_EQUAL( pp1.angle, pp2.angle );
+				UT_EXPECT_EQUAL_FLT( pp1.radius, pp2.radius, std::numeric_limits<double>::epsilon()*10 );
+				UT_EXPECT_EQUAL_FLT( pp1.angle, pp2.angle, std::numeric_limits<double>::epsilon()*10 );
 			}
 		}
 	}

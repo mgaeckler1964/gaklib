@@ -493,14 +493,11 @@ class ContainerTest : public gak::UnitTest
 
 		// walk through with iterator
 		size_t i=0;
-		for(
-			typename ContainerT::iterator	it = theContainer.begin(), endIT = theContainer.end();
-			it != endIT; 
-			++it, ++i 
-		)
+		FOR_EACH_ITER(typename ContainerT, theContainer, it, 
 		{
 			items.push( *it );
-		}
+			++i;
+		});
 		UT_EXPECT_EQUAL( i, theContainer.size() );
 
 		// walk through with reverse iterator
@@ -552,11 +549,7 @@ class ContainerTest : public gak::UnitTest
 		Array<typename ContainerT::key_type>	keys = theContainer.getKeys();
 		UT_EXPECT_EQUAL( theContainer.size(), keys.size() );
 
-		for(
-			typename Array<typename ContainerT::key_type>::iterator it = keys.begin(), endIT = keys.end();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_ITER(typename Array<typename ContainerT::key_type>, keys, it,
 		{
 			if( !theContainer.hasElement( *it ) )
 				std::cout << "Data not found\n";
@@ -565,7 +558,7 @@ class ContainerTest : public gak::UnitTest
 			typename ContainerT::value_type	value = theContainer[*it];
 			typename ContainerT::key_type	key = theContainer.findElement( value );
 			UT_EXPECT_EQUAL( *it, key );
-		}
+		});
 	}
 	template<class ContainerT>
 	void testMapAccess( ContainerT &theContainer )
@@ -573,11 +566,7 @@ class ContainerTest : public gak::UnitTest
 		Array<typename ContainerT::key_type>	keys = theContainer.getKeys();
 		UT_EXPECT_EQUAL( theContainer.size(), keys.size() );
 
-		for(
-			typename Array<typename ContainerT::key_type>::iterator it = keys.begin(), endIT = keys.end();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_ITER(typename Array<typename ContainerT::key_type>, keys, it,
 		{
 			UT_EXPECT_TRUE( theContainer.hasElement( *it ) );
 			typename ContainerT::value_type	value = theContainer[*it];
@@ -585,7 +574,7 @@ class ContainerTest : public gak::UnitTest
 			UT_EXPECT_EQUAL( *it, key );
 
 			theContainer.removeElementByKey( key );
-		}
+		});
 		UT_EXPECT_EQUAL( theContainer.size(), size_t(0) );
 	}
 
@@ -633,11 +622,7 @@ class ContainerTest : public gak::UnitTest
 		Array<typename ContainerT::key_type>	keys = theContainer.getKeys();
 		UT_EXPECT_EQUAL( theContainer.size(), keys.size() );
 
-		for(
-			typename Array<typename ContainerT::key_type>::iterator it = keys.begin(), endIT = keys.end();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_ITER(typename Array<typename ContainerT::key_type>, keys, it,
 		{
 			UT_EXPECT_TRUE( theContainer.hasElement( *it ) );
 			typename ContainerT::mapped_type	value = theContainer[*it];
@@ -645,7 +630,7 @@ class ContainerTest : public gak::UnitTest
 			UT_EXPECT_EQUAL( *it, key );
 
 			theContainer.removeElementByKey( key );
-		}
+		});
 		UT_EXPECT_EQUAL( theContainer.size(), size_t(0) );
 	}
 

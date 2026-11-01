@@ -385,11 +385,7 @@ static void writeProfilerCSV()
 	assert( fp );
 
 	fp << "file,line,function,thread,cpu time,total time,total/count,count\n";
-	for( 
-		Summaries::iterator it = summaryEntries.begin(), endIT = summaryEntries.end();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_ITER(Summaries, summaryEntries, it, 
 	{
 		ProfileEntry		&theEntry = *it;
 		clock_t				executionTimeCPU = theEntry.startTimeCPU;
@@ -403,16 +399,12 @@ static void writeProfilerCSV()
 		{
 			theEntry.functionMap[theEntry.callerFunc]++;
 		}
-		for( 
-			FunctionMap::iterator it = theEntry.functionMap.begin(), endIT = theEntry.functionMap.end();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_ITER(FunctionMap, theEntry.functionMap, it, 
 		{
 			fp << '"' << it->first << "\"," << it->second << ',';
-		}
+		});
 		fp << '\n';
-	}
+	});
 
 	summaryEntries.clear();
 
@@ -421,17 +413,13 @@ static void writeProfilerCSV()
 	if( profileVctr.size() )
 	{
 		fp << "file,line,function,thread,cpu time,real time\n";
-		for(
-			ProfileVektor::const_iterator it = profileVctr.begin(), endIT = profileVctr.end();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_ITER(ProfileVektor, profileVctr, it, 
 		{
 			fp << it->file << ',' << it->line << ",\"" 
 				<< it->functionName << "\"," << (void*)it->threadId << ',' 
 				<< double(it->startTimeCPU)/double(CLOCKS_PER_SEC) << ',' << double(it->startTimeReal)/1000.0 
 				<< '\n';
-		}
+		});
 		profileVctr.clear();
 	}
 
@@ -447,11 +435,7 @@ static std::size_t enterFunction2( LogLevel level, const char *file, int line, c
 	bool				recursiveCall = false;
 
 	// find out this is a recursive call
-	for( 
-		CallStack::iterator it = logEntries.begin(), endIT = logEntries.end();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_ITER( CallStack, logEntries, it,
 	{
 		const	ProfileCmd &logEntry = *it;
 		if( logEntry.functionName == function
@@ -461,7 +445,7 @@ static std::size_t enterFunction2( LogLevel level, const char *file, int line, c
 			recursiveCall = true;
 			break;
 		}
-	}
+	});
 
 	ProfileEntry theEntry;
 	theEntry.logLevel = level;
@@ -553,17 +537,13 @@ static void exitLogging()
 	s_shutdownLogging = true;
 
 	LoggingThreads &threads = getLoggingThreads();
-	for( 
-		LoggingThreads::iterator it = threads.begin(), endIT = threads.end();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER(LoggingThreads, threads, it, 
 	{
 		LoggingThreadPtr thread = it->getValue();
 		thread->flush();
 		thread->StopThread();
 		thread->join();
-	}
+	});
 
 	threads.clear();
 	delete s_loggingThreads;
@@ -966,16 +946,12 @@ void flushLogs()
 {
 	gak::CriticalScope	scope(s_logCritical);
 	LoggingThreads &threads = getLoggingThreads();
-	for( 
-		LoggingThreads::iterator it = threads.begin(), endIT = threads.end();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER( LoggingThreads, threads, it,
 	{
 		LoggingThreadPtr thread = it->getValue();
 		if( thread )
 			thread->flush();
-	}
+	});
 }
 
 

@@ -420,11 +420,7 @@ class Index
 template<typename SourceT>
 void Index<SourceT>::mergeWordHits( SearchResult *target, const SearchResult &source )
 {
-	for(
-		typename SearchResult::const_iterator it = source.cbegin(), endIT = source.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER(typename SearchResult, source, it, 
 	{
 		Positions	&positions = (*target)[it->getKey()];
 		positions.moveFrom(
@@ -434,7 +430,7 @@ void Index<SourceT>::mergeWordHits( SearchResult *target, const SearchResult &so
 				)
 			)
 		);
-	}
+	});
 }
 
 template<typename SourceT>
@@ -483,18 +479,13 @@ typename Index<SourceT>::SearchResult Index<SourceT>::findPattern(
 {
 	SearchResult	result;
 
-	for(
-		Array<STRING>::const_iterator it = keys.cbegin(),
-			endIT = keys.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER(Array<STRING>, keys, it, 
 	{
 		if( it->match( pattern ) )
 		{
 			mergeWordHits( &result, findWord( *it ) );
 		}
-	}
+	});
 	return result;
 }
 
@@ -506,12 +497,7 @@ typename Index<SourceT>::SearchResult Index<SourceT>::findWords(
 {
 	SearchResult	result;
 
-	for(
-		ArrayOfStrings::const_iterator it = wordList.cbegin(),
-			endIT = wordList.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER(ArrayOfStrings, wordList, it, 
 	{
 		const STRING	&word = *it;
 
@@ -535,7 +521,7 @@ typename Index<SourceT>::SearchResult Index<SourceT>::findWords(
 		{
 			mergeWordHits( &result, findWord( word, withFuzzy, caseInsensitive ) );
 		}
-	}
+	});
 	return result;
 }
 
@@ -548,12 +534,7 @@ typename Index<SourceT>::SearchResult Index<SourceT>::findPatterns(
 	SearchResult	result;
 	Array<STRING>	keys = m_searchIndex.getKeys();
 
-	for(
-		ArrayOfStrings::const_iterator it = patternList.cbegin(),
-			endIT = patternList.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER(ArrayOfStrings, patternList, it, 
 	{
 		const STRING	&pattern = *it;
 
@@ -581,7 +562,7 @@ typename Index<SourceT>::SearchResult Index<SourceT>::findPatterns(
 				findPattern( keys, pattern, withFuzzy, caseInsensitive )
 			);
 		}
-	}
+	});
 	return result;
 }
 
@@ -603,27 +584,17 @@ void Index<SourceT>::getStatistik(StatistikData *oResult) const
 	doEnterFunctionEx(gakLogging::llInfo, "Index<SourceT>::getStatistik" );
 	StatistikData	&result = *oResult;
 
-	for(
-		typename SearchIndex::const_iterator it = m_searchIndex.cbegin(),
-			endIT = m_searchIndex.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER( typename SearchIndex, m_searchIndex, it, 
 	{
 		std::size_t			count = 0;
 		const STRING		&word = it->getKey();
 		const SearchResult	&indexPositions = it->getValue();
-		for(
-			typename SearchResult::const_iterator it = indexPositions.cbegin(),
-				endIT = indexPositions.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER(typename SearchResult, indexPositions, it, 
 		{
 			count += it->getValue().size();
-		}
+		});
 		result.addElement( StatistikEntry( count, word ) );
-	}
+	});
 }
 
 template<typename SourceT>
@@ -699,25 +670,17 @@ typename Index<SourceT>::RelevantHits Index<SourceT>::getRelevantHits(
 	double			totalCount = 0;
 	HitRelevance	hit;
 	RelevantHits	result;
-	for(
-		typename SearchResult::iterator it = seachResult.begin(), endIT = seachResult.end();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_ITER(typename SearchResult, seachResult, it,
 	{
 		hit.m_source = it->getKey();
 		hit.m_positions.moveFrom( const_cast<Positions&>(it->getValue()) );
 		totalCount += hit.m_positions.size();
 		result.addElement( hit );
-	}
-	for(
-		typename RelevantHits::iterator it = result.begin(), endIT = result.end();
-		it != endIT;
-		++it
-	)
+	});
+	FOR_EACH_ITER(typename RelevantHits, result, it,
 	{
 		const_cast<HitRelevance&>(*it).m_relevance = double(it->m_positions.size())/totalCount;
-	}
+	});
 	return result;
 }
 
@@ -837,11 +800,7 @@ void processPositions( const StringT &string, const StringTokens &tokens, String
 {
 	StringIndex &positions = *oPositions;
 
-	for(
-		StringTokens::const_iterator it = tokens.cbegin(), endIT = tokens.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER(StringTokens, tokens, it, 
 	{
 		const Position  &pos = *it;
 		STRING word = string.subString( pos.m_start, pos.m_len );
@@ -865,7 +824,7 @@ void processPositions( const StringT &string, const StringTokens &tokens, String
 			}
 		}
 		positions[word].addElement(pos);
-	}
+	});
 }
 
 template<typename StringT, typename StringsT>

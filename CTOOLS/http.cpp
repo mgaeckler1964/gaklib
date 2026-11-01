@@ -326,18 +326,14 @@ size_t HTTPrequest::MakeRequest(
 
 	if( !useSSL && !proxyServer.isEmpty() && strcmpi( host, "localhost" ) )
 	{
-		for( 
-			ArrayOfStrings::const_iterator it = s_noProxy.cbegin(), endIT = s_noProxy.cend();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_CITER(ArrayOfStrings, s_noProxy, it, 
 		{
 			if( serverName.match( *it ) )
 			{
 				proxyServer = NULL_STRING;
 				break;
 			}
-		}
+		});
 
 		if( !proxyServer.isEmpty() )
 		{
@@ -719,11 +715,7 @@ void HTTPrequest::addCookies( const FieldSet &cookies )
 {
 	STRING	name, value;
 
-	for( 
-		FieldSet::const_iterator it = cookies.cbegin(), endIT = cookies.cend();
-		it != endIT;
-		++it
-	)
+	FOR_EACH_CITER( FieldSet, cookies, it, 
 	{
 		const NamedField	&cookie = *it;
 		name = cookie.getKey();
@@ -733,7 +725,7 @@ void HTTPrequest::addCookies( const FieldSet &cookies )
 		{
 			m_cookies.updateField( name, value );
 		}
-	}
+	});
 }
 
 void HTTPrequest::addCookies( const STRING &cookies )

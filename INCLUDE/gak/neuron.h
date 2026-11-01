@@ -225,14 +225,10 @@ class Neuron
 		}
 
 		m_bias = base_t(getRandomInRange(RANDOM_BIAS_RANGE));
-		for(
-			BaseValues::iterator it = m_weights.begin(), endIT = m_weights.end();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_ITER(BaseValues, m_weights, it,
 		{
 			*it = base_t(getRandomInRange(RANDOM_WEIGHT_RANGE));
-		}
+		});
 	}
 	BaseValues::iterator begin()
 	{

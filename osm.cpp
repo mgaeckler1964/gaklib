@@ -1239,11 +1239,7 @@ struct XmlProcessor : public XmlNullProcessor
 
 	void postProcess()
 	{
-		for(
-			Ways::iterator it = m_ways.begin(), endIT = m_ways.end();
-			it != endIT;
-			++it
-		)
+		FOR_EACH_ITER(Ways, m_ways, it, 
 		{
 			if( it->getValue().m_relationID == 0 )
 			{
@@ -1260,7 +1256,7 @@ struct XmlProcessor : public XmlNullProcessor
 					addWayPoints( it->getValue() );
 				}
 			}
-		}
+		});
 	}
 };
 
