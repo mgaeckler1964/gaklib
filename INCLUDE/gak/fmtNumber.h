@@ -677,7 +677,7 @@ const char *appendFloatFast( NUMBER_BUFFER_T *result, double value, int fieldLen
 		? expected+1							// space for negative sign
 		: expected;
 
-#ifdef __BORLANDC__
+#if __cplusplus < 199711	// Borland C++ Builder 5.1 and Gnu C++ 4.3
 	const int max_digits10 = std::numeric_limits<double>::digits10;
 #else
 	const int max_digits10 = std::numeric_limits<double>::max_digits10;

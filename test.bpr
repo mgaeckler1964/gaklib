@@ -106,7 +106,7 @@ Item0=..\..\object\gaklib\test\bcb\
 DebugSourceDirs=.
 
 [Parameters]
-RunParams=AlgorithmTest MathTest FmtNumberTest StringBufferTest
+RunParams=QuantitiesTest
 HostApplication=
 RemoteHost=
 RemotePath=
@@ -121,10 +121,5 @@ LinkCGLIB=0
 AddServerUnit=1
 AddClientUnit=1
 PrecompiledHeaders=1
-
-[Language]
-ActiveLang=
-ProjectLang=
-RootDir=
   </IDEOPTIONS>
 </PROJECT>

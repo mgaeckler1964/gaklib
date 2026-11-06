@@ -400,7 +400,11 @@ typedef SIprefixTraits<3785411784,1000000000, siBASE>	UsGallonPrefix;
 typedef UnitValue<UsGallonUnit, UsGallonPrefix>			UsGallon;
 
 // Imperial Pinte (GB and Ireland)
-typedef SIprefixTraits<56826128524935,100000000000000, siBASE>			PintePrefix;
+#ifdef __BORLANDC__
+typedef SIprefixTraits<56826128524935L,100000000000000L, siBASE>		PintePrefix;
+#else
+typedef SIprefixTraits<56826128524935LL,100000000000000LL, siBASE>		PintePrefix;
+#endif
 typedef UnitValue<PinteUnit, PintePrefix>								Pinte;
 
 
